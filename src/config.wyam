@@ -1,0 +1,12 @@
+﻿#recipe Blog
+
+// Customize your settings and add new ones here
+Settings[Keys.Host] = "blog.alantsai.net";
+Settings[BlogKeys.Title] = "Alan Tsai 的學習筆記";
+Settings[BlogKeys.Description] = "記錄軟體開發和學習到的點點滴滴 著重於微軟技術和網頁開發：C#, Asp .net, Asp .net Mvc";
+
+//Settings[BlogKeys.IncludeDateInPostPath] = "true";
+Settings[BlogKeys.ArchiveExcerpts] = "true";
+Settings[BlogKeys.IndexPaging] = "true";
+
+// Add any pipeline customizations here

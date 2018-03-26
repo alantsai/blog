@@ -531,3 +531,9 @@ Icon
 Network Trash Folder
 Temporary Items
 .apdisk
+
+# Wyam
+output
+config.wyam.dll
+config.wyam.hash
+packages.xml

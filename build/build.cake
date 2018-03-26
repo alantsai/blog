@@ -17,6 +17,20 @@ Task("Build")
        });
    });
 
+Task("Preview")
+   .Does(() =>
+   {
+       Wyam(new WyamSettings
+       {
+           Recipe = "Blog",
+           Theme = "CleanBlog",
+           UpdatePackages = true,
+           Preview = true,
+           Watch = true,
+           RootPath = sourceDirectory
+       });        
+   });
+
 Task("Default")
    .IsDependentOn("Build");    
    

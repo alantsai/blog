@@ -3,6 +3,8 @@
 
 var target = Argument("target", "Default");
 
+var sourceDirectory = MakeAbsolute(Directory("..\\src\\")); 
+
 Task("Build")
    .Does(() =>
    {
@@ -11,7 +13,7 @@ Task("Build")
            Recipe = "Blog",
            Theme = "CleanBlog",
            UpdatePackages = true,
-           RootPath = "..\\src\\"
+           RootPath = sourceDirectory
        });
    });
 

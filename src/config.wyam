@@ -14,7 +14,7 @@ Settings[BlogKeys.IndexPaging] = "true";
 
 // 調整截取部分的做法 - more以上都要出現
 Pipelines["BlogPosts"].Replace("WriteMetadata", 
-    Execute((doc, ctx) =>
+    Meta(BlogKeys.Excerpt, (doc, ctx) =>
     {
         var post = doc.ToString();
         if(post.Contains("<!--more-->") || post.Contains("<a name='more'></a>"))
@@ -23,8 +23,5 @@ Pipelines["BlogPosts"].Replace("WriteMetadata",
             //Console.WriteLine(post);
         }
 
-         return ctx.GetDocument(doc, new MetadataItems
-        {
-            {BlogKeys.Excerpt, post}
-        });
+        return post;
     }));

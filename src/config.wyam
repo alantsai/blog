@@ -11,3 +11,20 @@ Settings[BlogKeys.ArchiveExcerpts] = "true";
 Settings[BlogKeys.IndexPaging] = "true";
 
 // Add any pipeline customizations here
+
+// 調整截取部分的做法 - more以上都要出現
+Pipelines["BlogPosts"].Replace("WriteMetadata", 
+    Execute((doc, ctx) =>
+    {
+        var post = doc.ToString();
+        if(post.Contains("<!--more-->") || post.Contains("<a name='more'></a>"))
+        {
+            post = post.Split(new string[] {"<!--more-->", "<a name='more'></a>"}, StringSplitOptions.None)[0];
+            //Console.WriteLine(post);
+        }
+
+         return ctx.GetDocument(doc, new MetadataItems
+        {
+            {BlogKeys.Excerpt, post}
+        });
+    }));

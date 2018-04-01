@@ -25,3 +25,13 @@ Pipelines["BlogPosts"].Replace("WriteMetadata",
 
         return post;
     }));
+
+// 調整Razor讀取的位置，包含任意資料夾 - 原本的只有第一層而已。其他和原始邏輯一樣。
+Pipelines["BlogPosts"].Replace("RazorPosts", 
+        Concat(
+            ReadFiles(ctx => $"{ctx.DirectoryPath(BlogKeys.PostsPath).FullPath}/**/{{!_,!index,}}*.cshtml"),
+            Meta("EditFilePath", (doc, ctx) => doc.FilePath(Keys.RelativeFilePath)),
+            If((doc, ctx) => doc.Bool(BlogKeys.ProcessIncludes), Include()),
+            FrontMatter(Yaml())
+        )
+    );

@@ -1,12 +1,14 @@
 ﻿#recipe Blog
 
+using Wyam.Web.Pipelines;
+
 // Customize your settings and add new ones here
 Settings[Keys.Host] = "blog.alantsai.net";
 Settings[BlogKeys.Title] = "Alan Tsai 的學習筆記";
 Settings[BlogKeys.Description] = "記錄軟體開發的點點滴滴";
 Settings[BlogKeys.Intro] = "著重於微軟技術、網頁開發、DevOps：C#, Asp .net, Asp .net Mvc";
 
-//Settings[BlogKeys.IncludeDateInPostPath] = "true";
+Settings[BlogKeys.IncludeDateInPostPath] = "true";
 Settings[BlogKeys.ArchiveExcerpts] = "true";
 Settings[BlogKeys.IndexPaging] = "true";
 
@@ -35,3 +37,34 @@ Pipelines["BlogPosts"].Replace("RazorPosts",
             FrontMatter(Yaml())
         )
     );
+
+var settings = new BlogPostsSettings
+                {
+                    PublishedKey = BlogKeys.Published,
+                    MarkdownConfiguration = ctx => ctx.String(BlogKeys.MarkdownConfiguration),
+                    MarkdownExtensionTypes = ctx => ctx.List<Type>(BlogKeys.MarkdownExtensionTypes),
+                    ProcessIncludes = (doc, ctx) => doc.Bool(BlogKeys.ProcessIncludes),
+                    IncludeDateInPostPath = ctx => ctx.Bool(BlogKeys.IncludeDateInPostPath),
+                    PostsPath = ctx => ctx.DirectoryPath(BlogKeys.PostsPath).FullPath
+                };
+
+// 和原生邏輯一樣，差異在於如果開啓日期分割，然後檔名又有日期很奇怪
+// 但是爲了很多時候好區分還是會在檔名加上日期，因此這個部分調整了把產生出來的檔名前面日期拿掉
+Pipelines["BlogPosts"].Replace("RelativeFilePath", 
+    Meta(Keys.RelativeFilePath, (doc, ctx) =>
+    {
+        DateTime published = doc.Get<DateTime>(settings.PublishedKey);
+
+        string fileName = doc.Bool("FrontMatterPublished")
+            ? doc.FilePath(Keys.SourceFileName).ChangeExtension("html").FullPath
+            : doc.FilePath(Keys.SourceFileName).ChangeExtension("html").FullPath.Substring(11);
+
+        // 預計檔名格式會是：yyyy-MM-dd-*
+        // 把日期拿掉
+        // TODO: 需要先判斷在拿掉
+        fileName = fileName.Substring(11);
+
+        return settings.IncludeDateInPostPath.Invoke<bool>(ctx)
+            ? $"{settings.PostsPath.Invoke<string>(ctx)}/{published:yyyy}/{published:MM}/{fileName}"
+            : $"{settings.PostsPath.Invoke<string>(ctx)}/{fileName}";
+    }));

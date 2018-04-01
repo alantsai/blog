@@ -17,7 +17,7 @@
                 first = false;
                 string lead = post.String(BlogKeys.Lead);
                 <div class="post-preview">
-                    <a href="@Context.GetLink(post)">
+                    <a href="@Context.GetLink(post)" title="@post.WithoutSettings.String(BlogKeys.Title) 全文">
                         <h2 class="post-title">@post.WithoutSettings.String(BlogKeys.Title)</h2>
                         @if(!string.IsNullOrWhiteSpace(lead))
                         {
@@ -31,6 +31,13 @@
                     else
                     {
                         @Html.Raw(post.String(BlogKeys.Excerpt))
+
+
+                        <p>
+                            <a href="@Context.GetLink(post)#more" title="@post.WithoutSettings.String(BlogKeys.Title) 全文">
+                                看全文&gt;&gt;
+                            </a>
+                        </p>
                     }             
                     <p class="post-meta">
                         <span>

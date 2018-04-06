@@ -8,8 +8,6 @@
             bool first = true;
             foreach(IDocument post in Model.DocumentList(Keys.PageDocuments))
             {
-                var tags = post.Get<string[]>(BlogKeys.Tags);
-
                 // 取得這篇的網址 - 如果有舊資料表示是從blogspot來的，因此網址用以前的網址
                 // 如果沒有表示是新的網址，用新的。
                 var uniqueSocialUrl = post.String(Keys.RedirectFrom);
@@ -56,22 +54,7 @@
                             </a>
                         </p>
                     }             
-                    <p class="post-meta">
-                        <span>
-                            <i class="fa fa-calendar fa-fw"></i>@(post.Get<DateTime>(BlogKeys.Published).ToString("yyyy-MM-dd dddd"))
-                        </span>
-                        @foreach (var tag in tags)
-                        {
-                            IDocument tagDocument = Documents[Blog.Tags].FirstOrDefault(x => x.String(BlogKeys.Tag) == tag && x.Get<int>(Keys.CurrentPage) == 1);
-                            if(tagDocument != null)
-                            {                
-                                <span>
-                                    <i class="fa fa-tag"></i>
-                                    <a role="button" href="@Context.GetLink(tagDocument)">@tag</a>
-                                </span>
-                            }    
-                        }
-                    </p>
+                    @Html.Partial("_partial_postMeta", post)
                 </div>       
             }
         }

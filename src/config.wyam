@@ -12,6 +12,8 @@ Settings[BlogKeys.IncludeDateInPostPath] = "true";
 Settings[BlogKeys.ArchiveExcerpts] = "true";
 Settings[BlogKeys.IndexPaging] = "true";
 
+Settings[BlogKeys.IndexPageSize] = 10;
+
 // Add any pipeline customizations here
 
 // 調整截取部分的做法 - more以上都要出現

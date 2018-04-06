@@ -1,8 +1,8 @@
 Title: All Tags
 ---
-<div class="container-sm-height">
-    <div class="row row-sm-height">
-        <div class="col-sm-8 right-border col-sm-height">
+<div class="container">
+    <div class="row">
+        <div class="col-sm-8 right-border">
             @Html.Partial("_PostList", Model.DocumentList(Keys.PageDocuments).OrderByDescending(x => x.Get<DateTime>(BlogKeys.Published)))
 
             <nav>
@@ -24,16 +24,21 @@ Title: All Tags
             <hr class="visible-xs-block" />
         </div>
 		
-        <div class="col-sm-4 col-sm-height">
-            @foreach (IDocument tagDocument in Documents[Blog.Tags]
-                .GroupBy(x => x.String(BlogKeys.Tag)).Select(x => x.Where(p => p.Get<int>(Keys.CurrentPage) == 1).First())
-                .OrderByDescending(x => x.Get<int>(Keys.TotalItems)))
-            {
-                string tagName = tagDocument.String(BlogKeys.Tag);
-                string postCount = tagDocument.String(Keys.TotalItems);
-                string buttonStyle = tagName == Model.String(BlogKeys.Tag) ? "btn-primary" : "btn-default";
-                <a role="button" href="@Context.GetLink(tagDocument)" class="btn @buttonStyle btn-xs">@tagName (@postCount)</a>
-            }
+        <div class="col-sm-4 sidebar">
+            <section>
+                <h5>Tags</h5>
+                @foreach (IDocument tagDocument in Documents[Blog.Tags]
+                    .GroupBy(x => x.String(BlogKeys.Tag)).Select(x => x.Where(p => p.Get<int>(Keys.CurrentPage) == 1).First())
+                    .OrderByDescending(x => x.Get<int>(Keys.TotalItems)))
+                {
+                    string tagName = tagDocument.String(BlogKeys.Tag);
+                    string postCount = tagDocument.String(Keys.TotalItems);
+                    string buttonStyle = tagName == Model.String(BlogKeys.Tag) ? "btn-primary" : "btn-default";
+                    <a role="button" href="@Context.GetLink(tagDocument)" class="btn @buttonStyle btn-sm">@tagName (@postCount)</a>
+                }
+            </section>
+
+            @Html.Partial("_Sidebar")
         </div>
     </div>
 </div>

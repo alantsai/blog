@@ -95,22 +95,19 @@
 
         @if(Documents[Blog.Tags].Any())
         {
-            <h5>Tags</h5>
-            <div>
-                @foreach (IDocument tagDocument in Documents[Blog.Tags]
-                    .GroupBy(x => x.String(BlogKeys.Tag)).Select(x => x.Where(p => p.Get<int>(Keys.CurrentPage) == 1).First())
-                    .OrderByDescending(x => x.Get<int>(Keys.TotalItems)).Take(10))
-                {
-                    string tag = tagDocument.String(BlogKeys.Tag);
-                    string postCount = tagDocument.String(Keys.TotalItems);
-                    <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-default btn-sm"> @tag (@postCount)</a>
-                }
-            </div>
-            <ul class="pager">
-                <li class="next">
-                    <a href="/tags">View All Tags &rarr;</a>
-                </li>
-            </ul>
+            <section>
+                <h5>Tags</h5>
+                <div>
+                    @foreach (IDocument tagDocument in Documents[Blog.Tags]
+                        .GroupBy(x => x.String(BlogKeys.Tag)).Select(x => x.Where(p => p.Get<int>(Keys.CurrentPage) == 1).First())
+                        .OrderByDescending(x => x.Get<int>(Keys.TotalItems)))
+                    {
+                        string tag = tagDocument.String(BlogKeys.Tag);
+                        string postCount = tagDocument.String(Keys.TotalItems);
+                        <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-default btn-sm"> @tag (@postCount)</a>
+                    }
+                </div>
+            </section>
         }
 
         @if(!Context.Bool(BlogKeys.IndexPaging))

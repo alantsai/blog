@@ -10,6 +10,19 @@
             {
                 var tags = post.Get<string[]>(BlogKeys.Tags);
 
+                // 取得這篇的網址 - 如果有舊資料表示是從blogspot來的，因此網址用以前的網址
+                // 如果沒有表示是新的網址，用新的。
+                var uniqueSocialUrl = post.String(Keys.RedirectFrom);
+
+                if(string.IsNullOrEmpty(uniqueSocialUrl))
+                {
+                    uniqueSocialUrl = Context.GetLink(post, true);
+                }
+                else
+                {
+                    uniqueSocialUrl = "http://" + post.String(Keys.Host) + "/" + uniqueSocialUrl;
+                }
+
                 if (!first)
                 {
                     <hr /> 
@@ -24,6 +37,10 @@
                             <h3 class="post-subtitle">@lead</h3>
                         }
                     </a>
+
+                    <div class=fb-like data-action=like data-href='@uniqueSocialUrl' 
+                        data-layout=standard data-share=true data-show-faces=true></div>
+
                     @if(Context.Bool(BlogKeys.IndexFullPosts))
                     {
                         @Html.Raw(post.Content)

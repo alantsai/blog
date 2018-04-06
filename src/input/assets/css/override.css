@@ -22,3 +22,12 @@
 .intro-header .post-heading .meta{
     font-style: normal;
 }
+
+/*上面header的占比*/
+@media only screen and (min-width: 768px) {
+    .intro-header .site-heading,
+    .intro-header .post-heading,
+    .intro-header .page-heading {
+      padding: 100px 0px 90px 0px;
+    }
+}

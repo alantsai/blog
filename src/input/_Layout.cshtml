@@ -1,65 +1,77 @@
 @{
         string Title = Model.WithoutSettings.String(BlogKeys.Title);
-        string PageTitle = Context.String(BlogKeys.Title) + (string.IsNullOrWhiteSpace(Title) ? string.Empty : " - " + Title);
+
+        var PageTitle = Title;
+        var titlePhrase = "Alan Tsai 的學習筆記｜An Asp .Net Mvc Web Developer Blog";
+
+        if(string.IsNullOrWhiteSpace(Title))
+        {
+                PageTitle = titlePhrase;
+        }
+        else
+        {
+                PageTitle = PageTitle + " @ " + titlePhrase;
+        }
+
         var notUseBlogImage = true;
 }
 
 <!DOCTYPE html>
 <html lang="zh-Hant" prefix="og: http://ogp.me/ns#" >
         <head>
-        <meta charset="utf-8">
-        <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
+                <meta charset="utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=Edge"/>
 
-        <title>@PageTitle</title>
-        <meta name="description" content="@Context.String(BlogKeys.Description)" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">        
+                <title>@PageTitle</title>
+                <meta name="description" content="@Context.String(BlogKeys.Description)" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">        
 
-        @if (Context.String(BlogKeys.RssPath) != null) {
-        <link type="application/rss+xml" rel="alternate" title="@Context.String(BlogKeys.Title)" href="@Context.GetLink(Context.String(BlogKeys.RssPath))" />
-        }
-        @if (Context.String(BlogKeys.AtomPath) != null) {
-        <link type="application/atom+xml" rel="alternate" title="@Context.String(BlogKeys.Title)" href="@Context.GetLink(Context.String(BlogKeys.AtomPath))" />
-        }
-        <link rel="shortcut icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
-        <link rel="icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
+                @if (Context.String(BlogKeys.RssPath) != null) {
+                <link type="application/rss+xml" rel="alternate" title="@Context.String(BlogKeys.Title)" href="@Context.GetLink(Context.String(BlogKeys.RssPath))" />
+                }
+                @if (Context.String(BlogKeys.AtomPath) != null) {
+                <link type="application/atom+xml" rel="alternate" title="@Context.String(BlogKeys.Title)" href="@Context.GetLink(Context.String(BlogKeys.AtomPath))" />
+                }
+                <link rel="shortcut icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
+                <link rel="icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
 
-        <link href="@Context.GetLink("/assets/css/bootstrap.min.css")" rel="stylesheet" />
-        <link href="@Context.GetLink("/assets/css/highlight.css")" rel="stylesheet">
-        <link href="@Context.GetLink("/assets/css/clean-blog.css")" rel="stylesheet" />
-        <link href="@Context.GetLink("/assets/css/master.css")" rel="stylesheet" />
-        <link href="@Context.GetLink("/assets/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
-        <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
-        <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
-        <link href="@Context.GetLink("/assets/css/override.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/bootstrap.min.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/highlight.css")" rel="stylesheet">
+                <link href="@Context.GetLink("/assets/css/clean-blog.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/master.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
+                <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+                <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+                <link href="@Context.GetLink("/assets/css/override.css")" rel="stylesheet" />
 
 
-        <meta name="application-name" content="@Context.String(BlogKeys.Title)" />
-        <meta name="msapplication-tooltip" content="@Context.String(BlogKeys.Title)" />
-        <meta name="msapplication-starturl" content="@Context.GetLink("/")" />
+                <meta name="application-name" content="@Context.String(BlogKeys.Title)" />
+                <meta name="msapplication-tooltip" content="@Context.String(BlogKeys.Title)" />
+                <meta name="msapplication-starturl" content="@Context.GetLink("/")" />
 
-        <meta property="og:title" content="@PageTitle" />
-        @* <meta property="og:image" content="@Blog.Image" /> *@
-        <meta property="og:type" content="website" />
-        <meta property="og:url" content="@Context.GetLink(Model, true)" />
-        <!-- TODO: More social graph meta tags -->
+                <meta property="og:title" content="@PageTitle" />
+                @* <meta property="og:image" content="@Blog.Image" /> *@
+                <meta property="og:type" content="website" />
+                <meta property="og:url" content="@Context.GetLink(Model, true)" />
+                <!-- TODO: More social graph meta tags -->
 
-        <script src="@Context.GetLink("/assets/js/jquery.min.js")"></script>
-        <script src="@Context.GetLink("/assets/js/bootstrap.min.js")"></script>     
-        <script src="@Context.GetLink("/assets/js/highlight.pack.js")"></script>   
-        <script src="@Context.GetLink("/assets/js/clean-blog.js")"></script>
-        <script src="@Context.GetLink("/assets/js/d3.v3.min.js")"></script>
-        <script src="@Context.GetLink("/assets/js/trianglify.min.js")"></script>
-        <script src="@Context.GetLink("/assets/js/Please-compressed.js")"></script>
-        <script src="@Context.GetLink("/assets/js/background-check.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/jquery.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/bootstrap.min.js")"></script>     
+                <script src="@Context.GetLink("/assets/js/highlight.pack.js")"></script>   
+                <script src="@Context.GetLink("/assets/js/clean-blog.js")"></script>
+                <script src="@Context.GetLink("/assets/js/d3.v3.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/trianglify.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/Please-compressed.js")"></script>
+                <script src="@Context.GetLink("/assets/js/background-check.min.js")"></script>
+                        
+                <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+                <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+                <!--[if lt IE 9]>
+                        <script src="@Context.GetLink("/assets/js/html5shiv.js")"></script>
+                        <script src="@Context.GetLink("/assets/js/respond.min.js")"></script>
+                <![endif]-->
                 
-        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-        <!--[if lt IE 9]>
-                <script src="@Context.GetLink("/assets/js/html5shiv.js")"></script>
-                <script src="@Context.GetLink("/assets/js/respond.min.js")"></script>
-        <![endif]-->
-        
-        @Html.Partial("_Head")
+                @Html.Partial("_Head")
 
         </head>
         <body>

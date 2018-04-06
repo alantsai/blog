@@ -13,7 +13,9 @@
     <div class="meta">        
         @if (Published != default(DateTime))
         {
-            <text>Published on @Published.ToLongDateString(Context)<br></text>
+            <text>
+                <i class="fa fa-calendar fa-fw"></i>@Published.ToString("yyyy-MM-dd dddd")
+            <br></text>
         }
     </div>
     @if (Tags != null)
@@ -24,7 +26,7 @@
                 IDocument tagDocument = Documents[Blog.Tags].FirstOrDefault(x => x.String(BlogKeys.Tag) == tag && x.Get<int>(Keys.CurrentPage) == 1);
                 if(tagDocument != null)
                 {                
-                    <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-default btn-xs">@tag</a>
+                    <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-default btn-xs"><i class="fa fa-tag fa-fw"></i>@tag</a>
                 }
             }
         </div>     

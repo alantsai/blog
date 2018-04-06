@@ -8,3 +8,7 @@
 .post-title{
     padding-bottom: 20px;
 }
+
+.intro-header .post-heading .meta{
+    font-style: normal;
+}

@@ -1,6 +1,7 @@
 @{
         string Title = Model.WithoutSettings.String(BlogKeys.Title);
         string PageTitle = Context.String(BlogKeys.Title) + (string.IsNullOrWhiteSpace(Title) ? string.Empty : " - " + Title);
+        var notUseBlogImage = true;
 }
 
 <!DOCTYPE html>
@@ -91,10 +92,12 @@
                 <!-- Page Header -->
                 @{
                         string backgroundImage = null;
-                        if(Model.String(BlogKeys.Image) != null)
+                        
+                        if(Model.String(BlogKeys.Image) != null && notUseBlogImage == false)
                         {
                                 backgroundImage = $"background-image: url(\"{Model.String(BlogKeys.Image)}\")";
                         }
+                        
                 }
                 <header class="intro-header" id="intro-header" style="@backgroundImage">
                         <div class="container">
@@ -132,7 +135,7 @@
                 @Html.Partial("_Scripts")
                 <script>hljs.initHighlightingOnLoad();</script>
 
-                @if(Model.String(BlogKeys.Image) == null)
+                @if(Model.String(BlogKeys.Image) == null || notUseBlogImage == true)
                 {
                         <script type="text/javascript">                
                                 // Header background                        

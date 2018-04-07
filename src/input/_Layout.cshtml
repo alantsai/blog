@@ -49,9 +49,29 @@
                 <meta name="msapplication-tooltip" content="@Context.String(BlogKeys.Title)" />
                 <meta name="msapplication-starturl" content="@Context.GetLink("/")" />
 
-                <meta property="og:title" content="@PageTitle" />
+                <meta property="og:site_name" content="@titlePhrase" />
+                
+
+                <meta itemprop="name" name="twitter:title" property="og:title" content="@PageTitle" />
                 @* <meta property="og:image" content="@Blog.Image" /> *@
-                <meta property="og:type" content="website" />
+                @if(string.IsNullOrWhiteSpace(Title))
+                {
+                        <meta property="og:type" content="blog" />
+                        <meta content='http://1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
+                }
+                else
+                {
+                        <meta property="og:type" content="article" />
+                        <meta content='summary' name='twitter:card'/>
+                        if(string.IsNullOrWhiteSpace(Model.String(BlogKeys.Image)))
+                        {
+                                <meta content='http://1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
+                        }
+                        else
+                        {
+                                <meta content='@Model.String(BlogKeys.Image)' itemprop='image' name='twitter:image:src' property='og:image'/>
+                        }
+                }
                 <meta property="og:url" content="@Context.GetLink(Model, true)" />
                 <!-- TODO: More social graph meta tags -->
 
@@ -145,7 +165,7 @@
                 </footer> 
 
                 @Html.Partial("_Scripts")
-                <script>hljs.initHighlightingOnLoad();</script>
+                @*<script>hljs.initHighlightingOnLoad();</script>*@
 
                 @if(Model.String(BlogKeys.Image) == null || notUseBlogImage == true)
                 {

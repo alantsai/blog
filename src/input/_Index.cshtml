@@ -15,32 +15,34 @@
                 first = false;
                 string lead = post.String(BlogKeys.Lead);
                 <div class="post-preview">
-                    <a href="@Context.GetLink(post)" title="@post.WithoutSettings.String(BlogKeys.Title) 全文">
-                        <h2 class="post-title">@post.WithoutSettings.String(BlogKeys.Title)</h2>
-                        @if(!string.IsNullOrWhiteSpace(lead))
+                    <article>
+                        <a href="@Context.GetLink(post)" title="@post.WithoutSettings.String(BlogKeys.Title) 全文">
+                            <h2 class="post-title">@post.WithoutSettings.String(BlogKeys.Title)</h2>
+                            @if(!string.IsNullOrWhiteSpace(lead))
+                            {
+                                <h3 class="post-subtitle">@lead</h3>
+                            }
+                        </a>
+
+                        @Html.Partial("_partial_fbLike", post)
+
+                        @if(Context.Bool(BlogKeys.IndexFullPosts))
                         {
-                            <h3 class="post-subtitle">@lead</h3>
+                            @Html.Raw(post.Content)
                         }
-                    </a>
-
-                    @Html.Partial("_partial_fbLike", post)
-
-                    @if(Context.Bool(BlogKeys.IndexFullPosts))
-                    {
-                        @Html.Raw(post.Content)
-                    }
-                    else
-                    {
-                        @Html.Raw(post.String(BlogKeys.Excerpt))
+                        else
+                        {
+                            @Html.Raw(post.String(BlogKeys.Excerpt))
 
 
-                        <p>
-                            <a href="@Context.GetLink(post)#more" title="@post.WithoutSettings.String(BlogKeys.Title) 全文">
-                                看全文&gt;&gt;
-                            </a>
-                        </p>
-                    }             
-                    @Html.Partial("_partial_postMeta", post)
+                            <p>
+                                <a href="@Context.GetLink(post)#more" title="@post.WithoutSettings.String(BlogKeys.Title) 全文">
+                                    看全文&gt;&gt;
+                                </a>
+                            </p>
+                        }             
+                        @Html.Partial("_partial_postMeta", post)
+                    </article>
                 </div>       
             }
         }

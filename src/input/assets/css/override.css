@@ -36,3 +36,26 @@
 .maincontent{
     padding-bottom: 20px;
 }
+
+/* 把所有不同地方用白色包住 - 更容易凸顯差異 */
+body{
+    background-color: #ebebeb;
+}
+
+.post-preview article, .sidebar section, .comment, .footer, .alltags{
+    background-color: #fff;
+    padding: 10px;
+}
+
+.post-preview article, .footer, .alltags{
+    padding: 20px;
+}
+
+.sidebar section{
+    margin-bottom: 20px;
+}
+
+.post-meta{
+    background-color: #F7F8F9;
+    padding: 10px;
+}

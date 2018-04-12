@@ -31,3 +31,8 @@
       padding: 100px 0px 90px 0px;
     }
 }
+
+/*内文頁 和comment之間加上一些空隙*/
+.maincontent{
+    padding-bottom: 20px;
+}

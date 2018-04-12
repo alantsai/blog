@@ -21,9 +21,9 @@ Pipelines["BlogPosts"].Replace("WriteMetadata",
     Meta(BlogKeys.Excerpt, (doc, ctx) =>
     {
         var post = doc.ToString();
-        if(post.Contains("<!--more-->") || post.Contains("<a name='more'></a>"))
+        if(post.Contains("<!--more-->") || post.Contains("<a name='more'></a>") || post.Contains("<a name=\"more\"></a>"))
         {
-            post = post.Split(new string[] {"<!--more-->", "<a name='more'></a>"}, StringSplitOptions.None)[0];
+            post = post.Split(new string[] {"<!--more-->", "<a name='more'></a>", "<a name=\"more\"></a>"}, StringSplitOptions.None)[0];
             //Console.WriteLine(post);
         }
 

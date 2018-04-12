@@ -46,8 +46,11 @@
                 <link rel="icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
 
                 <link href="@Context.GetLink("/assets/css/bootstrap.min.css")" rel="stylesheet" />
+                @*
                 <link href="@Context.GetLink("/assets/css/highlight/default.min.css")" rel="stylesheet" />
                 <link href="@Context.GetLink("/assets/css/highlight/vs2015.min.css")" rel="stylesheet" />
+                *@
+                <link href="@Context.GetLink("/assets/css/prism.css")" rel="stylesheet" />
                 <link href="@Context.GetLink("/assets/css/clean-blog.css")" rel="stylesheet" />
                 <link href="@Context.GetLink("/assets/css/master.css")" rel="stylesheet" />
                 <link href="@Context.GetLink("/assets/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
@@ -88,7 +91,10 @@
 
                 <script src="@Context.GetLink("/assets/js/jquery.min.js")"></script>
                 <script src="@Context.GetLink("/assets/js/bootstrap.min.js")"></script>     
+                @*
                 <script src="@Context.GetLink("/assets/js/highlight.min.js")"></script>
+                *@
+                <script src="@Context.GetLink("/assets/js/prism.js")"></script>
                 <script src="@Context.GetLink("/assets/js/clean-blog.js")"></script>
                 <script src="@Context.GetLink("/assets/js/d3.v3.min.js")"></script>
                 <script src="@Context.GetLink("/assets/js/trianglify.min.js")"></script>
@@ -176,7 +182,7 @@
                 </footer> 
 
                 @Html.Partial("_Scripts")
-                <script>hljs.initHighlightingOnLoad();</script>
+                @*<script>hljs.initHighlightingOnLoad();</script>*@
 
                 @if(Model.String(BlogKeys.Image) == null || notUseBlogImage == true)
                 {

@@ -1,0 +1,213 @@
+﻿/* http://www.the-art-of-web.com/css/format-dl/*/
+
+.post-body dl {
+    border: 3px double #ccc;
+    padding: 0.5em;
+}
+
+.post-body dt{
+    font-weight: bold;
+}
+
+  .post-body dd {
+    margin: 0;
+    padding: 0 0 0.5em 0;
+  }
+
+
+/*from http://maxdesign.com.au/articles/definition/ - 有做一些調整*/
+
+dl.margins-removed {
+	margin: 0;
+	padding: 0;
+}
+
+.margins-removed dt {
+	margin: 0;
+	padding: 0;
+	font-weight: bold;
+}
+
+.margins-removed dd {
+	margin: 0 0 1em 0;
+	padding: 0;
+}
+
+
+.background-image dt {
+	color: #000;
+	font-weight: bold;
+	padding: 0;
+}
+
+.background-image dd {
+	margin: 0 0 1em 0;
+	padding: 0 0 0 10px;
+	background: url(arrow.gif) no-repeat 0 .5em;
+}
+
+
+
+
+dl.border-around {
+    border-style: none;
+	margin: 2em 0;
+	padding: 0;
+	width: 35em;
+}
+
+.border-around dt {
+	background-color: #131210;
+	color: whitesmoke;
+	padding: .5em;
+	font-weight: bold;
+	text-align: center;
+	border-left: 1px solid #131210;
+	border-right: 1px solid #131210;
+	border-top: 1px solid #131210;
+}
+
+.border-around dd {
+	margin: 0 0 1em 0;
+	background: #DBD8D8;
+	padding: 1em .5em;
+	border-left: 1px solid #131210;
+	border-right: 1px solid #131210;
+	border-bottom: 1px solid #131210;
+}
+
+
+
+
+dl.table-display {
+	float: left;
+	margin: 1em 0;
+	padding: 0;
+	border-bottom: 1px solid #999;
+}
+
+.table-display dt {
+	clear: left;
+	float: left;
+	width: 40%;
+	margin: 0;
+	padding: 5px;
+	border-top: 1px solid #999;
+	font-weight: bold;
+}
+
+.table-display dd {
+	float: left;
+	width: 60%;
+	margin: 0;
+	padding: 5px;
+	border-top: 1px solid #999;
+}
+
+
+
+
+
+
+dl.float-right {
+	border: 1px solid #000;
+	background-color: #ddd;
+	width: 142px;
+	text-align: center;
+	padding: 0 0 10px 0;
+	float: right;
+	margin: 0 0 1em 1em;
+}
+
+.float-right dt {
+	font-weight: bold;
+	background-color: #131210;
+	color: #959289;
+	padding: 5px 10px;
+	margin-bottom: 10px;
+}
+
+.float-right dd img {
+	border: 1px solid #000;
+	width: 100px;
+	height: 100px;
+}
+
+.float-right dd {
+	margin: 0;
+	padding: 0 10px 5px 10px;
+	font-size: 85%;
+}
+
+
+
+
+
+dl.gallery {
+	border: 1px solid #000;
+	background-color: #ddd;
+	width: 102px;
+	text-align: center;
+	padding: 10px;
+	float: left;
+	margin-right: 1em;
+}
+
+.gallery dt { font-weight: bold; }
+
+.gallery dt img {
+	border: 1px solid #000;
+	width: 100px;
+	height: 100px;
+}
+
+.gallery dd {
+	margin: 0;
+	padding: 0;
+}
+
+
+
+
+dl.event {
+	margin: 2em 0;
+	padding: 0;
+	font-family: georgia, times, serif;
+}
+
+.event dt {
+	position: relative;
+	left: 0;
+	top: 1.1em;
+	width: 5em;
+	font-weight: bold;
+}
+
+.event dd {
+	border-left: 1px solid #000;
+	margin: 0 0 0 6em;
+	padding: 0 0 .5em .5em;
+}
+
+
+
+
+
+dl.multiple-table { border-bottom: 1px solid #999; }
+
+dl.multiple-table dt {
+	clear: left;
+	float: left;
+	width: 220px;
+	margin: 0;
+	padding: 5px;
+	border-top: 1px solid #999;
+	font-weight: bold;
+}
+
+dl.multiple-table dd {
+	margin-left: 230px;
+	padding: 5px;
+}
+
+dl.multiple-table dd.first { border-top: 1px solid #999; }

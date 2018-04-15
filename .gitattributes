@@ -1,6 +1,5 @@
-# 自動把text的斷行做一致化
+﻿# 自動把text的斷行做一致化
 * text=auto
-
 # 文件類型
 *.markdown text
 *.md text
@@ -25,7 +24,6 @@ NEWS text
 readme text
 *README* text
 TODO text
-
 # word 類型
 *.doc diff=astextplain
 *.DOC diff=astextplain
@@ -37,7 +35,6 @@ TODO text
 *.PDF diff=astextplain
 *.rtf diff=astextplain
 *.RTF diff=astextplain
-
 # 原始碼類型
 *.bat text eol=crlf
 *.coffee text
@@ -70,8 +67,6 @@ TODO text
 *.cs text diff=csharp
 *.dockerignore text
 Dockerfile text
-
-
 # 範本類型
 *.dot text
 *.ejs text
@@ -87,7 +82,6 @@ Dockerfile text
 *.tmpl text
 *.tpl text
 *.twig text
-
 # visual studio 專案檔案設定
 *.sln text eol=crlf 
 *.csproj text eol=crlf 
@@ -105,7 +99,6 @@ Dockerfile text
 *.props text eol=crlf 
 *.filters text eol=crlf 
 *.vcxitems text eol=crlf 
-
 # linter
 .csslintrc text
 .eslintrc text
@@ -114,7 +107,6 @@ Dockerfile text
 .jshintignore text
 .stylelintrc text
 .stylecop text
-
 # 設定類型
 *.bowerrc text
 *.cnf text
@@ -133,9 +125,7 @@ browserslist text
 Makefile text
 makefile text
 *.ps1 text
-
 ## binary 類型
-
 # 圖像
 *.ai binary
 *.bmp binary
@@ -144,12 +134,12 @@ makefile text
 *.ico binary
 *.jng binary
 *.jp2 binary
-*.jpg binary
-*.jpeg binary
+*.jpg filter=lfs diff=lfs merge=lfs -text
+*.jpeg filter=lfs diff=lfs merge=lfs -text
 *.jpx binary
 *.jxr binary
 *.pdf binary
-*.png binary
+*.png filter=lfs diff=lfs merge=lfs -text
 *.psb binary
 *.psd binary
 *.svg binary
@@ -158,7 +148,6 @@ makefile text
 *.tiff binary
 *.wbmp binary
 *.webp binary
-
 ## 影音
 *.kar binary
 *.m4a binary
@@ -167,7 +156,6 @@ makefile text
 *.mp3 binary
 *.ogg binary
 *.ra binary
-
 ## 影片
 *.3gpp binary
 *.3gp binary
@@ -185,20 +173,19 @@ makefile text
 *.swc binary
 *.swf binary
 *.webm binary
-
 ## 壓縮
 *.7z binary
 *.gz binary
 *.rar binary
 *.tar binary
 *.zip binary
-
 ## FONTS
 *.ttf binary
 *.eot binary
 *.otf binary
 *.woff binary
 *.woff2 binary
-
 ## 可執行
 *.exe binary
+
+*.cshtml eol=crlf

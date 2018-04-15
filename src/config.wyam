@@ -1,12 +1,73 @@
 ﻿#recipe Blog
 
+using Wyam.Web.Pipelines;
+
 // Customize your settings and add new ones here
 Settings[Keys.Host] = "blog.alantsai.net";
+Settings[BlogKeys.ArchivePageSize] = 7;
 Settings[BlogKeys.Title] = "Alan Tsai 的學習筆記";
-Settings[BlogKeys.Description] = "記錄軟體開發和學習到的點點滴滴 著重於微軟技術和網頁開發：C#, Asp .net, Asp .net Mvc";
+Settings[BlogKeys.Description] = "記錄軟體開發的點點滴滴";
+Settings[BlogKeys.Intro] = "著重於微軟技術、網頁開發、DevOps：C#, Asp .net, Asp .net Mvc";
 
-//Settings[BlogKeys.IncludeDateInPostPath] = "true";
+Settings[BlogKeys.IncludeDateInPostPath] = "true";
 Settings[BlogKeys.ArchiveExcerpts] = "true";
 Settings[BlogKeys.IndexPaging] = "true";
 
+Settings[BlogKeys.IndexPageSize] = 7;
+
 // Add any pipeline customizations here
+
+// 調整截取部分的做法 - more以上都要出現
+Pipelines["BlogPosts"].Replace("WriteMetadata", 
+    Meta(BlogKeys.Excerpt, (doc, ctx) =>
+    {
+        var post = doc.ToString();
+        if(post.Contains("<!--more-->") || post.Contains("<a name='more'></a>") || post.Contains("<a name=\"more\"></a>"))
+        {
+            post = post.Split(new string[] {"<!--more-->", "<a name='more'></a>", "<a name=\"more\"></a>"}, StringSplitOptions.None)[0];
+            //Console.WriteLine(post);
+        }
+
+        return post;
+    }));
+
+// 調整Razor讀取的位置，包含任意資料夾 - 原本的只有第一層而已。其他和原始邏輯一樣。
+Pipelines["BlogPosts"].Replace("RazorPosts", 
+        Concat(
+            ReadFiles(ctx => $"{ctx.DirectoryPath(BlogKeys.PostsPath).FullPath}/**/{{!_,!index,}}*.cshtml"),
+            Meta("EditFilePath", (doc, ctx) => doc.FilePath(Keys.RelativeFilePath)),
+            If((doc, ctx) => doc.Bool(BlogKeys.ProcessIncludes), Include()),
+            FrontMatter(Yaml())
+        )
+    );
+
+var settings = new BlogPostsSettings
+                {
+                    PublishedKey = BlogKeys.Published,
+                    MarkdownConfiguration = ctx => ctx.String(BlogKeys.MarkdownConfiguration),
+                    MarkdownExtensionTypes = ctx => ctx.List<Type>(BlogKeys.MarkdownExtensionTypes),
+                    ProcessIncludes = (doc, ctx) => doc.Bool(BlogKeys.ProcessIncludes),
+                    IncludeDateInPostPath = ctx => ctx.Bool(BlogKeys.IncludeDateInPostPath),
+                    PostsPath = ctx => ctx.DirectoryPath(BlogKeys.PostsPath).FullPath
+                };
+
+// 和原生邏輯一樣，差異在於如果開啓日期分割，然後檔名又有日期很奇怪
+// 但是爲了很多時候好區分還是會在檔名加上日期，因此這個部分調整了把產生出來的檔名前面日期拿掉
+Pipelines["BlogPosts"].Replace("RelativeFilePath", 
+    Meta(Keys.RelativeFilePath, (doc, ctx) =>
+    {
+        DateTime published = doc.Get<DateTime>(settings.PublishedKey);
+
+        string fileName = doc.Bool("FrontMatterPublished")
+            ? doc.FilePath(Keys.SourceFileName).ChangeExtension("html").FullPath
+            : doc.FilePath(Keys.SourceFileName).ChangeExtension("html").FullPath.Substring(11);
+
+        // 預計檔名格式會是：yyyy-MM-dd-*
+        // 把日期拿掉
+        // TODO: 需要先判斷在拿掉
+        fileName = fileName.Substring(11);
+
+        return settings.IncludeDateInPostPath.Invoke<bool>(ctx)
+            ? $"{settings.PostsPath.Invoke<string>(ctx)}/{published:yyyy}/{published:MM}/{fileName}"
+            : $"{settings.PostsPath.Invoke<string>(ctx)}/{fileName}";
+    }));

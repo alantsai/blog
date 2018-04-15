@@ -1,0 +1,22 @@
+@model IDocument
+
+@{
+    var post = Model;
+}
+
+<p class="post-meta">
+    <text>
+        <i class="fa fa-calendar fa-fw"></i>@(post.Get<DateTime>(BlogKeys.Published).ToString("yyyy-MM-dd dddd"))
+        <br />
+    </text>
+
+    @{var tags = post.Get<string[]>(BlogKeys.Tags);}
+    @foreach (var tag in tags)
+    {
+        IDocument tagDocument = Documents[Blog.Tags].FirstOrDefault(x => x.String(BlogKeys.Tag) == tag && x.Get<int>(Keys.CurrentPage) == 1);
+        if(tagDocument != null)
+        {                
+            <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-default btn-xs"><i class="fa fa-tag fa-fw"></i>@tag</a>
+        }    
+    }
+</p>

@@ -1,0 +1,224 @@
+@{
+        string Title = Model.WithoutSettings.String(BlogKeys.Title);
+
+        var PageTitle = Title;
+        var titlePhrase = "Alan Tsai 的學習筆記｜An Asp .Net Mvc Web Developer Blog";
+
+        if(string.IsNullOrWhiteSpace(Title))
+        {
+                PageTitle = titlePhrase;
+        }
+        else
+        {
+                PageTitle = PageTitle + " @ " + titlePhrase;
+        }
+
+        var notUseBlogImage = true;
+}
+
+<!DOCTYPE html>
+<html lang="zh-Hant" prefix="og: http://ogp.me/ns#" >
+        <head>
+                <meta charset="utf-8">
+                <meta http-equiv="X-UA-Compatible" content="IE=9; IE=8; IE=7; IE=EDGE; chrome=1" />
+
+                <title>@PageTitle</title>
+                <meta name="description" content="@Context.String(BlogKeys.Description)" />
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">        
+
+                <!-- bing webmaster auth -->
+                <meta content='EA3A6B1EDDA2B1FEC8F0A565D0789804' name='msvalidate.01'/>
+                <!-- ce.baidu.com -->
+                <meta baidu-gxt-verify-token='5368bba11be8f2b0cf71b0d936c16710'/>
+                <!-- http://zhanzhang.baidu.com/ -->
+                <meta content='juVRO09Xbe' name='baidu-site-verification'/>
+                <!-- fb instant article -->
+                <meta content='1913208602235313' property='fb:pages'/>
+                <meta content='zh-TW' http-equiv='content-language'/>
+
+                @if (Context.String(BlogKeys.RssPath) != null) {
+                <link type="application/rss+xml" rel="alternate" title="@Context.String(BlogKeys.Title)" href="@Context.GetLink(Context.String(BlogKeys.RssPath))" />
+                }
+                @if (Context.String(BlogKeys.AtomPath) != null) {
+                <link type="application/atom+xml" rel="alternate" title="@Context.String(BlogKeys.Title)" href="@Context.GetLink(Context.String(BlogKeys.AtomPath))" />
+                }
+                <link rel="shortcut icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
+                <link rel="icon" href="@Context.GetLink("/favicon.ico")" type="image/x-icon">
+
+                <link href="@Context.GetLink("/assets/css/bootstrap.min.css")" rel="stylesheet" />
+                @*
+                <link href="@Context.GetLink("/assets/css/highlight/default.min.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/highlight/vs2015.min.css")" rel="stylesheet" />
+                *@
+                <link href="@Context.GetLink("/assets/css/prism.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/clean-blog.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/master.css")" rel="stylesheet" />
+                <link href="@Context.GetLink("/assets/css/font-awesome.min.css")" rel="stylesheet" type="text/css">
+                <link href='//fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic' rel='stylesheet' type='text/css'>
+                <link href='//fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800' rel='stylesheet' type='text/css'>
+                <link href="@Context.GetLink("/assets/css/override.css")" rel="stylesheet" />
+
+
+                <meta name="application-name" content="@Context.String(BlogKeys.Title)" />
+                <meta name="msapplication-tooltip" content="@Context.String(BlogKeys.Title)" />
+                <meta name="msapplication-starturl" content="@Context.GetLink("/")" />
+
+                <meta property="og:site_name" content="@titlePhrase" />
+                
+
+                <meta itemprop="name" name="twitter:title" property="og:title" content="@PageTitle" />
+                @* <meta property="og:image" content="@Blog.Image" /> *@
+                @if(string.IsNullOrWhiteSpace(Title))
+                {
+                        <meta property="og:type" content="blog" />
+                        <meta content='http://1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
+                }
+                else
+                {
+                        <meta property="og:type" content="article" />
+                        <meta content='summary' name='twitter:card'/>
+                        if(string.IsNullOrWhiteSpace(Model.String(BlogKeys.Image)))
+                        {
+                                <meta content='http://1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
+                        }
+                        else
+                        {
+                                <meta content='@Model.String(BlogKeys.Image)' itemprop='image' name='twitter:image:src' property='og:image'/>
+                        }
+                }
+                <meta property="og:url" content="@Context.GetLink(Model, true)" />
+                <!-- TODO: More social graph meta tags -->
+
+                <script src="@Context.GetLink("/assets/js/jquery.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/bootstrap.min.js")"></script>     
+                @*
+                <script src="@Context.GetLink("/assets/js/highlight.min.js")"></script>
+                *@
+                <script src="@Context.GetLink("/assets/js/prism.js")"></script>
+                <script src="@Context.GetLink("/assets/js/clean-blog.js")"></script>
+                <script src="@Context.GetLink("/assets/js/d3.v3.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/trianglify.min.js")"></script>
+                <script src="@Context.GetLink("/assets/js/Please-compressed.js")"></script>
+                <script src="@Context.GetLink("/assets/js/background-check.min.js")"></script>
+                        
+                <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+                <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+                <!--[if lt IE 9]>
+                        <script src="@Context.GetLink("/assets/js/html5shiv.js")"></script>
+                        <script src="@Context.GetLink("/assets/js/respond.min.js")"></script>
+                <![endif]-->
+                
+                @Html.Partial("_Head")
+
+        </head>
+        <body>
+                
+                <!-- Navigation -->
+                <nav class="navbar navbar-default navbar-custom navbar-fixed-top">
+                        <div class="container-fluid">
+                                <!-- Brand and toggle get grouped for better mobile display -->
+                                <div class="navbar-header page-scroll">
+                                        <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar-collapse">
+                                        <span class="sr-only">Toggle navigation</span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        <span class="icon-bar"></span>
+                                        </button>
+                                        <a class="navbar-brand" href="@Context.GetLink("/")">@Context.String(BlogKeys.Title)</a>
+                                </div>
+                        
+                                <!-- Collect the nav links, forms, and other content for toggling -->
+                                <div class="collapse navbar-collapse" id="navbar-collapse">
+                                        <ul class="nav navbar-nav navbar-right">
+                                                @Html.Partial("_Navbar") 
+                                        </ul>
+                                </div>
+                                <!-- /.navbar-collapse -->
+                        </div>
+                        <!-- /.container -->
+                </nav>
+                
+                <!-- Page Header -->
+                @{
+                        string backgroundImage = null;
+                        
+                        if(Model.String(BlogKeys.Image) != null && notUseBlogImage == false)
+                        {
+                                backgroundImage = $"background-image: url(\"{Model.String(BlogKeys.Image)}\")";
+                        }
+                        
+                }
+                <header class="intro-header" id="intro-header" style="@backgroundImage">
+                        <div class="container">
+                                <div class="row">
+                                        <div class="col-md-12">
+                                                @if(IsSectionDefined("Header"))
+                                                {
+                                                        @RenderSection("Header")
+                                                }
+                                                else
+                                                {
+                                                        @Html.Partial("_Header")                                            
+                                                }
+                                        </div>
+                                </div>
+                        </div>
+                </header>
+                
+                <!-- Main Content -->
+                <div class="container">
+                        <div class="row">
+                                <div id="content" class="col-md-12">
+                                        @RenderBody()
+                                </div>
+                        </div>
+                </div>
+                
+                <hr>
+                
+                <!-- Footer -->
+                <footer>
+                        @Html.Partial("_Footer")
+                </footer> 
+
+                @Html.Partial("_Scripts")
+                @*<script>hljs.initHighlightingOnLoad();</script>*@
+
+                @if(Model.String(BlogKeys.Image) == null || notUseBlogImage == true)
+                {
+                        <script type="text/javascript">                
+                                // Header background                        
+                                var colors = Please.make_color({
+                                        colors_returned: 3,
+                                        saturation: .6
+                                });
+                                var t = new Trianglify({
+                                        x_gradient: colors,
+                                        y_gradient: ["#FFFFFF"]
+                                });
+                                var header = document.getElementById("intro-header");
+                                var pattern = t.generate(header.clientWidth, header.clientHeight);
+                                header.setAttribute('style', 'background-image: ' + pattern.dataUrl);                        
+                        </script>
+                }
+
+                <script>
+                        BackgroundCheck.init({
+                                targets: '.intro-header,.navbar',
+                                images: '.intro-header'
+                        });
+                </script>
+                
+                <!-- facebook like button start -->
+                <div id="fb-root"></div>
+<script>(function(d, s, id) {
+  var js, fjs = d.getElementsByTagName(s)[0];
+  if (d.getElementById(id)) return;
+  js = d.createElement(s); js.id = id;
+  js.src = 'https://connect.facebook.net/zh_TW/sdk.js#xfbml=1&version=v2.12&appId=191958384621274&autoLogAppEvents=1';
+  fjs.parentNode.insertBefore(js, fjs);
+}(document, 'script', 'facebook-jssdk'));</script>
+                <!-- facebook like button end -->
+        </body>
+</html>
+

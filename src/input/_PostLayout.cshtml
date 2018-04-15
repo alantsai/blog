@@ -1,0 +1,28 @@
+@{
+    Layout = "_Layout.cshtml";
+}
+
+@section Header {
+    @Html.Partial("_PostHeader.cshtml")
+}
+
+
+<div class="row maincontent">
+
+    <div class="col-sm-8 right-border">
+        <div class="post-preview">
+            <article>
+                @Html.Partial("_partial_fbLike", Model)
+                @RenderBody()
+            </article>
+        </div>
+    </div>
+
+    <div class="col-sm-4 sidebar">
+        <hr class="visible-xs-block" />
+        @Html.Partial("_Sidebar")
+    </div>
+
+</div>
+
+@Html.Partial("_PostFooter.cshtml")

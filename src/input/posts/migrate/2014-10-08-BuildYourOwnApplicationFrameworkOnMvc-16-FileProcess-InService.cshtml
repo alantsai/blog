@@ -1,0 +1,80 @@
+Title: "[iThome 第七屆鐵人賽 16] 處理檔案上傳 2 - 放到Service層"
+Published: 2014-10-08
+Modified: 2014-10-08
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-16-FileProcess-InService.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412777833601649" ;="">功能概述</a> </li><li><a href="#WizKMOutline_1412777833601541" ;="">功能實作</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412777833601770" ;="">在Service裡面新增ViewModel的部分</a> </li><li><a href="#WizKMOutline_1412777833601876" ;="">Controller的變化</a></li></ul> </li><li><a href="#WizKMOutline_1412777833601138" ;="">結語</a></li></ul></div> <p>在上一篇，介紹了如何處理檔案上傳的部分。但是，裡面處理上傳檔案的邏輯是放在Mvc的Action裡面。 </p> <p>這個有一些壞處，首先，和邏輯相關的不應該寫在Controller裡面，因為Controller的工作很簡單，就只是決定Model的資料，和顯示的View是哪一個。把處理這種邏輯放在Controller裡面破會了所謂的關注點分離（SoC）的概念。 </p> <p>再來屬於SoC的衍生，因為如果邏輯寫在了Controller裡面，未來如果要替換邏輯或者需要做一些測試的時候，更本不好做。加上，如果別的地方也需要同樣邏輯的時候，更本沒有辦法通用。 </p> <p>因此，這一篇將會介紹如何把邏輯抽到Service層裡面。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412777833601649">功能概述</h1> <p>基本的邏輯在上一篇實作了在Controller裡面，現在要抽到Service裡面，尤其是通用型的Service（也就是GenericService&lt;T&gt;），就要以能夠動態的角度去思考如何處理這部分的邏輯，因此，定下一些規則。如果進來的ViewModel符合這些規則，就處理，要不然就不處理。 </p> <p>檔案處理的邏輯如果在仔細思考一下，基本上就是： </p> <ol> <li>把<code>HttpPostedFileBase</code>檔案儲存 (在有檔案的情況下）  </li><li>把儲存檔案的路徑放到要儲存到DB的欄位 </li></ol>  <p>如果要把上面的邏輯自動化的話，就變成： </p> <ol> <li>找到這個ViewModel裡面是不是有<code>HttpPostedFileBase</code> - 並且裡面有檔案  </li><li>把檔案儲存  </li><li>把路勁給要存到DB的欄位即可 - 要如何知道是哪一個欄位？ </li></ol>  <p>關於第三點，就是這個框架處理要設定的規則，有符合規則就處理，要不然就不處理。 </p> <div class="bs-callout bs-callout-success"> <h4>規則</h4> <p><code>HttpPostedFileBase</code>這個欄位的名字是實際存到DB的欄位名字加上<code>File</code>。 </p> <p>舉例來說，如果實際存到DB的欄位名字是：<code>CoverImg</code>，那麼對應的<code>HttpPostedFileBase</code>名字就是<code>CoverImgFile</code> </p></div> <p>有了這個規則，就可以把檔案上傳的部分移動到Service裡面。 </p> <h1 id="WizKMOutline_1412777833601541">功能實作</h1> <p>接下來就看看如何實際實作功能。 </p> <h2 id="WizKMOutline_1412777833601770">在Service裡面新增ViewModel的部分</h2><pre class="brush: csharp; highlight: 9"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 依照某一個ViewModel的值，產生對應的Entity並且新增到資料庫
+/// &lt;/summary&gt;
+/// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+/// &lt;param name="viewModel"&gt;ViewModel的Reference&lt;/param&gt;
+/// &lt;returns&gt;是否儲存成功&lt;/returns&gt;
+public void CreateViewModelToDatabase&lt;TViewModel&gt;(TViewModel viewModel)
+{
+    ProcessHttpPostFile(viewModel, @@"D:\");
+
+    var entity = AutoMapper.Mapper.Map&lt;T&gt;(viewModel);
+
+    db.Repository&lt;T&gt;().Create(viewModel);
+
+    db.SaveChange();
+}
+</code></pre><br><p>上面，highlight起來就是會處理檔案上傳的部分。 </p><br><p>這個方法基本上就是透過Reflection來找到<code>HttpPostedFileBase</code>，並且找到對應的檔案。如果有，就會做處理： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers"> /// &lt;summary&gt;
+/// 處理ViewModel裡面形態是HttpPostedFileBase的Property。
+/// 會把此property的檔案儲存到某個路徑下，並且把儲存的路勁寫在對應的Property裡面
+/// &lt;/summary&gt;
+/// &lt;param name="viewModel"&gt;要處理的ViewModel&lt;/param&gt;
+/// &lt;param name="basePath"&gt;檔案要儲存位置的base&lt;/param&gt;
+private void ProcessHttpPostFile(object viewModel, string basePath)
+{
+    var properties = viewModel.GetType()
+			.GetProperties(BindingFlags.Instance | 
+			BindingFlags.Public | BindingFlags.FlattenHierarchy);
+
+    foreach (var item in properties
+		.Where(x =&gt; x.PropertyType == typeof(HttpPostedFileBase)))
+    {
+        var httpost = item.GetValue(viewModel) as HttpPostedFileBase;
+
+        if (httpost != null 
+		&amp;&amp; string.IsNullOrEmpty(httpost.FileName) == false)
+        {
+            // 如果postFile的property名稱後面一定會加File。例如：
+			//CoverImgFile對應的string property名稱就是CoverImg。
+            // 因此看看是否有property的名稱是postFile的名稱減去4（File是4個字）
+            var fileNameProperty = properties
+				.Where(x =&gt; x.Name == item.Name.Remove(item.Name.Count() - 4))
+				.FirstOrDefault();
+
+            if (fileNameProperty != null)
+            {
+                var savePath = Path.Combine(basePath, httpost.FileName);
+
+                if (Directory.Exists(Path.GetDirectoryName(savePath)) == false)
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(savePath));
+                }
+
+                httpost.SaveAs(savePath);
+
+                fileNameProperty.SetValue(viewModel, httpost.FileName);
+            }
+        }
+    }
+}
+</code></pre><br><h2 id="WizKMOutline_1412777833601876">Controller的變化</h2><br><p>把處理的部分移到Service之後，在Controller裡面就變成原來的樣子： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(Create post)
+{
+    if (ModelState.IsValid)
+    {
+        service.CreateViewModelToDatabase(post);
+        return RedirectToAction("Index");
+    }
+
+    return View(post);
+}
+</code></pre><br><h1 id="WizKMOutline_1412777833601138">結語</h1><br><p>透過Service層，可以把一些通用的邏輯抽進去，避免掉Controller有太多邏輯，造成日後邏輯無法替換和重複使用。 </p><br><p>在接下來還會介紹更多Service還能夠包括的功能，使得這些底層的內容還需要每一次都處理。 </p>  

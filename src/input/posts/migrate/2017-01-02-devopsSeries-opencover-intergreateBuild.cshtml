@@ -1,0 +1,177 @@
+Title: "[iThome第8屆鐵人賽 16]OpenCover 整合篇"
+Published: 2017-01-02
+Modified: 2017-12-12
+Image: /posts/migrate/2017-01-02-devopsSeries-opencover-intergreateBuild_Asset/image_thumb(12).png
+Tags: [".net","「ithome 第八屆鐵人賽」","devops","「從.net工程師的角度來看devops」"]
+RedirectFrom: 2017/01/devopsSeries-opencover-intergreateBuild.html
+Series: ["「iThome 第八屆鐵人賽」","「從.Net工程師的角度來看DevOps」"]
+---
+<section> <p>在上篇介紹了OpenCover的基本運作概念和為什麼要使用OpenCover，在這篇將會實際把OpenCover整合到Build Script裡面。 </p> <div class="bs-callout bs-callout-default">sample 程式在 <a href="https://github.com/alantsai-samples/devops-psake/releases/tag/sample%2Fchapter16hapter16">github devops-psake sample/chapter16</a> </div></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832598" ;="">準備Build Script</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832800" ;="">把OpenCover加入到Build專案</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832995" ;="">建立一個Helper用來執行OpenCover</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832451" ;="">準備好執行Helper的參數</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832337" ;="">調整測試呼叫方式</a></li></ul> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832939" ;="">執行結果</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483329484832826" ;="">結語</a></li></ul></div></section> <a name="more"></a><section> <h2 id="WizKMOutline_1483329484832598">準備Build Script</h2> <p>要把OpenCover整合進入Build script需要做幾個事情： </p> <ol> <li>把OpenCover加入到Build專案 </li><li>建立一個Helper用來執行OpenCover </li><li>準備好執行Helper的參數 </li><li>調整測試呼叫方式</li></ol>  <h3 id="WizKMOutline_1483329484832800">把OpenCover加入到Build專案</h3> <p>這個部分需要先用Nuget把Opencover加入（<kbd>Install-Package Opencover</kbd>），之後，在Build Script裡面會多增加一個<code>property</code>： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$openCoverExe = (Get-PackagePath $packageDirectoryPath "OpenCover") +
+
+		"\tools\OpenCover.Console.exe"</code></pre>
+ <h3 id="WizKMOutline_1483329484832995">建立一個Helper用來執行OpenCover</h3>
+ <p>在上篇提到，其實opencover有一個profiler，這個profiler會執行Test Runner，然後profiler會監控test runner記錄執行測試的涵蓋率。 </p>
+ <p>因此，變成不直接呼叫TestRunner了，而是透過OpenCover，因此建立一個helper方法會方便呼叫測試。 </p>
+ <p>OpenCover其實有滿多的設定，下面會一個一個介紹： </p>
+ <dl class="dl-horizontal">
+ <dt>target 
+ </dt><dd>這個是用來執行Test Runner的路徑 
+ </dd><dd>
+ </dd><dt>targetargs 
+ </dt><dd>這邊是指要傳入給target的參數 
+ </dd><dd>
+ </dd><dt>output 
+ </dt><dd>這邊指的是Opencover的涵蓋率結果要儲存的位置 
+ </dd><dd>
+ </dd><dt>register 
+ </dt><dd>一直有提到OpenCover有一個profiler，這個profiler其實是一個com的library，因此要使用的話需要註冊和給權限。這邊我們使用參數<code>user</code>指的是profiler的權限同等於 目前user，因此避免到時候換build server或者換環境會有環境設定問題 
+ </dd><dd>
+ </dd><dt>filter 
+ </dt><dd>還記得上篇提到關於filter用來決定那些Assembly要涵蓋進來那些要排除，這個就是這邊傳入。 
+ </dd><dd>
+ </dd><dt>excludebyattribute 
+ </dt><dd>上篇提到透過attribute方式設定那些要過濾 
+ </dd><dd>
+ </dd><dt>excludebyfile 
+ </dt><dd>上篇提到，透過檔名過濾的地方 
+ </dd><dd>
+ </dd><dt>skipautoprops 
+ </dt><dd>這個指的是 程式碼裡面用的Property (常說的getter和setter，例如：<code>public string Name{get;set;}</code>)，因為一般沒有邏輯，所以加入這個參數表示那些不要進入涵蓋範圍 
+ </dd><dd>
+ </dd><dt>mergebyhash 
+ </dt><dd>這個指的是，同一個dll可能會被多次載入（不同test framework等），加入這個設定表示，不管載入幾次，只要hash一樣，永遠算1次 
+ </dd><dd>
+ </dd><dt>mergeoutput 
+ </dt><dd>還記得提到說有不同test framework如何整合結果在一起？只要有設定這個參數，加上所有的output path一致，就會把結果整合 
+ </dd><dd>
+ </dd><dt>hideskipped 
+ </dt><dd>上面雖然有提供一些過濾方式，但是最後報表還是會有包含，只是說那些被忽略而已。因此這個參數能夠把被忽略的不在報告顯示。如果要讓報告乾淨一些，就可以讓他們不顯示 
+ </dd><dd>
+ </dd><dt>returntargetcode 
+ </dt><dd>這個指的是，最後的exit code要用target的作為回傳，這樣如果執行test有失敗，才能夠看到 
+ </dd><dd></dd></dl>
+ <p>對於幾個參數有了解之後，在helper就增加了一個<code>Run-TestWithOpenCover</code>： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">function Run-TestWithOpenCover {
+
+	[CmdletBinding()]
+
+	param([Parameter(Position=0,Mandatory=1)]$testRunnerExe,
+
+		 [Parameter(Position=1,Mandatory=1)]$testRunnerArg,
+
+		 [Parameter(Position=2,Mandatory=1)]$openCoverExe,
+
+		 [Parameter(Position=3,Mandatory=1)]$openCoverResult,
+
+		 [Parameter(Position=4,Mandatory=1)]$filter,
+
+		 [Parameter(Position=5,Mandatory=1)]$excludeAttribute,
+
+		 [Parameter(Position=6,Mandatory=1)]$excludeFiles)
+
+
+
+	Exec { &amp;$openCoverExe "-target:$testRunnerExe" `
+
+						"-targetargs:$testRunnerArg" `
+
+						"-output:$openCoverResult" `
+
+						-register:user `
+
+						"-filter:$filter" `
+
+						-excludebyattribute:$excludeAttribute `
+
+						-excludebyfile:$excludeFiles `
+
+						-skipautoprops `
+
+						-mergebyhash `
+
+						-mergeoutput `
+
+						-hideskipped:All `
+
+						-returntargetcode}
+
+}</code></pre>
+ <div class="bs-callout bs-callout-warning">在上有些參數有用雙引號包住，例如<code>"-targetargs:$testRunnerArg" `</code>，這個原因是在Powershell如果參數有空白，要連<em>參數名</em>一起用雙引號包住。 </div>
+ <h3 id="WizKMOutline_1483329484832451">準備好執行Helper的參數</h3>
+ <p>Helper準備好了之後，在<code>default.ps1</code>要準備好幾個會傳入的參數，最主要是filter的參數的部分。所以，和其他參數一樣，現在Property裡面定義： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$openCoverResult = "$buildTestCoverageDirectory\openCover.xml"
+
+$openCoverFilter = "+[*]* -[xunit.*]* -[*.NunitTest]* -[*.Tests]* -[*.XunitTest]*"
+
+$openCoverExcludeAttribute = "System.Diagnostics.CodeAnalysis.ExcludeFromCodeCoverageAttribute"
+
+$openCoverExcludeFie = "*\*Designer.cs;*\*.g.cs;*\*.g.i.cs"</code></pre>
+ <p>這些參數的用意透過剛剛介紹的參數作用應該很清楚，這邊就不做額外介紹。 </p>
+ <p>在結束之前，還有一個地方要調整，就是<code>BundleConfig.cs</code>。 </p>
+ <p>這邊將會用<code>ExcludeFromCodeCoverageAttribute</code>加入到他的Class裡面，用來把它排除在Coverage裡面 </p><pre class="brush: csharp;highlight:1"><code class="language-csharp line-numbers">[ExcludeFromCodeCoverage]
+
+public class BundleConfig
+
+{
+
+....</code></pre>
+ <h3 id="WizKMOutline_1483329484832337">調整測試呼叫方式</h3>
+ <p>最後，就是調整3個測試的執行方式。做法都一樣，把本來呼叫exec改成呼叫在第二步建立的helper，有差別的地方都是在<code>testRunnerExe</code>和<code>testRunnerArg</code></p>
+ <p>首先是Xunit： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$xmlResult = "$xunitTestResultDirectory\xUnit.xml"
+
+$htmlResult = "$xunitTestResultDirectory\xUnit.html"
+
+
+
+$targetArg = "$testAssembly -xml $xmlResult -html $htmlResult -nologo -noshadow"
+
+Run-TestWithOpenCover -testRunnerExe $xunitExe `
+
+			-testRunnerArg $targetArg `
+
+			-openCoverExe $openCoverExe `
+
+			-openCoverResult $openCoverResult `
+
+			-filter $openCoverFilter `
+
+			-excludeAttribute $openCoverExcludeAttribute `
+
+			-excludeFiles $openCoverExcludeFie `</code></pre>
+ <p>再來是NUnit: </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$targetArg = "$testAssembly --result=$nunitTestResultDirectory\nUnit.xml"
+
+
+
+Run-TestWithOpenCover -testRunnerExe $nunitExe `
+
+			-testRunnerArg $targetArg `
+
+			-openCoverExe $openCoverExe `
+
+			-openCoverResult $openCoverResult `
+
+			-filter $openCoverFilter `
+
+			-excludeAttribute $openCoverExcludeAttribute `
+
+			-excludeFiles $openCoverExcludeFie `</code></pre>
+ <p>最後是MSTest： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$targetArg = "$testAssembly /Logger:trx"
+
+
+
+Run-TestWithOpenCover -testRunnerExe $msTestExe `
+
+			-testRunnerArg $targetArg `
+
+			-openCoverExe $openCoverExe `
+
+			-openCoverResult $openCoverResult `
+
+			-filter $openCoverFilter `
+
+			-excludeAttribute $openCoverExcludeAttribute `
+
+			-excludeFiles $openCoverExcludeFie `</code></pre></section><section>
+ <h2 id="WizKMOutline_1483329484832939">執行結果</h2>
+ <p>以上都做完之後，就可以執行做測試，並且會看到Coverage分數： </p><figure><a href="https://lh3.googleusercontent.com/-pAlDF2Cf_yA/WGnRB10icjI/AAAAAAAAVGQ/Y4XvS83bzLI/s1600-h/image%25255B2%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2017-01-02-devopsSeries-opencover-intergreateBuild_Asset/image_thumb(12).png" width="644" height="215" class="img-responsive"></a><br><figcaption>看到結果分數</figcaption></figure></section><section>
+ <h2 id="WizKMOutline_1483329484832826">結語</h2>
+ <p>在這篇調整了build script，讓opencover進入並且產生出了測試涵蓋率的結果。 </p>
+ <p>但是，這個結果畢竟比較偏summary，看不出到底那些沒cover到，所以在下篇將會進一步去看OpenCover所產生的結果xml，和如何把它轉換成人看得懂的格式</p></section>

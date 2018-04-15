@@ -1,0 +1,46 @@
+Title: "[iThome 第七屆鐵人賽 15] 處理檔案上傳"
+Published: 2014-10-07
+Modified: 2014-10-07
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-15-FileProcess.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412691943798396" ;="">整體功能概念</a> </li><li><a href="#WizKMOutline_1412691943798753" ;="">功能實作</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412691943798979" ;="">欄位說明</a> </li><li><a href="#WizKMOutline_1412691943798396" ;="">View的說明</a> </li><li><a href="#WizKMOutline_1412691943798407" ;="">檔案上傳的處理</a></li></ul> </li><li><a href="#WizKMOutline_1412691943798780" ;="">結語</a></li></ul></div> <p>在網站裡面，通常都會需要讓使用者上傳檔案，好方便前臺或者別的顯示這個資訊的地方來下載這個對應的檔案。 </p> <p>在Mvc裡面，有所謂的<code>HttpPostedFileBase</code>可以方便我們接到前端input是file的檔案。這個檔案通常會被存到Server的某一個位置之後，路勁才會儲存到DB 裡面，下次顯示的時候顯示的是這個檔案的路徑。 </p> <p>處理<code>HttpPostedFileBase</code>的邏輯其實還滿常見，如果框架能夠把這一部份也處理掉的話，又可以減少我們煩惱這些細節的部份，提升開發效率。 </p> <p>這一篇我們將來看一下如何做到。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412691943798396">整體功能概念</h1> <p>我們的Entity欄位通常會是<code>string</code>的形態，用來儲存這個上傳檔案的相對路徑。而檔案上傳方便做model binding是<code>HttpPosedFileBase</code>這個形態，因此我們將會在ViewModel增加一個對應的property用來接使用者所選取的檔案。 </p> <p>我們的邏輯處理規則是需要： </p> <ol> <li><code>HttpPostedFileBase</code>的檔案存到特定的位置。  </li><li>把儲存的檔案相對的路徑存入到正確的欄位裡面。 </li></ol>  <h1 id="WizKMOutline_1412691943798753">功能實作</h1> <p>有了上面整體的概念之後，將會開始實作。 </p> <h2 id="WizKMOutline_1412691943798979">欄位說明</h2> <p>假設我們現在的<code>Post</code>需要有一個欄位用來儲存這篇文章的代表圖，因此我們會多一個欄位叫做<code>CoverImg</code>（在ViewModel），同樣對應到DB的Table欄位也是 <code>CoverImg</code>。 </p> <p>我們會在多一個欄位叫做<code>CoverImgFile</code>在ViewModel，這個欄位的主要目的是對應到View裡面的<code>HttpPostedFileBase</code> </p> <p>因此目前<code>Post</code>的定義會是（標亮是新增的兩個欄位）： </p><pre class="brush: csharp; highlight:[8,9]"><code class="language-csharp line-numbers">public partial class Create
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string PostContent { get; set; }
+    public System.DateTime CreateDateTime { get; set; }
+    public Nullable&lt;System.DateTime&gt; LastModifyDateTime { get; set; }
+    public string CoverImg { get; set; }
+    public HttpPostedFileBase CoverImgFile { get; set; }
+}
+</code></pre><br><h2 id="WizKMOutline_1412691943798396">View的說明</h2><br><p>再來，對應的View會變成： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">@@if(string.IsNullOrEmpty(Model.CoverImg) == false)
+{ 
+    &lt;img src="~/@@Model.CoverImg" /&gt;
+}
+
+&lt;input type="file" name="CoverImgFile" /&gt;
+</code></pre><br><p>首先是如果檔案已經有上傳過（表示<code>CoverImg</code>有值），就以圖片方式顯示。 </p><br><p>然後<code>CoverImgFile</code>則是實際的檔案上傳。 </p><br><h2 id="WizKMOutline_1412691943798407">檔案上傳的處理</h2><br><p>在<code>Create</code>的地方將會處理檔案上傳並且把路徑存到<code>CoverImg</code>： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(Create post)
+{
+    if(post.CoverImgFile != null)
+    {
+        var fileName = DateTime.Now.ToString();
+
+        post.CoverImgFile.SaveAs(fileName);
+
+        post.CoverImg = fileName;
+    }
+
+    if (ModelState.IsValid)
+    {
+        service.CreateViewModelToDatabase(post);
+        return RedirectToAction("Index");
+    }
+
+    return View(post);
+}
+</code></pre><br><p>這邊不管是否有驗證成功，都會把檔案儲存起來，避免Validation錯誤返回<code>Model</code>的時候，之前選的檔案會不存在。 </p><br><h1 id="WizKMOutline_1412691943798780">結語</h1><br><p>到這裡之後，相信對於如何處理檔案上傳和把檔案路徑放入對應的欄位已經瞭解。 </p><br><p>但是，相信使用上面來說不是很方便。首先，寫在Controller裡面這部份的邏輯就很不適合，再來，如果這個邏輯以後要修改或者需要通用基本上做不到。 </p><br><p>因此，在下一篇，將會介紹如何透過Service層，把處理檔案上傳的邏輯抽出來，讓這部份的邏輯能夠共用。 </p>  

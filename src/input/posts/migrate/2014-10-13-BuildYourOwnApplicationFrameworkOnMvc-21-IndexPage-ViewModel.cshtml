@@ -1,0 +1,201 @@
+Title: "[iThome 第七屆鐵人賽 21] 搜索頁面 - ViewModel的定義"
+Published: 2014-10-13
+Modified: 2014-10-13
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-21-IndexPage-ViewModel.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1413209266428258" ;="">ViewModel的內容</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413209266428176" ;="">搜索條件的ViewModel</a> </li><li><a href="#WizKMOutline_1413209266428422" ;="">搜索結果</a> <ul style="margin: 0px 0px 0px 30px"> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413209266428437" ;="">PagedList.Mvc - 好用的分頁套件</a></li></ul></ul> </li><li><a href="#WizKMOutline_1413209266428172" ;="">搜索ViewModel的主檔</a></li></ul> </li><li><a href="#WizKMOutline_1413209266428350" ;="">Post的搜索ViewModel</a> </li><li><a href="#WizKMOutline_1413209266428147" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了搜索功能的概念和思路之後，在這一篇開始要看實作的部份。 </p> <p>通常寫Mvc都是從Model開始，因此這一篇將來看一下搜索功能所會使用到的ViewModel </p> <a name="more"></a> <h1 id="WizKMOutline_1413209266428258">ViewModel的內容</h1> <p>首先，搜索的ViewModel必然會有兩個Property： </p> <ol> <li>搜索條件  </li><li>搜索結果 </li></ol>  <p>因此，我們會先從這兩個部份的Property來看起。 </p> <h2 id="WizKMOutline_1413209266428176">搜索條件的ViewModel</h2> <p>搜索條件會有一定有的欄位和各個domain所需要的欄位，因此會先定義一個Base，好方便之後domain來繼承並且提供其他相關欄位。 </p> <p>一定會有的欄位像是： </p> <ol> <li>每頁筆數  </li><li>目前頁數  </li><li>排序欄位  </li><li>排序順序 </li></ol>  <p>Domain相關的欄位就依照各自的需求，例如假設是一篇文章，可能會有以“標題”做搜索或者以“內文”做搜索。 </p> <p>因此，程式碼會如下： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 搜索 Form 的 ViewModel base。定義搜索必須要有的相關欄位。
+/// &lt;/summary&gt;
+public abstract class SearchFormViewModelBase : ISearchFormViewModelBase
+{
+    /// &lt;summary&gt;
+    /// 目前頁數的值
+    /// &lt;/summary&gt;
+    private int page;
+
+    /// &lt;summary&gt;
+    ///  取得或設定目前頁數。最小值是1。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 目前頁數
+    /// &lt;/value&gt;
+    public virtual int Page
+    {
+        get
+        {
+            if (this.page &lt; 1)
+            {
+                this.page = 1;
+            }
+
+            return this.page;
+        }
+
+        set { this.page = value; }
+    }
+
+    /// &lt;summary&gt;
+    /// 每頁筆數的值
+    /// &lt;/summary&gt;
+    private int pageSize;
+
+    /// &lt;summary&gt;
+    /// 取得或設定每頁筆數。最小值是15。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 每頁筆數
+    /// &lt;/value&gt;
+    public virtual int PageSize
+    {
+        get
+        {
+            if (this.pageSize &lt; 1)
+            {
+                this.pageSize = 15;
+            }
+
+            return this.pageSize;
+        }
+
+        set { this.pageSize = value; }
+    }
+
+    /// &lt;summary&gt;
+    /// 欄位排序的值
+    /// &lt;/summary&gt;
+    protected string orderByColumnName;
+
+    /// &lt;summary&gt;
+    /// 取得或設定要依照那個欄位做排序。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 依照那個欄位做排序.
+    /// &lt;/value&gt;
+    public abstract string OrderByColumnName { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定排序的方向。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// &lt;c&gt;true&lt;/c&gt; 表示用 ascending排序; otherwise, &lt;c&gt;false&lt;/c&gt;.
+    /// &lt;/value&gt;
+    public bool IsAscending { get; set; }
+}
+</code></pre><br><p>這個ViewModel實作的Interface就不看了，基本上就是這些Property的定義。 </p><br><p>這邊有個地方可以注意到就是排序的欄位。因為我們這個<code>SearchFormViewModelBase</code>沒有形態的概念，而通常來說搜索條件會和某一個DB的Table對應。因此，為了方便之後框架幫忙做搜索，這邊又定義一個有強型別的<code>SearchFormViewModelBase</code>： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 搜索 Form 的 ViewModel base。有帶上形態，以第一個欄位做排序
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;Entity Framework裡面Table Entity&lt;/typeparam&gt;
+public abstract class SearchFormViewModelBase&lt;T&gt; : SearchFormViewModelBase
+{
+    /// &lt;summary&gt;
+    /// 取得或設定要依照那個欄位做排序。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 依照那個欄位做排序.
+    /// &lt;/value&gt;
+    public override string OrderByColumnName
+    {
+        get
+        {
+            if (string.IsNullOrEmpty(this.orderByColumnName))
+            {
+                this.orderByColumnName = typeof(T).GetProperties().First().Name;
+            }
+
+            return this.orderByColumnName;
+        }
+
+        set
+        {
+            this.orderByColumnName = value;
+        }
+    }
+}
+</code></pre><br><div class="bs-callout bs-callout-info">可以注意到這個Class的定義是<code>Abstract</code>，表示之後的class應該要依照自己的Domain去做繼承，例如如果今天是Post的搜索ViewModel，希望有一個 “標題”的搜索欄位，和排序要以“建立時間”欄位，那麼ViewModel就會是： </div><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class SearchFormViewModel : SearchFormViewModelBase&lt;Post&gt;
+{
+    [DisplayName("標題")]
+    public string Title { get; set; }
+
+    public override string OrderByColumnName
+    {
+        get
+        {
+            return "CreateDateTime";
+        }
+    }
+}
+</code></pre><br><h2 id="WizKMOutline_1413209266428422">搜索結果</h2><br><p>這個部份就比較簡單，就是某一個和Detail頁面一樣ViewModel不過是被一個<code>IPagedList</code>包住。因此他不會像搜索ViewModel一樣有個base而是直接看定義的 ViewModel然後以泛型的方式傳入。 </p><br><div class="bs-callout bs-callout-default"><br><h4 id="WizKMOutline_1413209266428437">PagedList.Mvc - 好用的分頁套件</h4><br><ul><br><li>Nuget安裝指令：<kbd>Install-Package PagedList.Mvc</kbd> <br></li><li>套件Github首頁：<a href="https://github.com/TroyGoode/PagedList">https://github.com/TroyGoode/PagedList</a> <br></li><li>如果完全沒有用過，可以參考： <br><ul><br><li><a href="http://kevintsengtw.blogspot.tw/2013/10/aspnet-mvc-pagedlistmvc.html">ASP.NET MVC 資料分頁 - 使用 PagedList.Mvc </a><br></li><li><a href="http://kevintsengtw.blogspot.tw/search/label/%E8%B3%87%E6%96%99%E5%88%86%E9%A0%81">其他一系列的文章</a> </li></ul></li></ul></div><br><h2 id="WizKMOutline_1413209266428172">搜索ViewModel的主檔</h2><br><p>有了這兩個Property的ViewModel之後，就可以建立搜索的ViewModel的Base： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 搜索頁面的ViewModel需要繼承這一個Base。
+/// 方便處理Paging和搜索條件相關。
+/// 這個方法就兩個Property，用作於表示搜索的form和搜索結果的result。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="TSearchForm"&gt;搜索的form ViewModel type。
+/// 必須是繼承&lt;see cref="MvcInfrastructure.Common.Base.SearchFormViewModelBase"/&gt;
+/// &lt;/typeparam&gt;
+/// &lt;typeparam name="TPageResult"&gt;搜索的結果ViewModel type&lt;/typeparam&gt;
+public class SearchViewModelBase&lt;TSearchForm, TPageResult&gt; : 
+	ISearchViewModelBase&lt;TSearchForm, TPageResult&gt;
+    where TSearchForm : Core.Common.Base.ISearchFormViewModelBase, new() 
+{
+    private TSearchForm searchForm;
+
+    /// &lt;summary&gt;
+    /// 取得或設定搜索的Form。如果是null，會實例一個。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 搜索的Form
+    /// &lt;/value&gt;
+    public TSearchForm SearchForm
+    {
+        get
+        {
+            if (this.searchForm == null)
+            {
+                this.searchForm = new TSearchForm();
+            }
+
+            return this.searchForm;
+        }
+
+        set { this.searchForm = value; }
+    }
+
+    /// &lt;summary&gt;
+    /// 取得或設定搜索結果的ViewModel。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 搜索結果的ViewModel。用&lt;see cref="PagedList.IPagedList"/&gt;包住，方便做分頁
+    /// &lt;/value&gt;
+    public IPagedList&lt;TPageResult&gt; Result { get; set; }
+}
+</code></pre><br><br><h1 id="WizKMOutline_1413209266428350">Post的搜索ViewModel</h1><br><p>定義好了搜索的BaseViewModel之後，假設今天是<code>Post</code>頁面要做搜索的ViewModel，就可能會像是： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class Index : SearchViewModelBase&lt;SearchFormViewModel, SearchResult&gt;
+{
+}
+
+public class SearchResult : IMapFrom&lt;Post&gt;
+{
+    public int Id { get; set; }
+    [DisplayName("標題")]
+    public string Title { get; set; }
+    [DisplayName("內文")]
+    public string PostContent { get; set; }
+
+}
+
+public class SearchFormViewModel : SearchFormViewModelBase&lt;Post&gt;
+{
+    [DisplayName("標題")]
+    public string Title { get; set; }
+
+    public override string OrderByColumnName
+    {
+        get
+        {
+            return "CreateDateTime";
+        }
+    }
+}
+</code></pre><br><h1 id="WizKMOutline_1413209266428147">結語</h1><br><p>有了搜索的ViewModel之後，在下一篇將會介紹框架的Service怎麼能夠做修改並且讓搜索處理邏輯變的簡單。 </p>  

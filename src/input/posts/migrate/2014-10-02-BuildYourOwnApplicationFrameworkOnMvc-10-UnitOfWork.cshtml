@@ -1,0 +1,111 @@
+Title: "[iThome 第七屆鐵人賽 10] 加上 Unit of Work，抽離Entity Framework的依賴就完美了"
+Published: 2014-10-02
+Modified: 2014-11-30
+Image: ""
+Tags: ["entity framework","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-10-UnitOfWork.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412257831376113" ;="">Repository Pattern的問題是什麽</a> </li><li><a href="#WizKMOutline_1412257831376416" ;="">什麽是Unit of Work</a> </li><li><a href="#WizKMOutline_1412257831376151" ;="">Unit of Work的interface定義</a> </li><li><a href="#WizKMOutline_1412257831377407" ;="">Unit of Work的EF 實作</a> </li><li><a href="#WizKMOutline_1412257831377186" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了Repository Pattern，我們能夠抽離實際在做儲存的動作，讓我們在替換實際儲存動作更加容易。 </p> <p>但是光靠一個Repository Pattern其實還是有些缺陷，因此，通常來說會實作Unit of Work pattern搭配Repository pattern達到一個比較完美的狀態。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412257831376113">Repository Pattern的問題是什麽</h1> <p>Repository Pattern代表一個儲存，以DB的世界來說，Repository 其實代表的是一個Table。在比較不複雜的程式來說，Repository層級可能就够了，但是如果要到一個複雜一點的程式，Repository pattern就有點相形見拙。 </p> <p>Repository Pattern最大的問題在於，當需要和一個以上的Table溝通的時候，DB的那種Atomic operation就沒有了。因為，Repository是針對Table，所以假設需要同時儲存到兩個Table，可以使用兩個Repository來做。問題在於，這兩個Repository彼此不知道對方，表示，假設Repository 1 儲存完成了，但是Repository 2 儲存失敗了，以完整的Atomic operation來說，只要一個失敗，整個operation應該算是失敗了，但是，因為Repository 之間是<em>沒有</em>聯繫的，因此資料會處於一種dirty state，就是一個進去了，但是一個失敗了。 </p> <p>要解決這個問題，我們就需有一個東西，來管理Repository彼此之間的情況，好讓它可以再一個成功另外一個失敗的情況下，整個roll back處理，而Unit of Work正是一個這樣的Pattern。 </p> <h1 id="WizKMOutline_1412257831376416">什麽是Unit of Work</h1> <p>基本上我們可以把一次的operation想做是一個unit of work。這個operation裡面可能有很多動作，或許需要更新3個table的資料，或許要新增3個table的資料。 </p> <p>這一個operation肯定是所有的動作都完成了，才算是整個operation結束。以DB的角度來想，就是像Transaction一樣的概念。 </p> <p>而Unit of Work這個pattern就是會對這個operation的每一個動作，做一個記錄。直到當被告知完成的時候，它才會真的去做處理，並且只有兩種情況回報：成功，或者失敗。 </p> <p>以DB的世界來說，Unit of Work代表一個DB，而Repository代表一個Table。 </p> <p>Entity Framework的<code>DbContext</code>本身就有做Unit of Work。因此我們才能夠做一些CRUD，然後在一次呼叫<code>SaveChange()</code>，而也是這個時候<code>DbContext</code>才會真的把他有記錄的內容一次對DB做，並且返回成功或失敗。 </p> <div class="bs-callout bs-callout-info">如果對於Unit of Work有興趣，可以看一下這個Code Project的文章： <a href="http://www.codeproject.com/Articles/581487/Unit-of-Work-Design-Pattern">Unit of Work Design Pattern</a> </div> <h1 id="WizKMOutline_1412257831376151">Unit of Work的interface定義</h1><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 實作Unit Of Work的interface。
+/// &lt;/summary&gt;
+public interface IUnitOfWork : IDisposable
+{
+    /// &lt;summary&gt;
+    /// 儲存所有異動。
+    /// &lt;/summary&gt;
+    void Save();
+
+    /// &lt;summary&gt;
+    /// 取得某一個Entity的Repository。
+    /// 如果沒有取過，會initialise一個
+    /// 如果有就取得之前initialise的那個。
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="T"&gt;此Context裡面的Entity Type&lt;/typeparam&gt;
+    /// &lt;returns&gt;Entity的Repository&lt;/returns&gt;
+    IRepository&lt;T&gt; Repository&lt;T&gt;() where T : class;
+}
+</code></pre><br><p>基本上我們這邊需要實作的方法很簡單，一個是如何取得我們的<code>Repository</code>。再來一個就是把所有透過<code>Repository</code>的動作，透過<code>save</code>存入到實體的位置。 </p><br><h1 id="WizKMOutline_1412257831377407">Unit of Work的EF 實作</h1><br><p>因為EF的<code>DbContext</code>本身就有Unit of Work，因此我們實作起來非常簡單。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 實作Entity Framework Unit Of Work的class
+/// &lt;/summary&gt;
+public class EFUnitOfWork : IUnitOfWork
+{
+    private readonly DbContext _context;
+
+    private bool _disposed;
+    private Hashtable _repositories;
+
+    /// &lt;summary&gt;
+    /// 設定此Unit of work(UOF)的Context。
+    /// &lt;/summary&gt;
+    /// &lt;param name="context"&gt;設定UOF的context&lt;/param&gt;
+    public EFUnitOfWork(DbContext context)
+    {
+        _context = context;
+    }
+
+    /// &lt;summary&gt;
+    /// 儲存所有異動。
+    /// &lt;/summary&gt;
+    public void Save()
+    {
+        _context.SaveChanges();       
+    }
+
+    /// &lt;summary&gt;
+    /// 清除此Class的資源。
+    /// &lt;/summary&gt;
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
+    }
+
+    /// &lt;summary&gt;
+    /// 清除此Class的資源。
+    /// &lt;/summary&gt;
+    /// &lt;param name="disposing"&gt;是否在清理中？&lt;/param&gt;
+    protected virtual void Dispose(bool disposing)
+    {
+        if (!_disposed)
+        {
+            if (disposing)
+            {
+                _context.Dispose();
+            }
+        }
+
+        _disposed = true;
+    }
+
+    /// &lt;summary&gt;
+    /// 取得某一個Entity的Repository。
+    /// 如果沒有取過，會initialise一個
+    /// 如果有就取得之前initialise的那個。
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="T"&gt;此Context裡面的Entity Type&lt;/typeparam&gt;
+    /// &lt;returns&gt;Entity的Repository&lt;/returns&gt;
+    public IRepository&lt;T&gt; Repository&lt;T&gt;() where T : class
+    {
+        if (_repositories == null)
+        {
+            _repositories = new Hashtable();
+        }
+
+        var type = typeof(T).Name;
+
+        if (!_repositories.ContainsKey(type))
+        {
+            var repositoryType = typeof(EFGenericRepository&lt;&gt;);
+
+            var repositoryInstance =
+                Activator.CreateInstance(repositoryType
+                        .MakeGenericType(typeof(T)), _context);
+
+            _repositories.Add(type, repositoryInstance);
+        }
+
+        return (IRepository&lt;T&gt;)_repositories[type];
+    }
+}
+</code></pre><br><p>這邊沒有什麼太過於特別的東西，這個實作需要<code>DbContext</code>，而這個<code>DbContext</code>會透過Reflection注入到Repository裡面，因此所有的異動在 <code>DbContext</code>都有記錄，因此，我們做<code>Save</code>的時候，是一個Atomic的transaction。 </p><br><div class="bs-callout bs-callout-warning">我這個版本的Unit of work屬於我比較早期就開始使用，因此這邊Repository的取得就沒有使用DI。當然，用不用DI見仁見智。 </div><br><h1 id="WizKMOutline_1412257831377186">結語</h1><br><p>到了這邊，我們的Unit of Work和Repository就介紹完了。有了這兩個pattern的合作，DAL層的實作就可以完全達到抽象化，避免被綁死在某一個儲存技術。 </p><br><p>在下一篇，我們來看一個比較簡單，但是是每一種Application都用的到的功能，也就是所謂的顯示給客戶端的功能，要如何打造一個容易傳遞資訊給顯示端，並且要修改顯示樣式的時候還很簡單。 </p><br><p>留待下回分解。 </p>  

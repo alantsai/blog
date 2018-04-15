@@ -1,0 +1,159 @@
+Title: "[iThome 第七屆鐵人賽 08] 框架簡化建立AutoMapper對應的設定"
+Published: 2014-09-30
+Modified: 2014-10-02
+Image: /posts/migrate/2014-09-30-BuildYourOwnApplicationFrameworkOnMvc-08-AutoMapperConfigEasier_Asset/image_thumb[1](72).png
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/09/BuildYourOwnApplicationFrameworkOnMvc-08-AutoMapperConfigEasier.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412086842180326" ;="">框架思路</a>  </li><li><a href="#WizKMOutline_1412086842180640" ;="">Interface的定義</a>  </li><li><a href="#WizKMOutline_1412086842180562" ;="">使用兩個interface的差異</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412086842180610" ;="">使用IMapFrom<t></t></a>  </li><li><a href="#WizKMOutline_1412086842180358" ;="">使用IHaveCustomMapping</a></li></ul> </li><li><a href="#WizKMOutline_1412086842180139" ;="">在系統啟動的時候註冊AutoMapper對應</a>  </li><li><a href="#WizKMOutline_1412086842180965" ;="">Task Module</a>  </li><li><a href="#WizKMOutline_1412086842180226" ;="">結語</a></li></ul></div> <p>在上一篇我們介紹了AutoMapper的設定和用法，使用起來肯定比自己手動做左邊倒到右邊還要簡單。 </p> <p>不過AutoMapper也不是沒有它自己的問題，最麻煩的地方在於設定Entity和Class之間的對應。這一篇要探討的就是，如何透過框架來減少這方面的設定。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412086842180326">框架思路</h1> <p>我們先來思考一下我們會如何達到簡化設定對應邏輯，然後在開始開發。 </p> <p>首先，其實AutoMapper本身有所謂的Profile，可以透過Profile來設定Entity和ViewModel之間的對應。不過我個人比較傾向於Entity和ViewModel的對應邏輯是能夠簡單看到並且是在一起，換句話說，如果能夠在ViewModel定義好和Entity的對應關係不是很好，因為只要一找到ViewModel，馬上就知道它和Entity的關係。 </p> <p>有了這個概念，我們就可以來看一下我們如何透過Interface來達到這個效果。 </p> <h1 id="WizKMOutline_1412086842180640">Interface的定義</h1> <p>我們要提供兩種定義的方式： </p> <ol> <li><code>IMapFrom&lt;T&gt;</code> - T表示這個ViewModel對應的Entity  </li><li><code>IHaveCustomMapping</code> - 表示這個ViewModel要自己對應Entity和設定自己的邏輯 </li></ol> <p>因此看起來會是： </p><figure><a href="http://lh4.ggpht.com/-9aOpUQWtjxQ/VCq9hSSUVVI/AAAAAAAANek/n9ryaMyFBqg/s1600-h/image%25255B3%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2014-09-30-BuildYourOwnApplicationFrameworkOnMvc-08-AutoMapperConfigEasier_Asset/image_thumb[1](72).png" width="384" height="187" class="img-responsive"></a><br><figcaption>interface的Class diagram</figcaption> </figure> <p>然後實際的C#程式碼是： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 設定ViewModel要對應的Model。
+/// 這個用預設的Convention來對應
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;要被對應到的Type&lt;/typeparam&gt;
+public interface IMapFrom&lt;T&gt;
+{
+}
+
+/// &lt;summary&gt;
+/// 設定ViewModel要對應的Model
+/// 如果需要客制AutoMapper的邏輯，讓ViewModel實作此Interface
+/// &lt;/summary&gt;
+public interface IHaveCustomMapping
+{
+    /// &lt;summary&gt;
+    /// 設定自定義的Mapping邏輯
+    /// &lt;/summary&gt;
+    /// &lt;param name="configuration"&gt;Automapper的Config物件&lt;/param&gt;
+    void CreateMappings(IConfiguration configuration);
+}
+</code></pre><br><h1 id="WizKMOutline_1412086842180562">使用兩個interface的差異</h1><br><h2 id="WizKMOutline_1412086842180610">使用IMapFrom&lt;T&gt;</h2><br><p>我們先看一下上一篇我們<code>IndexViewModel</code>本來的用法： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">Mapper.CreateMap&lt;Post, IndexViewModel&gt;();
+var projectIQueryable = (db.Post.Project().To&lt;IndexViewModel&gt;()).ToList();
+</code></pre><br><p>如果改用成我們的interface，會變成： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// ViewModel加上interface
+public class IndexViewModel : IMapFrom&lt;Post&gt;
+
+....
+// 在實際呼叫的時候，會和之前一樣，只是不需要呼叫CreatMap
+
+var projectIQueryable = (db.Post.Project().To&lt;IndexViewModel&gt;()).ToList();
+</code></pre><br><h2 id="WizKMOutline_1412086842180358">使用IHaveCustomMapping</h2><br><p>這個是假設有特殊的對應邏輯才在呼叫，使用上會是： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class IndexViewModel : IHaveCustomMapping
+{
+	// properties
+
+    public void CreateMappings(IConfiguration configuration)
+    {
+        configuration.CreateMap&lt;Post, IndexViewModel&gt;();
+    }
+}
+</code></pre><br><p>可以看到，AutoMapper的<code>IConfiguration</code>會被傳進來，這時候就可以手動設定對應邏輯。 </p><br><p>到這邊為止，我們interface的定義和使用就完成了，不過接下來我們還需要讓這兩個interface實際有作用，要不然是沒有效果。 </p><br><h1 id="WizKMOutline_1412086842180139">在系統啟動的時候註冊AutoMapper對應</h1><br><p>當我們用了interface把這些ViewModel的對應都定義好了之後，我們希望在系統啟動了之後，讀出所有設定過這兩種interface的ViewModel，並且作出對應的AutoMapper設定。 </p><br><p>我們首先寫好使用這兩個interface的邏輯： </p><br><p>顯示取得所有實作這兩個interface的type： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 註冊有設定AutoMapper的viewmodel
+/// &lt;/summary&gt;
+public class AutoMapperConfig : IRunAtStartup
+{
+	/// &lt;summary&gt;
+	/// 要執行的邏輯
+	/// &lt;/summary&gt;
+	public void Execute()
+	{
+		var typeOfIHaveCustomMapping = typeof(IHaveCustomMapping);
+		var typeOfIMapFrom = typeof(IMapFrom&lt;&gt;);
+	
+		// Type 符合 IHaveCustomMapping 和 IMapFrom 的 predicate方法
+		// 這個predicate 的條件和下面個別mapping的第一個條件是一致的。
+		Func&lt;Type, bool&gt; predicate = (t =&gt; typeOfIHaveCustomMapping.IsAssignableFrom(t) // 找到符合IHaveCustomMapping
+					|| t.GetInterfaces().Where(i =&gt; i.IsGenericType &amp;&amp; i.GetGenericTypeDefinition() == typeOfIMapFrom).Any()); // 找到符合IMapFrom&lt;&gt;
+	
+		var types = AssemblyTypes.GetAssemblyFromDirectory(assembly =&gt; assembly.GetExportedTypes().Where(predicate).Any())     // 選擇要讀進來的Assembly - 只有符合IHaveCustomMapping 和 IMapFrom才讀
+			// 把讀進來的Assembly取出裡面符合兩個interface的Type
+				.SelectMany(x =&gt; x.GetExportedTypes()
+				.Where(predicate)).ToList();
+	
+		LoadStandardMappings(types);
+	
+		LoadCustomMappings(types);
+	}
+	
+}
+</code></pre><br><p>在來針對兩個不同的interface呼叫不同的mapping邏輯： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 註冊如果使用是自定義邏輯的Mapping
+/// &lt;/summary&gt;
+/// &lt;param name="types"&gt;可能符合的Type&lt;/param&gt;
+private static void LoadCustomMappings(IEnumerable&lt;Type&gt; types)
+{
+	var maps = (from t in types
+				from i in t.GetInterfaces()
+				where typeof(IHaveCustomMapping).IsAssignableFrom(t) &amp;&amp;
+					!t.IsAbstract &amp;&amp;
+					!t.IsInterface
+				select (IHaveCustomMapping)Activator.CreateInstance(t)).ToArray();
+
+	foreach (var map in maps)
+	{
+		map.CreateMappings(AutoMapper.Mapper.Configuration);
+	}
+}
+
+/// &lt;summary&gt;
+/// Loads the standard mappings.
+/// &lt;/summary&gt;
+/// &lt;param name="types"&gt;The types.&lt;/param&gt;
+private static void LoadStandardMappings(IEnumerable&lt;Type&gt; types)
+{
+	var maps = (from t in types
+				from i in t.GetInterfaces()
+				where i.IsGenericType &amp;&amp; i.GetGenericTypeDefinition() == typeof(IMapFrom&lt;&gt;) &amp;&amp;
+					!t.IsAbstract &amp;&amp;
+					!t.IsInterface
+				select new
+				{
+					Source = i.GetGenericArguments()[0],
+					Destination = t
+				}).ToArray();
+
+	foreach (var map in maps)
+	{
+		AutoMapper.Mapper.CreateMap(map.Source, map.Destination);
+	}
+}
+
+</code></pre><br><h1 id="WizKMOutline_1412086842180965">Task Module</h1><br><p>在上面的部分，如果注意看的話，<code>AutoMapperConfig : IRunAtStartup</code>。而<code>IRunAtStartup</code>其實屬於我們框架的Task系統。以<code>IRunAtStartUp</code> 來說，表示實作這個interface的Class將會在系統啟動的時候執行。 </p><br><p>因此我們先設定這個Task的Autofac Module： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers"> /// &lt;summary&gt;
+/// Autofac用來註冊Task相關的服務
+/// &lt;/summary&gt;
+public class TaskModule : Autofac.Module
+{
+    /// &lt;summary&gt;
+    /// Override to add registrations to the container.
+    /// &lt;/summary&gt;
+    /// &lt;param name="builder"&gt;The builder through which components can be
+    /// registered.&lt;/param&gt;
+    /// &lt;remarks&gt;
+    /// Note that the ContainerBuilder parameter is unique to this module.
+    /// &lt;/remarks&gt;
+    protected override void Load(Autofac.ContainerBuilder builder)
+    {
+        var assemblies = Assembly.GetExecutingAssembly();           
+        builder.RegisterAssemblyTypes(assemblies).As&lt;IRunAtStartup&gt;();
+    }
+}
+</code></pre><br><p>然後在Global.asax的地方註冊這個Module： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// global.asax Application_Start
+...
+Builder.RegisterModule&lt;TaskModule&gt;();
+..
+</code></pre><br><p>最後，因為這個<code>IRunAtStartup</code>屬於系統啟動的時候執行，因此在同樣<code>global.asax</code>裡面的<code>Application_Start</code>，我們就會： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// global.asax Application_Start
+...
+
+var container = builder.Build();
+
+DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+
+// 執行IRunAtStartUp的實作物件
+using (var scope = container.BeginLifetimeScope())
+{
+    var runAtStartUpTasks = scope.Resolve&lt;IEnumerable&lt;IRunAtStartup&gt;&gt;();
+
+    foreach (var item in runAtStartUpTasks)
+    {
+        item.Execute();
+    }
+}
+</code></pre>這樣我們有設定的那兩種interface Mapping的AutoMapper定義就會有效果了。 <br><h1 id="WizKMOutline_1412086842180226">結語</h1><br><p>在這一篇我們把AutoMapper的對應設定邏輯利用2種interface把它抽到了和ViewModel一起定義。這樣的好處是我們只要看到ViewModel，就會知道他和那些Entity有對應關係。 </p><br><p>希望透過這一篇，讓在使用AutoMapper的時候能夠更簡單，並且更容易使用。 </p><br><p>在下一篇，我們來看如何透過Unit of Work和Repository Pattern把DB的溝通抽出來。 </p>  

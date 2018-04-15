@@ -1,0 +1,33 @@
+Title: "[faq]解決C#呼叫有ssl憑證問題的網站出現遠端憑證是無效的錯誤問題"
+Published: 2017-12-10
+Modified: 2017-12-10
+Image: /posts/migrate/2017-12-10-csharp-ssl-remote-validation-error_Asset/image_thumb(54).png
+Tags: ["faq","c#","net-core"]
+RedirectFrom: 2017/12/csharp-ssl-remote-validation-error.html
+Series: []
+---
+<section><figure><a href="https://lh3.googleusercontent.com/-JYd3W8Ook2Y/Wi1QcHlRr7I/AAAAAAAAW-s/biOWa3XejEQJyP9rC-ZA521hbEt8ZLWewCHMYCw/s1600-h/image%255B2%255D"><img width="654" height="290" title="image" style="margin: 0px; display: inline; background-image: none;" alt="image" src="/posts/migrate/2017-12-10-csharp-ssl-remote-validation-error_Asset/image_thumb(54).png" border="0" class="img-responsive"></a><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>  有時候需要在C#的程式裡面發出request和內部或者外部的服務溝通，如果內部或者外部的服務<em>只允許https連線</em>，而且的ssl憑證<em>並沒有經過認證</em>（有可能是用self signed certifcate），那麼C#會直接出錯：   </p><div class="bs-callout bs-callout-warning"><figure><a href="https://lh3.googleusercontent.com/-Zppc3bujlHs/Wi1QhO4A1zI/AAAAAAAAW-0/O1O1FJq8p8M4ki9uUA7QIOPaY-F151A7ACHMYCw/s1600-h/image%255B5%255D"><img width="654" height="275" title="image" style="margin: 0px; display: inline; background-image: none;" alt="image" src="/posts/migrate/2017-12-10-csharp-ssl-remote-validation-error_Asset/image_thumb[1](48).png" border="0" class="img-responsive"></a><br><figcaption>錯誤訊息範例畫面</figcaption></figure><p>   system.security.authentication.authenticationexception the remote certificate is invalid according to the validation procedure    </p><p>   System.Net.Http.HttpRequestException: 傳送要求時發生錯誤。 ---&gt; System.Net.WebException: 基礎連接已關閉: 無法為 SSL/TLS 安全通道建立信任關係。<br>---&gt; System.Security.Authentication.AuthenticationException: 根據驗證程序，遠端憑證是無效的。    </p></div><p>  一般來說要解決這個問題有兩個做法：   </p><ol><li>把self sign的certificate裝到程式的機器上面並且信任那個憑證</li><li>在送出request的時候做一些特殊處理</li></ol><p>  這篇將會對於第二個做法，調整程式讓發出request遇到這種問題的時候能夠處理這種問題。   </p></section>   <section> <a name="KMContentPageTopID" id="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin: 0px 0px 0px 20px;"><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1512918951204683" ;="">問題發生原因</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1512918951204650" ;="">解決方式</a><br></li><ul style="margin: 0px 0px 0px 30px;"><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1512918951204652" ;="">.Net Framework裡面的處理方式</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1512918951204800" ;="">.Net Core裡面的處理方式</a><br></li></ul><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1512918951204346" ;="">結語</a><br></li></ul></div></section>   <a name="more"></a><section><h2 id="WizKMOutline_1512918951204683">問題發生原因</h2><p>  基本上合法的ssl憑證一定會是由一個可信任的機構發出，不過有時候有些服務只是要<em>把通訊的管道加密</em>，為了節省成本（或者其他什麼原因）而使用了self sign certificate (自我簽章的憑證)。   </p><p>  理論上任何會對外被呼叫到的https網站都不應該用self sign certificate，因此，從C#發出的https request（不管是用<code>WebClient</code>還是<code>HttpClient</code>）都會<em>檢查ssl憑證是否合法</em>。   </p><p>  也就是因為這個檢查導致出現錯誤。   </p></section><section><h2 id="WizKMOutline_1512918951204650">解決方式</h2><p>  取決於你的target platform是什麼，有兩種解決方式：   </p><ol><li>.Net Framework裡面的處理方式</li><li>.Net Core裡面的處理方式</li></ol><section><h3 id="WizKMOutline_1512918951204652">.Net Framework裡面的處理方式</h3><p>   基本上有個<em>全域</em>的事件叫做<code>ServicePointManager.ServerCertificateValidationCallback</code>會在ssl憑證驗證的時候被觸發，因此假設不管檢查結果是如何，<em>都要通過</em>的情況下，可以再<em>系統啟動的時候</em>呼叫：    </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">ServicePointManager.ServerCertificateValidationCallback +=
+ (sender, cert, chain, sslPolicyErrors) =&gt; true;</code></pre><p>   不過這個有點太大，因此建議還是<em>針對性</em>的去通過比較好，舉例來說，假設有ssl憑證的host是：<code>problem.com</code>，那麼可以只當host是<code>problem.com</code>的情況下有驗證錯誤在過，範例如下： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">ServicePointManager
+   .ServerCertificateValidationCallback +=
+  (sender, cert, chain, sslPolicyErrors) =&gt;
+   {
+    if (sslPolicyErrors == SslPolicyErrors.None)
+    {
+     return true;
+    }
+    var request = sender as HttpWebRequest;
+    if (request != null)
+    {
+     var result = request.RequestUri.Host == "problem.com";
+
+     return result;
+    }
+    return false;
+   };</code></pre><p>   程式應該還蠻好理解：    </p><ul><li>如果ssl驗證沒有錯誤，直接回傳過(true)</li><li>判斷request的host是不是符合我們已知有問題憑證的host - 如果是就回傳過(true)</li><li>要不然都不過(false)</li></ul><div class="bs-callout bs-callout-info">    或許你會說幹嘛這麼麻煩，何不都過就好？這個其實是為了明確定義那些是特例可以通過，那些不可以。     要記得，這個修改是<em>全域</em>都有作用，換句話說所有送出的request，包含像是Xml Web Service這種reference都會吃，因此明確一點比較好。    </div></section><section><h3 id="WizKMOutline_1512918951204800">.Net Core裡面的處理方式</h3><p>   在.Net Core裡面會發現沒有<code>ServicePointManager</code>，只有在<code>HTTPClient 4.1</code>的版本以上有支援可以再request裡面設定（其實.Net Framework如果用的也是HttpClient 4.1 以上也可以用這種方式）：    </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">var handler = new HttpClientHandler();
+handler.ClientCertificateOptions = ClientCertificateOption.Manual;
+handler.ServerCertificateCustomValidationCallback = 
+    (httpRequestMessage, cert, cetChain, policyErrors) =&gt;
+ {   
+  return true;
+ };
+var client = new HttpClient(handler);</code></pre><div class="bs-callout bs-callout-info">    因為這個設定是和某一個client有關，因此直接全部return true比較不會有問題 - 不像上面是一個全域的事件。    </div></section></section><section><h2 id="WizKMOutline_1512918951204346">結語</h2><p>  基本上這個問題透過google就能夠找到，不過比較少有提到判斷host的部分（都是直接return true），因此這邊做一個記錄方便以後找到。   </p></section> <section> <div class="wlWriterEditableSmartContent" id="scid:77ECF5F8-D252-44F5-B4EB-D463C5396A79:c2375ff5-6582-4564-b6b9-51284622d184" style="margin: 0px; padding: 0px; float: none; display: inline;">標籤: <a href="/tags/C%23" rel="tag">C#</a>,<a href="/tags/FAQ" rel="tag">FAQ</a>,<a href="/tags/net-core" rel="tag">net-core</a></div></section>

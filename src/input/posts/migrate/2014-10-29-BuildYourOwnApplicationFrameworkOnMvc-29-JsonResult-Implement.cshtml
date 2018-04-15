@@ -1,0 +1,132 @@
+Title: "[iThome 第七屆鐵人賽 29] Javascript和Mvc溝通 - 實作篇"
+Published: 2014-10-29
+Modified: 2016-03-03
+Image: ""
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-29-JsonResult-Implement.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1414590340060520" ;="">解決思路</a>  </li><li><a href="#WizKMOutline_1414590340061863" ;="">CoreJsonResult</a>  </li><li><a href="#WizKMOutline_1414590340061864" ;="">在BaseController增加呼叫方法</a>  </li><li><a href="#WizKMOutline_1414590340061121" ;="">呼叫的範例</a>  </li><li><a href="#WizKMOutline_1414590340062289" ;="">結語</a></li></ul></div> <p>上一篇介紹完了在Mvc的框架裡面，用Json方式傳遞資料的問題之後，接下來將會看這些問題將會如何解決。 </p> <ul><li><strong><em>2016 更新程式碼：在正式機器的JsonError拿不到物件資料的問題</em></strong> - 詳細可以看：<a href="http://blog.alantsai.net/2016/03/asp-net-mvc-http-status-400-jsonresult-not-return-show-bad-request.html#WizKMOutline_1457012277962691">[Asp .Net Mvc]http status 400 的JsonResult在正式機器無法取得回傳的Json資料</a></li></ul> <a name="more"></a> <h1 id="WizKMOutline_1414590340060520">解決思路</h1> <p>首先，最大的問題是Json內建的Serialization是沒有辦法讓我們解決這些問題。因此，我們將會使用Json .Net作為Serialization的library。 </p> <p>再來，會建立一個Class繼承JsonResult，來對裡面做一些處理。不過，需要注意到，因為Mvc裡面的JsonResult寫的比較死，因此有些部分還是需要重複原始的JsonResult內容，讓整個使用起來和之前的Api一樣。 </p> <p>最後，會在之前建立的BaseController寫一些method，方便呼叫來建立新的JsonResult的class。 </p> <h1 id="WizKMOutline_1414590340061863">CoreJsonResult</h1> <p>先從客制的JsonResult開始，首先這個客制的JsonResult會記錄需要顯示的錯誤訊息，並且保留和之前JsonResult一樣的api，因此： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class CoreJsonResult : JsonResult
+{
+    public IList&lt;string&gt; ErrorMessages { get; set; }
+
+    public CoreJsonResult()
+    {
+        ErrorMessages = new List&lt;string&gt;();
+    }
+
+    public void AddError(string errorMessage)
+    {
+        ErrorMessages.Add(errorMessage);
+    }
+
+    public override void ExecuteResult(ControllerContext context)
+    {
+        if (context == null)
+        {
+            throw new ArgumentNullException("context");
+        }
+
+        if (this.JsonRequestBehavior == JsonRequestBehavior.DenyGet &amp;&amp;
+            string.Equals(context.HttpContext.Request.HttpMethod, "GET", StringComparison.OrdinalIgnoreCase))
+        {
+            throw new InvalidOperationException("GET access is not allowed.  Change the JsonRequestBehavior if you need GET access.");
+        }
+
+        var response = context.HttpContext.Response;
+        
+        response.ContentType = string.IsNullOrEmpty(ContentType) ? "application/json" : ContentType;
+
+        if (ContentEncoding != null)
+        {
+            response.ContentEncoding = ContentEncoding;
+        }
+
+        SerializeData(response);
+    }
+}
+</code></pre><p>再來<code>SerializeData</code>才是實際要序列化物件的時候要做的事情： </p><pre class="brush: csharp;;highlight:[15]"><code class="language-csharp line-numbers">protected virtual void SerializeData(HttpResponseBase response)
+{
+    if (ErrorMessages.Any())
+    {
+        var originalData = Data;
+        Data = new
+        {
+            Success = false,
+            OriginalData = originalData,
+            ErrorMessage = string.Join("\n", ErrorMessages),
+            ErrorMessages = ErrorMessages.ToArray()
+        };
+
+        response.StatusCode = 400;
+        response.TrySkipIisCustomErrors = true;
+    }
+
+    var settings = new JsonSerializerSettings
+    {
+        ContractResolver = new CamelCasePropertyNamesContractResolver(),
+
+        Converters = new JsonConverter[]
+        {
+            new StringEnumConverter(), 
+        }
+    };
+
+    response.Write(JsonConvert.SerializeObject(Data, settings));
+}
+</code></pre><p>可以看到，這一邊的序列化使用的就是Json .Net。那用Json .Net序列化的時候有增加一些設定： </p><ol><li>使用了CamelCase作為序列化出來的參數樣式  </li><li>遇到Enum的時候，序列化出來的是string的樣子而不是數字的值 </li></ol><p>最後，為了方便傳遞序列化物件的形態，可以在增加一個泛型的版本： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class CoreJsonResult&lt;T&gt; : CoreJsonResult
+{
+    public new T Data
+    {
+        get { return (T)base.Data; }
+        set { base.Data = value; }
+    }
+}
+</code></pre><h1 id="WizKMOutline_1414590340061864">在BaseController增加呼叫方法</h1><p>還記得之前有介紹過使用BaseController。在之後使用這個CoreJsonResult，當然不希望手動new這個物件出來，因此可以再Controller增加方法，讓使用CoreJsonResult變的更加的簡單。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class BaseController : Controller
+{
+    protected CoreJsonResult JsonValidationError()
+    {
+        var result = new CoreJsonResult();
+
+        foreach (var validationError in 
+    ModelState.Values.SelectMany(v =&gt; v.Errors))
+        {
+            result.AddError(validationError.ErrorMessage);
+        }
+
+        return result;
+    }
+
+    protected CoreJsonResult JsonError(string errorMessage)
+    {
+        var result = new CoreJsonResult();
+
+        result.AddError(errorMessage);
+
+        return result;
+    }
+
+    protected CoreJsonResult&lt;T&gt; JsonSuccess&lt;T&gt;(T data)
+    {
+        return new CoreJsonResult&lt;T&gt; { Data = data };
+    }
+}
+</code></pre><p>基本上有三個方便呼叫的方法： </p><ol><li>JsonValidationError - 這個是當ModelState驗證失敗的時候，呼叫的版本  </li><li>JsonError - 這個是當發生其他類型的錯誤的時候  </li><li>JsonSuccess - 這個是當要Json返回ViewModel的時候呼叫 </li></ol><h1 id="WizKMOutline_1414590340061121">呼叫的範例</h1><p>再來看一下實際使用的時候的範例： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// POST: /Users/Edit/5
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Edit(Edit viewModel)
+{
+    if (!ModelState.IsValid)
+    {
+        return JsonValidationError();
+    }
+
+    if (viewModel.Id == null)
+    {
+        return JsonError("Id不能是空");
+    }
+
+    // 如果需要以Json格式返回viewModel的時候
+    return JsonSuccess(viewModel);
+}
+</code></pre><p>這邊給了三個方法使用的時候和情況。可以注意到的是如果是手動回傳錯誤訊息（JsonValidationError或者是JsonError），返回的http status是400，因此在前端的Ajax，也是由 error方法執行。假設，今天是系統出錯了，例如丟出了exception，前端接到的還是error的方法，這樣error就是處理和錯誤有關的，不管是驗證錯誤還是不預期的錯誤。 </p><h1 id="WizKMOutline_1414590340062289">結語</h1><p>透過自訂的JsonResult，不只是在速度上面比原生的還快，還可以控制很多設定，例如使用camel case而不是用pascal case。 </p><p>有了自訂的JsonResult，前端需要和後端溝通也變的更加簡單。 </p>

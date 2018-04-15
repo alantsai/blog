@@ -1,0 +1,123 @@
+Title: "[iThome 第七屆鐵人賽 23] 搜索頁面 - Service層的工作 - 自動套用一般搜索條件"
+Published: 2014-10-15
+Modified: 2014-10-15
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-23-IndexPage-AutomaticSsearch.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1413386529549529" ;="">Service層的處理</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413386529549267" ;="">Service處理搜索的方法</a> </li><li><a href="#WizKMOutline_1413386529549636" ;="">Reflection取得欄位值和組成搜索條件</a> </li><li><a href="#WizKMOutline_1413386529549424" ;="">做搜索和用AutoMapper對應</a></li></ul> </li><li><a href="#WizKMOutline_1413386529549569" ;="">Controller呼叫搜索</a> </li><li><a href="#WizKMOutline_1413386529549363" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了如何動態產生Linq條件之後，在這一篇，將會透過Reflection和Dynamic Linq Query來讓Service層，能夠在不做任何事情的情況下，自動對資料做過濾，並且轉成對應的ViewModel配上分頁。 </p> <a name="more"></a> <h1 id="WizKMOutline_1413386529549529">Service層的處理</h1> <p>在處理搜索的部份，Service層將會需要： </p> <ol> <li>透過Reflection取得要搜索的欄位 - 這邊要記得是不要base的欄位（不要那些例如目前在第幾頁，和一頁幾筆的那種）  </li><li>依照Reflection的欄位和Dynamic LInq Query組成搜索條件  </li><li>做搜索並且用Automapper把Entity 對應到ViewModel搭配分頁 </li></ol>  <h2 id="WizKMOutline_1413386529549267">Service處理搜索的方法</h2> <p>首先，之前的那個<code>GenericService</code>將會多一個方法叫做<code>ProcessIndexViewModel</code> </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 通用行的Service layer實作
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;主要的Entity形態&lt;/typeparam&gt;
+public class GenericService&lt;T&gt; : IService&lt;T&gt;
+    where T : class
+{
+....
+	/// &lt;summary&gt;
+    /// 處理在Index ViewModel所需要做的事情
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TSearchForm"&gt;搜索form的形態&lt;/typeparam&gt;
+    /// &lt;typeparam name="TPageResult"&gt;搜索結果的形態&lt;/typeparam&gt;
+    /// &lt;param name="searchViewModel"&gt;搜索相關的viewmodel&lt;/param&gt;
+    /// &lt;param name="includes"&gt;需要Include進來的其他Entity&lt;/param&gt;
+    public virtual void ProcessIndexViewModel&lt;TSearchForm, TPageResult&gt;(ISearchViewModelBase&lt;TSearchForm, TPageResult&gt; searchViewModel,  
+        params System.Linq.Expressions.Expression&lt;Func&lt;T, object&gt;&gt;[] includes) 
+        where TSearchForm : ISearchFormViewModelBase, new()
+    {
+        var data = db.Repository&lt;T&gt;().Reads();
+
+        foreach (var item in includes)
+        {
+            data.Include(item);
+        }
+		
+		SearchViewModelProcess.ApplySearchForm&lt;T, TSearchForm, TPageResult&gt;(data,
+                    searchViewModel);
+    }
+....
+}
+</code></pre><br><p>基本上<code>ProcessIndexViewModel</code>會接受一個之前定義過的<code>SearchViewModelBase</code>的形態，同時假設搜索的內容需要做到Include的話，可以設定。 </p><br><p>再來就詳細看一下實際做搜索的邏輯。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 把Search Form Viewmodel的OrderBy和Where條件apply上去。
+/// 會把最終內容儲存到SearchViewModelBase.Result裡面。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;EF 的Entity&lt;/typeparam&gt;
+/// &lt;typeparam name="TSearchForm"&gt;Search Form ViewModel的Type&lt;/typeparam&gt;
+/// &lt;typeparam name="TPageResult"&gt;Search結果的VieModel type&lt;/typeparam&gt;
+/// &lt;param name="data"&gt;原始的IQueryable&lt;/param&gt;
+/// &lt;param name="searchForm"&gt;Search Form ViewModel&lt;/param&gt;
+public static void ApplySearchForm&lt;T, TSearchForm, TPageResult&gt;(IQueryable&lt;T&gt; data, ISearchViewModelBase&lt;TSearchForm, TPageResult&gt; searchForm)
+     where TSearchForm : ISearchFormViewModelBase, new()
+{
+    data = data.DynamicWhere(searchForm.SearchForm);
+
+    ApplyOrderByAndToPageResult&lt;T, TSearchForm, TPageResult&gt;(data, searchForm);
+}
+</code></pre><code>ApplySearchForm</code>會在呼叫兩個方法，一個是下搜索條件，一個是做實際的搜索的呼叫AutoMapper，先來看一下實際的搜索。 <br><h2 id="WizKMOutline_1413386529549636">Reflection取得欄位值和組成搜索條件</h2><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 依照Search Form ViewModel的值來設定Where的內容。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;通常是EF的Entity&lt;/typeparam&gt;
+/// &lt;param name="data"&gt;要被處理的資料&lt;/param&gt;
+/// &lt;param name="searchForm"&gt;Search Form Viewmodel的值&lt;/param&gt;
+/// &lt;returns&gt;有增加OrderBy的IQueryable&lt;/returns&gt;
+public static IQueryable&lt;T&gt; DynamicWhere&lt;T&gt;(this IQueryable&lt;T&gt; data, ISearchFormViewModelBase searchForm)
+{
+    var properties = searchForm.GetType().GetProperties
+						(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
+                        .Where(x =&gt; (x.GetGetMethod().GetBaseDefinition() == x.GetGetMethod())).ToArray(); // where 條件是用來避免override的property （例如：OrderByColumnName）也被算進去。
+
+    string whereCalus = string.Empty;
+    string andOperator = string.Empty;
+    List&lt;object&gt; propertiesValue = new List&lt;object&gt;();
+
+    for (int i = 0; i &lt; properties.Length; i++)
+    {
+        var value = properties[i].GetValue(searchForm);
+
+        if (string.IsNullOrEmpty(value.NonNullString()) == false)
+        {
+            whereCalus = string.Format("{0}{1} {2} = @@{3}", whereCalus, andOperator,
+                    properties[i].Name, propertiesValue.Count);
+
+            andOperator = " and";
+
+            propertiesValue.Add(value);
+        }
+    }
+
+    if (string.IsNullOrEmpty(whereCalus) == false)
+    {
+        data = data.Where(whereCalus, propertiesValue.ToArray());
+    }
+
+    return data;
+}
+</code></pre><br><p>這邊注意到核心是取得<code>properties</code>的部分，只需要後來繼承的欄位，和注意不要取得複寫的欄位，例如<code>OrderByColumnName</code>。之後，就是用Dynamic Linq Query來組裝搜索條件。 </p><br><p>執行完了<code>DynamicWhere</code>，就有了搜索的條件，接下來就是執行搜索條件並且轉成對應的ViewModel和分頁。 </p><br><h2 id="WizKMOutline_1413386529549424">做搜索和用AutoMapper對應</h2><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// Apply Orderby並且把最後結果塞到SearchViewModelBase.Result裡面。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;EF 的Entity&lt;/typeparam&gt;
+/// &lt;typeparam name="TSearchForm"&gt;Search Form ViewModel的Type&lt;/typeparam&gt;
+/// &lt;typeparam name="TPageResult"&gt;Search結果的VieModel type&lt;/typeparam&gt;
+/// &lt;param name="data"&gt;原始的IQueryable&lt;/param&gt;
+/// &lt;param name="searchForm"&gt;Search Form ViewModel&lt;/param&gt;
+private static void ApplyOrderByAndToPageResult&lt;T, TSearchForm, TPageResult&gt;(IQueryable&lt;T&gt; data, 
+    ISearchViewModelBase&lt;TSearchForm, TPageResult&gt; searchForm) where TSearchForm : ISearchFormViewModelBase, new()
+{
+    if (searchForm.SearchForm.IsAscending)
+    {
+        data = data.OrderBy(searchForm.SearchForm.OrderByColumnName);
+    }
+    else
+    {
+        data = data.OrderBy(searchForm.SearchForm.OrderByColumnName + " descending");
+    }
+
+    searchForm.Result = data.Project().To&lt;TPageResult&gt;().ToPagedList(searchForm.SearchForm.Page, searchForm.SearchForm.PageSize);
+}
+</code></pre><br><p>可以看到，先依照欄位做排序(這邊需要注意到<code>OrderBy</code>也是Dynamic Linq Query的方法)，然後在把資料轉型把結果放到Result裡面。 </p><br><h1 id="WizKMOutline_1413386529549569">Controller呼叫搜索</h1><br><p>在前面呼叫就變得比較簡單： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public ActionResult Index(Index searchViewModel)
+{
+    service.ProcessIndexViewModel(searchViewModel);
+
+    return View(searchViewModel);
+}
+</code></pre><br><p>Service是和之前一樣注入進來的。這邊把Index ViewModel作為方法參數是有兩個用意： </p><br><ol><br><li>如果要做搜索或者按下下一頁的時候，會直接post back到這一邊，因此要接住才可以。 <br></li><li>當第一次get的時候，為了邏輯一致，因此還是要呼叫<code>ProcessIndexViewModel</code>，但是如果Index ViewModel沒有被實例化，會造成裡面Property是null 導致出錯。 </li></ol><br><br><h1 id="WizKMOutline_1413386529549363">結語</h1><br><p>透過這一篇，可以讓框架幫我們針對一般的欄位和條件自動做搜索和分頁，不過這一篇沒有介紹在View上面如何使用。 </p><br><p>在下一篇，將會介紹如何透過template讓產生的搜索欄位在不同功能看起來一致，並且一些helper來幫助產生url。 </p>  

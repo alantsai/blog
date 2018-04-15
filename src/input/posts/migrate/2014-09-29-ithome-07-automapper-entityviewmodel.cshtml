@@ -1,0 +1,89 @@
+Title: "[iThome 第七屆鐵人賽 07] AutoMapper 介紹 - 簡單化Entity和ViewModel之間的轉換"
+Published: 2014-09-29
+Modified: 2014-09-29
+Image: /posts/migrate/2014-09-29-ithome-07-automapper-entityviewmodel_Asset/image_thumb[9](16).png
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/09/ithome-07-automapper-entityviewmodel.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412002434536252" ;="">AutoMapper介紹</a>  </li><li><a href="#WizKMOutline_1412002434536745" ;="">測試情景</a>  </li><li><a href="#WizKMOutline_1412002434536681" ;="">Index頁面的ViewModel</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412002434536920" ;="">沒有AutoMapper的做法</a>  </li><li><a href="#WizKMOutline_1412002434536913" ;="">用上AutoMapper</a>  </li><li><a href="#WizKMOutline_1412002434536951" ;="">需求變更</a>  </li><li><a href="#WizKMOutline_1412002434536164" ;="">Queryable Extension - 減少Sql Select的欄位</a></li></ul> </li><li><a href="#WizKMOutline_1412002434536224" ;="">Edit頁面的ViewModel</a>  </li><li><a href="#WizKMOutline_1412002434536901" ;="">結語</a></li></ul></div> <p>在上一篇介紹完ViewModel的好處之後，留下的問題是，ViewModel雖然有帶來好處，但是ViewModel和實際Entity之間的對應其實是很麻煩的一件事情，那麼我們如何能夠簡化對應的邏輯呢？ </p> <p>這時候就是AutoMapper這個套件入場的時候。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412002434536252">AutoMapper介紹</h1> <div class="bs-callout bs-callout-default"> <h4 kmcontenthide="1">AutoMapper<a href="http://lh3.ggpht.com/-5myKMDkYN1k/VCl3R_v-ukI/AAAAAAAANd8/8c5fYLeWXjg/s1600-h/image%25255B12%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-09-29-ithome-07-automapper-entityviewmodel_Asset/image_thumb[9](16).png" width="197" height="45" class="img-responsive"></a></h4> <ul> <li>套件Github首頁：<a href="https://github.com/AutoMapper/AutoMapper">https://github.com/AutoMapper/AutoMapper</a>  </li><li>Wiki頁：<a href="https://github.com/AutoMapper/AutoMapper/wiki">https://github.com/AutoMapper/AutoMapper/wiki</a>  </li><li>Nuget 安裝指令：<kbd>Install-Package AutoMapper</kbd> </li></ul></div> <p>AutoMapper的目的就是要解決無聊的左邊資料倒到右邊。我們舉一個例子，如果是在早期的Asp .Net Webform，當一個Form進來的時候，我們常常會需要： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// psuedo 程式碼
+
+string name = Request.Form["name"];
+string age = Request.Form["age"];
+.....
+</code></pre>這些其實很無聊但是又不得不做。在Mvc裡面Model Binding解決了這個問題。 <br><p>但是如果用ViewModel，還是有這個問題，因此就有人開發了AutoMapper。 </p><br><p>AutoMapper簡單來說，使用步奏就是： </p><br><ol><br><li>定義好兩個Class之間轉換的邏輯 <br></li><li>把object透過AutoMapper轉換成為另外一個形態的object </li></ol><br><h1 id="WizKMOutline_1412002434536745">測試情景</h1><br><p>在介紹AutoMapper之前，我們先設定好我們的測試情景。假設我們有一個DB，裡面一個Table叫做Post，代表著一個部落格網站裡面所擁有的文章。Entity可能如下： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public partial class Post
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string PostContent { get; set; }
+    public System.DateTime CreateDateTime { get; set; }
+    public Nullable&lt;System.DateTime&gt; LastModifyDateTime { get; set; }
+}
+</code></pre><br><p>那用這個Entity，透過Mvc的Scaffolding，我們建立出基本的CRUD頁面。那Scaffolding出來的CRUD，Entity會是預設的ViewModel。透過上一篇我們知道使用Entity做ViewModel的壞處是什麼，因此我們會開始針對CRUD建立對應的ViewModel。 </p><br><h1 id="WizKMOutline_1412002434536681">Index頁面的ViewModel</h1><br><h2 id="WizKMOutline_1412002434536920">沒有AutoMapper的做法</h2><br><p>假設我說，我們的Index頁面不要顯示<code>CreateDateTime</code>和<code>LastModifyDateTime</code>。我們當然可以只改View的HtmlHelper，不要顯示這兩個Property，不過等一下我們就知道為什麼用ViewModel更好。 </p><br><p>因此，我建立了一個如下的ViewModel： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class IndexViewModel
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string PostContent { get; set; }
+}
+</code></pre><br><p>在沒有時候AutoMapper的情況下，我們會需要做： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">List&lt;IndexViewModel&gt; viewModel = new List&lt;IndexViewModel&gt;();
+
+foreach (var item in db.Post.ToList())
+{
+    viewModel.Add(new IndexViewModel()
+    {
+        Id = item.Id,
+        PostContent = item.PostContent,
+        Title = item.Title
+    });
+}
+</code></pre><br><p>想想，我們才3個property而已就佔了這麼多行數的程式碼，如果有20個property不就很恐怖。而且，明明兩邊的Property都一樣，他不能夠自己對應嗎？ </p><br><h2 id="WizKMOutline_1412002434536913">用上AutoMapper</h2><br><p>如果用上AutoMapper，程式碼變成： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// 定義Post是來源的Class而IndexViewModel是最後結果
+Mapper.CreateMap&lt;Post, IndexViewModel&gt;();
+
+// 把List&lt;Post&gt;轉成List&lt;IndexViewModel&gt;
+var viewModel2 = Mapper.Map&lt;List&lt;IndexViewModel&gt;&gt;(db.Post.ToList());
+</code></pre><br><p>用了AutoMapper總共有2個好處： </p><br><ol><br><li><em>程式碼變少了:</em>本來要11行，現在只要2行 <br></li><li><em>程式碼的可讀性提高：</em>本來還會跑迴圈，如果property參數多了，看起來不是那麼直覺。但是用AutoMapper，非常直覺知道是在轉換Model形態 </li></ol><br><p>可能你會在想，為什麼我們什麼都沒有設定，AutoMapper就知道對應欄位是什麼？其實因為AutoMapper會自動把一樣的Property名字作為一對，以我們的例子，Property都一樣，因此我不需要做額外設定。 </p><br><h2 id="WizKMOutline_1412002434536951">需求變更</h2><br><p>假設，今天我們Index頁面的需求變了，變成在Index頁面的每一筆Post需要顯示<em>最後一次修改時間距離建立時間過了幾天，如果沒有最後一次修改時間，就用今天日期</em>，這個時候，我們就需要手動設定Property的值要如何產生。 </p><br><p>首先我們在<code>IndexViewModel</code>增加一個Property： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public double HowManyDayPass { get; set; }
+</code></pre><br><p>然後AutoMapper的轉換邏輯改一下： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">...
+Mapper.CreateMap&lt;Post, IndexViewModel&gt;()
+    .ForMember(member =&gt; member.HowManyDayPass, 
+    opt =&gt; opt.MapFrom(x =&gt; x.LastModifyDateTime == null ? 
+        (DateTime.Now - x.CreateDateTime).TotalDays : 
+        (x.LastModifyDateTime.Value - x.CreateDateTime).TotalDays));
+....
+</code></pre><br><p>應該很好懂，設定member.HowManyDayPass這個property的值要從：如果沒有<code>最後修改時間</code>，就用<code>今天日期</code>減掉<code>建立日期</code>。不然就用 <code>最後修改時間</code>減掉<code>建立時間</code>。 </p><br><h2 id="WizKMOutline_1412002434536164">Queryable Extension - 減少Sql Select的欄位</h2><br><p>AutoMapper其實有提供一個<code>IQueryable</code>的Extension方法，讓我們EF在對DB下Sql的時候，只下我們需要的部分。我們直接看例子： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">//需要先加Using
+using AutoMapper.QueryableExtensions;
+...
+
+var projectIQueryable = (db.Post.Project().To&lt;IndexViewModel&gt;()).ToList(); // AutoMapper QuerableExtension
+
+var normalIQuerable = db.Post.AsQueryable().ToList();
+
+...
+</code></pre><figure><a href="http://lh5.ggpht.com/-AnDxuA0OOB4/VCl3UG-DEdI/AAAAAAAANeM/XX1DGQZFDVY/s1600-h/image%25255B17%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-09-29-ithome-07-automapper-entityviewmodel_Asset/image_thumb[12](18).png" width="539" height="170" class="img-responsive"></a><br> <figcaption>用了AutoMapper產生的Sql(左邊)和沒用的產生Sql(右邊) </figcaption></figure><br><p>有這樣的效果是因為EF用了LazyLoading。 </p><br><h1 id="WizKMOutline_1412002434536224">Edit頁面的ViewModel</h1><br><p>這邊我快速介紹一下修改頁面的ViewModel。 </p><br><p>以我們的例子，只允許修改<code>Title</code>和<code>PostContent</code>而已，同時，<code>LastModifyDateTime</code>應該要自動使用系統時間。 </p><br><p>這個時候我們的EditViewModel就會是： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class EditViewModel
+{
+    public int Id { get; set; }
+    public string Title { get; set; }
+    public string PostContent { get; set; }
+}
+</code></pre><br><p>AutoMapper的設定： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Edit(EditViewModel post)
+{
+    if (ModelState.IsValid)
+    {
+        // 建立Mapping邏輯，並且LastModifyDateTime使用系統時間
+        Mapper.CreateMap&lt;EditViewModel, Post&gt;().
+            ForMember(member =&gt; member.LastModifyDateTime, 
+            opt =&gt; opt.UseValue(DateTime.Now));
+
+        Post postEntity = db.Post.Find(post.Id);
+
+        // 只更新ViewModel的部分到Entity
+        Mapper.Map(post, postEntity);
+            
+        db.Entry(postEntity).State = EntityState.Modified;
+        db.SaveChanges();
+        return RedirectToAction("Index");
+    }
+    return View(post);
+}
+</code></pre><br><h1 id="WizKMOutline_1412002434536901">結語</h1><br><p>到目前為止我們介紹了AutoMapper的基本概念，和基本的使用。相信在整體使用上面來說，比自己手動轉換來的方便。但是，假設以我們目前介紹的方式去做，AutoMapper還是有點不好用。 </p><br><p>其實最主要的問題是在：<em>設定對應邏輯的地方</em>。雖然說AutoMapper簡化了很多設定，可是還是要設定啊，這些設定到底要放在那裡？想象一下，假設我們每一個View有個 ViewModel，一個功能至少有CRUD，很快我們就有一堆ViewModel，這些設定就變的不好維護。雖然說AutoMapper簡化了很多設定，可是還是要設定啊，這些設定到底要放在那裡？想象一下，假設我們每一個View有個 ViewModel，一個功能至少有CRUD (4個ViewModel)，很快我們就有一堆ViewModel，這些設定就變的不好維護 </p><br><p>因此在下一篇，我們會建立一些功能，讓我們的在開發上面使用起來更方便和好維護。 </p>  

@@ -1,0 +1,84 @@
+Title: "[Visual Studio 2017]建立離線安裝(Offline Install)包"
+Published: 2017-03-12
+Modified: 2017-03-12
+Image: /posts/migrate/2017-03-12-visualstudio2017-offline-install_Asset/image_thumb[2](10).png
+Tags: ["visual studio"]
+RedirectFrom: 2017/03/visualstudio2017-offline-install.html
+Series: []
+---
+<section> <p>「工欲善其事，必先利其器」作為.Net 開發者來說最大的利器就是Visual Studio。 </p> <p>最近Visual Studio剛過完20歲週年並且發佈了最新版本VS 2017，當然要第一時間來試試看到底可以對開發增加多少幫助，這個時候會發現，怎麼都找不到離線安裝的版本了呢？ </p> <p>這篇將會介紹如何建立離線安裝版本的安裝檔。 </p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-left-style: none; border-bottom-style: groove; border-right-style: none; margin: 10px 0px"> <ul style="margin: 0px 0px 0px 20px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656480" ;="">Visual Studio 的安裝方式</a> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656558" ;="">建立離線安裝包</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656697" ;="">1. 下載對應版本的exe檔案</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656587" ;="">直接連接</a> </li></ul> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656419" ;="">2. 建立離線安裝包</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656819" ;="">檔案大小</a> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656452" ;="">VS 2013/2015的離線安裝建立方式</a></li></ul></li></ul> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656670" ;="">其他參數</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656273" ;="">下載特定語系</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656846" ;="">其他語系編號</a> </li></ul> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540656422" ;="">只下載特定功能</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540657258" ;="">Component Id 清單</a> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540657197" ;="">其他更多參數</a></li></ul></li></ul> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540657337" ;="">如何更新離線安裝包</a> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540657721" ;="">結語</a> </li><li><a style="font-size: 15px; line-height: 1.6" href="#WizKMOutline_1489280540657381" ;="">其他資訊</a></li></ul></div></section> <a name="more"></a><section> <h2 id="WizKMOutline_1489280540656480">Visual Studio 的安裝方式</h2> <p>現在軟體開發講究都是快速Release，這個從VS近年來的更新速度完全看的出來，為了趕上這些迭代更新的速度，VS的安裝方式也越來越不一樣。 </p> <p>從早期的光碟方式，到後來變成下載ISO檔案居多，最後到完全透過一個exe檔案邊安裝邊下載的模式 (VS 2017)。 </p> <p>透過EXE邊下載邊安裝好處是未來有更新任何部分，可以使用同一個exe來執行更新（想一下如果要快速迭代更新要建立多少個ISO檔案），但是壞處是如果要裝在一個網路速度很慢或者沒有網路環境的地方，就gg了。 </p> <p>幸好雖然VS 2017只有提供exe安裝方式 - 但是提供了方法讓我們可以建立自己的離線安裝包。 </p></section><section> <h2 id="WizKMOutline_1489280540656558">建立離線安裝包</h2> <p>要建立離線安裝包非常簡單，只需要： </p> <ol> <li>下載對應版本的exe安裝檔<br> </li><li>透過傳入參數的方式來建立離線安裝<br></li></ol> <h3 id="WizKMOutline_1489280540656697">1. 下載對應版本的exe檔案</h3> <p>可以到 Visual Studio的官網（<a href="https://www.visualstudio.com/downloads/">https://www.visualstudio.com/downloads/</a>）選擇要裝的版本下載。 </p> <div class="bs-callout bs-callout-info"> <h4 id="WizKMOutline_1489280540656587">直接連接</h4> <ol> <li>Community - <a href="https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&amp;rel=15">https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Community&amp;rel=15</a><br> </li><li>Professional - <a href="https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Professional&amp;rel=15">https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Professional&amp;rel=15</a><br> </li><li>Enterprise - <a href="https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Enterprise&amp;rel=15">https://www.visualstudio.com/thank-you-downloading-visual-studio/?sku=Enterprise&amp;rel=15</a><br></li></ol></div> <h3 id="WizKMOutline_1489280540656419">2. 建立離線安裝包</h3> <p>下載下來之後，用cmd執行執行以下語法即可： </p><pre class="brush: plain;"><code class="language-none line-numbers">vs_community.exe --layout c:\vs2017offline</code></pre>
+ <dl>
+ <dt>vs_community.exe 
+ </dt><dd>下載下來的exe，不同版本名稱不同，這邊用community做範例 
+ </dd><dd><br>
+ </dd><dt>--layout 
+ </dt><dd>告訴exe檔案要離線安裝 
+ </dd><dd><br>
+ </dd><dt>c:\vs2017offline 
+ </dt><dd>這個則是要安裝到哪裡的路徑，可以自己改變要存在哪裡 
+ </dd><dd></dd></dl>
+ <p>這個時候會出現一個請等待的畫面。 </p><figure><a href="https://lh3.googleusercontent.com/-awSvLqsLHfc/WMSiSUulwaI/AAAAAAAAVpk/DmheTXcCPDg/s1600-h/image%25255B2%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2017-03-12-visualstudio2017-offline-install_Asset/image_thumb[2](10).png" width="704" height="304" class="img-responsive"></a> <figcaption>請等待</figcaption></figure> 
+ <p>然後會在開啟一個cmd的視窗，並且會自動開始下載： </p><figure><a href="https://lh3.googleusercontent.com/-6_2ZzPQN9tI/WMSiVcrxUuI/AAAAAAAAVps/woyJObZ58Jc/s1600-h/image%25255B4%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2017-03-12-visualstudio2017-offline-install_Asset/image_thumb[4](7).png" width="704" height="356" class="img-responsive"></a> <figcaption>下載中</figcaption></figure> 
+ <p>這個時候就可以放著給他跑了，當下載完成，<em>cmd會自動關掉，不會有任何訊息說下載完成</em>。 </p>
+ <div class="bs-callout bs-callout-info">
+ <h4 id="WizKMOutline_1489280540656819">檔案大小</h4>
+ <p>我這邊只下載英文語系，然後全部功能大約需要 12.7GB。 </p></div>
+ <div class="bs-callout bs-callout-info">
+ <h4 id="WizKMOutline_1489280540656452">VS 2013/2015的離線安裝建立方式</h4>
+ <p>其實VS 2013開始的exe安裝方式也可以透過--layout參數來建立離線安裝包。和官方提供的ISO來比，這種方式的下載出來的比較全。 </p>
+ <p>VS 2013/2015的安裝畫面和2017最大差異在於之前版本可以直接用UI選擇要下載什麼，並且完成會有訊息告知完成。 </p></div></section><section>
+ <h2 id="WizKMOutline_1489280540656670">其他參數</h2>
+ <p>上面介紹的是基本建立方式，但是如果想要只安裝部分元件或者只要部分語言的話就需要其他參數，這邊介紹幾個其他參數的用法。 </p>
+ <h3 id="WizKMOutline_1489280540656273">下載特定語系</h3>
+ <p>預設，offline install是下載所有語系，但是通常情況是只會用到需要的語系而已。以我個人來說，習慣使用英文版，這個時候其他語系的檔案只是增加下載時間而已。 </p>
+ <p>語系可以在後面增加參數：<code>--lang $languageCode1</code></p>
+ <dl>
+ <dt>--lang 
+ </dt><dd>告訴她要下載特定語系 
+ </dd><dd><br>
+ </dd><dt>$languageCode1 
+ </dt><dd>要下載的語系名稱，如果有多個，就往下加每個code之間用空白區隔。 
+ </dd><dd></dd></dl>
+ <p>整個組合在一起就是： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers"># 安裝英文版本
+
+vs_community.exe --layout c:\vs2017offline --lang en-US
+
+# 安裝英文和繁體中文版本
+
+vs_community.exe --layout c:\vs2017offline --lang en-US zh-TW</code></pre>
+ <div class="bs-callout bs-callout-info">
+ <h4 id="WizKMOutline_1489280540656846">其他語系編號</h4>
+ <p>如果要安裝其他語系版本，語系編碼可以在這看到：<a href="https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio#list-of-language-locales">https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio#list-of-language-locales</a></p></div>
+ <h3 id="WizKMOutline_1489280540656422">只下載特定功能</h3>
+ <p>假設不希望下載全部功能，這個時候可以用參數 <code>--add $componentId</code></p>
+ <dl>
+ <dt>--add 
+ </dt><dd>告訴它下載特定功能就好 
+ </dd><dd><br>
+ </dd><dt>$componentId 
+ </dt><dd>要下載的功能清單，多個就用空白區隔即可 
+ </dd><dd></dd></dl><pre class="brush: powershell;"><code class="language-powershell line-numbers"># 只安裝 azure和github相關功能
+
+vs_community.exe --layout c:\vs2017offline --add Microsoft.VisualStudio.Workload.Azure Component.GitHub.VisualStudio </code></pre>
+ <div class="bs-callout bs-callout-info">
+ <h4 id="WizKMOutline_1489280540657258">Conponent Id 清單</h4>可以參考<a href="https://docs.microsoft.com/en-us/visualstudio/install/workload-and-component-ids">https://docs.microsoft.com/en-us/visualstudio/install/workload-and-component-ids</a>找到自己要的component Id </div>
+ <div class="bs-callout bs-callout-info">
+ <h4 id="WizKMOutline_1489280540657197">其他更多參數</h4>
+ <p>還有其他參數可以下，在這邊可以找到相關資訊<a href="https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio">https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio</a></p></div></section><section>
+ <h2 id="WizKMOutline_1489280540657337">如何更新離線安裝包</h2>
+ <p>假設過了一段時間之後，VS 2017的Component有更新，這個時候是否需要重新下載全部的功能呢？ </p>
+ <p>其實是不用的，只需要把你當初下載離線包的指令在執行一次，有更新的部分就會自動更新。 </p>
+ <div class="bs-callout bs-callout-info">
+ <p>這邊要注意是一樣的指令哦，要不然會下載其他東西。舉例來說，如果當初只安裝英文版，後來沒加上英文版，其他語系也會被下載下來。 </p></div></section><section>
+ <h2 id="WizKMOutline_1489280540657721">結語</h2>
+ <p>這篇介紹了如何建立自己的離線安裝包並且如何客制一些常見的參數。當離線包有了，就可以節省其他人安裝的時間。 </p>
+ <h2 id="WizKMOutline_1489280540657381">其他資訊</h2>
+ <dl>
+ <dt>官方介紹如何建立離線包 
+ </dt><dd><a href="https://docs.microsoft.com/en-us/visualstudio/install/create-an-offline-installation-of-visual-studio">https://docs.microsoft.com/en-us/visualstudio/install/create-an-offline-installation-of-visual-studio</a> 
+ </dd><dd><br>
+ </dd><dt>exe其他參數 
+ </dt><dd><a href="https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio">https://docs.microsoft.com/en-us/visualstudio/install/use-command-line-parameters-to-install-visual-studio</a> 
+ </dd><dd><br>
+ </dd><dt>可安裝的component 對應id清單 
+ </dt><dd><a href="https://docs.microsoft.com/en-us/visualstudio/install/workload-and-component-ids">https://docs.microsoft.com/en-us/visualstudio/install/workload-and-component-ids</a></dd></dl></section>

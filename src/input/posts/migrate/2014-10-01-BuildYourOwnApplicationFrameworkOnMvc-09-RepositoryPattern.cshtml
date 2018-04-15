@@ -1,0 +1,241 @@
+Title: "[iThome 第七屆鐵人賽 09] 用Repository Pattern抽離對Entity Framework的依賴"
+Published: 2014-10-01
+Modified: 2014-11-30
+Image: /posts/migrate/2014-10-01-BuildYourOwnApplicationFrameworkOnMvc-09-RepositoryPattern_Asset/3 Layer Architecture_thumb[4](1).jpg
+Tags: ["entity framework","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-09-RepositoryPattern.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412174793876698" ;="">Data Acce Layer (DAL)</a> </li><li><a href="#WizKMOutline_1412174793876190" ;="">用Entity Framework做DAL的問題</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412174793876581" ;="">Repository Pattern</a></li></ul> </li><li><a href="#WizKMOutline_1412174793876470" ;="">定義Repository的interface</a> </li><li><a href="#WizKMOutline_1412174793876863" ;="">Entity Framework的Repository interface實作</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412174793876954" ;="">使用Entity Framework的Repository</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412174793876119" ;="">注入的部分</a> </li><li><a href="#WizKMOutline_1412174793876627" ;="">Create和Read(Index)用法比對</a> </li><li><a href="#WizKMOutline_1412174793876991" ;="">Update和Delete用法比對</a></li></ul> </li><li><a href="#WizKMOutline_1412174793876583" ;="">模擬要做單元測試，把Repository實作抽換</a></li></ul> </li><li><a href="#WizKMOutline_1412174793876351" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了如何讓ViewModel和Entity之間的轉換透過AutoMapper變的更簡單，然後透過框架讓設定ViewModel和Entity之間的對應關係變的容易。 </p> <p>在這一篇，將會看Data Access Layer （DAL）的部份，也就是儲存資料層的部份。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412174793876698">Data Acce Layer (DAL)</h1> <p>不管任何大小的軟體，通常都會需要儲存資料。而這個儲存資料最常見的就是儲存到資料庫裡面。以Asp .Net Mvc來說，最常見的就是透過Entity Framework這個ORM的技術來儲存到實體的資料庫，例如MS Sql，Oracle等。 </p> <p>而如果以Entity Framework來講，它所在的角色就屬於DAL層。 </p> <p>以一般比較常見的三層是架構，大概就會如下圖： </p> <p><a href="http://lh5.ggpht.com/-2nAYDvLr-FI/VCwVG1kV_oI/AAAAAAAANfI/zKOFFBmXk4A/s1600-h/3%252520Layer%252520Architecture%25255B6%25255D.jpg"><img title="3 Layer Architecture" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="3 Layer Architecture" src="/posts/migrate/2014-10-01-BuildYourOwnApplicationFrameworkOnMvc-09-RepositoryPattern_Asset/3 Layer Architecture_thumb[4](1).jpg" width="414" height="274" class="img-responsive"></a></p><figure> <figcaption>一般的三層式架構 - 裡面白色的表示Mvc裡面比和3層式架構較相近的對應</figcaption> </figure> <h1 id="WizKMOutline_1412174793876190">用Entity Framework做DAL的問題</h1> <p>其實這個問題不只有使用Entity Framework會，任何的DAL實作都有這個問題。 </p> <p>舉個例子來說，假設今天我們用的是Entity Framework作為DAL層，如果開發到一半，對方突然要求不要使用Entity Framework，而是要改成傳統的ADO .Net作為DAL怎麼辦？ </p> <p>或者說如果要做單元測試（Unit Testing），肯定不希望在跑的時候還是連資料庫，而是希望連一些假資料，這時候怎麼辦？ </p> <p>解決方法其實很簡單，就是把實際的DAL在抽一層出來，就有了所謂的Repository Pattern。 </p> <h2 id="WizKMOutline_1412174793876581">Repository Pattern</h2> <p>一般來說，在寫Mvc裡面最長看到的Pattern就是Repository Pattern。 </p> <p>這個Pattern概念非常簡單，Repository其實有儲存庫的意思，所以這個Pattern的意思是，把實際的DAL層透過所謂的Repository封裝之後，從外面的角度來說是和Repository 溝通來取得資料，至於Repository的資料來源是那裡，就不管了。 </p> <p>文字敘述可能有些抽象，我們來看一張圖： </p> <p><a href="http://lh6.ggpht.com/-CJ34Voz5HJI/VCwVN1vqeDI/AAAAAAAANfY/VPxUveJPQwI/s1600-h/image%25255B10%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-10-01-BuildYourOwnApplicationFrameworkOnMvc-09-RepositoryPattern_Asset/image_thumb[6](36).png" width="387" height="379" class="img-responsive"></a></p><figure> <figcaption>Repository的好處：圖片來源： <a href="http://www.asp.net/mvc/tutorials/getting-started-with-ef-5-using-mvc-4/implementing-the-repository-and-unit-of-work-patterns-in-an-asp-net-mvc-application">Implementing the Repository and Unit of Work Patterns in an ASP.NET MVC Application (9 of 10)</a></figcaption> </figure> <p>可以看到，左邊的圖是一般直接用Entity Framework，而右邊使用了Repository Pattern + Unit of Work（下一篇介紹），因此可以再真實的環境用Entity Framework連資料庫，然後在單元測試的時候，連假資料。 </p> <p>這樣就可以把實際的資料來源抽象化，提供更大的彈性。 </p> <h1 id="WizKMOutline_1412174793876470">定義Repository的interface</h1> <p>Repository有很多種實作方法，共通的來說，1個Repository代表一個<em>DB 裡面的 Table</em>。通常的做法有兩種，一種是每一個Table就一個interface，另外一種是以Generic的方式，寫一種通用型的Repository。 </p> <p>我這邊會介紹的是通用型的Repository。 </p> <p>首先，一般的DB 動作有所謂的CRUD，因此我們的interface就至少會包含這幾種動作。同時，我們還會有一個SaveChanges的方法，代表把目前有記錄的動作執行。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 代表一個Repository的interface。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;任意model的class&lt;/typeparam&gt;
+public interface IRepository&lt;T&gt;
+{
+    /// &lt;summary&gt;
+    /// 新增一筆資料。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要新增到的Entity&lt;/param&gt;
+    void Create(T entity);
+
+    /// &lt;summary&gt;
+    /// 取得第一筆符合條件的內容。如果符合條件有多筆，也只取得第一筆。
+    /// &lt;/summary&gt;
+    /// &lt;param name="predicate"&gt;要取得的Where條件。&lt;/param&gt;
+    /// &lt;returns&gt;取得第一筆符合條件的內容。&lt;/returns&gt;
+    T Read(Expression&lt;Func&lt;T, bool&gt;&gt; predicate);
+    
+    /// &lt;summary&gt;
+    /// 取得Entity全部筆數的IQueryable。
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;Entity全部筆數的IQueryable。&lt;/returns&gt;
+    IQueryable&lt;T&gt; Reads();
+    
+    /// &lt;summary&gt;
+    /// 更新一筆資料的內容。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要更新的內容&lt;/param&gt;
+    void Update(T entity);
+
+    /// &lt;summary&gt;
+    /// 刪除一筆資料內容。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要被刪除的Entity。&lt;/param&gt;
+    void Delete(T entity);
+
+    /// &lt;summary&gt;
+    /// 儲存異動。
+    /// &lt;/summary&gt;
+    void SaveChanges();
+}
+</code></pre><br><p>定義好了之後，我們就來看實作。 </p><br><h1 id="WizKMOutline_1412174793876863">Entity Framework的Repository interface實作</h1><br><p>再來我們就定義一個EF版本的Repository實作： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 實作Entity Framework Generic Repository 的 Class。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="TEntity"&gt;EF Model 裡面的Type&lt;/typeparam&gt;
+public class EFGenericRepository&lt;TEntity&gt; : IRepository&lt;TEntity&gt;
+    where TEntity : class
+{
+    private DbContext Context { get; set; }
+
+    /// &lt;summary&gt;
+    /// 建構EF一個Entity的Repository，需傳入此Entity的Context。
+    /// &lt;/summary&gt;
+    /// &lt;param name="inContext"&gt;Entity所在的Context&lt;/param&gt;
+    public EFGenericRepository(DbContext inContext)
+    {
+        Context = inContext;
+    }
+
+    /// &lt;summary&gt;
+    /// 新增一筆資料到資料庫。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要新增到資料的庫的Entity&lt;/param&gt;
+    public void Create(TEntity entity)
+    {
+        Context.Set&lt;TEntity&gt;().Add(entity);
+    }
+
+    /// &lt;summary&gt;
+    /// 取得第一筆符合條件的內容。如果符合條件有多筆，也只取得第一筆。
+    /// &lt;/summary&gt;
+    /// &lt;param name="predicate"&gt;要取得的Where條件。&lt;/param&gt;
+    /// &lt;returns&gt;取得第一筆符合條件的內容。&lt;/returns&gt;
+    public TEntity Read(Expression&lt;Func&lt;TEntity, bool&gt;&gt; predicate)
+    {
+        return Context.Set&lt;TEntity&gt;().Where(predicate).FirstOrDefault();
+    }
+
+    /// &lt;summary&gt;
+    /// 取得Entity全部筆數的IQueryable。
+    /// &lt;/summary&gt;
+    /// &lt;returns&gt;Entity全部筆數的IQueryable。&lt;/returns&gt;
+    public IQueryable&lt;TEntity&gt; Reads()
+    {
+        return Context.Set&lt;TEntity&gt;().AsQueryable();
+    }
+
+    /// &lt;summary&gt;
+    /// 更新一筆Entity內容。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要更新的內容&lt;/param&gt;
+    public void Update(TEntity entity)
+    {
+        Context.Entry&lt;TEntity&gt;(entity).State = EntityState.Modified;
+    }
+
+    /// &lt;summary&gt;
+    /// 更新一筆Entity的內容。只更新有指定的Property。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要更新的內容。&lt;/param&gt;
+    /// &lt;param name="updateProperties"&gt;需要更新的欄位。&lt;/param&gt;
+    public void Update(TEntity entity, Expression&lt;Func&lt;TEntity, object&gt;&gt;[] updateProperties)
+    {
+        Context.Configuration.ValidateOnSaveEnabled = false;
+
+        Context.Entry&lt;TEntity&gt;(entity).State = EntityState.Unchanged;
+
+        if (updateProperties != null)
+        {
+            foreach (var property in updateProperties)
+            {
+                Context.Entry&lt;TEntity&gt;(entity).Property(property).IsModified = true;
+            }
+        }
+    }
+
+    /// &lt;summary&gt;
+    /// 刪除一筆資料內容。
+    /// &lt;/summary&gt;
+    /// &lt;param name="entity"&gt;要被刪除的Entity。&lt;/param&gt;
+    public void Delete(TEntity entity)
+    {
+        Context.Entry&lt;TEntity&gt;(entity).State = EntityState.Deleted;
+    }
+
+    /// &lt;summary&gt;
+    /// 儲存異動。
+    /// &lt;/summary&gt;
+    public void SaveChanges()
+    {
+        Context.SaveChanges();
+
+        // 因為Update 單一model需要先關掉validation，因此重新打開
+        if (Context.Configuration.ValidateOnSaveEnabled == false)
+        {
+            Context.Configuration.ValidateOnSaveEnabled = true;
+        }
+    }
+}
+</code></pre><br><h2 id="WizKMOutline_1412174793876954">使用Entity Framework的Repository</h2><br><div class="bs-callout bs-callout-info">基本上，我們也是一樣可以用Autofac做注入，不過因為最終我們會用到Unit of Work，所以這邊我就先不注入，純粹展示使用方法。 </div><br><div class="bs-callout bs-callout-info">下面範例基本上會用<em>註解</em>顯示之前用Entity Framework Context的用法（db是代表context），可以做一個用Repository和用原生EF Context的比較。其實用起來差不多。 </div><br><h3 id="WizKMOutline_1412174793876119">注入的部分</h3><br><p>首先看一下我們如何注入<code>Repository</code>進來： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class PostsController : Controller
+{
+	// 預設Scaffolding出來的Entity Context
+    // private BlogEntities db = new BlogEntities();
+
+    private IRepository&lt;Post&gt; repo;
+
+    public PostsController()
+        : this(new EFGenericRepository&lt;Post&gt;(new BlogEntities()))
+    {
+    }
+
+    public PostsController(IRepository&lt;Post&gt; inRepo)
+    {
+        repo = inRepo;
+    }
+	....
+</code></pre><br><h3 id="WizKMOutline_1412174793876627">Create和Read(Index)用法比對</h3><pre class="brush: csharp;"><code class="language-csharp line-numbers">[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(Post post)
+{
+...    
+    // db.Post.Add(post);
+    // db.SaveChanges();
+    repo.Create(post);
+    repo.SaveChanges();
+    return RedirectToAction("Index");
+....
+}
+
+public ActionResult Index()
+{
+    //return View(db.Post.ToList());
+    return View(repo.Reads().ToList());
+}
+
+public ActionResult Details(int? id)
+{
+	...
+    // Post post = db.Post.Find(id);
+    Post post = repo.Read(x =&amp;gt; x.Id == id);
+	...
+}
+</code></pre><br><h3 id="WizKMOutline_1412174793876991">Update和Delete用法比對</h3><pre class="brush: csharp;"><code class="language-csharp line-numbers">...
+public ActionResult Edit(EditViewModel post)
+{
+	...    
+	// db.Entry(postEntity).State = EntityState.Modified;
+	// db.SaveChanges();
+	repo.Update(postEntity);
+	repo.SaveChanges();
+	...
+}
+
+public ActionResult DeleteConfirmed(int id)
+{
+	...
+	
+    //db.Post.Remove(post);
+    //db.SaveChanges();
+    repo.Delete(post);
+    repo.SaveChanges();
+	
+	...  
+}
+</code></pre><br><p>看過這幾個常見的比對，應該發現和之前(直接使用EF的Context)用法差不多，但是對未來的彈性大幅度提到，下面將舉一個簡單的例子。 </p><br><h2 id="WizKMOutline_1412174793876583">模擬要做單元測試，把Repository實作抽換</h2><br><p>因為我們的Controller會要的是<code>IRepository</code>，因此當要做單元測試的時候，我們可以給另外一個實作，例如： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class FakeRepository&lt;Post&gt; 
+        : IRepository&lt;Post&gt;
+        
+{
+    private List&lt;Post&gt; data;
+
+    
+    public FakeRepository()
+    {
+        data = new List&lt;Post&gt;();
+
+        data.Add(new Post()
+        {
+            Id = 1,
+            CreateDateTime = DateTime.Now,
+            LastModifyDateTime = DateTime.Now.AddDays(-10),
+            PostContent = "abc",
+            Title = "123"
+        });
+    }
+
+    public IQueryable&lt;Post&gt; Reads()
+    {
+        return data.AsQueryable();
+    }
+	
+	// ...其他方法
+</code></pre><br><p>那做單元測試就簡單並且減少時間（不需要和DB溝通），因為資料是我們灌好的假資料，可以掌控內容。 </p><br><h1 id="WizKMOutline_1412174793876351">結語</h1><br><p>希望透過這一篇，對於爲什麽和如何使用Repository Pattern會有些概念，不過Repository本身還是有些問題。 </p><br><p>一個DB肯定不止一個Table，而Repository只代表了一個Table，那如果我同時要用2個Table以上怎麼辦？這個時候Unit of work就進來了。 </p><br><p>Unit of work就留到下一篇在講了。 </p>  

@@ -1,0 +1,94 @@
+Title: "[iThome 第七屆鐵人賽 27] View相關的處理 - 框架自動增加Model Metadata"
+Published: 2014-10-29
+Modified: 2014-11-30
+Image: /posts/migrate/2014-10-29-BuildYourOwnApplicationFrameworkOnMvc-27-ModelMetadata-Implement_Asset/image_thumb(84).png
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-27-ModelMetadata-Implement.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1414589675138753" ;="">功能描述</a> </li><li><a href="#WizKMOutline_1414589675138486" ;="">ExtensibleModelMetadataProvider功能建設</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1414589675139463" ;="">IModelMetadataProcessor interface的定義</a> </li><li><a href="#WizKMOutline_1414589675139963" ;="">ExtensibleModelMetadataProvider主題建設</a> </li><li><a href="#WizKMOutline_1414589675139307" ;="">Autofac的註冊</a></li></ul> </li><li><a href="#WizKMOutline_1414589675139498" ;="">應用</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1414589675139327" ;="">欄位自動建立placeholder</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1414589675139942" ;="">Process的部分</a> </li><li><a href="#WizKMOutline_1414589675139387" ;="">View的部分</a> </li><li><a href="#WizKMOutline_1414589675139646" ;="">最後結果</a></li></ul> </li><li><a href="#WizKMOutline_1414589675139327" ;="">自動產生TextArea而不是input text</a></li></ul> </li><li><a href="#WizKMOutline_1414589675139400" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了什麽是Model Metadata和Mvc的Html Helper如何利用Metadata來產生開發者想要的Html內容，在這一篇將會介紹框架如何能夠提供一些基礎架設方便產生和我們view能夠對應的Model Metadata。 </p> <a name="more"></a> <h1 id="WizKMOutline_1414589675138753">功能描述</h1> <p>在這一篇主要會介紹框架本生會定義增加Metadata資訊的部份，然後透過interface的方式，讓產生Metadata的邏輯能夠用實作interface的方式來產生影響。 </p> <p>介紹完框架的基礎建設之後，將會實作產生當輸入框沒有任何值的時候所顯示的placeholder資訊。也就是這個功能會自動產生WaterMark這個Metadata資訊，並且透過 EditorTemplate達到沒有值的輸入框出現placeholder的資訊。 </p> <p>另外也會介紹另外一個範例，如何透過Property名稱把UI以TextArea方式呈現。</p> <h1 id="WizKMOutline_1414589675138486">ExtensibleModelMetadataProvider功能建設</h1> <p>首先第一步是要建立好修改ModelMetadata的基礎建設。有了這個部分，才來介紹如何實際使用。 </p> <h2 id="WizKMOutline_1414589675139463">IModelMetadataProcessor interface的定義</h2> <p>首先先從會實際執行內容的interface開始看起。因為每一個application的Convention可能不一樣，因此不管需要什麼Convention的動作，都是實作這個interface來達到。 </p> <p>先來看一下這個interface的定義： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public interface IModelMetadataProcessor
+{
+	void TransformMetadata(System.Web.Mvc.ModelMetadata modelMetadata,
+		IEnumerable&lt;Attribute&gt; attributes);
+}
+</code></pre><br><p>這個interface很簡單，就是有個方法，這個方法會傳入目前產出的modelMetadata資訊和這個property所有的attribute。然後要做什麼，就看這個interface的實作要對modelMetadata 有沒有需要做任何的處理。 </p><br><h2 id="WizKMOutline_1414589675139963">ExtensibleModelMetadataProvider主題建設</h2><br><p>有了interface的定義之後，就來看ExtensibleModelMetadataProvider如何使用那個process的interface。 </p><br><p>我們沒有必要整個處理都重寫，因此我們可以繼承<code>DataAnnotationsModelMetadataProvider</code>然後做一些修改。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class ExtensibleModelMetadataProvider
+        : DataAnnotationsModelMetadataProvider
+{
+    private readonly IModelMetadataProcessor[] metdataProcessor;
+
+    public ExtensibleModelMetadataProvider(
+        IModelMetadataProcessor[] metadataFilters)
+    {
+        metdataProcessor = metadataFilters;
+    }
+
+    protected override System.Web.Mvc.ModelMetadata CreateMetadata(
+        IEnumerable&lt;Attribute&gt; attributes,
+        Type containerType,
+        Func&lt;object&gt; modelAccessor,
+        Type modelType,
+        string propertyName)
+    {
+        var metadata = base.CreateMetadata(
+            attributes,
+            containerType,
+            modelAccessor,
+            modelType,
+            propertyName);
+
+        foreach (var item in metdataProcessor)
+        {
+            item.TransformMetadata(metadata, attributes);
+        }
+
+        return metadata;
+    }
+}
+</code></pre><br><p>可以看到，會透過constructor，由DI注入目前有使用的process。然後，先用<code>DataAnnotationsModelMetadataProvider</code>建立出基本的ModelMetadata之後，再把它呼叫到有註冊的process去做處理。 </p><br><h2 id="WizKMOutline_1414589675139307">Autofac的註冊</h2><br><p>上面基本上框架就定義出來了，欠缺的是要和DI Container說，我們要使用新的ModelMetadataProvider。 </p><br><p>首先定義一個Autofac的Module，方便管理這個功能的註冊： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class ExtensibleModelMetadataModule : Autofac.Module
+{
+    protected override void Load(ContainerBuilder builder)
+    {
+        builder.RegisterType&lt;ExtensibleModelMetadata.ExtensibleModelMetadataProvider&gt;()
+            .As&lt;ModelMetadataProvider&gt;();
+
+	builder.RegisterAssemblyTypes(Assembly.GetExecutingAssembly())
+               .AsImplementedInterfaces();
+    }
+}
+</code></pre><br><p>當然也別忘了Global.asax需要註冊這個Module： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">Builder.RegisterModule&lt;ExtensibleModelMetadataModule&gt;();
+</code></pre><br><br><p>到這邊，整個基礎建設就準備好了，接下來來看如何應用。 </p><br><h1 id="WizKMOutline_1414589675139498">應用</h1><br><p>這邊的應用會介紹兩個： </p><br><ol><br><li>欄位自動建立placeholder <br></li><li>自動產生TextArea而不是input text </li></ol><br><br><h2 id="WizKMOutline_1414589675139327">欄位自動建立placeholder</h2><br><p>這個功能有兩個部分，一個是在產生ModelMetadata的時候，有一個欄位叫做<code>Watermark</code>。這個欄位將會被用來放placeholder的資訊。 </p><br><p>另外一個部分是需要寫一個EditorTemplates，這樣<code>Watermark</code>的值才會被用到。 </p><br><h3 id="WizKMOutline_1414589675139942">Process的部分</h3><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class PlaceholderProcess : IModelMetadataProcessor
+{
+    public void TransformMetadata(System.Web.Mvc.ModelMetadata modelMetadata, 
+        IEnumerable&lt;Attribute&gt; attributes)
+    {
+        if (string.IsNullOrEmpty(modelMetadata.PropertyName) == false &amp;&amp;
+                string.IsNullOrEmpty(modelMetadata.Watermark))
+        {
+            modelMetadata.Watermark = "請輸入" + modelMetadata.DisplayName + "...";
+        }
+    }
+}
+</code></pre><br><p>這邊程式碼很簡單，先判斷目前傳進來的欄位有沒有名字，再來就是有沒有被設定過WaterMark。如果<em>有</em>欄位並且，<em>沒有</em>設定過WaterMark，才用預設的。 </p><br><div class="bs-callout bs-callout-info">這一這邊的判斷，有判斷Watermark本身是否有值。這個的好處是，假設今天有幾個欄位和其他欄位不一樣，可能會直接用Attribute定義在Property上面，那麼就以Property的Attribute 為主。這裡的Process，只處理通用型符合Convention邏輯的內容。 </div><br><h3 id="WizKMOutline_1414589675139387">View的部分</h3><br><p>基本上就是在<kbd>~Views/Shared/EditorTemplates/string.cshtml</kbd>增加如下內容： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">@@model string
+@@Html.TextBox("", ViewData.TemplateInfo.FormattedModelValue,
+        new { @@class = "form-control", 
+			placeholder = ViewData.ModelMetadata.Watermark })
+</code></pre><br><h3 id="WizKMOutline_1414589675139646">最後結果</h3><br><p>呈現就會變成： </p><br><p><a href="http://lh5.ggpht.com/-A8EovO-Bb9s/VFDuah5WSOI/AAAAAAAAOJg/L7m4CmfpSzE/s1600-h/image%25255B2%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-10-29-BuildYourOwnApplicationFrameworkOnMvc-27-ModelMetadata-Implement_Asset/image_thumb(84).png" width="411" height="55" class="img-responsive"></a></p><figure><br></figure><br><h2 id="WizKMOutline_1414589675139327">自動產生TextArea而不是input text</h2><br><p>這個部分的功能需要先知道欄位的Convention是什麼，因此我這邊假設所有的TextArea的Property名稱都需要包含TextArea這個字，因此： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class TextAreaByNameProcess : IModelMetadataProcessor
+{
+    private readonly HashSet&lt;string&gt; textAreaFieldNames =
+            new HashSet&lt;string&gt;
+                {
+                    "textarea"
+                };
+
+    public void TransformMetadata(System.Web.Mvc.ModelMetadata modelMetadata,
+                    IEnumerable&lt;Attribute&gt; attributes)
+    {
+        if (string.IsNullOrEmpty(modelMetadata.PropertyName) == false &amp;&amp;
+            string.IsNullOrEmpty(modelMetadata.DataTypeName) &amp;&amp;
+            textAreaFieldNames.Contains(modelMetadata.PropertyName.ToLower()))
+        {
+            modelMetadata.DataTypeName = "MultilineText";
+        }
+    }
+}
+</code></pre><br><p>這邊基本上就是在沒有設定任何DataType的情況下，並且property名字符合清單的設定，就把他的DataType設定成為"MultilineText"，而<code>Html.EditorFor</code>，看到這個就會用TextArea來做html而不是input text。 </p><br><h1 id="WizKMOutline_1414589675139400">結語</h1><br><p>通過開發團隊的Convention和ExtensibleModelMetadataProvider，可以讓UI呈現上面更一致（因為不會因為忘記加Attribute就導致Placeholder出不來），並且減少ViewModel上面的Attribute的使用。 </p><br><p>而使用Process作為實際的處理，讓整個要處理的邏輯變得彈性話，可以依照不同團隊的需求打造不同的處理。 </p><br><p>有了ExtensibleModelMetadataProvier簡化一些View的工作之後，我們在下一篇來看一下現在很常用到的內容，也就是用Ajax和Server溝通可能遇到什麼問題的處理。 </p>  

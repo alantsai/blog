@@ -1,0 +1,67 @@
+Title: "建立自己的Library - 使用Nuget Package Explorer (GUI) 建立nuget package (下篇) 建立第一個package"
+Published: 2016-05-14
+Modified: 2016-05-14
+Image: /posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[16](1).png
+Tags: ["nuget"]
+RedirectFrom: 2016/05/create-nuget-with-nuget-package-explorer.html
+Series: []
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611670502" ;="">建立測試的Library Project</a>  </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671226" ;="">用Nuget Package Explorer(NPE)建立package</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671393" ;="">建立Package的meta資訊</a>  </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671732" ;="">建立Package的內容</a></li></ul> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671153" ;="">在Local測試剛剛建立的nuget package</a>  </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671317" ;="">結語</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671881" ;="">NPE建立package優點</a>  </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671691" ;="">NPE建立package缺點</a></li></ul> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1463221611671528" ;="">Reference</a></li></ul></div><section> <p>在上一篇<a href="http://blog.alantsai.net/2016/04/create-nuget-with-nuget-package-explorer-understand-nuget-package-structure.html">建立自己的Library - 使用Nuget Package Explorer (GUI) 建立nuget package (上篇) 介紹package結構</a><span style="font-size: 14pt; line-height: 1.5">介紹了package的結構之後，在這篇我們將來用上篇所了解的結構，來建立一個簡單的package。</span></p> <p>首先會建立一個簡單的library project，這個project會建立出等一下建立的package內容。 </p> <p>建立出package之後，接下來會介紹如何在本地測試這個package。 </p> <p>最後，當正式要把package發佈出去，讓外面的人使用，有什麼地方有提供host這些package。 </p></section> <a name="more"></a> <section> <h2 id="WizKMOutline_1463221611670502">建立測試的Library Project</h2> <p>要建立nuget package，我們首先需要有要封裝的內容，因此第一步是建立一個建立nuget package的project。 </p> <div class="bs-callout bs-callout-info"> <p>你可以建立任何library project來跟著做，不過如果想要直接跟著後面的部分，可以直接clone github的repo，上面我准備了一個等一下會用的project: </p><pre class="brush: plain;"><code class="language-none line-numbers">			https://github.com/alantsai-samples/Nuget-Package-Create-Sample
+
+
+
+			git clone git@@github.com:alantsai-samples/Nuget-Package-Create-Sample.git</code></pre></div>
+ <p>Github那個專案非常簡單，提供兩個Library，一模一樣，差別在於一個用.Net 3.5 一個用.Net 4.5，為了區分，我在3.5的方法加了35在方法名稱後面。 </p>
+ <p>這個library做的事情非常簡單，他提供一個方法，會把目前library的.net framework印到console。 </p><figure><a href="https://lh3.googleusercontent.com/-e0CpCCOrhvs/Vzb_7Ff8YeI/AAAAAAAAUqk/-EGKDfhUx8s/s1600-h/image%25255B24%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[16](1).png" width="644" height="274" class="img-responsive"></a><br><figcaption>專案結構</figcaption></figure> 
+ <p>同時這個repo裡面有一個 <code>Want.txt</code> - 表示想要安裝nuget的時候一起帶過去的檔案。</p></section><section>
+ <h2 id="WizKMOutline_1463221611671226">用Nuget Package Explorer(NPE)建立package</h2>
+ <h3 id="WizKMOutline_1463221611671393">建立Package的meta資訊</h3>
+ <p>打開NPE的時候選擇 <code>Create a new package</code></p><figure><a href="https://lh3.googleusercontent.com/-wWQwvpqxuNM/Vzb_9X91d5I/AAAAAAAAUqs/1TuOpAme7c0/s1600-h/image%25255B27%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[17](1).png" width="644" height="413" class="img-responsive"></a><br></figure>
+ <p>這個時候會打開一個空白的package，左邊Author的部分會先放入電腦名稱： </p><figure><a href="https://lh3.googleusercontent.com/-D-LQrtDPmXY/Vzb__88gKRI/AAAAAAAAUq0/ScT5sNvT8ig/s1600-h/image%25255B30%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[18](1).png" width="644" height="452" class="img-responsive"></a><br></figure>
+ <p>還記得上篇所介紹的一些欄位，我們可以把一些資訊填上，先點左上角的小icon(像一個筆和筆記本那個，快捷鍵 <kbd>Ctrl + k</kbd>)，就會出現不同欄位的輸入框， 如果拉到下面也可以設定這個package的dependency package(不過在這個例子我們不會設定)： </p><figure><a href="https://lh3.googleusercontent.com/-7rq3Q-1aYSw/VzcACyR2KgI/AAAAAAAAUq8/bdiX7h6Kzao/s1600-h/image%25255B33%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[19](1).png" width="458" height="484" class="img-responsive"></a><br></figure>
+ <p>填完了之後，點左上角的綠色勾就可以儲存剛剛填寫的內容。然後我們就準備加入我們剛剛library所建立的dll進來。 </p>
+ <h3 id="WizKMOutline_1463221611671732">建立Package的內容</h3>
+ <p>要加入library，有兩個方式： </p>
+ <ul>
+ <li>手動式： 
+ <ul>
+ <li>對右邊的視窗點 右鍵 然後選擇 <code>Add lib folder</code><figure><a href="https://lh3.googleusercontent.com/-hKDgk1pPX5A/VzcAG-aV9DI/AAAAAAAAUrE/Ju_igmgI6Ck/s1600-h/image%25255B36%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[20](1).png" width="339" height="344" class="img-responsive"></a><br></figure>
+ </li><li>在對建立出來的lib 點 右鍵，然後選擇 <code>Add .Net Folder</code>，然後選擇正確的library .net 版本 (這個demo了一個nuget package可以有多個.net framework版本的library - 因此安裝的時候會自動選到適合的。<figure><a href="https://lh3.googleusercontent.com/-cwUuvLlSLlU/VzcAXNPeS6I/AAAAAAAAUrM/EW62Zp_Gzzg/s1600-h/image%25255B39%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[21](1).png" width="644" height="472" class="img-responsive"></a><br></figure>
+ </li><li>在對建立出來的.Net 版本folder點右鍵，選擇存在的檔案，然後選擇對應版本的library <figure><a href="https://lh3.googleusercontent.com/-ZEnx0xFwU44/VzcAd0KOjSI/AAAAAAAAUrY/kMnKysni1A4/s1600-h/image%25255B42%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[22](1).png" width="364" height="159" class="img-responsive"></a><br></figure></li></ul>
+ </li><li>自動式： 
+ <p>直接把dll拖到NPE裡面，不過這個只會放到lib資料夾下面，而不會設定對應的.Net Folder </p><figure><a href="https://lh3.googleusercontent.com/-ZFzhHbruKY0/VzcAg2_GsOI/AAAAAAAAUrk/jh3gV-RhzRM/s1600-h/image%25255B45%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[23](1).png" width="644" height="462" class="img-responsive"></a><br></figure><figure>還是要自己手動放到正確的.Net版本</figure> </li></ul>
+ <p>可以用同樣概念加入<code>Want.txt</code>，不過如果是手動式，這次會需要建立 <code>content</code>而不是library：</p>
+ <p>最後，我們的package應該會長成這個樣子： </p><figure><a href="https://lh3.googleusercontent.com/-v0NJ36mu6z8/VzcAj9Gcn7I/AAAAAAAAUrs/hZSFtfcXhRg/s1600-h/image%25255B48%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[24](1).png" width="644" height="199" class="img-responsive"></a><br></figure>然後可以透過menu的 File -&gt; Save As (或<kbd>ctrl+s</kbd>)來存檔成為一個 nupkg的檔案，而這個就是一個nuget package 
+ <div class="bs-callout bs-callout-info">這個nuget package也有在repo裡面，在路徑 <code>src\ReusableLibrary\ReusableLibrary.1.0.0.nupkg</code></div></section><section>
+ <h2 id="WizKMOutline_1463221611671153">在Local測試剛剛建立的nuget package</h2>
+ <p>目前已經建立出一個nuget package，接下來就是要測試這個package到底是不是如我們所想的那樣。 </p>
+ <p>測試package非常的簡單，我們只需要在Visual Studio的nuget package source加入一個local file system就可以，詳細步奏如下： </p>
+ <ol>
+ <li>VS 快速搜索(快捷鍵 <kbd>ctro+q</kbd>) nuget – 選擇 Package Source <figure><a href="https://lh3.googleusercontent.com/-0WyoyN3nHp0/VzcArW-CPRI/AAAAAAAAUr8/Qm82_zB7WeQ/s1600-h/image%25255B54%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[26].png" width="424" height="296" class="img-responsive"></a><br></figure>
+ </li><li>加入一個新的package source - <code>Name</code> 隨意看要取什麼，<code>Source</code>就直接寫nupkg所放的位置路徑 <figure><a href="https://lh3.googleusercontent.com/-3ehuEq4M0qI/VzcAutDHijI/AAAAAAAAUsE/Wr7DelFzc3I/s1600-h/image%25255B51%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2016-05-14-create-nuget-with-nuget-package-explorer_Asset/image_thumb[25](1).png" width="494" height="296" class="img-responsive"></a><br></figure>
+ </li><li>開新的一個專案，然後在nuget裡面記得切換來源到你剛剛那個 <code>Name</code>給的名稱的source，應該就會看到建立出來的package，並且選擇安裝。 
+ </li><li>可以試著建立一個.Net 3.5的專案和.Net 4.5的專案 - 注意看reference的dll，會是依照對應framework的library </li></ol></section><section>
+ <h2 id="WizKMOutline_1463221611671317">結語</h2>
+ <p>透過這篇，相信已經了解如何透過NPE來建立package，但是NPE來建立package有好有懷。 </p>
+ <h3 id="WizKMOutline_1463221611671881">NPE建立package優點</h3>
+ <ul>
+ <li>直覺 - 在GUI操作只要把欄位填完就好。 
+ </li><li>好操作 - 照gui做，不用懂那麼多package的結構和原理可以做出來</li></ul>
+ <h3 id="WizKMOutline_1463221611671691">NPE建立package缺點</h3>
+ <ul>
+ <li>無法自動化 - 因為是GUI操作，沒辦法類似用script執行完就建立出來 
+ </li><li>建立出來結果可能不一致 - 假設一個團隊，A和B建立出來可能不同，因為其中一個可能忘記一些步奏</li></ul>
+ <p>因此，用NPE建立package屬於 <strong><em>一次性建立</em></strong>或者 <strong><em>學習用途</em></strong> - 在一個長久更新的library專案用這種方式來產生package真的不適合。 </p>
+ <p>在下一篇，再來介紹如何用一個project現有資訊來產生nuget package，並且這個動作可以自動化，並且任何人做出來結果都一樣。 </p></section><section>
+ <h2 id="WizKMOutline_1463221611671528">Reference</h2>
+ <ul>
+ <li>
+ <a href="https://github.com/alantsai-samples/Nuget-Package-Create-Sample">Github範例專案</a>
+ </li>
+ <li><a href="wiz://open_document?guid=0b383127-dfb6-429a-8e06-c4614c682cfd&amp;kbguid=&amp;private_kbguid=b1ed89f6-16c8-11e1-8d03-00237def97cc">何為nuget，該如何使用，和2.7版本之後建議的回覆nuget package(套件)的方式</a> - 介紹使用nuget<br>
+ </li><li><a href="wiz://open_document?guid=8a2eba52-9374-49e8-95ae-68fcc62bfc1e&amp;kbguid=&amp;private_kbguid=b1ed89f6-16c8-11e1-8d03-00237def97cc">建立自己的Library - 使用Nuget Package Explorer (GUI) 建立nuget package (上篇) 介紹package結構</a> - 介紹nuget結構<br>
+ </li><li>簡報介紹 
+ <br>
+ <iframe src="//www.slideshare.net/slideshow/embed_code/key/kPw3WVpnJv2frE" width="595" height="485" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC; border-width:1px; margin-bottom:5px; max-width: 100%;" allowfullscreen=""> </iframe> <div style="margin-bottom:5px"> <strong> <a href="//www.slideshare.net/alantsai2007/nuget-package" title="Nuget介紹- 如何使用和建立自己的package" target="_blank">Nuget介紹- 如何使用和建立自己的package</a> </strong> from <strong><a href="//www.slideshare.net/alantsai2007" target="_blank">Alan Tsai</a></strong> </div>
+ 
+ </li></ul></section>

@@ -1,0 +1,78 @@
+Title: "[iThome 第七屆鐵人賽 25] 搜索頁面 - Service層的工作 - 搜索在進化"
+Published: 2014-10-24
+Modified: 2014-10-24
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-25-IndexPage-AutomaticSearch-improved.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1414157688421962" ;="">以Like的方式搜索</a> </li><li><a href="#WizKMOutline_1414157688440242" ;="">Like搜索帶來的問題</a> </li><li><a href="#WizKMOutline_1414157688440435" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了如何顯示搜索表單之後，一個基本的通用搜索功能就完成了。 </p> <p>不過，其實有些部份還可以在加強，舉例來說，目前搜索是一定要完全符合才搜索的到，但是這樣就失去了很多好處，畢竟如果完全符合才搜索的到，那基本上等於搜索不到。 </p> <p>還有，假設今天我們搜索結果是要給使用者看的，通常都會有所謂的上下架起訖時間和是否啟用，當符合條件才可以看，這一部份其實自動搜索也可以幫到我們。 </p> <p>因此這一篇將會介紹未來如何在擴充自動搜索功能和在搜索做一些客制處理，符合只搜索出前臺使用者看的條件。 </p> <a name="more"></a> <h1 id="WizKMOutline_1414157688421962">以Like的方式搜索</h1> <p>第一個要處理的是針對string類型的用like方式做搜索。要用Like方式做搜索，就要用到Linq裡面的<code>Contain()</code>語法： </p><pre class="brush: csharp; highlight:[24,25]"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 依照Search Form ViewModel的值來設定Where的內容。
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;通常是EF的Entity&lt;/typeparam&gt;
+/// &lt;param name="data"&gt;要被處理的資料&lt;/param&gt;
+/// &lt;param name="searchForm"&gt;Search Form Viewmodel的值&lt;/param&gt;
+/// &lt;returns&gt;有增加OrderBy的IQueryable&lt;/returns&gt;
+public static IQueryable&lt;T&gt; DynamicWhere&lt;T&gt;(this IQueryable&lt;T&gt; data, ISearchFormViewModelBase searchForm)
+{
+	var properties = searchForm.GetType().GetProperties
+						(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public)
+						.Where(x =&gt; (x.GetGetMethod().GetBaseDefinition() == x.GetGetMethod())).ToArray(); // where 條件是用來避免override的property （例如：OrderByColumnName）也被算進去。
+	
+	string whereCalus = string.Empty;
+	string andOperator = string.Empty;
+	List&lt;object&gt; propertiesValue = new List&lt;object&gt;();
+	
+	for (int i = 0; i &lt; properties.Length; i++)
+	{
+		var value = properties[i].GetValue(searchForm);
+	
+		if (string.IsNullOrEmpty(value.NonNullString()) == false)
+		{
+			whereCalus = string.Format("{0}{1} {2}.Contains(@@{3})", whereCalus, andOperator,
+								properties[i].Name, propertiesValue.Count);
+	
+			andOperator = " and";
+	
+			propertiesValue.Add(value);
+		}
+	}
+	
+	if (string.IsNullOrEmpty(whereCalus) == false)
+	{
+		data = data.Where(whereCalus, propertiesValue.ToArray());
+	}
+	
+	return data;
+}
+</code></pre><br><p>被高亮的行數就是和之前不一樣的地方。 </p><br><h1 id="WizKMOutline_1414157688440242">Like搜索帶來的問題</h1><br><p>上面修改完成之後，假設去執行，搜索都正常，但是如果有欄位是數值形態(int)會出錯，因為int是不能夠做Like的。因此，修改成： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">...
+
+for (int i = 0; i &lt; properties.Length; i++)
+{
+	var value = properties[i].GetValue(searchForm);
+
+	if (string.IsNullOrEmpty(value.NonNullString()) == false)
+	{
+		// 如果形態是string，就用Like方式查詢
+		if (properties[i].PropertyType == typeof(string))
+		{
+			whereCalus = string.Format("{0}{1} {2}.Contains(@@{3})", 
+									whereCalus, andOperator,
+									properties[i].Name, propertiesValue.Count);
+		}
+
+		// 如果形態是int，就用等於查詢
+		if (properties[i].PropertyType == typeof(int))
+		{
+			whereCalus = string.Format("{0}{1} {2} = @@{3}", 
+									whereCalus, andOperator,
+									properties[i].Name, propertiesValue.Count);
+		}
+
+		andOperator = " and";
+
+		propertiesValue.Add(value);
+	}
+}
+...
+</code></pre><br><p>這個基本上就是多了一個判斷，如果是string，就用like方式搜索，如果是int，就用符合的方式搜索。 </p><br><div class="bs-callout bs-callout-info">未來這個其實可以在被擴充，可以透過Attribute的方式，告知要用什麼方式做搜索。或許有些欄位是要做某個範圍之內的值，或者大於小於等。 </div><br><h1 id="WizKMOutline_1414157688440435">結語</h1><br><p>這一篇主要介紹的是在未來如何擴充自動搜索的部分。其實，自動搜索可以千變萬化，除了基本的一些大小於搜索，有時候我們可能會依照一個欄位的flag去決定是否要顯示，或者上下架時間。這些都可以透過自動搜索來做處理，而前面呼叫Service的不用記得需要加入這些預設的搜索條件，因為Service層已經做好了。 </p>  

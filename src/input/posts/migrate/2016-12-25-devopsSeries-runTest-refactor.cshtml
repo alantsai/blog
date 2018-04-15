@@ -1,0 +1,109 @@
+Title: "[iThome第8屆鐵人賽 13]執行測試 4 - 重構"
+Published: 2016-12-25
+Modified: 2017-12-12
+Image: ""
+Tags: [".net","「ithome 第八屆鐵人賽」","devops","「從.net工程師的角度來看devops」"]
+RedirectFrom: 2016/12/devopsSeries-runTest-refactor.html
+Series: ["「iThome 第八屆鐵人賽」","「從.Net工程師的角度來看DevOps」"]
+---
+<section> <p>在之前幾篇已經介紹完了.Net常見的三種Test Framework（Xunit，Nunit 和 MSTest）整合方式之後，相信會發現到這三個task有很地方是重複邏輯。 </p><p>這些重複邏輯我們都是用了copy 和 paste 的方式處理了，但是未來如果要維護這個build script，甚至要把它變成一個常用/通用的script，這種方式是非常不好 </p><p>所以，就像任何好的工程師會做的事情一樣，我們也要重構我們的Script。 </p><p>這篇將會介紹重構什麼，和如何重構。 </p><div class="bs-callout bs-callout-info">sample 程式在 <a href="sample 程式在 github devops-psake sample/chapter13">github devops-psake sample/chapter13</a></div></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"><ul style="margin: 0px 0px 0px 20px"><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1482653587064821" ;="">可以重構什麼？</a><br></li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1482653587065950" ;="">如何重構？</a><br></li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1482653587065881" ;="">重構 - 從package找到要執行的exe</a><br></li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1482653587065228" ;="">重構 - 從建制結果找到需要被執行測試的專案路徑</a><br></li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1482653587065209" ;="">重構 - 取得要執行測試的assembly路徑字串</a><br></li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1482653587065962" ;="">結語</a><br></li><br></ul></div></section> <a name="more"></a><section> <h2 id="WizKMOutline_1482653587064821">可以重構什麼？</h2><p>有好幾個一樣的邏輯其實都可以重構： </p><ol><li>從package找到要執行的exe程序 - 這個考慮到如果package裡面有多個版本，會取得最新的那個<br></li><li>取得那些路徑要被執行測試<br></li><li>要執行測試的時候要建立出資料夾</li><br></ol></section><section> <h2 id="WizKMOutline_1482653587065950">如何重構？</h2><p>在Powershell一樣可以建立function並且可以放在另外一個script裡面。 </p><p>要把重複的邏輯統一到function裡面，在透過傳遞參數的方式來達到重複使用 </p><p>因此，先建立一個新的powershell script叫做<code>helper.ps1</code>，然後在<code>default.ps1</code>的最上面加上<code>.\helper.ps1</code>來把這個檔案的內容整合進來。 </p></section><section> <h2 id="WizKMOutline_1482653587065881">重構 - 從package找到要執行的exe</h2><p>這個指的是如何從package下面找到要執行的exe，本來的執行內容如下： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$xunitExe = ((Get-ChildItem("$solutionDirectory\packages\xunit.runner.console*")).FullName |
+   Sort-Object $_ | select -Last 1) + "\tools\xunit.console.exe"
+  </code></pre><p>這邊為了處理通用的情況，因此版號不寫死，但是因為這樣多了一些排序處理等。 </p><p>如果直接看這個其實並不直覺知道為什麼要做sort等動作，因此這個可以重構成為： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers"># helper.ps1
+function Get-PackagePath {
+ [CmdletBinding()]
+ param([Parameter(Position=0,Mandatory=1)]$packagesDirectoryPath,
+    [Parameter(Position=1,Mandatory=1)]$packageName)
+
+ return (Get-ChildItem($packagesDirectoryPath + $packageName + "*")).FullName |
+     Sort-Object $_ | select -Last 1
+}
+
+# default.ps1
+
+$xunitExe = (Get-PackagePath $packageDirectoryPath "xunit.runner.console") + 
+  "\tools\xunit.console.exe"
+  </code></pre><p>可以看到，本身寫法還是很長，但是不需要在了解要排序，在取得最後一筆的動作，反而很直覺，<em>在package下面取得某一個package 名稱的路徑</em>。 </p></section><section> <h2 id="WizKMOutline_1482653587065228">重構 - 從建制結果找到需要被執行測試的專案路徑</h2><p>在3個測試方法都有需要做一件事情是，找到那些建制的結果是需要跑測試。 </p><pre class="brush: powershell;"><code class="language-powershell line-numbers">$xunitTestPath =  Get-ChildItem $buildTempDirectory -Recurse -Filter xunit*.dll | 
+ Select -ExpandProperty DirectoryName -Unique | % { [io.directoryinfo]$_ }</code></pre><p>如果沒有任何說明，其實搞不清楚這行的概念是什麼，經過重構 </p><pre class="brush: powershell;"><code class="language-powershell line-numbers"># helper.ps1
+
+function Get-DirectoryInfoContainFile{
+ [CmdletBinding()]
+ param([Parameter(Position=0,Mandatory=1)]$fileFilter) 
+
+ Get-ChildItem $buildTempDirectory -Recurse -Filter $fileFilter | 
+      Select -ExpandProperty DirectoryName -Unique |
+      % { [io.directoryinfo]$_ }
+}
+
+# default.ps1
+
+$xunitTestPath = Get-DirectoryInfoContainFile "xunit*.dll"</code></pre><p>改成這樣之後，含義很清楚，<em>找到資料夾裡面有某個檔案</em></p></section><section> <h2 id="WizKMOutline_1482653587065209">重構 - 取得要執行測試的assembly路徑字串</h2><p>要執行測試之前，我們要取得那些需要測試的dll，只有有存在的情況下才會建立出測試結果要儲存的資料夾位置。 </p><pre class="brush: powershell;"><code class="language-powershell line-numbers"># 取得Xunit project的路徑
+$xunitTestPath = Get-DirectoryInfoContainFile "xunit*.dll"
+
+if(Test-Path $xunitTestPath){
+
+ Write-Host "建立Xunit測試結果的資料夾 $xunitTestResultDirectory"
+ New-Item $xunitTestResultDirectory -ItemType Directory | Out-Null
+
+ Write-Host "總共有 $($xunitTestPath.Count) 個專案"
+
+ Write-Host ($xunitTestPath | Select $_.Name)
+
+ Write-Host "準備執行Xunit測試"
+
+ # 組執行的dll
+
+ $testDlls = $xunitTestPath | % {$_.FullName + "\" + $_.Name + ".dll" }
+
+ $testDllsJoin = [string]::Join(" ", $testDlls)
+
+ Write-Host "執行的 Dll: $testDllsJoin"
+
+ exec{ &amp;$xunitExe $testDllsJoin -xml $xunitTestResultDirectory\xUnit.xml `
+   -html $xunitTestResultDirectory\xUnit.html `
+   -nologo -noshadow}
+ 
+ Write-Host "完成執行Xunit測試"
+}</code></pre><p>光看這個看起來有很多資訊，而且也不知道焦點在那裡。但是正常來說，這個task只是要執行測試，更本不需要關心要不要建立測試結果的資料夾，或者寫出那些要執行 </p><p>所以重構之後： </p><pre class="brush: powershell;"><code class="language-powershell line-numbers"># helper.ps1
+function Get-TestAssemblyPath {
+ [CmdletBinding()]
+ param([Parameter(Position=0,Mandatory=1)]$testFilePathFilter,
+    [Parameter(Position=1,Mandatory=1)]$testRestPath) 
+
+ $testPath = Get-DirectoryInfoContainFile $testFilePathFilter
+
+ $testDllPath = ""
+
+ if(Test-Path $testPath) {
+
+   Write-Host "建立測試結果的資料夾 $testRestPath"
+   New-Item $testRestPath -ItemType Directory | Out-Null
+
+   Write-Host "總共有 $($testPath.Count) 個專案"
+
+   Write-Host ($testPath | Select $_.Name)
+
+   Write-Host "準備執行測試"
+
+   # 組執行的dll
+
+   $testDlls = $testPath | % {$_.FullName + "\" + $_.Name + ".dll" }
+
+   $testDllPath = [string]::Join(" ", $testDlls)
+
+   Write-Host "執行的 assemblies: $testDllPath"
+  }
+
+  return $testDllPath
+}
+
+# default.ps1
+# 取得Xunit project的路徑
+$testAssembly = Get-TestAssemblyPath "xunit*.dll" $xunitTestResultDirectory
+
+if(Test-Path $testAssembly){
+
+ exec{ &amp;$xunitExe $testAssembly -xml $xunitTestResultDirectory\xUnit.xml `
+   -html $xunitTestResultDirectory\xUnit.html `
+   -nologo -noshadow}
+}
+  </code></pre><p>重構之後，變成非常直覺，取得那些要執行的Assembly字串，然後就實際執行。 </p><div class="bs-callout bs-callout-default">其實真要說，這個應該要在做一些區分。例如建立測試結果要儲存的位置的那段，應該要放在建立資料夾一起，而不是直接包在這個方法裡面，但是目前來說暫時夠了。 </div></section><section> <h2 id="WizKMOutline_1482653587065962">結語</h2><p>這篇介紹了如何透過把function寫在不同script裡面，然後在加進來的方式把方法重構，讓同樣邏輯可以重複使用。 </p><p>還有好幾個地方可以重構，不過以目前來說，先進行到這個地步，之後後面還有需要會在做說明。 </p><p>到目前為止，整合測試到自動化建制裡面到了一個段落，開始要考慮另外一個建制的問題，那就是程式碼品質到底如何。 </p><p>這將會是下篇的主題。 </p></section>

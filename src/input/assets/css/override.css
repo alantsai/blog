@@ -59,3 +59,8 @@ body{
     background-color: #F7F8F9;
     padding: 10px;
 }
+
+/*避免tag太長跑出去的問題*/
+.btn-sm{
+    font-size: 10px;
+}

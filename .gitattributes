@@ -187,3 +187,5 @@ makefile text
 *.woff2 binary
 ## 可執行
 *.exe binary
+
+*.cshtml eol=crlf

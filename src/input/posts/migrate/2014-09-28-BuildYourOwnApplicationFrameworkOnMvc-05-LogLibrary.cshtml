@@ -1,0 +1,209 @@
+Title: "[iThome 第七屆鐵人賽 05] 打造第一個通用服務 - Log"
+Published: 2014-09-28
+Modified: 2014-09-30
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/09/BuildYourOwnApplicationFrameworkOnMvc-05-LogLibrary.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1411835209356434" ;="">建立的流程</a>  </li><li><a href="#WizKMOutline_1411835209356701" ;="">定義Log擁有的Service</a>  </li><li><a href="#WizKMOutline_1411835209356758" ;="">定義ILog的實作</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1411835209356839" ;="">設定一些注入用的參數</a>  </li><li><a href="#WizKMOutline_1411835209356257" ;="">定義interface的實作</a></li></ul> </li><li><a href="#WizKMOutline_1411835209356346" ;="">在ContainerBuilder註冊</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1411835209356631" ;="">建立NlogModule</a>  </li><li><a href="#WizKMOutline_1411835209385846" ;="">註冊Autofac.Module</a></li></ul> </li><li><a href="#WizKMOutline_1411835209385380" ;="">結語</a></li></ul></div> <p>到目前為止，應該對於Autofac的使用有了基本的了解。在上一篇用了一個簡單的Log服務來說明Autofac如何和Mvc結合。 </p> <p>Log屬於任何一個系統必須有的服務，因此在這一篇，我們打造真的Log服務。 </p> <a name="more"></a> <h1 id="WizKMOutline_1411835209356434">建立的流程</h1> <p>基本上會和我們在上一篇打造那個服務一樣，我們會： </p><figure> <div class="mxgraph" style="overflow: hidden; height: 271px; width: 261px; position: relative"> <div style="overflow: hidden; height: 1px; width: 1px">1VZPk6I+EP00OY4lf1Q8AuL+Lnvy8DtHaCA1gVAhKM6nn442IuPurFM7tVNzschL0+l+73WQeXHV/9C8KX+qDCRz51nPvA1z3cBf4a8FThfAXc8vQKFFdoGcEdiJFyBwCOtEBu0k0CgljWimYKrqGlIzwXIlp0c0vBjSj8Au5fIe/V9kpqQe3OWI/weiKIdjnOX6stOa05Ajg5x30jydIdyz2xUfclFX/ZzY8CnBiQCPAhpeT0p6UaqaABrakStqV1BdlGOvdAZ6AklRP9/y5iUonVYKX7RPVR+DtPIN0viZk+2xy0W6z/21s3q65Nk+Gn4lVENNxf1tSqL0wGVH7bNkwaKIRSFLViyMWBCJ2oDOeQrMSuf1nHkRS3wWbdg6tlGBi+FhZxQG2fU6ZIG/A30Q9p03irZGq+erIZC0qC15YzervrCmn+VSHdOSazNrtEqhRYqjXNWG7Oz4VDNoAzQYjzAzSoTTBaoCo0/WPOSdBYlKk+VRyuPoXHdB9ipvXDtgnIxQXDOPMuADKfGgKt4vVQm3LFxeiR9VGRiPJUeuPqJRrKpG1Zayb6qS489niy8UamjyRqi3TEKdhVqrI65SK5BILZkGiRvgGiUYsK2wh2/w/orwRVoRb5Dd3bd/IhIrUZ1Gj7w7/XhwAb/Lc/bivSAaJDfiMC3oU7klXSdDgL71WRjE6DMuatBRJ6S9lZMAUXtt4ZgESxaE39XQ7hcbmr7NHzb0lKh/Yl66JN8175nKzzcvLsfP/Hnv5u+al7wC</div></div><figcaption>建立Service和Component的流程</figcaption> </figure> <ol> <li>定義Log所會擁有的Service（interface）  </li><li>實作一個我們框架會用的Log Component  </li><li>註冊到ContainerBuilder </li></ol> <h1 id="WizKMOutline_1411835209356701">定義Log擁有的Service</h1> <p>基本上，一般的log都有一些log層級，可以讓我們寫log的時候區分那些屬於錯誤（Error），和那些是偵錯（Debug）時候看的。因此，有以下幾個層級： </p> <ol> <li>Trace  </li><li>Debug  </li><li>Info  </li><li>Warn  </li><li>Error  </li><li>Fatal </li></ol>  <p>層級定義完成之後，我們要決定每一個層級要有那些寫log的方法： </p> <ol> <li>(string message) - 只是把message輸出  </li><li>(object outpuObject) - 把物件資訊印出來  </li><li>(string message, params object[] args) - message是訊息，可以用string format一樣的placeholder，而args是placeholder的值  </li><li>(string message, object outputObject) - 要輸出的訊息和把物件資訊印出來 </li></ol>  <div class="bs-callout bs-callout-info">當然，上面這些定義是符合我自己使用，而每一個情況不一樣，因此各位應該客制屬於自己需要的方法。 </div> <p>最後，由於有6個log層級和每一個層級都有4個方法，總共有24個需要定義，這邊我只定義某一個層級的4個方法，剩下都會一樣： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// Log功能的interface
+/// &lt;/summary&gt;
+public interface ILog
+{
+    /// &lt;summary&gt;
+    /// Traces 訊息
+    /// &lt;/summary&gt;
+    /// &lt;param name="message"&gt;訊息&lt;/param&gt;
+    void Trace(string message);
+
+    /// &lt;summary&gt;
+    /// Traces 把某個物件內容dump出來
+    /// &lt;/summary&gt;
+    /// &lt;param name="outputObject"&gt;要dump的物件&lt;/param&gt;
+    void Trace(object outputObject);
+
+    /// &lt;summary&gt;
+    /// Traces 訊息加上format的參數
+    /// &lt;/summary&gt;
+    /// &lt;param name="message"&gt;訊息&lt;/param&gt;
+    /// &lt;param name="args"&gt;format的參數&lt;/param&gt;
+    void Trace(string message, params object[] args);
+
+    /// &lt;summary&gt;
+    /// Traces 把某個物件內容dump出來，並且在dump內容加上一段訊息
+    /// &lt;/summary&gt;
+    /// &lt;param name="message"&gt;加上的訊息&lt;/param&gt;
+    /// &lt;param name="outputObject"&gt;要dump的物件&lt;/param&gt;
+    void Trace(string message, object outputObject);
+
+// 。。。。 其他log層級的方法定義
+</code></pre><br><h1 id="WizKMOutline_1411835209356758">定義ILog的實作</h1><br><p>有了Service定義好了之後，我們就要來決定我們要如何實作ILog。 </p><br><p>第一件事情是決定自己要使用的Log Framework。比較出名的有NLog和Log4Net。我這邊會選擇使用NLog。 </p><br><div class="bs-callout bs-callout-default"><br><h4 kmcontenthide="1">NLog</h4><br><ul><br><li>官網：<a href="http://nlog-project.org/">http://nlog-project.org/</a> <br></li><li>Wiki：<a href="https://github.com/nlog/nlog/wiki">https://github.com/nlog/nlog/wiki</a> <br></li><li>文件：<a href="http://nlog-project.org/documentation">http://nlog-project.org/documentation</a> <br></li><li>Nuget 指令：<kbd>Install-Package NLog</kbd> </li></ul></div><br><h2 id="WizKMOutline_1411835209356839">設定一些注入用的參數</h2><br><p>有用過Log Framework就會知道，通常我們會想要知道，是哪一個Class寫出了某一筆的log，因此在建立Log的class的時候能夠傳入要用這個log的Class 名稱。 </p><br><p>我們也希望我們的Log Framework有這個功能，因此我們需要先定義出來，好讓Autofac能夠幫忙注入Class名稱。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 使用Nlog作為ILog的實作
+/// &lt;/summary&gt;
+public class NlogLogger : ILog
+{
+    // NLog 物件
+    private Logger logger;
+
+    /// &lt;summary&gt;
+    /// Initializes a new instance of the &lt;see cref="NlogLogger"/&gt; class.
+    /// &lt;/summary&gt;
+    public NlogLogger()
+    {
+        logger = NLog.LogManager.GetCurrentClassLogger();
+    }
+
+    /// &lt;summary&gt;
+    /// Initializes a new instance of the &lt;see cref="NlogLogger"/&gt; class.
+    /// &lt;/summary&gt;
+    /// &lt;param name="name"&gt;目前要使用Log的Class名字&lt;/param&gt;
+    public NlogLogger(string name)
+    {
+        logger = NLog.LogManager.GetLogger(name);
+    }
+	
+// ..其他實作
+</code></pre><br><p>我們透過的方式會是用Constructor來傳遞我們class的名稱。 </p><br><h2 id="WizKMOutline_1411835209356257">定義interface的實作</h2><br><p>再來我們要實際實作interface定義的24個方法。 </p><br><p>有兩個部分需要特別處理： </p><br><ol><br><li>怎麼把物件資訊dump出來 <br></li><li>log framework通常都能夠判斷某個層級是否需要開放輸出 </li></ol><br><br><p>針對第一個，我將會使用<code>Json.Net</code>來把物件資訊dump出來。這個有好有懷，好處是不用寫複雜的邏輯來把物件印出來，而且顯示的樣式是熟悉的Json格式。而壞處是我們多了一個json .Net的 dependency。 </p><br><div class="bs-callout bs-callout-default"><br><h4 id="WizKMOutline_1411835206340504" kmcontenthide="1">Json .Net</h4><br><p>屬於必裝型的套件。主要工作室Class &lt;=&gt; Json之間互相的轉換。效能上面比內建的快（根據他們自己的評測） </p><br><ul><br><li>官網：<a href="https://json.codeplex.com/">https://json.codeplex.com/</a> <br></li><li>文件：<a href="http://james.newtonking.com/json/help/index.html">http://james.newtonking.com/json/help/index.html</a> <br></li><li>Nuget指令：<kbd>Install-Package Newtonsoft.Json</kbd> </li></ul></div><br><p>針對第二個，我們每個層級的四個方法都用統一的一個方法做輸出，這樣就會做判斷需不需要實際呼叫： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// 還是在NlogLogger.cs 裡面
+
+/// &lt;summary&gt;
+/// Traces 訊息
+/// &lt;/summary&gt;
+/// &lt;param name="message"&gt;訊息&lt;/param&gt;
+public void Trace(string message)
+{
+    if (logger.IsTraceEnabled)
+    {
+        logger.Trace(message);
+    }
+}
+
+  /// &lt;summary&gt;
+/// Traces 訊息加上format的參數
+/// &lt;/summary&gt;
+/// &lt;param name="message"&gt;訊息&lt;/param&gt;
+/// &lt;param name="args"&gt;format的參數&lt;/param&gt;
+public void Trace(string message, params object[] args)
+{
+    Trace(string.Format(message, args));
+}
+
+  /// &lt;summary&gt;
+/// Traces 把某個物件內容dump出來
+/// &lt;/summary&gt;
+/// &lt;param name="outputObject"&gt;要dump的物件&lt;/param&gt;
+public void Trace(object outputObject)
+{
+    Trace(JsonConvert.SerializeObject(outputObject, Formatting.Indented));
+}
+
+/// &lt;summary&gt;
+/// Traces 把某個物件內容dump出來，並且在dump內容加上一段訊息
+/// &lt;/summary&gt;
+/// &lt;param name="message"&gt;加上的訊息&lt;/param&gt;
+/// &lt;param name="outputObject"&gt;要dump的物件&lt;/param&gt;
+public void Trace(string message, object outputObject)
+{
+    Trace(message + Environment.NewLine +
+	 	JsonConvert.SerializeObject(outputObject, Formatting.Indented));
+}
+
+// ..其他層級實作如上
+</code></pre><br><br><p>上面顯示了Trace層級的方法實際定義，其他幾個層級的實作會一樣。 </p><br><h1 id="WizKMOutline_1411835209356346">在ContainerBuilder註冊</h1><br><p>在這邊有一點是之前沒有講過的，我們的NlogLogger裡面是沒有無參數的建構子。而我們接受的參數只是一個string的參數叫做name。那麼，照著我們目前所了解的註冊裡面，是沒有辦法解決這個問題。不過，Autofac當然有想到這種情況，因此我們這邊乘著這個機會介紹一下。 </p><br><p>我們先了解一下，<code>string name</code>的參數是要傳入什麼？ </p><br><p>我們之前講過，log framework都有一個參數是記錄寫這個log的class 名稱。因此我們這個參數代表就是這個要用NlogLogger的class 名稱。 </p><br><p>那要如何注入這個class名稱呢？在Autofac裡面有Module可以讓我們設定特殊的註冊邏輯。同時，在Module裡面有提供event讓我們可以再Autofac實例化component的時候，做一些事情。因此我們可以透過這個方法來注入我們class的名稱。 </p><br><div class="bs-callout bs-callout-info"><br><p>Module相關文件： <a href="http://autofac.readthedocs.org/en/latest/configuration/modules.html">http://autofac.readthedocs.org/en/latest/configuration/modules.html</a> </p></div><br><h2 id="WizKMOutline_1411835209356631">建立NlogModule</h2><br><p>建立一個Autofac的Module需要建立一個Class繼承<code>Autofac.Module</code>。 </p><br><p>我們這邊會複寫兩個method： </p><br><ol><br><li><code>Load</code> - Module註冊第一個會執行的方法。這邊可以設定我們的NlogLogger將會作為ILog service的Component。 <br></li><li><code>AttachToComponentRegistration</code>這邊就是讓我們可以註冊一些在建立時候的事件 </li></ol><br><br><div class="bs-callout bs-callout-info"><br><p>這一段的程式碼是參考網路上面的資料，因此有些註解是英文。 </p></div><pre class="brush: csharp;"><code class="language-csharp line-numbers">// NLogModule.cs
+ 
+/// &lt;summary&gt;
+/// Dependency Injection Module 用來註冊ILog將會使用NLog
+/// &lt;/summary&gt;
+public class NLogModule : Autofac.Module
+{
+	/// &lt;summary&gt;
+    /// Override to add registrations to the container.
+    /// &lt;/summary&gt;
+    /// &lt;param name="builder"&gt;The builder through which components can be
+    /// registered.&lt;/param&gt;
+    /// &lt;remarks&gt;
+    /// Note that the ContainerBuilder parameter is unique to this module.
+    /// &lt;/remarks&gt;
+    protected override void Load(ContainerBuilder builder)
+    {
+        builder.RegisterType&lt;NlogLogger&gt;()
+          .As&lt;ILog&gt;();
+    }
+
+    /// &lt;summary&gt;
+    /// 增加透過用Constructor或者Property的方式注入
+    ///		&lt;see cref="MvcInfrastructure.Common.Log.NlogLogger"/&gt;
+    ///		為&lt;see cref="MvcInfrastructure.Common.Log.ILog"/&gt;的實作
+    /// &lt;/summary&gt;
+    /// &lt;param name="componentRegistry"&gt;The component registry.&lt;/param&gt;
+    /// &lt;param name="registration"&gt;The registration to attach functionality to.&lt;/param&gt;
+    /// &lt;remarks&gt;
+    /// This method will be called for all existing &lt;i&gt;and future&lt;/i&gt; component
+    /// registrations - ordering is not important.
+    /// &lt;/remarks&gt;
+    protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, 
+			IComponentRegistration registration)
+    {
+        // Handle constructor parameters. 處理Constructor注入
+        registration.Preparing += OnComponentPreparing;
+        
+        // Handle properties. 處理Property注入
+        registration.Activated += (sender, e) =&gt; 
+			InjectLoggerProperties(e.Instance);
+    }
+}
+</code></pre><br><p>從上面可以看到，在<code>AttachToComponentRegistration</code>我們註冊了兩個事件，一個是用來處理Constructor的時候注入參數，另外一個是用Property的方式注入。 </p><br><div class="bs-callout bs-callout-warning"><br><p>我們實作的版本是沒有允許用Property的方式注入，不過保留這個方法僅供參考。 </p></div><br><p>接下來我們看一下，Constructor注入的方法是如何寫的： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">//NLogModule.cs
+
+// ....
+/// &lt;summary&gt;
+/// Called when [component preparing]. 用來增加Constructor方式注入
+/// &lt;/summary&gt;
+/// &lt;param name="sender"&gt;The sender.&lt;/param&gt;
+/// &lt;param name="e"&gt;The &lt;see cref="PreparingEventArgs"/&gt; instance containing the event data.&lt;/param&gt;
+private static void OnComponentPreparing(object sender, PreparingEventArgs e)
+{
+    var t = e.Component.Activator.LimitType;
+    e.Parameters = e.Parameters.Union(
+        new[]
+        {
+            new ResolvedParameter((p, i) =&gt; p.ParameterType == typeof(ILog),
+                (p, i) =&gt; i.Resolve&lt;ILog&gt;(new NamedParameter("name", t.FullName)))
+        });
+}
+
+// .....
+</code></pre><br><p>最後，看一下如果用Property Inject的話是如何實現 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">//NLogModule.cs
+
+// ....
+
+/// &lt;summary&gt;
+/// Property注入的邏輯
+/// &lt;/summary&gt;
+/// &lt;param name="instance"&gt;目前被實例化的Class Instance&lt;/param&gt;
+private static void InjectLoggerProperties(object instance)
+{
+    var instanceType = instance.GetType();
+
+    // Get all the injectable properties to set.
+    // If you wanted to ensure the properties were only UNSET properties,
+    // here's where you'd do it.
+    var properties = instanceType
+      .GetProperties(BindingFlags.Public | BindingFlags.Instance)
+      .Where(p =&gt; p.PropertyType == typeof(ILog) &amp;&amp; p.CanWrite &amp;&amp; p.GetIndexParameters().Length == 0);
+
+    // Set the properties located.
+    foreach (var propToSet in properties)
+    {
+        propToSet.SetValue(instance, new NlogLogger(instanceType.FullName), null);
+    }
+}
+
+// .....
+</code></pre><br><p>到這邊，我們的Autofac.Module就建立好了。 </p><br><h2 id="WizKMOutline_1411835209385846">註冊Autofac.Module</h2><br><p>之前註冊的時候也沒有提到如何註冊Autofac.Module，這一次一起介紹。 </p><br><p>其他註冊的部分我們就不看了，就只看註冊Module的部分： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">//Global.asax
+
+// ....
+
+Builder.RegisterModule&lt;NLogModule&gt;();
+
+// .....
+</code></pre><br><p>這樣註冊就完成了，至於使用，就和上一篇介紹那樣，在要用到ILog的Controller裡面，把Constructor有個參數接受ILog形態的參數即可。 </p><br><h1 id="WizKMOutline_1411835209385380">結語</h1><br><p>透過這一篇，我們就知道了如何建立一個Log的功能，並且如何作為我們第一個框架的服務。 </p><br><p>在下一篇開始，將會介紹再用Mvc開發的時候，最常用到的ViewModel概念和為什麼要使用ViewModel。 </p><br><p>有關於程式碼的部分，稍後會補上整個專案，以供參考。 </p><script type="text/javascript" src="https://www.draw.io/embed.js?s=flowchart"></script>  

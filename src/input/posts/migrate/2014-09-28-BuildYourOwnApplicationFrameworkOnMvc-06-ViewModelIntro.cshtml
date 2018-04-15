@@ -1,0 +1,35 @@
+Title: "[iThome 第七屆鐵人賽 06] ViewModel的重要性"
+Published: 2014-09-28
+Modified: 2014-11-30
+Image: /posts/migrate/2014-09-28-BuildYourOwnApplicationFrameworkOnMvc-06-ViewModelIntro_Asset/image_thumb[3](56).png
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/09/BuildYourOwnApplicationFrameworkOnMvc-06-ViewModelIntro.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"><ul style="margin: 0px 0px 0px 20px"><li><a href="#WizKMOutline_1411913305459916" ;="">強型別的View（Strong Type View）</a> </li><li><a href="#WizKMOutline_1411913305469655" ;="">用Entity作為ViewModel的壞處是什麼</a> <ul style="margin: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1411913305470496" ;="">Model Binding 有風險</a> </li><li><a href="#WizKMOutline_1411913305470506" ;="">如果顯示的值是復合形的值</a></li></ul></li><li><a href="#WizKMOutline_1411913305470555" ;="">ViewModel的定義</a> </li><li><a href="#WizKMOutline_1411913305470600" ;="">使用ViewModel如何解決上述的問題</a> <ul style="margin: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1411913305470248" ;="">Model Binding風險問題</a> </li><li><a href="#WizKMOutline_1411913305470780" ;="">解決複合型資料問題</a></li></ul></li><li><a href="#WizKMOutline_1411913305470289" ;="">ViewModel的問題</a> </li><li><a href="#WizKMOutline_1411913305470393" ;="">結語</a></li></ul></div><p>在這一篇我們將來看一下在寫Mvc裡面最重要的一個概念，也就是強型別的View（Strong Type View）和ViewModel。 </p><a name="more"></a> <h1 id="WizKMOutline_1411913305459916">強型別的View（Strong Type View）</h1><p>Mvc裡面的View使用的是Razor語法，而每一個View能夠定義傳進來的Model形態是什麼。透過這種方式，在寫View的時候不止能夠在Compile time的時候知道對於傳進來的Model使用上面有沒有正確，配上HtmlHelper，還能夠建立能夠和Model binding成功的對應html input。 </p><p>強型別的View好處多多，但是問題在於這個型別應該要用什麼？如果用預設的Mvc做Scaffolding的話，預設用的是Entity Framework裡面的<code>DbSet</code>Entity作為Model，就是實際Table 對應的Entity作為強型別View的Model。 </p><p>使用Entity Framework的Entity作為ViewModel好還是不好有點看個人的習慣，不過我個人覺的是不好。 </p><h1 id="WizKMOutline_1411913305469655">用Entity作為ViewModel的壞處是什麼</h1><p>基本上有以下幾個問題： </p><ol><li>Model Binding的時候有風險 - 這個其實在新版本的Scaffolding有提醒（舊版本沒有），但是如果沒有注意的話可能還是會有問題  </li><li>如果有些值是多個DB Table組成，用純Entity就沒有辦法做到 </li></ol><h2 id="WizKMOutline_1411913305470496">Model Binding 有風險</h2><p>我們先來看一下預設Scaffolding Create Post Action的片段： </p><figure><a href="http://lh3.ggpht.com/-P-5vBr2OAwk/VCgXGV0xiHI/AAAAAAAANdA/JKpmVTMY8vw/s1600-h/image%25255B5%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-09-28-BuildYourOwnApplicationFrameworkOnMvc-06-ViewModelIntro_Asset/image_thumb[3](56).png" width="422" height="177" class="img-responsive"></a><br><figcaption>預設Scaffolding出來的Create Post action片段</figcaption> </figure> <p>我們可以看到英文的註解，和<code>[Bind(Include = "Id,DisplayName,Url")]</code>看到，其實它是在限制那些Property應該要做Model Binding。因此，以這個例子，Id、 DisplayName和Url將會做ModelBinding。 </p><p>假設今天我們不希望Id是由使用者輸入，而是系統產生，因此我們會把畫面上面產生輸入Id的HtmlHelper拿掉。假設，使用者是透過我們的form表單post資訊回來，這個不會有問題。 </p><p>但是，如果有人在Form post之前，增加一個欄位並且測出有Id這個欄位，那麼他post過來帶上Id這個欄位的是時候，<em>我們存到DB值就錯了</em>。 </p><p>這個問題在於，假設今天我要刪除某一個Property是由使用者輸入，會需要： </p><ol><li>刪掉產生這個Property的HtmlHelper  </li><li>把<code>[Binding]</code>的欄位刪掉那個Property </li></ol>上面關於第一點，如果忘記還好發現，因為忘記刪掉，畫面會看到欄位。但是，第二個就不好發現了。因為只要不是惡意嘗試，更本不會注意到。   <p>ViewModel就可以解決這個問題。同時，用ViewModel還符合OO裡面的封裝（Encapsulation）概念，只開放要使用的欄位。 </p><h2 id="WizKMOutline_1411913305470506">如果顯示的值是復合形的值</h2><p>這個意思是，假設我們要顯示的值是不同地方組合出來的，要用Entity做ViewModel顯然不適合，因為Entity是Entity Framework對應到DB Table，因此不能夠隨意變動裡面的Property。 </p><p>我們用個簡單的例子，假設我需要顯示一個值是<code>DisplayName</code>和<code>Url</code>兩個欄位的值，如果使用是Entity做ViewModel，我們只能夠在View裡面手動把兩個 Property做concatenate顯示。如果這個View多處需要顯示這個值，或是不同的View都需要顯示這個值，用concatenate的方式做顯示有個問題，如果有天要替換兩個結合的Property，只能用搜索替換的方式來修改，很容易改錯，如果使用ViewModel就能夠解決這個問題。 </p><p>只要在ViewModel定義一個Property，這個Property是兩個Property concatenate的結果，顯示在View的時候，就用那個Property。之後如果要改值，只需要改Property，所有的 View顯示的就會一起改變。 </p><p>講了這們多，我們就看一下ViewModel到底是什麼。 </p><h1 id="WizKMOutline_1411913305470555">ViewModel的定義</h1><div class="bs-callout bs-callout-info">其實ViewModel的定義有些細節上面會不同，因此我下面介紹的屬於我個人覺得比較適合ViewModel的定義。個人在使用上符合自己習慣即可。 </div><p>首先，ViewModel就像它的名字一樣，用於顯示View的Model </p><p>而我這邊的ViewModel定義是： </p><ol><li>ViewModel只是簡單的POCO Class - 就像Entity Framework裡面的Entity一樣，只有Property  </li><li>ViewModel不定義邏輯 - 有些會把取得資料的邏輯或者一些商業邏輯寫在ViewModel。但是，我認為ViewModel應該越純粹越好，它只是資料的載體，方便我們把資料傳到 View而已，那些商業邏輯是屬於service layer或者Business layer  </li><li>每一個View有自己的ViewModel - 每一個View應該要有自己對應的ViewModel </li></ol><h1 id="WizKMOutline_1411913305470600">使用ViewModel如何解決上述的問題</h1><h2 id="WizKMOutline_1411913305470248">Model Binding風險問題</h2><p>我們可以用ViewModel來解決Model Binding的問題： </p><pre class="brush: csharp; highlight:[13,14,15,16,17,18]"><code class="language-csharp line-numbers">public class LinkCreateViewModel
+{
+    public string DisplayName { get; set; }
+    public string Url { get; set; }
+}
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(LinkCreateViewModel link)
+{
+    if (ModelState.IsValid)
+    {
+  // 只設定需要的欄位 
+        Link enity = new Link()
+        {
+            DisplayName = link.DisplayName,
+            Url = link.Url
+        };
+
+        db.Links.Add(enity);
+        db.SaveChanges();
+        return RedirectToAction("Index");
+    }
+
+    return View(link);
+}
+</code></pre><br><p>這邊可以看到，透過ViewModel，我們只傳入實際讓使用者輸入的Property。假設那一天要減少一個Property，而轉換成為Entity的部分忘記改，在Compile的時候就會知道，這樣也可以減少bug的出現。假設還是用<code>[Bind]</code>的方式，那麼減少欄位忘記改在compile是不會報錯，因為<code>[Bind]</code>用的是string。 </p><br><h2 id="WizKMOutline_1411913305470780">解決複合型資料問題</h2><br><p>其實會和上面概念一樣，取得某一筆Entity資料之後，把它轉換成為ViewModel並且設定ViewModel Property顯示的值。然後，傳到View裡面。 </p><br><h1 id="WizKMOutline_1411913305470289">ViewModel的問題</h1><br><p>看完ViewModel的好處，我們也需要看一下它的問題。 </p><br><p>最主要問題在於，Entity和ViewModel之間的轉換。以上面的例子，這個轉換的邏輯不好通用。假設，今天我別的地方也需要把<code>LinkCreateViewModel</code>和<code>Link</code> 做轉換，我要怎麼共用這個轉換的邏輯？就算寫成通用方法，想想如果每一個ViewModel都寫一次，不是很浪費時間嗎？ </p><br><p>針對這個問題，我們下一篇將介紹一個常用的套件，AutoMapper來解決。 </p><br><h1 id="WizKMOutline_1411913305470393">結語</h1><br><p>透過這一篇我們了解到ViewModel的好處並且為什麼使用ViewModel。同時我們也注意到了ViewModel使用上面的不便利性。 </p><br><p>下一篇將會介紹AutoMapper，看看AutoMapper是如何解決這個問題。 </p>

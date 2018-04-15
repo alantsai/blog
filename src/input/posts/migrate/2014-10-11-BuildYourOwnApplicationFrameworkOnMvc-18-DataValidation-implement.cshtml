@@ -1,0 +1,119 @@
+Title: "[iThome 第七屆鐵人賽 18] 資料驗證 - 實作篇"
+Published: 2014-10-11
+Modified: 2014-11-30
+Image: /posts/migrate/2014-10-11-BuildYourOwnApplicationFrameworkOnMvc-18-DataValidation-implement_Asset/image_thumb[2](59).png
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-18-DataValidation-implement.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1413036163953499" ;="">基本流程</a>  </li><li><a href="#WizKMOutline_1413036163953323" ;="">需要新增的Class和interface</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413036163953571" ;="">定義裝載錯誤訊息的載體</a>  </li><li><a href="#WizKMOutline_1413036163953577" ;="">接住Repository層的驗證錯誤邏輯</a>  </li><li><a href="#WizKMOutline_1413036163953169" ;="">驗證的Dictionary</a></li></ul> </li><li><a href="#WizKMOutline_1413036163953528" ;="">框架修改的地方來使用這個驗證</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413036163953622" ;="">Repository層的修改</a>  </li><li><a href="#WizKMOutline_1413036163953880" ;="">Service層的修改</a>  </li><li><a href="#WizKMOutline_1413036163953496" ;="">Controller層的修改</a></li></ul> </li><li><a href="#WizKMOutline_1413036163953675" ;="">結語</a></li></ul></div> <p>在上一篇介紹了資料驗證的三個時機，在這一篇將會實作上一篇的內容。 </p><a name="more"></a> <h1 id="WizKMOutline_1413036163953499">基本流程</h1> <p>首先，需要定義出一個能夠用來裝錯誤訊息的資料載體。這個Class的用處只是方便我們在3段不同地方做驗證的時候，可以儲存錯誤訊息，並且在3層互相傳遞。 </p> <p>再來，會定一個Wrapper，把錯誤訊息包起來，並且提供一個方法回傳，驗證是否成功。 </p> <p>最後，在Controller那邊的驗證（<code>ModelStateDictionary</code>）和Repository儲存（如果驗證失敗會丟出exception）出現錯誤訊息的時候，把這些放在Wrapper 裡面，方便統一顯示資料驗證。 </p> <h1 id="WizKMOutline_1413036163953323">需要新增的Class和interface</h1> <p>首先先介紹會增加的interface和Class，然後才介紹如何實際做到Freamwork裡面。 </p> <h2 id="WizKMOutline_1413036163953571">定義裝載錯誤訊息的載體</h2> <p>基本上定義一個interface（<code>IBaseError</code>）代表一個錯誤訊息會有的欄位。基本上這個interface有兩個property，一個是儲存錯誤訊息的資訊，另外一個是儲存這個錯誤訊息對應到的Property。 </p> <p>因為，不是所有錯誤訊息都會有對應的欄位，因此，會用兩種實作，一個是<code>PropertyError</code>，代表這個錯誤訊息和Property有關聯（例如某一個欄位是必填欄位，那沒就是屬於這種類型的錯誤哦訊息）。 </p> <p>另外一種實作則是通用型錯誤訊息叫做<code>GeneralError</code>。這種錯誤是不會和某一個欄位有關的，因此只會有錯誤訊息的值，而不會有property欄位。 </p> <p>如果用Class Diagram表示就是： </p><figure><a href="http://lh3.ggpht.com/--pVGkm-_0Uo/VDk5ot4L64I/AAAAAAAANgw/sM8yz4GA3tc/s1600-h/image%25255B4%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2014-10-11-BuildYourOwnApplicationFrameworkOnMvc-18-DataValidation-implement_Asset/image_thumb[2](59).png" width="478" height="306" class="img-responsive"></a><br><figcaption>裝在錯誤訊息的Class</figcaption> </figure> <h2 id="WizKMOutline_1413036163953577">接住Repository層的驗證錯誤邏輯</h2> <p>在Repository層如果驗證錯誤的話，Entity Framework會丟出一個Exception。 </p> <p>因此，爲了處理這個部份，將會定義一個自訂的Exception，可以幫忙把Entity Framework的錯誤訊息包住成為<code>IBaseError</code>。 </p> <p>Class Diagram的樣子會是： </p><figure><a href="http://lh4.ggpht.com/-ACilIqGr8lo/VDk5rcM11HI/AAAAAAAANhw/Kp1Uto08eDg/s1600-h/image%25255B15%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-10-11-BuildYourOwnApplicationFrameworkOnMvc-18-DataValidation-implement_Asset/image_thumb[9](17).png" width="536" height="249" class="img-responsive"></a><br><figcaption>Entity Framework驗證錯誤Exception包住的客制Exception</figcaption> </figure> <h2 id="WizKMOutline_1413036163953169">驗證的Dictionary</h2> <p>在Mvc裡面，<code>ModelStateDictionary</code>會存放錯誤訊息，並且透過HtmlHelper很方便的能夠把裡面錯誤訊息顯示出來。 </p> <p>但是爲了避免和<code>ModelStateDictionary</code>綁死，因此會定義一個interface，提供需要的方法，然後在做一個<code>ModelStateDictionary</code> Wrapper的實作，這樣就方便Service做資料驗證。 </p> <p>Class Diagram會是： </p><figure><a href="http://lh5.ggpht.com/-Nz3Mw57DRCE/VDk5uI9HnpI/AAAAAAAANhQ/HVDGLwBfLGs/s1600-h/image%25255B13%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2014-10-11-BuildYourOwnApplicationFrameworkOnMvc-18-DataValidation-implement_Asset/image_thumb[7](27).png" width="528" height="242" class="img-responsive"></a><br><figcaption>資料驗證的Dictionary Class Diagram</figcaption> </figure> <h1 id="WizKMOutline_1413036163953528">框架修改的地方來使用這個驗證</h1> <p>接下來就是修改目前已有的框架，來加上剛剛上面所新增的Class。 </p> <h2 id="WizKMOutline_1413036163953622">Repository層的修改</h2> <p>Repository層需要做的事情是在存檔的時候接住驗證錯誤的Exception，並且重新包過在往上丟給Service層去接，因此： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 實作Entity Framework Unit Of Work的class
+/// &lt;/summary&gt;
+public class EFUnitOfWork : IUnitOfWork
+{
+    /// &lt;summary&gt;
+    /// 儲存所有異動。
+    /// &lt;/summary&gt;
+    public void Save()
+    {
+        var errors = _context.GetValidationErrors();
+        if (!errors.Any())
+        {
+            _context.SaveChanges();
+        }
+        else
+        {
+            throw new DatabaseValidationErrors(errors);
+        }
+    }
+	
+	....
+}
+</code></pre><br><h2 id="WizKMOutline_1413036163953880">Service層的修改</h2><br><p>首先是Service裡面要多一個參數，用來存放錯誤訊息的Dictionary。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 通用行的Service layer實作
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;主要的Entity形態&lt;/typeparam&gt;
+public class GenericService&lt;T&gt; : IService&lt;T&gt;
+    where T : class
+{
+    /// &lt;summary&gt;
+    /// 取得驗證資訊的字典
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 驗證資訊的字典
+    /// &lt;/value&gt;
+    public IValidationDictionary ValidationDictionary { get; private set; }
+
+	   /// &lt;summary&gt;
+    /// 初始化IValidationDictionary
+    /// &lt;/summary&gt;
+    /// &lt;param name="inValidationDictionary"&gt;要用來儲存錯誤訊息的object&lt;/param&gt;
+    public void InitialiseIValidationDictionary
+		(IValidationDictionary inValidationDictionary)
+    {
+        ValidationDictionary = inValidationDictionary;
+    }
+....
+}
+</code></pre><br><p>在來<code>GenericService</code>裡面，原本的方法也需要修改： </p><pre class="brush: csharp; highlight:[7,11,20,32,33,34,35]"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 依照某一個ViewModel的值，產生對應的Entity並且新增到資料庫
+/// &lt;/summary&gt;
+/// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+/// &lt;param name="viewModel"&gt;ViewModel的Reference&lt;/param&gt;
+/// &lt;returns&gt;是否儲存成功&lt;/returns&gt;
+public bool CreateViewModelToDatabase&lt;TViewModel&gt;(TViewModel viewModel)
+{
+    // 商業邏輯驗證....
+
+    if (ValidationDictionary.IsValid)
+    {
+        var entity = AutoMapper.Mapper.Map&lt;T&gt;(viewModel);
+
+        db.Repository&lt;T&gt;().Create(viewModel);
+
+        SaveChange();
+    }
+
+    return ValidationDictionary.IsValid;
+}
+
+/// &lt;summary&gt;
+/// 實際儲呼叫DB儲存。如果有發生驗證錯誤，把它記錄到ValidationDictionary
+/// &lt;/summary&gt;
+protected void SaveChange()
+{
+    try
+    {
+        db.Save();
+    }
+    catch (ValidationErrors propertyErrors)
+    {
+        ValidationDictionary.AddValidationErrors(propertyErrors);
+    }
+}
+</code></pre><br><p>首先是以新增來說，會先做一次驗證（因為以Mvc來說，<code>ValidationDictionary</code>實作會是一個<code>ModelStateDictionary</code>的Wrapper。因此，第一層的Controller 驗證會在這裡面），如果過了，表示第一層的驗證過了。各自商業邏輯的部分就依照各自情況做調整。 </p><br><p>在來，儲存不直接呼叫<code>db.SaveChange()</code>，而是透過一個方法。這個方法會把db儲存的呼叫用try catch包住，而接住的Exception則是我們在<code>Repository</code>層針對Repository儲存錯誤而做的處理。 </p><br><h2 id="WizKMOutline_1413036163953496">Controller層的修改</h2><br><p>最後，在Controller這一層，首先需要幫忙把<code>ModelStateDictionary</code>注入到Service裡面，然後驗證就直接呼叫方法並且判斷回傳的bool： </p><pre class="brush: csharp; highlight:[6,7,15];"><code class="language-csharp line-numbers">public class PostsController : Controller
+{       
+    public PostsController(IUnitOfWork inDb, IPostService inService)
+    {
+        service = inService;
+        service.InitialiseIValidationDictionary
+			(new ModelStateWrapper(this.ModelState));
+        db = inDb;
+    }
+	
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public ActionResult Create(Create post)
+    {
+        if (service.CreateViewModelToDatabase(post))
+        {
+            return RedirectToAction&lt;HomeController&gt;(x =&gt; x.Index())
+			.WithSuccess("修改成功");
+        }
+
+        return View(post);
+    }
+	
+	...
+}
+</code></pre><br><div class="bs-callout bs-callout-warning">雖然<code>ModelStateDictionary</code>也希望透過DI來注入，但是會造成死循環，因為Controller在等<code>ModelStateDictionary</code>，而<code>ModelStateDictionary</code> 又需要等Controller建立。 </div><br><h1 id="WizKMOutline_1413036163953675">結語</h1><br><p>希望透過這一篇，針對資料驗證的部份有得到統一的儲存錯誤訊息位置。這不僅讓前端顯示這些錯誤訊息的時候方便，同時3個層面的錯誤訊息都可以整合，這個對於整個Application來說，是很重要。 </p>  

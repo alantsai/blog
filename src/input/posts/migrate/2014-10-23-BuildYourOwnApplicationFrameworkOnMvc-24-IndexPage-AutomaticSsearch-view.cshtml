@@ -1,0 +1,121 @@
+Title: "[iThome 第七屆鐵人賽 24] 搜索頁面 - Service層的工作 - View方面的處理"
+Published: 2014-10-23
+Modified: 2014-11-30
+Image: ""
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-24-IndexPage-AutomaticSsearch-view.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1414071540834174" ;="">功能描述</a> </li><li><a href="#WizKMOutline_1414071540834502" ;="">顯示SearchViewModelBase的EditorTemplate</a> </li><li><a href="#WizKMOutline_1414071540834873" ;="">把SearchViewModel內容轉成RouteValueDictionary的Helper</a> </li><li><a href="#WizKMOutline_1414071540834285" ;="">為搜索結果產生分頁</a> </li><li><a href="#WizKMOutline_1414071540834886" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了Service如何自動處理搜索和Controller如何呼叫這個Service之後，接下來就要看view將會如何呼叫，並且透過一些Helper方便產生有正確RouteValue的連接。 </p> <a name="more"></a> <h1 id="WizKMOutline_1414071540834174">功能描述</h1> <p>先看一下這一篇會介紹的內容，再來才詳細的描述。在這一篇會有以下的內容： </p> <ol> <li>專門顯示SearchViewModelBase的EditorTemplate - 方便有一個統一的搜索顯示畫面  </li><li>Helper方便產生SearchViewModel看的懂的RouteValue  </li><li>PagedList.Mvc 顯示搜索結果的分頁清單 </li></ol>  <h1 id="WizKMOutline_1414071540834502">顯示SearchViewModelBase的EditorTemplate</h1> <p>通常來說，一個網站裡面的搜索風格會一致。也就是說，基本的內容都一樣，但是不同之處在於實際的搜索欄位，才會有整個網站的一致性。 </p> <p>透過搭配EditorTemplate，這個能夠很容易的做到。 </p> <p>首先，會在<code>Views -&gt; Shared -&gt;EditorTemplates -&gt;SearchFormViewModelBase.cshtml</code>建立出搜索ViewModel的一個Template，裡面的內容如下： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">@@model SearchFormViewModelBase
+@@{
+	@@*用Reflection取得目前這個ViewModel屬於搜索條件的Properties Name - 
+	注意，這裡並不包含BaseViewModel的Property，而是只有繼承下來的Property
+	*@@
+    var searchablePropertiesName = ReflectionHelper.
+									GetPropertiesOfCurrentType(Model.GetType()).
+									Select(x =&gt; x.Name);
+    var properties = ViewData.ModelMetadata.Properties.
+						Where(x =&gt; searchablePropertiesName.Contains(x.PropertyName));
+}
+@@if(properties.Count() &gt; 0)
+{ 
+    &lt;h3 class="box-title"&gt;搜索條件&lt;/h3&gt;
+    @@using (Html.BeginForm())
+    {
+        &lt;div class="form-horizontal"&gt;
+            @@foreach (var prop in properties)
+            {
+		@@*因為搜索的ViewModel屬於Index ViewModel的一個Property，因此需要加上Prefix避免ModelBinding不到 
+		- Prefix就是SearchViewModel在Index裡面的名字 - SearchForm*@@
+
+		@@*假設這個搜索欄位是一個下拉選單，在ViewData應該會有資料，要不然就是一般的輸入框*@@	
+                if (ViewData.ContainsKey(PagingHelper.PropertyNamePrefix + prop.PropertyName))
+                {
+                    &lt;div class="form-group"&gt;
+                        @@Html.Label(prop.PropertyName, 
+							htmlAttributes: new { @@class = "control-label col-md-4" })
+                        &lt;div class="col-md-8"&gt;
+                            @@Html.DropDownList(prop.PropertyName,
+							ViewData[PagingHelper.PropertyNamePrefix 
+								+ prop.PropertyName] as IEnumerable&lt;SelectListItem&gt;, 
+								"", htmlAttributes: new { @@class = "form-control" })
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                }
+                else
+                {
+                    &lt;div class="form-group"&gt;
+                        @@Html.Label(prop.PropertyName, 
+							htmlAttributes: new { @@class = "control-label col-md-4" })
+                        &lt;div class="col-md-8"&gt;
+                            @@Html.Editor(prop.PropertyName, 
+							new { htmlAttributes = new { @@class = "form-control" } })
+                        &lt;/div&gt;
+                    &lt;/div&gt;
+                }
+            }
+            @@Html.HiddenFor(x =&gt; x.Page)
+            @@Html.HiddenFor(x =&gt; x.PageSize)
+            &lt;div class="box-footer"&gt;
+                &lt;input type="submit" value="搜索" class="btn btn-default" /&gt;
+            &lt;/div&gt;
+        &lt;/div&gt;
+    }          
+}</code></pre><br><br><p>假設搜索欄位有什麼特別的實際，可以直接在這裡面修改，最後，每一頁要呈現搜索條件只需要在Index.cshtml寫： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">@@Html.EditorFor(x =&gt; x.SearchForm)
+</code></pre><br><h1 id="WizKMOutline_1414071540834873">把SearchViewModel內容轉成RouteValueDictionary的Helper</h1><br><p>有時候如果需要產生目前的搜索內容的值用作於產生鏈接的時候，一個Helper產生RouteValueDictionary是非常重要的。 </p><br><p>可以在定義一個如下的Helper： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 依照SearchModel的值，產生出RouteValueDictionary
+/// &lt;/summary&gt;
+/// &lt;param name="model"&gt;SearchModel的Instance&lt;/param&gt;
+/// &lt;param name="rvd"&gt;需要增加到RouteValueDictionary的額外值&lt;/param&gt;
+/// &lt;returns&gt;返回產生的RouteValueDictionary&lt;/returns&gt;
+public static RouteValueDictionary GenRVDForSearchModel(object model, 
+		RouteValueDictionary rvd = null)
+{
+    if (rvd == null)
+    {
+        rvd = new RouteValueDictionary();
+    }
+
+    var properties = ReflectionHelper.GetPropertiesOfCurrentType(model.GetType());
+
+    for (int i = 0; i &lt; properties.Length; i++)
+    {
+        var value = properties[i].GetValue(model);
+
+        if (string.IsNullOrEmpty(value.NonNullString()) == false)
+        {
+            rvd.Add(PropertyNamePrefix + properties[i].Name, value);
+        }
+    }
+
+    return rvd;
+}
+</code></pre>基本上就是把Model的內容產生對應的RouteValueDictionary。如果還不清楚這個方法的作用，接下來介紹建立分頁鏈接的時候就會清楚的看到如何使用這個方法。 <br><br><h1 id="WizKMOutline_1414071540834285">為搜索結果產生分頁</h1><br><p><code>PagedList.Mvc</code>裡面有一個Helper可以方便產生分頁： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers"> @@Html.PagedListPager(Model.Result, page =&gt;
+{
+    return Url.Action("Index", new {SearchForm.page = page});
+});
+</code></pre><br><br><p>基本上這個分頁的Helper會幫忙處理一些基本的Layout，我們需要做的就是告訴他每一個分頁連接如何產生即可。 </p><br><p>不過這邊要注意到，上面的範例是當搜索條件不存在的情況下，這個連接是對的，如果在搜索條件有作用的情況下，每一個分頁的連接應該要包括目前的搜索條件才對。 </p><br><p>因此，這個時候上一篇提到的Helper就有幫助，不過因為每一次建立的分頁會把要建立的分頁頁數帶進來，因此，需要建立新的Helper，來包住上面介紹產生RouteValueDictionary的Helper： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 依照Search Form來產生 Route Value Dictionary
+/// &lt;/summary&gt;
+/// &lt;param name="model"&gt;Search Form的ViewModel&lt;/param&gt;
+/// &lt;param name="page"&gt;那一頁&lt;/param&gt;
+/// &lt;param name="pageSize"&gt;頁數&lt;/param&gt;
+/// &lt;returns&gt;
+/// 返回產生的RouteValueDictionary
+/// &lt;/returns&gt;
+public static RouteValueDictionary GenRVDBaseOnSearchFormModel(SearchFormViewModelBase model, 
+		int? page = null, int? pageSize = null)
+{
+    RouteValueDictionary rvd = new RouteValueDictionary();
+
+    rvd.Add(PropertyNamePrefix + "Page", page ?? model.Page);
+    rvd.Add(PropertyNamePrefix + "PageSize", pageSize ?? model.PageSize);
+
+    return GenRVDForSearchModel(model, rvd);
+}
+</code></pre><br><p>有了上面的Helper之後，我們產生分頁的方法就能夠變成： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">@@Html.PagedListPager(Model.Result, page =&gt;
+    {
+        return Url.Action("Index",
+			PagingHelper.GenRVDBaseOnSearchFormModel(Model.SearchForm, page));
+    });
+</code></pre><br><br><h1 id="WizKMOutline_1414071540834886">結語</h1><br><p>到目前為止，在框架自動處理搜索的部分從Controller，到Service層到View裡面的使用都介紹了。 </p><br><p>相信了解之後，對於要做基本的搜索不會有太大問題。 </p><br><p>不過，在實務上面，Service層的自動搜索在使用上面還是會有些問題，最大的問題是，目前搜索只支援完全符合。但是，這樣的搜索一點都不好用。 </p><br><p>因此，在下一篇，將會介紹如何把自動處理搜索的部分在進化一步。 </p>  

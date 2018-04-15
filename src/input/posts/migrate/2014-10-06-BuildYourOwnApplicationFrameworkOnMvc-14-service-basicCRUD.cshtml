@@ -1,0 +1,281 @@
+Title: "[iThome 第七屆鐵人賽 14] 把目前的CRUD功能抽到Service層"
+Published: 2014-10-06
+Modified: 2014-10-06
+Image: ""
+Tags: ["「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-14-service-basicCRUD.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412602823951345" ;="">IService<t>的定義</t></a> </li><li><a href="#WizKMOutline_1412602823951516" ;="">GenericService<t> - IService<t>的實作</t></t></a> </li><li><a href="#WizKMOutline_1412602823951680" ;="">定義專案相關的Service和實作</a> </li><li><a href="#WizKMOutline_1412602823951525" ;="">Controller裡面的修改</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412602823951271" ;="">註冊到Autofac</a> </li><li><a href="#WizKMOutline_1412602823951137" ;="">Controller - CR的修改</a> </li><li><a href="#WizKMOutline_1412602823951177" ;="">Controller - UD的修改</a></li></ul> </li><li><a href="#WizKMOutline_1412602823951340" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了什麽是Service層，和爲什麽要使用Service層。在這一篇，將會把CRUD裡面的方法先抽到Service層裡面，因此Controller不在直接和Data Access Layer溝通，而是透過Service層來和Data Access Layer溝通。 </p> <p>在定義Service功能的時候，將會使用泛型的方式讓程式碼能夠通用，然後各自在繼承通用型的方法來提供個別功能的客制。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412602823951345">IService&lt;T&gt;的定義</h1> <p>在定義實作之前，先來定義好相對應的功能有什麽。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// Service服務層內容的Interface
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;主要要儲存的Entity Type&lt;/typeparam&gt;
+public interface IService&lt;T&gt;
+    where T : class
+{
+
+    /// &lt;summary&gt;
+    /// 取得符合條件的Entity並且轉成對應的ViewModel
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾邏輯&lt;/param&gt;
+    /// &lt;param name="includes"&gt;需要Include的Entity&lt;/param&gt;
+    /// &lt;returns&gt;取得轉換過的ViewModel List&lt;/returns&gt;
+    List&lt;TViewModel&gt; GetListToViewModel&lt;TViewModel&gt;(Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate, 
+        params Expression&lt;Func&lt;T, object&gt;&gt;[] includes);
+
+    /// &lt;summary&gt;
+    /// 取得某一個條件下面的某一筆Entity並且轉成對應的ViewModel
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾邏輯&lt;/param&gt;
+    /// &lt;param name="includes"&gt;需要Include的Entity&lt;/param&gt;
+    /// &lt;returns&gt;取得轉換過的ViewModel或者是null&lt;/returns&gt;
+    TViewModel GetSpecificDetailToViewModel&lt;TViewModel&gt;(Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate, 
+        params Expression&lt;Func&lt;T, object&gt;&gt;[] includes);
+
+
+    /// &lt;summary&gt;
+    /// 依照某一個ViewModel的值，產生對應的Entity並且新增到資料庫
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="viewModel"&gt;ViewModel的Reference&lt;/param&gt;
+    /// &lt;returns&gt;是否儲存成功&lt;/returns&gt;
+    void CreateViewModelToDatabase&lt;TViewModel&gt;(TViewModel viewModel);
+
+    /// &lt;summary&gt;
+    /// 依照某一個ViewModel的值，更新對應的Entity
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="viewModel"&gt;ViewModel的值&lt;/param&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾條件 - 要被更新的那一筆過濾調價&lt;/param&gt;
+    /// &lt;returns&gt;是否刪除成功&lt;/returns&gt;
+    void UpdateViewModelToDatabase&lt;TViewModel&gt;(TViewModel viewModel, 
+		Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate);
+
+    /// &lt;summary&gt;
+    /// 刪除某一筆Entity
+    /// &lt;/summary&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾出要被刪除的Entity條件&lt;/param&gt;
+    /// &lt;returns&gt;是否刪除成功&lt;/returns&gt;
+    void Delete(Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate);
+}
+</code></pre><br><h1 id="WizKMOutline_1412602823951516">GenericService&lt;T&gt; - IService&lt;T&gt;的實作</h1><br><p>這個部份將會實作IService裡面的服務。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 通用行的Service layer實作
+/// &lt;/summary&gt;
+/// &lt;typeparam name="T"&gt;主要的Entity形態&lt;/typeparam&gt;
+public class GenericService&lt;T&gt; : IService&lt;T&gt;
+    where T : class
+{
+    protected IUnitOfWork db;
+
+      /// &lt;summary&gt;
+    /// 取得符合條件的Entity並且轉成對應的ViewModel
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾邏輯&lt;/param&gt;
+    /// &lt;param name="includes"&gt;需要Include的Entity&lt;/param&gt;
+    /// &lt;returns&gt;取得轉換過的ViewModel List&lt;/returns&gt;
+    public virtual List&lt;TViewModel&gt; GetListToViewModel&lt;TViewModel&gt;(System.Linq.Expressions.Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate, 
+        params System.Linq.Expressions.Expression&lt;Func&lt;T, object&gt;&gt;[] includes)
+    {
+         var data = db.Repository&lt;T&gt;().Reads();
+
+        foreach (var item in includes)
+        {
+            data.Include(item);
+        }
+
+        return AutoMapper.Mapper.Map&lt;List&lt;TViewModel&gt;&gt;(data.Where(wherePredicate));
+    }
+
+      /// &lt;summary&gt;
+    /// 取得某一個條件下面的某一筆Entity並且轉成對應的ViewModel
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾邏輯&lt;/param&gt;
+    /// &lt;param name="includes"&gt;需要Include的Entity&lt;/param&gt;
+    /// &lt;returns&gt;取得轉換過的ViewModel或者是null&lt;/returns&gt;
+    public virtual TViewModel GetSpecificDetailToViewModel&lt;TViewModel&gt;(System.Linq.Expressions.Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate, 
+        params System.Linq.Expressions.Expression&lt;Func&lt;T, object&gt;&gt;[] includes)
+    {
+         var data = db.Repository&lt;T&gt;().Reads();
+
+        foreach (var item in includes)
+        {
+            data.Include(item);
+        }
+
+        return AutoMapper.Mapper.Map&lt;TViewModel&gt;(data.Where(wherePredicate).FirstOrDefault());
+    }
+
+
+     /// &lt;summary&gt;
+    /// 依照某一個ViewModel的值，更新對應的Entity
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="viewModel"&gt;ViewModel的值&lt;/param&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾條件 - 要被更新的那一筆過濾調價&lt;/param&gt;
+    /// &lt;returns&gt;是否刪除成功&lt;/returns&gt;
+    public virtual void UpdateViewModelToDatabase&lt;TViewModel&gt;(TViewModel viewModel, System.Linq.Expressions.Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate)
+    {
+        var entity = db.Repository&lt;T&gt;().Read(wherePredicate);
+
+        AutoMapper.Mapper.Map(viewModel, entity);
+
+        db.Repository&lt;T&gt;().Update(entity);
+
+        db.SaveChange();
+    }
+
+
+    /// &lt;summary&gt;
+    /// 刪除某一筆Entity
+    /// &lt;/summary&gt;
+    /// &lt;param name="wherePredicate"&gt;過濾出要被刪除的Entity條件&lt;/param&gt;
+    /// &lt;returns&gt;是否刪除成功&lt;/returns&gt;
+    public virtual void Delete(Expression&lt;Func&lt;T, bool&gt;&gt; wherePredicate)
+    {
+        var data = db.Repository&lt;T&gt;().Read(wherePredicate);
+        db.Repository&lt;T&gt;().Delete(data);
+
+        db.SaveChange();
+    }
+
+
+    /// &lt;summary&gt;
+    /// 依照某一個ViewModel的值，產生對應的Entity並且新增到資料庫
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TViewModel"&gt;ViewModel的形態&lt;/typeparam&gt;
+    /// &lt;param name="viewModel"&gt;ViewModel的Reference&lt;/param&gt;
+    /// &lt;returns&gt;是否儲存成功&lt;/returns&gt;
+    public void CreateViewModelToDatabase&lt;TViewModel&gt;(TViewModel viewModel)
+    {
+        var entity = AutoMapper.Mapper.Map&lt;T&gt;(viewModel);
+
+        db.Repository&lt;T&gt;().Create(viewModel);
+
+        db.SaveChange();
+    }
+}
+</code></pre><br><h1 id="WizKMOutline_1412602823951680">定義專案相關的Service和實作</h1><br><p>透過這種方式，在之後需要擴充功能將會變的簡單。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public interface IPostService: IService&lt;Post&gt;
+{
+}
+
+public class PostService 
+    : GenericService&lt;Post&gt;, IPostService
+{
+    public PostService(IUnitOfWork inDb)
+        : base(inDb)
+    {
+    }
+}
+</code></pre><br><div class="bs-callout bs-callout-info">在使用上，IService和GenericService可以作為框架的基礎方法。而個別專案則透過繼承和實作這個通用的服務來達到擴充或複寫以符合專案的需求。 </div><br><h1 id="WizKMOutline_1412602823951525">Controller裡面的修改</h1><br><p>Service做好了之後，第一件事情就是把它拿來用，因此會需要： </p><br><h2 id="WizKMOutline_1412602823951271">註冊到Autofac</h2><br><p>記得註冊服務到Autofac才有DI的功能： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">builder.RegisterType&lt;PostService&gt;().As&lt;IPostService&gt;();
+</code></pre><br><h2 id="WizKMOutline_1412602823951137">Controller - CR的修改</h2><pre class="brush: csharp;"><code class="language-csharp line-numbers">...
+private IPostService service;
+
+public PostsController(IPostService inService)
+{
+    service = inService;
+}
+
+// GET: Posts
+public ActionResult Index()
+{
+    //return View(db.Post.ToList());
+    return View(service.GetListToViewModel&lt;Index&gt;());
+}
+
+// GET: Posts/Details/5
+public ActionResult Details(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    // Post post = db.Post.Find(id);
+    Detail post = service.GetSpecificDetailToViewModel&amp;lt;Detail&amp;gt;(x =&amp;gt; x.Id == id);
+    if (post == null)
+    {
+        return HttpNotFound();
+    }
+    return View(post);
+}
+
+// GET: Posts/Create
+public ActionResult Create()
+{
+    return View();
+}
+
+// POST: Posts/Create
+// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(Create post)
+{
+    if (ModelState.IsValid)
+    {
+        service.CreateViewModelToDatabase(post);
+        return RedirectToAction(&amp;quot;Index&amp;quot;);
+    }
+
+    return View(post);
+}
+</code></pre><br><h2 id="WizKMOutline_1412602823951177">Controller - UD的修改</h2><pre class="brush: csharp;"><code class="language-csharp line-numbers">// GET: Posts/Edit/5
+public ActionResult Edit(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    Edit post = service.GetSpecificDetailToViewModel&lt;Edit&gt;(x =&gt; x.Id == id);
+    if (post == null)
+    {
+        return HttpNotFound();
+    }
+    return View(post);
+}
+
+// POST: Posts/Edit/5
+// To protect from overposting attacks, please enable the specific properties you want to bind to, for 
+// more details see http://go.microsoft.com/fwlink/?LinkId=317598.
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Edit(Edit post)
+{
+    if (ModelState.IsValid)
+    {
+        service.UpdateViewModelToDatabase(Edit, x =&gt; x.Id == post.Id);
+       
+        return RedirectToAction("Index");
+    }
+    return View(post);
+}
+
+// GET: Posts/Delete/5
+public ActionResult Delete(int? id)
+{
+    if (id == null)
+    {
+        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+    }
+    Detail post = service.GetSpecificDetailToViewModel&lt;Detail&gt;(x =&gt; x.Id == id);
+    if (post == null)
+    {
+        return HttpNotFound();
+    }
+    return View(post);
+}
+
+// POST: Posts/Delete/5
+[HttpPost, ActionName("Delete")]
+[ValidateAntiForgeryToken]
+public ActionResult DeleteConfirmed(int id)
+{
+    service.Delete(x =&gt; x.Id == id);
+
+    return RedirectToAction("Index");
+}
+</code></pre><br><h1 id="WizKMOutline_1412602823951340">結語</h1><br><p>當Controller都和Service層溝通的時候，這裡面就多了一層的abstraction，意味著邏輯能夠重複使用，並且未來要替換邏輯也會變的更加容易。 </p><br><p>不過相信看到這邊，對於這個初步的Service肯定不會很滿意，畢竟只提供了最基本的功能。 </p><br><p>在之後的篇章，將會慢慢的把這個Service補上更多功能。 </p><br><p>在下一篇，將會先看有了Service層之後，對一些檔案上傳的處理有哪些幫助。 </p>  

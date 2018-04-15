@@ -1,0 +1,67 @@
+Title: "[jquery]jquery ajax post能夠正確Model Bind到Asp .net Mvc網站 - 三種不同情境的建議做法"
+Published: 2017-09-30
+Modified: 2017-09-30
+Image: /posts/migrate/2017-09-30-jquery-ajax-form-post-model-bind-asp-net-mvc-with-no-problem-3-way_Asset/image_thumb(39).png
+Tags: ["best practices","jquery","asp .net mvc"]
+RedirectFrom: 2017/09/jquery-ajax-form-post-model-bind-asp-net-mvc-with-no-problem-3-way.html
+Series: []
+---
+<section><figure><a href="https://lh3.googleusercontent.com/-f7_NqIpPRF0/Wc5wPPHHHXI/AAAAAAAAWdY/4SQ6FkiqjpwKeaO1wNewjqx-UK-212jbACHMYCw/s1600-h/image%255B2%255D"><img width="654" height="290" title="image" style="display: inline; background-image: none;" alt="image" src="/posts/migrate/2017-09-30-jquery-ajax-form-post-model-bind-asp-net-mvc-with-no-problem-3-way_Asset/image_thumb(39).png" border="0" class="img-responsive"></a><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>  Model Binding是Asp .net Mvc裡面用來處理表單送出(Form Post)資料自動轉成強型別的機制。   </p><p>  一般來說，如果用<code>HtmlHelper</code>產生的html內容，在Post back的時候Model Binding基本上不會遇到什麼問題。   </p><p>  不過為了網站responsive更好，很多時候會希望Form Post是透過ajax來做。   </p><p>  這個時候依據不同做法，就很容易造成form post到asp .net mvc的時候Model Binding不到。   </p><p>  這篇將會建議不同情境的時候應該如何寫正確的Jquery Form post寫法，避免Model Binding不到的問題。   </p><div class="bs-callout bs-callout-info">   這篇文章相關的範例程式碼在：<a href="https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample">https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample</a>，有用<code>tag</code>標註每一個不同的情境。   </div></section>   <section> <a name="KMContentPageTopID" id="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin: 0px 0px 0px 20px;"><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1506701089478767" ;="">三種情境建議做法 - TL;DR</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1506701089478888" ;="">三種情境做法建議原因</a><br></li><ul style="margin: 0px 0px 0px 30px;"><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1506701089478152" ;="">想Post的內容是所有的Form欄位</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1506701089478288" ;="">想post的內容只是表單裡面幾個欄位</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1506701089478280" ;="">想post的內容包含檔案上傳</a><br></li></ul><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1506701089478987" ;="">結語</a><br></li></ul></div></section>   <a name="more"></a><section><h2 id="WizKMOutline_1506701089478767">三種情境建議做法 - TL;DR</h2><p>  基本上要form post的時候會遇到三種不同的情況：   </p><ol><li>想Post的內容是所有的Form欄位 - 換句話說只是要ajax post模擬一個<code>submit</code>的效果</li><li>想post的內容只是表單裡面幾個欄位，並非全部的欄位</li><li>想Post的內容包含檔案上傳</li></ol><p>  針對這三個不同情境，有幾個不同的jquery post方式建議：   </p><dl class="border-around"><dt>     想Post的內容是所有的Form欄位    </dt><dd><p>    只需要post的時候，<code>data</code>欄位傳入：<code>$("#postForm").serialize()</code> 即可。    </p><p>   片段範例：    </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: $("#postForm").serialize()
+})</code></pre></dd><dt>     想post的內容只是表單裡面幾個欄位    </dt><dd><ol><li>組出最後要送出的javascript 物件 <code>data</code></li><li>在 ajax 的 <code>data</code>欄位值輸入：<code>JSON.stringify(data)</code></li><li>在 ajax的 <code>contentType</code>欄位值輸入：<code>"application/json"</code></li></ol><p>    片段範例：     </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">var data = [];
+data.push({ Title: $("input[name='[0].Title']").val(), Content: $("input[name='[0].Content']").val() });
+data.push({ Title: $("input[name='[1].Title']").val(), Content: $("input[name='[1].Content']").val() });
+
+$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: JSON.stringify(data),
+ contentType: "application/json"
+})</code></pre></dd><dt>     想post的內容包含檔案上傳    </dt><dd>    可以使用<code>FormData</code>，注意，只有<em><strong>支援Html 5</strong></em>的browser才能夠用，所以IE 10 以下就不用考慮了。     <ol><li>用<code>Form</code> htmlelement 建立 <code>FormData</code> - 例如：<code>var data = new FormData($("#postForm")[0]);</code></li><li>在 ajax 的 <code>data</code> 欄位值輸入第一步建立出來的<code>data</code></li><li>在 ajax 的 <code>processData</code>欄位值輸入：<code>false</code></li><li>在 ajax 的 <code>contentType</code>欄位值輸入：<code>false</code></li></ol><p>    片段範例：     </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">var data = new FormData($("#postForm")[0]);
+
+$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: data,
+ processData: false,
+ contentType: false
+})</code></pre></dd></dl><p>  如果對於為什麼這三種情境是這樣建議有興趣，請往下看.....   </p></section><section><h2 id="WizKMOutline_1506701089478888">三種情境做法建議原因</h2><p>  依照不同的情境，jquery post的呼叫方式其實也會需要不同不然到asp .net mvc model binding的時候很容易失敗，會話很多時間在debug這些問題，以下將會對於3個情境的做法進一步說明。   </p><section><h3 id="WizKMOutline_1506701089478152">想Post的內容是所有的Form欄位</h3><p>   一般來說，在建立Form表單的時候，撰寫上會使用<code>HtmlHelper</code>，這種產生出來的html內容只要post上去asp .net mvc model binding基本上沒有什麼問題。    </p><p>   因此可以利用Form表單本身然後透過jquery序列化的方式作為送出的資料。    </p><p>   假設我們的Form表單的id是<code>postForm</code>，那麼整個post方式就是：     </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: $("#postForm").serialize()
+})</code></pre><p>   換句話說其實就是用jquery<em><strong>模擬</strong></em>一般的post<code>submit</code>。    </p><div class="bs-callout bs-callout-info">    範例程式碼：<a href="https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample/tree/sample/jquery-serialiaze-post">tag sample/jquery-serialiaze-post</a></div></section><section><h3 id="WizKMOutline_1506701089478288">想post的內容只是表單裡面幾個欄位</h3><p>   有時候要post的內容可能不全部在同一個<code>Form</code>表單，或者可能有幾個不同地方的欄位組成，這個時候，第一種情境的序列化做法就不適合了。    </p><p>   這個時候可能會想說建立一個javascript 物件，然後<code><strong>直接post這個物件</strong></code>。例如，假設後端要binding的model 有 Title和Content欄位：    </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">var data = {};
+data.Title = "a";
+data.Content = "b";
+
+$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: data
+})</code></pre><p>這個會binding成功，因此可能想說都是這麼處理就好，但是，當要binding的物件<em><strong>比較複雜的時候</strong></em>，這個方式就會binding<em><strong>失敗</strong></em>。 </p><p>舉例來說，假設我們有同樣的model結構，但是這個時候後台變成需要的是一個<em>list</em>，這個時候可能想說傳入array即可： </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">var data = [];
+data.push({ Title: "1", Content: "2" });
+data.push({ Title: "2", Content: "4" });
+
+$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: data
+})</code></pre><p>但是這個會binding<em>失敗</em>，主要原因是因為預設jquery使用的是<code>application/x-www-form-urlencoded</code>作為<code>ContentType</code> - 這種方式的產生結構類似於querystring的那種串聯方式，因此在處理<em>複雜結構</em> 的時候產生出來的內容<em>不符合</em>asp .net mvc預設model binding的邏輯。 </p><p>因此建議直接傳送<em>json</em>格式的內容，在處理複雜結構沒有什麼問題。 </p><p>不過要使用json格式的資料就會需要： </p><ul><li>用<code>JSON.stringfy()</code>把物件轉成json的字串樣子</li><li>把<code>ContentType</code>設定成為：<code>application/json</code> - 告知mvc傳入的內容是json</li></ul><p>因此整個範例變成： </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">var data = [];
+data.push({ Title: "1", Content: "2" });
+data.push({ Title: "2", Content: "4" });
+
+$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: SON.stringify(data),
+ contentType: "application/json"
+})</code></pre><div class="bs-callout bs-callout-info"><ul><li>範例程式碼，當object是單純的時候，直接post JavaScript 物件沒有問題：<a href="https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample/tree/sample/jquery-simple-object-post">tag sample/jquery-simple-object-post</a></li><li>範例程式碼，當object是複雜物件的時候，直接post JavaScript物件<em>有問題</em><a href="https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample/tree/sample/jquery-complex-object-post-fail">tag sample/jquery-complex-object-post-fail</a></li><li>範例程式碼，當object是複雜物件的時候，用json格式post - 建議方式<a href="https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample/tree/sample/jquery-complex-object-post-sucess">tag sample/jquery-complex-object-post-sucess</a></li></ul></div></section><section><h3 id="WizKMOutline_1506701089478280">想post的內容包含檔案上傳</h3><p>   當想要post上去的內容包含檔案上傳(input type="file")的時候，上述提到的2種做法都沒有辦法達成。    </p><p>   原因是因為檔案上傳要包含的資訊豐富很多，上述兩種方式都沒有辦法達到。    </p><p>   因此當需要post的內容包含檔案上傳，需要使用特殊的資料類型<code>FormData</code>。    </p><div class="bs-callout bs-callout-warning"><code>FormData</code>只有在支援Html 5的browser才有支援，因此IE 10 以下沒有辦法。    </div><p>   要使用<code>FormData</code>非常的簡單，只需要在new的時候傳入<em>Form的html element物件</em>即可。    </p><p>   有了<code>FormData</code>作為資料之後，還有兩個設定：    </p><ol><li><code>processData</code>要設定為<code>false</code>避免jquery傳送的時候有額外做一些處理</li><li>把<code>ContentType</code>設定為<code>false</code>讓jquery決定送出的類型</li></ol><p>   整個的範例如下：     </p><pre class="brush: jscript;"><code class="language-javascript line-numbers">var data = new FormData($("#postForm")[0]);
+
+$.ajax({
+ type: "POST",
+ url: "@@Url.Action("JqueryPost")",
+ data: data,
+ processData: false,
+ contentType: false
+})</code></pre></section><div class="bs-callout bs-callout-info">   範例程式碼：<a href="https://github.com/alantsai-samples/aspnetmvc-jquery-post-model-binding-sample/tree/sample/jquery-FomrData-File-post">tag sample/jquery-FomrData-File-post</a></div></section><section><h2 id="WizKMOutline_1506701089478987">結語</h2><p>  越來越多網站會要求直接使用ajax - 整個畫面不需要post給使用者感官沒有load那麼久。   </p><p>  希望透過這篇能夠提供一個Reference，當要用jquery ajax post的時候，asp .net mvc model binding不到的時候可以參考以下，避免在抓頭了。   </p></section> <section> <div class="wlWriterEditableSmartContent" id="scid:77ECF5F8-D252-44F5-B4EB-D463C5396A79:87f5d5d0-9f9c-4b79-89e1-419037842e8a" style="margin: 0px; padding: 0px; float: none; display: inline;">標籤: <a href="/tags/Asp+.Net+Mvc" rel="tag">Asp .Net Mvc</a>,<a href="/tags/best+practices" rel="tag">best practices</a>,<a href="/tags/jquery" rel="tag">jquery</a></div></section>

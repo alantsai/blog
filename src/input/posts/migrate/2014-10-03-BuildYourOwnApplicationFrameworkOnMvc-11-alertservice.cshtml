@@ -1,0 +1,222 @@
+Title: "[iThome 第七屆鐵人賽 11] 傳遞資訊到前端的通用型服務"
+Published: 2014-10-03
+Modified: 2014-11-30
+Image: /posts/migrate/2014-10-03-BuildYourOwnApplicationFrameworkOnMvc-11-alertservice_Asset/image_thumb[1](73).png
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-11-alertservice.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412347482113797" ;="">如何從後端傳遞訊息到前端</a>  </li><li><a href="#WizKMOutline_1412347482113359" ;="">使用TempData的難處</a>  </li><li><a href="#WizKMOutline_1412347482113280" ;="">AlertService功能概念</a>  </li><li><a href="#WizKMOutline_1412347482113799" ;="">實作功能</a>  <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1412347482113817" ;="">AlertViewModel</a>  </li><li><a href="#WizKMOutline_1412347482113495" ;="">AlertDecoratorActionResult和方便使用的4個Extension方法</a>  </li><li><a href="#WizKMOutline_1412347482113777" ;="">View的部份</a></li></ul> </li><li><a href="#WizKMOutline_1412347482113247" ;="">如何使用</a>  </li><li><a href="#WizKMOutline_1412347482113472" ;="">結語</a></li></ul></div> <p>到目前為止，已經介紹了很多屬於基礎建設的部份。從核心的DI用Autofac開始，再到那裡都使用的到的Log服務。再來介紹了ViewModel和如何透過框架來讓對應變得更加簡單。最後介紹了透過Repository 和 Unit of work，使得實際的DAL層級能夠被abstraction出來。 </p> <p>在這一篇，將會介紹比較偏向Controller層級的內容，也就是每一個application一定會使用到的：如何提供一種一致性的服務用於從Server傳遞訊息到客戶端？ </p> <a name="more"></a> <h1 id="WizKMOutline_1412347482113797">如何從後端傳遞訊息到前端</h1> <p>所謂傳遞訊息到前端的意思是，通常來說每當一個功能執行完成之後，一定會提供一些feedback給user。例如，新增一筆資料成功，系統可能會用一個<code>alert</code>訊息來顯示“新增成功”。 </p> <p>因為這個功能非常通用，因此Mvc裡面有一個特殊的儲存空間叫做<code>TempData</code>。有別於<code>ViewData</code>只能保存一次的request值到View裡面，<code>TempData</code> 底層也是用<code>Session</code>來儲存，但是有別於<code>Session</code>在，當<code>TempData</code>的值被<em>讀過</em>，那一筆資料就會被清掉。 </p> <p>因此，<code>TempData</code>非常適合用來存這一種一次性的feedback訊息，顯示完之後就不需要了。 </p> <h1 id="WizKMOutline_1412347482113359">使用TempData的難處</h1> <p><code>TempData</code>很適合存一次性資訊，但是實際在開發的時候不是那麼方便。在一個多人團隊開發的情況可能有以下幾個情況： </p> <ol> <li><em>在沒有講好的情況下，每個人使用的<code>TempData</code>Key不一樣</em>：開發者A可能使用message作為key，但是開發者B可能使用messages。  </li><li><em>要設定錯誤訊息的時候不方便</em>：<code>Action</code>裡面設定<code>TempData</code>其實不是很好用。 </li></ol> <p>因此這一次我們會建制一個<code>AlertService</code>來提供一個好用的傳遞訊息的方式。 </p> <h1 id="WizKMOutline_1412347482113280">AlertService功能概念</h1> <p>基本上我們會先建立一個用來封轉要顯示在前端的訊息ViewModel。這個ViewModel只有兩個Property，一個是<code>Message</code>：代表要顯示的訊息，還有一個是 <code>AlertClass</code>：也就是這個訊息要顯示的樣式。 </p> <p>爲了能夠讓設定要傳遞的訊息更加簡單，將會建立一個<code>AlertDecoratorActionResult</code>，這個特別的ActionResult只是讓設定訊息更加的方便。同時，爲了讓使用這個 ActionResult更加的方便，會在建立對應的4個Extension 方法，方便建立<code>AlertViewModel</code>。 </p> <p>最後，會建立屬於View的部份，並且使用bootstrap的<code>alert container</code>來顯示不同層級的訊息。 </p> <p><a href="http://lh5.ggpht.com/-a4RIPV8yAR8/VC63G7JvNZI/AAAAAAAANf0/FvZqP3-EHyM/s1600-h/image%25255B3%25255D.png"><img title="image" style="border-left-width: 0px; border-right-width: 0px; background-image: none; border-bottom-width: 0px; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border-top-width: 0px" border="0" alt="image" src="/posts/migrate/2014-10-03-BuildYourOwnApplicationFrameworkOnMvc-11-alertservice_Asset/image_thumb[1](73).png" width="455" height="202" class="img-responsive"></a></p><figure><figcaption>將會實作的Class Diagram</figcaption> </figure> <h1 id="WizKMOutline_1412347482113799">實作功能</h1> <p>有了上面的介紹，應該有了基本要建造的功能內容，就來看看如何實作。 </p> <h2 id="WizKMOutline_1412347482113817">AlertViewModel</h2> <p>首先先定義ViewModel的樣子： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 用來代表一筆需要顯示的Alert資訊ViewModel
+/// &lt;/summary&gt;
+public class AlertViewModel
+{
+    /// &lt;summary&gt;
+    /// 儲存這個Alert資訊的Class - 用來區分呈現的顏色
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// Alert資訊的Class值
+    /// &lt;/value&gt;
+    public string AlertClass { get; set; }
+
+    /// &lt;summary&gt;
+    /// Alert資訊的內容值
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// Alert資訊的值
+    /// &lt;/value&gt;
+    public string Message { get; set; }
+
+    /// &lt;summary&gt;
+    /// Initializes a new instance of the &lt;see cref="AlertViewModel"/&gt; class.
+    /// &lt;/summary&gt;
+    /// &lt;param name="alertClass"&gt;Alert資訊的Class值&lt;/param&gt;
+    /// &lt;param name="message"&gt;Alert資訊的內容&lt;/param&gt;
+    public AlertViewModel(string alertClass, string message)
+    {
+        AlertClass = alertClass;
+        Message = message;
+    }
+}
+</code></pre><br><h2 id="WizKMOutline_1412347482113495">AlertDecoratorActionResult和方便使用的4個Extension方法</h2><br><p>首先是AlertDecoratorActionResult： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 一個Decorator Pattern的ActionResult，讓增加Alert訊息變的方便
+/// &lt;/summary&gt;
+public class AlertDecoratorActionResult : ActionResult
+{
+    /// &lt;summary&gt;
+    /// 取得或設定實際的ActionResult
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 實際的ActionResult值
+    /// &lt;/value&gt;
+    public ActionResult InnerResult { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定Alert的Class
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// Alert的Class
+    /// &lt;/value&gt;
+    public string AlertClass { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定Alert的訊息
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// Alert的訊息
+    /// &lt;/value&gt;
+    public string Message { get; set; }
+
+    /// &lt;summary&gt;
+    ///    Initializes a new instance of the 
+    ///    &lt;see cref="AlertDecoratorActionResult"/&gt; class.
+    /// &lt;/summary&gt;
+    /// &lt;param name="inInnerResult"&gt;The in inner result.&lt;/param&gt;
+    /// &lt;param name="inAlertClass"&gt;The in alert class.&lt;/param&gt;
+    /// &lt;param name="inMessage"&gt;The in message.&lt;/param&gt;
+    public AlertDecoratorActionResult(ActionResult inInnerResult, 
+		string inAlertClass, string inMessage)
+    {
+        this.InnerResult = inInnerResult;
+        this.AlertClass = inAlertClass;
+        this.Message = inMessage;
+    }
+
+    /// &lt;summary&gt;
+    /// Enables processing of the result of an action 
+    ///    method by a custom type that inherits from the
+    ///    &lt;see cref="T:System.Web.Mvc.ActionResult" /&gt; class.
+    /// &lt;/summary&gt;
+    /// &lt;param name="context"&gt;The context in 
+    ///   which the result is executed. 
+    ///   The context information includes the controller, 
+    ///   HTTP content, request context, and route data.&lt;/param&gt;
+    public override void ExecuteResult(ControllerContext context)
+    {
+        context.Controller.TempData.AddAlert(this.AlertClass, this.Message);
+        this.InnerResult.ExecuteResult(context);
+    }
+}
+</code></pre><br><p><code>AlertDecoratorActionResult</code>基本上是實作了Decorator Pattern，基本上就是把實際要顯示的ActionResult包了一層，然後注入要顯示的訊息到<code>TempData</code>。 </p><br><div class="bs-callout bs-callout-info">在上面的<code>TempData.AddAlert()</code>方法是客制的Extension方法，稍後會看到。 </div><br><p>實際使用的時候不是很便利，因此會使用4個Extension方法來擴充，加上兩個方便存和取TempData裡面的Alert： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers"> /// &lt;summary&gt;
+/// Alert相關的Helper方法，方便呼叫使用
+/// &lt;/summary&gt;
+public static class AlertExtension
+{
+    /// &lt;summary&gt;
+    /// Alert存到TempData的Key值
+    /// &lt;/summary&gt;
+    private static readonly string Alerts = "_Alerts";
+
+    /// &lt;summary&gt;
+    /// 取得目前所擁有的Alert清單。
+    /// &lt;/summary&gt;
+    /// &lt;param name="tempData"&gt;TempData&lt;/param&gt;
+    /// &lt;returns&gt;目前所還沒有顯示過的Alert清單&lt;/returns&gt;
+    public static List&lt;AlertViewModel&gt; GetAlerts(this TempDataDictionary tempData)
+    {
+        if (!tempData.ContainsKey(Alerts))
+        {
+            tempData[Alerts] = new List&lt;AlertViewModel&gt;();
+        }
+
+        return (List&lt;AlertViewModel&gt;)tempData[Alerts];
+    }
+
+    /// &lt;summary&gt;
+    /// 增加一筆要顯示的Alert
+    /// &lt;/summary&gt;
+    /// &lt;param name="tempData"&gt;TempData&lt;/param&gt;
+    /// &lt;param name="messageClass"&gt;這筆Alert的Class值&lt;/param&gt;
+    /// &lt;param name="message"&gt;這筆Alert的訊息&lt;/param&gt;
+    public static void AddAlert(this TempDataDictionary tempData,
+		 string messageClass, string message)
+    {
+        var alerts = tempData.GetAlerts();
+        alerts.Add(new AlertViewModel(messageClass, message));
+    }
+
+    /// &lt;summary&gt;
+    /// 返回的ActionResult加上訊息屬於success Class的Helper
+    /// &lt;/summary&gt;
+    /// &lt;param name="result"&gt;ActionResult&lt;/param&gt;
+    /// &lt;param name="message"&gt;要顯示的訊息&lt;/param&gt;
+    /// &lt;returns&gt;有增加Alert訊息的ActionResult&lt;/returns&gt;
+    public static ActionResult WithSuccess(this ActionResult result, 
+		string message)
+    {
+        return new AlertDecoratorActionResult(result, 
+		"alert-success", message);
+    }
+
+    /// &lt;summary&gt;
+    /// 返回的ActionResult加上訊息屬於info Class的Helper
+    /// &lt;/summary&gt;
+    /// &lt;param name="result"&gt;ActionResult&lt;/param&gt;
+    /// &lt;param name="message"&gt;要顯示的訊息&lt;/param&gt;
+    /// &lt;returns&gt;有增加Alert訊息的ActionResult&lt;/returns&gt;
+    public static ActionResult WithInfo(this ActionResult result, 
+		string message)
+    {
+        return new AlertDecoratorActionResult(result,
+		 "alert-info", message);
+    }
+
+    /// &lt;summary&gt;
+    /// 返回的ActionResult加上訊息屬於warning Class的Helper
+    /// &lt;/summary&gt;
+    /// &lt;param name="result"&gt;ActionResult&lt;/param&gt;
+    /// &lt;param name="message"&gt;要顯示的訊息&lt;/param&gt;
+    /// &lt;returns&gt;有增加Alert訊息的ActionResult&lt;/returns&gt;
+    public static ActionResult WithWarning(this ActionResult result,
+		 string message)
+    {
+        return new AlertDecoratorActionResult(result, 
+		"alert-warning", message);
+    }
+
+    /// &lt;summary&gt;
+    /// 返回的ActionResult加上訊息屬於error Class的Helper
+    /// &lt;/summary&gt;
+    /// &lt;param name="result"&gt;ActionResult&lt;/param&gt;
+    /// &lt;param name="message"&gt;要顯示的訊息&lt;/param&gt;
+    /// &lt;returns&gt;有增加Alert訊息的ActionResult&lt;/returns&gt;
+    public static ActionResult WithError(this ActionResult result,
+		 string message)
+    {
+        return new AlertDecoratorActionResult(result, 
+		"alert-danger", message);
+    }
+}
+</code></pre><br><div class="bs-callout bs-callout-info">上面可以看到我們有定義一個key代表AlertViewModel在TempData的位置。同時提供了<code>AddAlert</code>和<code>GetAlerts</code>這兩個TempData的Extension，方便取得實際的Alert。最後Alert訊息是List的形態，讓我們可以擁有多筆Alert訊息。 </div><br><h2 id="WizKMOutline_1412347482113777">View的部份</h2><br><p>這邊會定義一個<code>PartialView</code>叫做_Alert.cshtml，並且在<code>_Layout</code>裡面render出來。 </p><pre class="brush: javascript;"><code class="language-javascript line-numbers">@@using Core.Alerts
+
+@@if (TempData.GetAlerts().Any())
+{
+    &lt;script type="text/javascript"&gt;
+		$(function() {
+		    alert('@@String.Join("\\n", 
+				TempData.GetAlerts().Select(x =&gt; x.Message.ToString()))');
+		});
+    &lt;/script&gt;
+}
+</code></pre><br><p>在_Layout.cshtml快到body的地方： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">....
+
+    @@Scripts.Render("~/bundles/jquery")
+    @@Scripts.Render("~/bundles/bootstrap")
+    @@Html.Partial("_Alert")
+    @@RenderSection("scripts", required: false)
+&lt;/body&gt;
+.....
+</code></pre><br><div class="bs-callout bs-callout-info">這邊我沒有實作配合<code>AlertViewModel.AlertClass</code>的值，搭配bootstrap，顯示有顏色的錯誤訊息，這個留個讀者去發揮。 </div><br><h1 id="WizKMOutline_1412347482113247">如何使用</h1><br><p>最後我們看一下會如何使用。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">using Core.Alerts; // 需要加入Extension方法的namespace
+
+.....
+
+[HttpPost]
+[ValidateAntiForgeryToken]
+public ActionResult Create(Create backgroundKnowledge)
+{
+   ...
+	// 新增成功，導回首頁
+    return RedirectToAction("Index").WithSuccess("新增成功");
+   
+}
+</code></pre><br><p>這個時候，只要新增成功，會導回首頁，並且顯示“新增成功” </p><br><h1 id="WizKMOutline_1412347482113472">結語</h1><br><p>希望透過這一篇，讓未來在需要傳遞訊息到前端的時候變的更加方便。 </p>  

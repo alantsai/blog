@@ -1,0 +1,31 @@
+Title: "[iThome 第七屆鐵人賽 22] 搜索頁面 - Service層的工作 -動態產生Linq條件"
+Published: 2014-10-14
+Modified: 2014-11-30
+Image: ""
+Tags: ["linq","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-22-IndexPage-DynamicWhereLinq.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1413296225076381" ;="">功能描述</a> </li><li><a href="#WizKMOutline_1413296225076880" ;="">Service依照SearchViewModel裡面的欄位去做搜索</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413296225076168" ;="">動態組裝的Linq</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413296225076442" ;="">自己寫Expression Tree</a> </li><li><a href="#WizKMOutline_1413296225076326" ;="">使用PredicateBuilder</a> </li><li><a href="#WizKMOutline_1413296225076458" ;="">Dynamic Linq Query</a></li></ul></li></ul> </li><li><a href="#WizKMOutline_1413296225076184" ;="">結語</a></li></ul></div> <p>在上一篇介紹完了會使用到的ViewModel之後，接下來就是實際的商業邏輯，也就是實際做搜索和產生資料的部份。 </p> <p>在這一篇，將會介紹如何透過Service層和ViewModel的搭配，讓使用起來變的更加方便。 </p> <a name="more"></a> <h1 id="WizKMOutline_1413296225076381">功能描述</h1> <p>Service的流程大概如下： </p> <ol> <li>依照SearchViewModel裡面的欄位去做DB搜索  </li><li>得出的結果將會用Automapper轉成要的SearchResultViewModel，並且透過PagedList.Mvc的方式把資料包住  </li><li>View方面的呈現 - 搜索表單可以做成通用的Partial </li></ol>  <p>由於Service要做的事情也滿多的，因此整個Service層的實作會分幾篇來介紹。 </p> <h1 id="WizKMOutline_1413296225076880">Service依照SearchViewModel裡面的欄位去做搜索</h1> <p>這個部份其實要拆成兩塊： </p> <ol> <li>動態組裝Linq條件 - Linq搜索的好處是強型別的條件，但是當我們希望Service自動依照欄位去做搜索的時候，Linq就不方便使用了。因此，我們需要先瞭解如何動態組裝Linq條件  </li><li>透過Reflection取得搜索欄位和條件 - SearchViewModelBase裡面有必要有的欄位（例如目前第幾頁，用什麽欄位做排序，詳細請看上一篇），但是這些欄位和實際搜索的DB沒有關係，SearchViewModelBase 裡面是方便做分頁用的，而實際的搜索條件是每一個繼承下來需要的，因此透過Reflection可以做到。 </li></ol>  <h2 id="WizKMOutline_1413296225076168">動態組裝的Linq</h2> <p>基本上，動態組裝Linq條件有3種方法： </p> <ol> <li>使用PredicateBuilder - 強型別的方式組裝linq條件  </li><li>使用Dynamic Linq Library - 用string的方式組裝Linq  </li><li>自己組裝Expression Tree </li></ol>  <h3 id="WizKMOutline_1413296225076442">自己寫Expression Tree</h3> <p>基本上Linq的Where條件最終組出來就是一個Expression Tree。因此如果對於Expression Tree有所瞭解可以自己動手寫。 </p> <p>但是基本上要會寫這個要對於整個比較瞭解，因此基本不用考慮。 </p> <h3 id="WizKMOutline_1413296225076326">使用PredicateBuilder</h3> <p>PredicateBuilder基本上就是可以用強型別的方式組裝Linq條件。舉例來說，我們使用Linq來寫Where條件，當Where條件寫好只好，是沒有辦法在對那個Where條件在做調整。 </p> <p>因此，假設我們的搜索表單有4個條件，有輸入才做搜索條件，如果條件是兩個以上，還要做and的邏輯。要用原生的linq做到這個其實是很困難的，因為Linq條件是不能在改，因此等於每一種情況都要寫一個，這個很難維護也很麻煩。 </p> <p>因此，PredicateBuilder就很方便，它能夠讓我們動態修改Linq條件，因此舉例來說（官方的例子）： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">IQueryable&lt;Product&gt; SearchProducts (params string[] keywords)
+{
+  var predicate = PredicateBuilder.False&lt;Product&gt;();
+
+  foreach (string keyword in keywords)
+  {
+    string temp = keyword;
+    predicate = predicate.Or (p =&gt; p.Description.Contains (temp));
+  }
+  return dataContext.Products.Where (predicate);
+}
+
+</code></pre>有一堆搜索的Keyword，每一個要以Or的方式做搜索，不是用PredicateBuilder，原生的Linq是辦不到的（如果全部要做and是做的到，但是or就沒有辦法）。 <br><br><div class="bs-callout bs-callout-default"><br><h4 id="WizKMOutline_1413296222466971">LinqKit 套件</h4>PredicateBuilder屬於LinqKit套件的一部份，這個套件提供了一些方便處理Linq的方法。 <br><ol><br><li>Nuget安裝指令：<kbd>Install-Package LinqKit</kbd> <br></li><li>Nuget頁面：<a href="https://www.nuget.org/packages/LinqKit/">LinqKit</a> <br></li><li>官方介紹Predicate Builder：<a href="http://www.albahari.com/nutshell/predicatebuilder.aspx">Dynamically Composing Expression Predicates</a> <br></li><li>官方介紹LinqKit：<a href="http://www.albahari.com/nutshell/linqkit.aspx">What is LINQKit?</a> </li></ol></div><br><div class="bs-callout bs-callout-success">PredicateBuilder非常適合在確定有那些欄位的情況下使用。例如確定有4個搜索欄位。但是，這個不適合我們使用。因為如果要寫共通處理邏輯，更本就不知道有那些搜索欄位。 </div><br><h3 id="WizKMOutline_1413296225076458">Dynamic Linq Query</h3><br><p>早期在寫Sql的時候，有時候Sql的語法使用string組裝在一起（當然要用NameParameter避免Sql injection）。這一種組裝的好處是完全可以寫好一個共用邏輯，只要符合條件的就用string concat的方式組裝條件，非常的方便。 </p><br><p>Linq如果可以做到就好了，因此由Scot Gu介紹了一個所謂的Dynamic Linq Query - <a href="http://weblogs.asp.net/scottgu/dynamic-linq-part-1-using-the-linq-dynamic-query-library">Dynamic LINQ</a> </p><br><p>Dynamic Linq Query基本上就是可以讓我們用string方式組裝linq，因此（下面範例是由保哥一篇介紹的文章裡面截取）： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">Northwind db = new Northwind(connString); 
+db.Log = Console.Out;
+
+var query =
+    db.Customers.Where("City == @@0 and Orders.Count &gt;= @@1", "London", 10).
+    OrderBy("CompanyName").
+    Select("New(CompanyName as Name, Phone)");
+
+Console.WriteLine(query);
+Console.ReadLine();
+</code></pre><br><div class="bs-callout bs-callout-default"><br><h4>Dynamic Linq Query</h4>基本上這個功能並沒有包含在.Net裡面，如果要使用之前是需要到Scott Gu的那篇文章下載dll。不過有人把它包到了Nuget，方便使用 <br><ul><br><li>Nuget安裝指令：<kbd>Install-Package System.Linq.Dynamic </kbd><br></li><li>Nuget頁面：<a href="https://www.nuget.org/packages/System.Linq.Dynamic/">System.Linq.Dynamic</a> <br></li><li>官網介紹：<a href="http://weblogs.asp.net/scottgu/dynamic-linq-part-1-using-the-linq-dynamic-query-library">Dynamic LINQ</a> <br></li><li>保哥介紹：<a href="http://blog.miniasp.com/post/2008/06/24/Introduce-LINQ-Dynamic-Query-Library.aspx">Dynamic LINQ 讓 LINQ 的世界變的更美好</a> </li></ul></div><br><div class="bs-callout bs-callout-success">Dynamic Linq Query非常適合做那種通用型的處理，例如不知道欄位有什麽的情況下。但是壞處是，喪失了強型別的好處。不過這個非常適合框架處理搜索條件。 </div><br><h1 id="WizKMOutline_1413296225076184">結語</h1><br><p>本來這一篇還要介紹框架Service層如何搭配Dynamic Linq Query來使用，不過在介紹動態Linq條件的時候，篇幅有點長，因此就把Service層的實作留在下一篇。 </p>  

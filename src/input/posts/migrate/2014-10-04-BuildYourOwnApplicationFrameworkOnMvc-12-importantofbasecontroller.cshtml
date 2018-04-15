@@ -1,0 +1,66 @@
+Title: "[iThome 第七屆鐵人賽 12] BaseController的重要性"
+Published: 2014-10-04
+Modified: 2014-11-30
+Image: /posts/migrate/2014-10-04-BuildYourOwnApplicationFrameworkOnMvc-12-importantofbasecontroller_Asset/image_thumb[1](74).png
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-12-importantofbasecontroller.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1412423976493870" ;="">爲什麽要自定自己的BaseController</a> </li><li><a href="#WizKMOutline_1412423976493229" ;="">強型別的RedirectToAction</a> </li><li><a href="#WizKMOutline_1412423976493643" ;="">取得和使用強型別的RedirectToAction</a> </li><li><a href="#WizKMOutline_1412423976493410" ;="">BaseController讓強型別的RedirectToAction用起來和原來的版本一樣</a> </li><li><a href="#WizKMOutline_1412423976493693" ;="">結語</a></li></ul></div> <p>在這一篇將會介紹爲什麽對框架來說有一個BaseController讓所有的Controller來繼承很重要，並且介紹一個簡單的強型別的<code>RedirectToAction</code>讓所有繼承這個BaseController的可以來使用。 </p> <p>透過這個強型別的RedirectToAction讓在寫Code的時候，不要犯下寫錯Action的名字，或者Action名字改了但是對應的RedirectToAction沒有改到的低級錯誤。 </p> <a name="more"></a> <h1 id="WizKMOutline_1412423976493870">爲什麽要自定自己的BaseController</h1> <p>所有的Controller都會繼承<code>System.Web.Mvc.Controller</code>。繼承的概念在OO裡面很重要，因為可以讓一些所有Controller都通用的功能，透過繼承來傳下去。同時，一些特殊的Attribute如果放在Controller的層級，那麼所有的ActionResult都會有效果，因此針對我們的框架，就會定義一個框架的BaseController來讓所有的Controller繼承，以提供一些通用的方法。 </p> <h1 id="WizKMOutline_1412423976493229">強型別的RedirectToAction</h1> <p>定義一個BaseController非常的簡單，只需要定一個class然後讓他繼承<code>System.Web.Mvc.Controller</code>，之後我們實際要使用的Controller在繼承這個BaseController 就可以了。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers"> /// &lt;summary&gt;
+/// Application 層級的BaseController
+/// &lt;/summary&gt;
+public class BaseController : Controller
+{
+}
+
+// 繼承BaseController
+public class HomeController : BaseController
+{
+}
+</code></pre><br><p>爲了未來的擴充性，因此就算目前沒有任何共通的方法而讓BaseController留空都沒關係，因為有了這一層，在未來需要添加內容就會變的相對簡單。 </p><br><p>不過爲了不讓我們的BaseController什麽都沒有，我們來做一個很好用的功能，那就是加入強型別的RedirectToAction。 </p><br><p>那什麽是強型別的RedirectToAction？基本上Controller已經有一個<code>RedirectToAction</code>的方法，不過這個方法和很多Mvc的helper方法一樣，接受一個string作為參數，而這個string就是所謂的“magic string”會幫我們對應到正確的Action。舉例來說，通常儲存成功都會做一個<code>RedirectToAction("Index")</code>，表示回傳的內容將會是這個Controller的<code>Index</code> ActionResult。 </p><br><p>問題來了，假設今天打的太快，把“Index”打成“Indx”（或者是把Action從“Index”改成了“Home”但是忘記改對應的RedirectToAction），因為它是string，在compile time完全看不出來打錯了。只有到Runtime才會發現有問題。那這個地方就有可能被漏掉並且造成系統炸掉，如果剛好在客戶面前發生，那麼整個開發團隊感覺就low掉了。 </p><br><p><a href="http://lh3.ggpht.com/-ux-DuxiwmsE/VC_h009Y8dI/AAAAAAAANgM/TyeLvTsLAbw/s1600-h/image%25255B3%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-10-04-BuildYourOwnApplicationFrameworkOnMvc-12-importantofbasecontroller_Asset/image_thumb[1](74).png" width="362" height="224" class="img-responsive"></a></p><figure> <figcaption>少打一個字母，其實肉眼很不容易發現</figcaption> </figure><br><p>而強型別的RedirectToAction就可以避免掉這個問題。 </p><br><h1 id="WizKMOutline_1412423976493643">取得和使用強型別的RedirectToAction</h1><br><p>有一個Nuget的package叫做：<code>Microsoft.AspNet.Mvc.Futures</code>。 </p><br><p>可以透過<code>Package Mangement Console</code>輸入：<kbd>Install-Package Microsoft.AspNet.Mvc.Futures</kbd>來安裝。 </p><br><p>這個Package就有包含一個強型別的RedirectToAction，不過它屬於extension method，因此使用起來有些變扭： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// 繼承BaseController
+public class HomeController : BaseController
+{
+    public ActionResult Index()
+    {
+        return View();
+    }
+
+    public ActionResult Create()
+    {
+		...
+        return this.RedirectToAction&lt;HomeController&gt;(x =&gt; x.Index());
+    }
+}
+</code></pre><br><p>這個強型別的RedirectToAction是很好，可是用起來都需要加上<code>this</code>實在和原始的RedirectToAction感覺不一樣，難道沒有辦法讓呼叫強型別的時候，不要透過<code>this</code>？這時候我們的BaseController就能夠排上用場。 </p><br><h1 id="WizKMOutline_1412423976493410">BaseController讓強型別的RedirectToAction用起來和原來的版本一樣</h1><br><p>我們可在BaseController做一個Wrapper，把那個extension方法包起來，這樣呼叫起來感覺強型別的RedirectToAction就和原本的是一樣的呼叫方式： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// Application 層級的BaseController
+/// &lt;/summary&gt;
+public class BaseController : Controller
+{
+    /// &lt;summary&gt;
+    /// Redirects to action.
+    /// &lt;/summary&gt;
+    /// &lt;typeparam name="TController"&gt;The type of the controller.&lt;/typeparam&gt;
+    /// &lt;param name="action"&gt;The action.&lt;/param&gt;
+    /// &lt;returns&gt;&lt;/returns&gt;
+    protected ActionResult RedirectToAction&lt;TController&gt;(Expression&lt;Action&lt;TController&gt;&gt; action)
+        where TController : Controller
+    {
+        return ControllerExtensions.RedirectToAction(this, action);
+    }
+}
+
+// 繼承BaseController
+public class HomeController : BaseController
+{
+    public ActionResult Index()
+    {
+        return View();
+    }
+
+    public ActionResult Create()
+    {
+	...
+        return RedirectToAction&lt;HomeController&gt;(x =&gt; x.Index());
+    }
+}
+</code></pre><br><div class="bs-callout bs-callout-warning">這邊有一點需要注意，假設<code>Index</code>需要傳入參數，這個強型別的方法是會有問題。 </div><br><h1 id="WizKMOutline_1412423976493693">結語</h1><br><p>希望透過這個例子，能夠展示出有一個共通的Base是很好的一件事情，就算目前不需要擴充，但是只要所有的都繼承這個Base，以後要擴充就很方便。 </p><br><p>同時希望透過介紹強型別的RedirectToAction讓在寫Code的時候，避免掉低級錯誤，像是打錯字，或者改名字沒有改到對應的“Magic String” </p>  

@@ -1,0 +1,194 @@
+Title: "[iThome 第七屆鐵人賽 19] 框架產生下拉式資料的內容"
+Published: 2014-10-12
+Modified: 2014-11-30
+Image: ""
+Tags: ["asp .net mvc","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/10/BuildYourOwnApplicationFrameworkOnMvc-19-GenerateSelectListFroDropDownList.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1413125750114862" ;="">預設Scaffolding的問題</a> </li><li><a href="#WizKMOutline_1413125750114684" ;="">解決思路</a> </li><li><a href="#WizKMOutline_1413125750114461" ;="">實作內容</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1413125750114969" ;="">SelectListViewModel的定義</a> </li><li><a href="#WizKMOutline_1413125750114870" ;="">定義ViewModelBase</a> </li><li><a href="#WizKMOutline_1413125750114441" ;="">Filter定義</a> </li><li><a href="#WizKMOutline_1413125750114908" ;="">View的使用</a></li></ul> </li><li><a href="#WizKMOutline_1413125750114433" ;="">結語</a></li></ul></div> <p>這一篇，回到Controller常常需要做的一件事情，那就是當如果欄位屬於下拉式選單的時候，需要準備好下拉式清單的資料。 </p> <p>如果用的是預設的方式去產生下拉式選單其實有很多問題，這一篇想透過框架的方式，讓產生下拉式清單的資料能夠自動化。 </p> <a name="more"></a> <h1 id="WizKMOutline_1413125750114862">預設Scaffolding的問題</h1> <p>如果是Mvc Scaffolding內建的話，會在Controller的時候產生下拉式清單資料並且塞到ViewBag裡面。 </p> <p>這個最大的問題是：假設某一個地方有需要下拉式選單的資料，但是忘記產生了(最長發生這個問題是在Edit的時候，驗證失敗需要重新顯示View的時候)，畫面就會炸掉。 </p> <p>而且這個只有在runtime的時候才會發生，完全沒有辦法在compile的時候檢測出來。 </p> <p>假設有東西能夠保證需要下拉式清單的資料的時候，一定會產生出來，就不需要擔心到底有沒有忘記呼叫要把資料塞到ViewBag裡面。 </p> <p>這就是我們框架要解決的問題。 </p> <h1 id="WizKMOutline_1413125750114684">解決思路</h1> <p>首先，需要下拉式清單的資料的時候，就需要產生出來。能夠確認每一次需要的時候就會產生，就要透過Filter來做。 </p> <p>如果透過Filter來處理產生的邏輯，那麼還需要準備資料給Filter，讓它產生對應的資料並且塞到ViewBag裡面。因此，ViewModel是最適合的，因為在Filter裡面可以取得ViewModel的內容，因此可以做一個特殊的欄位，專門存放這些準備資料。 </p> <p>最後，在顯示的部份，就可以用一般的HtmlHelper產生即可。 </p> <h1 id="WizKMOutline_1413125750114461">實作內容</h1> <p>接下來就看看如何實作。 </p> <h2 id="WizKMOutline_1413125750114969">SelectListViewModel的定義</h2> <p>首先，定義一個<code>SelectListViewModel</code>的Class，這個Class將代表需要產生的下拉式選單： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 代表一個要被產生的SelectList
+/// &lt;/summary&gt;
+public class SelectListViewModel
+{
+    /// &lt;summary&gt;
+    /// 取得或設定此SelectList要和那個ViewModel Property對應
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 此SelectList要和那個ViewModel Property對應
+    /// &lt;/value&gt;
+    public string SelectListId { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定資料來源
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 資料來源
+    /// &lt;/value&gt;
+    public string Source { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定SelectList值的欄位來源
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// SelectList值的欄位來源
+    /// &lt;/value&gt;
+    public string DataValueField { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定SelectList顯示的欄位來源
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// SelectList顯示的欄位來源
+    /// &lt;/value&gt;
+    public string DataTextField { get; set; }
+
+    /// &lt;summary&gt;
+    /// 取得或設定SelectList被選取的值
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// SelectList被選取的值
+    /// &lt;/value&gt;
+    public object SelectedValue { get; set; }
+
+    /// &lt;summary&gt;
+    /// SelectList要從那裡被產生出來
+    /// &lt;/summary&gt;
+    private string codeWhere;
+
+    /// &lt;summary&gt;
+    /// 取得或設定SelectList要從那裡被產生出來
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// SelectList要從那裡被產生出來
+    /// &lt;/value&gt;
+    public string CodeWhere
+    {
+        get
+        {
+            return codeWhere;
+        }
+
+        set { codeWhere = value; }
+    }
+}
+</code></pre><br><h2 id="WizKMOutline_1413125750114870">定義ViewModelBase</h2><br><p>再來，所有的ViewModel都要從某一個Base做繼承，而這個ViewModelBase會有一個Property，會回傳Array of <code>SelectListViewModel</code>。這個property將代表這個ViewModel會用到的下拉式選單清單。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers"> /// &lt;summary&gt;
+/// Core View Model 的 Base class。所有ViewModel將會繼承這一個。
+/// &lt;/summary&gt;
+public abstract class CoreViewModelBase
+{
+    /// &lt;summary&gt;
+    /// 如果需要產生SelectList到ViewData裡面，
+	/// 那麼child class會複寫這個Property，輸入需要產生的SelectList資訊。
+    /// &lt;/summary&gt;
+    /// &lt;value&gt;
+    /// 
+    /// &lt;/value&gt;
+    public virtual SelectListFill.SelectListViewModel[] NeedFillSelectList 
+    { 
+        get 
+        { 
+            return null; 
+        } 
+    }
+}
+</code></pre><br><p>因此，某一個的實作可能會是： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class Create : CoreViewModelBase, IHaveCustomMapping
+{
+...
+	public string PostType {get; set;}
+
+	/// &lt;summary&gt;
+	/// 如果需要產生SelectList到ViewData裡面，
+	/// 那麼child class會複寫這個Property，
+	///	輸入需要產生的SelectList資訊。
+	/// &lt;/summary&gt;
+	public override SelectListViewModel[] NeedFillSelectList
+	{
+		get
+		{
+			List&lt;SelectListViewModel&gt; temp = new List&lt;SelectListViewModel&gt;();
+	
+			temp.Add(new SelectListViewModel()
+                {
+                    CodeWhere = "where",
+                    DataTextField = "Text",
+                    DataValueField = "Value",
+                    SelectedValue = PostType,
+                    SelectListId = "PostType",
+                    Source = "Code"
+                });
+	
+			return temp.ToArray();
+		}
+	}
+	
+	...
+}
+</code></pre><br><p>上面的例子是有一個<code>PostType</code>的下拉式選單 </p><br><h2 id="WizKMOutline_1413125750114441">Filter定義</h2><br><p>再來就是實際產生下拉式清單的地方： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">/// &lt;summary&gt;
+/// 把ViewModel裡面有設定要產生的SelectList產生出來並且寫到ViewData。
+/// 需要由此Class的Child來複寫產生SelectList的邏輯
+/// &lt;/summary&gt;
+public abstract class FillSelectListActionFilterBase : ActionFilterAttribute
+{
+    /// &lt;summary&gt;
+    /// 產生SelectList的邏輯
+    /// &lt;/summary&gt;
+    /// &lt;param name="viewModel"&gt;提供要如何產出SelectList的資訊&lt;/param&gt;
+    /// &lt;returns&gt;
+    /// 依照ViewModel的資訊產出對應的SelectList
+    /// &lt;/returns&gt;
+    public override System.Web.Mvc.SelectList 
+		GetSelectList(SelectListViewModel viewModel)
+    {
+        SelectList result;
+
+        // 依照SelectListViewModel的值，去產生SelectList
+
+        return result;
+    }
+
+    /// &lt;summary&gt;
+    /// 把產出的SelectList注入到ViewData裡面
+    /// &lt;/summary&gt;
+    /// &lt;param name="filterContext"&gt;The filter context.&lt;/param&gt;
+    public override void OnActionExecuted
+		(ActionExecutedContext filterContext)
+    {
+        var viewResult = filterContext.Result as ViewResult;
+
+        if (viewResult != null &amp;&amp; viewResult.Model is CoreViewModelBase)
+        {
+            var selectListViewModelArray = 
+			((CoreViewModelBase)viewResult.Model).NeedFillSelectList;
+
+            // 假設有設定ViewModel才要做產出的動作
+            if (selectListViewModelArray != null
+			 &amp;&amp; selectListViewModelArray.Count() &gt; 0)
+            {
+                foreach (var item in selectListViewModelArray)
+                {
+                    // 假設目前ViewData裡面沒有這個SelectList才產生。
+					// 因此，在別的地方產出的SelectList的權重比這一個
+                    // filter還高。
+                    if (viewResult.ViewData[item.SelectListId] 
+						as System.Web.Mvc.SelectList == null)
+                    {
+                        viewResult.ViewData[item.SelectListId] 
+							= this.GetSelectList(item);
+                    }
+                }
+            }
+        }
+
+        base.OnActionExecuted(filterContext);
+    }
+}
+</code></pre><br><p>基本上就是依照<code>SelectListViewModel</code>去產生<code>SelectList</code>。然後把產生的SelectList塞到<code>ViewData</code>裡面，使用的Key會是 <code>SelectListViewModel</code>裡面的<code>SelectListId</code>。 </p><br><h2 id="WizKMOutline_1413125750114908">View的使用</h2><br><p>最後，就是View的呼叫： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// Create.cshtml
+
+...
+
+@@Html.DropDownListFor(model =&gt; model.PostType, null, 
+		htmlAttributes: new { @@class = "form-control" })
+
+....
+</code></pre><br><p>這邊注意到我們給<code>null</code>到<code>Html.DropDownListFor</code>，因為如果沒有給<code>SelectList</code>，Mvc會去找<code>ViewData</code>裡面看有沒有一樣的key有這個值，有的話就會使用那個作為清單。而我們的Filter則會產生出來那個清單，因此一定會有東西。 </p><br><h1 id="WizKMOutline_1413125750114433">結語</h1><br><p>透過使用這種方法，再也不需要擔心需要下拉式清單的時候忘記產生，因為Filter會幫忙做掉。 </p>  

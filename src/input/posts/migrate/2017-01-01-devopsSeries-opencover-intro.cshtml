@@ -1,0 +1,60 @@
+Title: "[iThome第8屆鐵人賽 15]OpenCover 介紹篇"
+Published: 2017-01-01
+Modified: 2017-12-12
+Image: /posts/migrate/2017-01-01-devopsSeries-opencover-intro_Asset/image_thumb(11).png
+Tags: [".net","「ithome 第八屆鐵人賽」","devops","「從.net工程師的角度來看devops」"]
+RedirectFrom: 2017/01/devopsSeries-opencover-intro.html
+Series: ["「iThome 第八屆鐵人賽」","「從.Net工程師的角度來看DevOps」"]
+---
+<section> <p>OpenCover是一個.Net Open Source的測試涵蓋率檢測的工具，透過這個Library，可以檢測出，對於整個程式的測試涵蓋率到底有多少 （當然，要注意一個迷失就是，不一定都要<em>100 %</em>的涵蓋率）。 </p> <p>這篇將會先對如何使用OpenCover做一個初步的介紹，在下篇才會把OpenCover實際整合到build script裡面。 </p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468986341" ;="">OpenCover是什麼？為什麼使用它</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987692" ;="">OpenCover小檔案</a></li></ul> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987238" ;="">除了OpenCover還有什麼測試涵蓋率的Library嗎？</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987716" ;="">OpenCover的運作概念是什麼？</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987552" ;="">OpenCover設定過濾條件</a><br> <ul style="margin: 0px 0px 0px 30px"> <li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987769" ;="">用Filter</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987705" ;="">用Attitude</a> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987517" ;="">用檔案</a></li></ul> </li><li><a style="font-size: 14pt; line-height: 1.5" href="#WizKMOutline_1483290468987450" ;="">結語</a></li></ul></div></section> <a name="more"></a><section> <h2 id="WizKMOutline_1483290468986341">OpenCover是什麼？為什麼使用它</h2> <div class="bs-callout bs-callout-default"> <h4 id="WizKMOutline_1483290468987692">OpenCover小檔案</h4> <dl> <dt>Github：  </dt><dd><a href="https://github.com/OpenCover/opencover">OpenCover</a> </dd><dd> </dd><dt>Nuget:  </dt><dd><kbd>Install-Package OpenCover</kbd> </dd><dd></dd></dl> </div> <p>OpenCover是一個支援.Net 2.0 以上的程式碼涵蓋率檢測的Library。基本上可以說是在.Net世界裡面Open Source程式碼涵蓋率Library用的最多的一個。而他的作用也很簡單，就是用來 檢測程式碼的測試涵蓋率有多少。 </p> <p>測試涵蓋率指的是什麼呢？詳細的在稍後的篇章會在提到，不過基本上來說，就是有沒有測試到程式碼的所有角度，舉例來說： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">if(x == 3)
+
+{
+
+}
+
+else
+
+{
+
+}
+
+</code></pre>
+ <p>假設今天我的測試程式碼只有測試當<code>x == 3</code>的情況，那麼可以說，測試涵蓋率只有50%，因為<em>else的階段沒有測試到</em>。 </p>
+ <p>OpenCover就是一個這種讓我們檢測的Library。 </p></section><section>
+ <h2 id="WizKMOutline_1483290468987238">除了OpenCover還有什麼測試涵蓋率的Library嗎？</h2>
+ <p>在.Net世界裡面還有一些別的涵蓋率的Library，像是dotCover或者Visual Studio Ultimate版本裡面的Code Coverage功能。不過這些都是需要收費才能夠使用，所以如果沒有這個經費，或者 沒有這些Licence，那OpenCover就是歲好的替代方案。 </p>
+ <div class="bs-callout bs-callout-info">像Visual Studio的Code Coverage有個好處是和VS整合在一起，對於開發要看結果比較方便，不過OpenCover也有對應的套件叫做<a href="https://marketplace.visualstudio.com/items?itemName=jamdagni86.OpenCoverUI">OpenCover UI</a>，也能夠達到類似的效果，不過這個部分就不在這個系列介紹了。 </div></section><section>
+ <h2 id="WizKMOutline_1483290468987716">OpenCover的運作概念是什麼？</h2>
+ <p>從頭到尾一直提到說它是一個測試涵蓋率的Library，但是他到底如何知道測試程式碼到底執行了什麼？甚至可以說有這麼多不同的Test Framework，怎麼讓OpenCover知道每一個Test Framework到底執行了那些測試？ </p>
+ <p>舉例來說，在這個系列裡面用了3個Test Framework，雖然在正式系統應該只會使用一種，但是OpenCover到底如何把這些執行不同的測試的涵蓋率一起計算？ </p>
+ <p>要了解這個，先回顧一下測試是怎麼運作開始： </p><figure><a href="https://lh3.googleusercontent.com/-La5ab1ChpuQ/WGk4gYpVeSI/AAAAAAAAVFw/TWV_Yod8g20/s1600-h/image%25255B2%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2017-01-01-devopsSeries-opencover-intro_Asset/image_thumb(11).png" width="644" height="143" class="img-responsive"></a><br><figcaption>呼叫Test Runner，執行測試dll，產生測試結果</figcaption></figure>
+ <p>這個時候如果把OpenCover加入進來，圖片變成是： </p><figure><a href="https://lh3.googleusercontent.com/-Ur66UTMkvRo/WGk4iLd-08I/AAAAAAAAVF4/DHM7NiZtens/s1600-h/image%25255B5%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2017-01-01-devopsSeries-opencover-intro_Asset/image_thumb[1](11).png" width="644" height="210" class="img-responsive"></a><br><figcaption>OpenCover呼叫測試Console，測試Console在執行測試dll，產生測試結果。OpenCover產生涵蓋率結果</figcaption></figure>
+ <p>這個時候，變成<em>由OpenCover裡面的Profiler呼叫</em>Test Runner，並且會<em>記錄Test Runner執行什麼</em>，最後除了測試結果有產生出來之外，涵蓋率結果也會產生出來。 </p>
+ <p>（這邊有特別注意到OpenCover有個Profiler的概念，這也是為什麼他無法在mono環境運作的關係，和這個profiler有關。） </p>
+ <p>稍早有提到如果有不同的測試框架，是否涵蓋率都會一起算？OpenCover有考慮到這點，所以最後產生的結果能夠和其他OpenCover結果做合併。 </p></section><section>
+ <h2 id="WizKMOutline_1483290468987552">OpenCover設定過濾條件</h2>
+ <p>在程式裡面，很有可能有些class或者有些檔案不應該要被檢查涵蓋率，舉例來說，應該沒有人會對測試在寫測試，所以要把這些剔除在涵蓋率計算。 </p>
+ <p>在OpenCover裡面有三個方式能夠做這些排除： </p>
+ <ol>
+ <li>用Filter
+ </li><li>用Attribute
+ </li><li>用檔案</li></ol>
+ 
+ <h3 id="WizKMOutline_1483290468987769">用Filter</h3>
+ <p>基本上Filter能夠設定那些 Assembly和Namespace要加入或者不加入檢查，格式是：<code>+-[Assembly]Namespace</code></p>
+ <ul>
+ <li>+ 代表包含
+ </li><li>- 代表不包含
+ </li><li>框框裡面是dll名稱
+ </li><li>框框外面則是Namespace</li></ul>
+ <p>如果有多個，就是每一個用空白區分。舉例來說： </p>
+ <p><code>+[Open*]* -[Open.Test]*</code> - 包含所有dll是Open為開頭，但是排除掉所有dll是Open.Test。 </p>
+ <h3 id="WizKMOutline_1483290468987705">用Attitude</h3>
+ <p>在程式裡面可以給方法和Class特殊的Attribute，然後在設定的時候過濾有這些Attribute不要算在涵蓋率裡面。 </p>
+ <p>之前提到VS裡面在高版本有內建Code Coverage，裡面有個Attribute叫做<code>ExcludeFromCodeCoverage</code>用來不算在涵蓋率裡面。在OpenCover也可以利用這個Attribute，讓有這個Attribute 的都不要算在裡面 </p>
+ <h3 id="WizKMOutline_1483290468987517">用檔案</h3>
+ <p>VS會產生一些cs檔案，方便開發者不用自己建立。舉例來說，<code>Designer.cs</code>的檔案在Asp .net Webform裡面會產生用到的Control，這些也不應該算在涵蓋率裡面。 </p>
+ <p>所以，這種類型可以用檔案方式來過濾掉。 </p></section><section>
+ <h2 id="WizKMOutline_1483290468987450">結語</h2>
+ <p>在這篇對於OpenCover有了一個初步的介紹，了解了OpenCover透過Profiler執行Test Runner來了解那些有執行那些沒有，並且了解了如何設定過濾不要算在檢測涵蓋率裡面的方式。 </p>
+ <p>在下篇，將會使用這篇了解的內容來調整我們的Build script。 </p></section>

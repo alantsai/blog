@@ -1,0 +1,76 @@
+Title: "[Data Science 到底是什麼從一個完全外行角度來看][09]了解Hadoop裡的MapReduce到底是什麼？"
+Published: 2017-12-27
+Modified: 2017-12-30
+Image: /posts/migrate/2017-12-27-data-science-series-09-hadoop-map-reduce-java-wordcount-example_Asset/image_thumb(68).png
+Tags: ["hadoop","「data science 到底是什麼從一個完全外行角度來看」","data science"]
+RedirectFrom: 2017/12/data-science-series-09-hadoop-map-reduce-java-wordcount-example.html
+Series: ["「Data Science 到底是什麼從一個完全外行角度來看」"]
+---
+<section><figure><a href="https://lh3.googleusercontent.com/-601ygquvgt4/WkOfA6dx4eI/AAAAAAAAXV4/7HkHdeOQ9gE4Uxlbhff1CdcytjWX0QbVgCHMYCw/s1600-h/image%255B2%255D"><img width="654" height="290" title="image" style="margin: 0px; display: inline; background-image: none;" alt="image" src="/posts/migrate/2017-12-27-data-science-series-09-hadoop-map-reduce-java-wordcount-example_Asset/image_thumb(68).png" border="0" class="img-responsive"></a><br><figcaption><span>圖片來源：         <a href="https://pixabay.com/en/books-spine-colors-pastel-1099067/">https://pixabay.com/en/books-spine-colors-pastel-1099067/</a> 和         <a href="https://pixabay.com/en/math-blackboard-education-classroom-1547018/">https://pixabay.com/en/math-blackboard-education-classroom-1547018/</a></span></figcaption></figure></section><section><p>在上一篇(<a href="http://blog.alantsai.net/2017/12/data-science-series-08-hadoop-fully-distributed-mode-tutorial.html">[08]Hadoop 改成完全分散模式</a>)透過複製VM的方式建立出了fully-distributed mode，基本上在這個系列裡面對於Hadoop的介紹也快到了一個尾聲。</p><p>不過，還有一個部分被忽略了，也就是實際在Hadoop做運算的程式，也是WordCount的實際運算邏輯。</p><p>這篇會介紹MapReduce的概念，並且看一下WordCount的java程式是如何撰寫。</p></section><section><a name="KMContentPageTopID" id="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin: 0px 0px 0px 20px;"><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989241590" ;="">什麼是MapReduce</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989248293" ;="">換個方式理解 - 用選舉為例</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989248724" ;="">怎麼在Hadoop寫MapReduce</a><br></li><ul style="margin: 0px 0px 0px 30px;"><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989248854" ;="">Map</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989248767" ;="">Reduce</a><br></li><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989248883" ;="">設定</a><br></li></ul><li><a style="line-height: 1.6; font-size: 15px;" href="#WizKMOutline_1514216989249921" ;="">結語</a><br></li></ul></div></section><a name="more"></a><section><h2 id="WizKMOutline_1514216989241590">什麼是MapReduce</h2><p>MapReduce其實是一種開發模式（Program Model），基本上可以把整個邏輯分成為Map階段和Reduce階段。             </p><ul><li>Map階段基本上會做filtering和sorting並且傳出一個key value pair做結果（以wordcount為例，每一個字會作為最後的key，而value則是1代表有一筆）</li><li>Reduce階段基本上會做整合（以wordcount為例，從Map傳過來的key如果一樣，表示同一個字，因此把一樣的key做加總最後的出總筆數）</li></ul><p>從下圖可以看到整個的流程：                 </p><figure><a href="https://lh3.googleusercontent.com/-z9zzTpLkQV4/WkOfEqkJFJI/AAAAAAAAXWA/VhznYv1guu8MyYFTig8MiKtPjK36Sg3fgCHMYCw/s1600-h/image%255B7%255D"><img width="654" height="478" title="image" style="display: inline; background-image: none;" alt="image" src="/posts/migrate/2017-12-27-data-science-series-09-hadoop-map-reduce-java-wordcount-example_Asset/image_thumb[3](46).png" border="0" class="img-responsive"></a><figcaption>整個WordCount的MapReduce流程。來源：https://www.mssqltips.com/sqlservertip/3222/big-data-basics--part-5--introduction-to-mapreduce/</figcaption></figure><br><dl><dt>input</dt><dd>這個是要做計算的原始資料，以上圖為例其實就是一堆文字清單</dd><dt>split</dt><dd>把input資料做分散處理 - 以hadoop來說，當MapReduce工作被輸入的時候，會被切割到各個cluster裡面等待做處理</dd><dt>map</dt><dd>這個就是MapReduce裡面的Map階段 - 每一個節點會把對應切割出來的資料建立key value結果 - key是字本身，然後value是1代表找到一筆</dd><dt>combine</dt><dd>這個其實也是在map的機器裡面做 - 把每一個key一樣的先做一次加總，避免傳送多次出去</dd><dt>shuffle &amp; sort</dt><dd>在進入reduce階段之前，會先被做一個排序，因此相關的key值會放在一起</dd><dt>reduce</dt><dd>這個階段會做實際的加總，因此每一個key以的的value會被加總</dd><dt>outpu</dt><dd>這個是最後得到的結果</dd></dl><div class="bs-callout bs-callout-info"><p>這邊需要注意一下，當提到map和reduce是小寫的時候，指的會是functional programing提供的方法。MapReduce則是開發模式。                 </p><p>上圖雖然用了小寫，不過這邊指的還是hadoop裡面的MapReduce。                 </p></div><div class="bs-callout bs-callout-info">Map和Reduce階段回傳的結果都是一個key value pair。             </div></section><section><h2 id="WizKMOutline_1514216989248293">換個方式理解 - 用選舉為例</h2><p>如果上面那個例子看了還是有點模糊，換個生活遇到的例子作說明</p><p>當台灣遇到選舉的時候，一般來說有選舉權的民眾會去戶籍地去做投票 - 投票完有沒有看當天新聞了解這些投票是怎麼計算的嗎？             </p><p>如果那個時候看新聞，會注意到，會有跑馬燈一直跑說，某某縣市目前xxx有幾票 - 這個票數是及時在變動：                 </p><figure><figcaption><a href="https://lh3.googleusercontent.com/-OCP9dJYFTUo/WkOfKqKHqQI/AAAAAAAAXWI/gwdpJMDUoFwYmDY5XWb5PdR8Q1GGSW9rACHMYCw/s1600-h/image%255B12%255D"><img width="654" height="369" title="image" style="display: inline; background-image: none;" alt="image" src="/posts/migrate/2017-12-27-data-science-series-09-hadoop-map-reduce-java-wordcount-example_Asset/image_thumb[6](30).png" border="0" class="img-responsive"></a><br></figcaption><figcaption>選舉的時候新聞及時播放票數。來源：http://my-own-post.com/new20150116/</figcaption></figure><p>整個數票的動作其實就是MapReduce。             </p><dl><dt>input</dt><dd>所有有投票的票數就是整個input</dd><dt>split</dt><dd>每個可以投票的民眾去戶籍地投票，同等於把這個input split到不同的區域</dd><dt>map</dt><dd><p>投票時間截止了之後，每一個投票站會開始從箱子取出來，然後唱名這張票屬於哪個候選人。                     </p><p>每一張票的候選人就是key，然後唱名1票就是value                     </p></dd><dt>combine</dt><dd>                     當每一個投票站都分好了之後，會先做一個初步的加總，得到的每個站的總票數。                 </dd><dt>shuffle &amp; sort</dt><dd>在這個階段，會把每個投票站同一個候選人(key)的放在一起</dd><dt>reduce</dt><dd>做最後加總 - 把所有一樣key的值加在一起</dd><dt>output</dt><dd>最後結果就是誰當選了</dd></dl><p>首先，每個可以投票的會去戶籍地做投票的動作，這個其實同等於             </p></section><section><h2 id="WizKMOutline_1514216989248724">怎麼在Hadoop寫MapReduce</h2><p>希望透過上面的比喻方式，對於整個MapReduce有個更清楚的了解，那在Hadoop裡面怎麼寫MapReduce呢？</p><p>Hadoop是java的程式，因此用java寫一定是最容易，下面快速介紹一下如何用java寫MapReduce，大概會分幾個部分：                 </p><ul><li>Map</li><li>Reduce</li><li>設定</li></ul><section><h3 id="WizKMOutline_1514216989248854">Map</h3><pre class="brush: csharp;"><code class="language-csharp line-numbers">public static class Map extends Mapper&lt;LongWritable, Text, Text, IntWritable&gt; {
+    private final static IntWritable one = new IntWritable(1);
+    private Text word = new Text();
+
+    public void map(LongWritable key, Text value, Context context) throws IOException,
+        InterruptedException {
+
+            String line = value.toString();
+
+            StringTokenizer tokenizer = new StringTokenizer(line);
+
+            while (tokenizer.hasMoreTokens()) {
+                word.set(tokenizer.nextToken());
+                context.write(word, one);
+            }
+        }
+}</code></pre><p>基本上，上面建立了一個<code>Map</code>class繼承<code>Mapper</code>並且定義了一個方法叫做<code>map</code>。             </p><p>Hadoop會把每一段文字個用<code>value</code>傳過來，因此用了tokenizer把裡面的word取出來。             </p><p>每一個取出來的word，會被寫成一組key value pair(<code>context.write(word,one)</code>)，word是key，value是<code>數值1</code>。             </p><p>會一直做，直到整個word都處理完。             </p></section><section><h3 id="WizKMOutline_1514216989248767">Reduce</h3><pre class="brush: csharp;"><code class="language-csharp line-numbers">public static class Reduce extends Reducer&lt;Text, IntWritable, Text, IntWritable&gt; {
+ public void reduce(Text key, Iterable&lt;IntWritable&gt; values, Context context) throws
+  IOException, InterruptedException {
+   int sum = 0;
+
+   for (IntWritable val : values) {
+    sum += val.get();
+   }
+
+   context.write(key, new IntWritable(sum));
+ }
+}
+</code></pre><p>Reducer和mapper類似，先定義一個class叫做<code>Reduce</code>繼承<code>Reducer</code>。</p><p>裡面有一個<code>reduce</code>的程式定義reduce階段要做什麼</p><p>在這邊，java已經有處理好把一樣的key放成一組，因此可以透過迴圈的方式把所有值加總。                     </p><p>最後把整個結果寫出去，一樣是key value pair，key還是原來的key，不過value是所有的加總。</p></section><section><h3 id="WizKMOutline_1514216989248883">設定</h3><p>Map階段和Reduce階段的功能都定義好了之後，接下來需要做的是告訴程式執行的時候那個是Map和那個是Reduce。                     </p><pre class="brush: csharp;highlight:[28]"><code class="language-csharp line-numbers">package org.myorg;
+
+import java.io.IOException;
+import java.util.*;
+
+import org.apache.hadoop.fs.Path;
+import org.apache.hadoop.conf.*;
+import org.apache.hadoop.io.*;
+import org.apache.hadoop.mapred.*;
+import org.apache.hadoop.util.*;
+
+public class WordCount {
+
+ // 剛剛定義的 Map
+ ....
+
+ // 剛剛定義的 Reduce
+ ....
+
+ public static void main(String[] args) throws Exception {
+  JobConf conf = new JobConf(WordCount.class);
+  conf.setJobName("wordcount");
+
+  conf.setOutputKeyClass(Text.class);
+  conf.setOutputValueClass(IntWritable.class);
+
+  conf.setMapperClass(Map.class);
+  conf.setCombinerClass(Reduce.class);
+  conf.setReducerClass(Reduce.class);
+
+  conf.setInputFormat(TextInputFormat.class);
+  conf.setOutputFormat(TextOutputFormat.class);
+
+  FileInputFormat.setInputPaths(conf, new Path(args[0]));
+  FileOutputFormat.setOutputPath(conf, new Path(args[1]));
+
+  JobClient.runJob(conf);
+ }
+}
+</code></pre><p>這個程式應該蠻好理解，基本上就是把剛剛定義好的Map和Reduce做設定。</p><p>這邊比較特別是<code>Combiner</code>的部分，因為也是加總所以和reduce是一樣的概念。</p></section></section><section><h2 id="WizKMOutline_1514216989249921">結語</h2><p>透過這篇了解了整個MapReduce的運作機制，並且看了如何用Java寫過一個WordCount的MapReduce程式。</p><p>這邊會發現到，程式裡面完全沒有任何分散式處理的概念，但是Hadoop會<em><strong>自動</strong></em>以分散式的模式執行。這個讓撰寫變得非常簡單。</p><p>可是另外一個問題會浮現出來，難道只有Java可以寫MapReduce嗎？             </p><p>在下一篇(<a href="http://blog.alantsai.net/2017/12/data-science-series-10-hadoop-streaming-intro-use-net-core-for-MapReduce.html">[10]用.Net Core跑Hadoop MapReduce - Streaming介紹</a>)將會介紹如何用.net core寫出可以再Hadoop透過stream的方式執行的MapReduce，並且這次會改成用docker的方式來執行，提供另外一種更快速和容易測試Hadoop的方式。             </p></section><section>                 <div class="wlWriterEditableSmartContent" id="scid:77ECF5F8-D252-44F5-B4EB-D463C5396A79:e89abc48-c72f-427c-b156-b85bdea3eb50" style="margin: 0px; padding: 0px; float: none; display: inline;">標籤: <a href="/tags/%e3%80%8cData+Science+%e5%88%b0%e5%ba%95%e6%98%af%e4%bb%80%e9%ba%bc%e5%be%9e%e4%b8%80%e5%80%8b%e5%ae%8c%e5%85%a8%e5%a4%96%e8%a1%8c%e8%a7%92%e5%ba%a6%e4%be%86%e7%9c%8b%e3%80%8d" rel="tag">「Data Science 到底是什麼從一個完全外行角度來看」</a>,<a href="/tags/data+science" rel="tag">data science</a>,<a href="/tags/hadoop" rel="tag">hadoop</a></div></section>

@@ -1,0 +1,120 @@
+Title: "[iThome 第七屆鐵人賽 04] Autofac和Asp .Net Mvc結合"
+Published: 2014-09-26
+Modified: 2014-11-30
+Image: /posts/migrate/2014-09-26-BuildYourOwnApplicationFrameworkOnMvc-04-AutofacMvcIntegration_Asset/image_thumb[10](12).png
+Tags: ["asp .net mvc","autofac","「ithome 第七屆鐵人賽」"]
+RedirectFrom: 2014/09/BuildYourOwnApplicationFrameworkOnMvc-04-AutofacMvcIntegration.html
+Series: ["「iThome 第七屆鐵人賽」"]
+---
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a> <div id="divKMOutline" style="border-top-style: groove; border-bottom-style: groove; border-right-style: none; margin: 10px 0px; border-left-style: none"> <ul style="margin: 0px 0px 0px 20px"> <li><a href="#WizKMOutline_1411744154683600" ;="">Mvc能夠用DI Container帶來的好處</a> </li><li><a href="#WizKMOutline_1411744154693482" ;="">Asp .Net Mvc如何在建構Controller的時候，讓DI container介入</a> </li><li><a href="#WizKMOutline_1411744154693637" ;="">Autofac Asp.net Mvc Integration</a> </li><li><a href="#WizKMOutline_1411744154693745" ;="">Demo</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1411744154693745" ;="">先定義Log服務的Interface和一支實作</a> </li><li><a href="#WizKMOutline_1411744154693770" ;="">在Controller裡面，允許透過建構子注入ILog</a> <ul style="margin: 0px 0px 0px 30px"> <li><a href="#WizKMOutline_1411744154693781" ;="">設定DI Container和Mvc結合</a></li></ul> </li><li><a href="#WizKMOutline_1411744154693370" ;="">取得Request裡面的QueryString並且輸出去到檔案</a></li></ul> </li><li><a href="#WizKMOutline_1411744154693225" ;="">結語</a> </li><li><a href="#WizKMOutline_1411744154693286" ;="">Reference</a></li></ul></div> <p>在上一篇我們介紹了Autofac的基本概念，還有它裡面比較常用的專有名詞，詳細對於Autofac有了一些了解。 </p> <p>在這一篇，我將會介紹如何讓我們在Asp .Net Mvc裡面，簡單的使用Autofac作為我們的DI Container。 </p> <a name="more"></a> <h1 id="WizKMOutline_1411744154683600">Mvc能夠用DI Container帶來的好處</h1> <p>在介紹Autofac如何提供簡單和Mvc結合之前，我們先來看一下Mvc有了DI Container的好處。 </p> <p>通常來說在我們的Controller裡面至少都會depend別的library。有可能是Data Access Layer(DAL)或者是Business Logic Layer。我們以預設的Mvc Scaffolding搭配Entity Framework來看，可能會有類似如下的程式碼： </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class LinksController : Controller
+{
+	private ApplicationDbContext db = new ApplicationDbContext();
+
+	// GET: Links
+	public ActionResult Index()
+	{
+		return View(db.Links.ToList());
+	}
+	
+	....
+}
+</code></pre><br><p>這個有一個問題，那個<code>ApplicationDbContext</code>等於是被寫死在裡面了，假設今天我要做單元測試，每一個測試都實際對DB執行其實是很沒有效率。 </p><br><p>因此，有一種做法是我們把<code>db</code>這個參數實際的實例寫在建構子裡面，然後透過Controller在被建立的時候注入我們要的服務，這樣，如果在做單元測試的時候可以丟進去 mock出來的<code>db</code>，在實際運行的時候，DI Container又會真的注入真的<code>db</code>進去。 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// psuedo 範例程式
+public class LinksController : Controller
+{
+    private ApplicationDbContext db;
+
+    public LinksController(ApplicationDbContext inDb)
+    {
+        db = inDb;
+    }
+}
+
+public class UnitTest
+{
+    LinksController c = new LinksController(new FakeDbContext());
+}
+</code></pre><br><p>上面，是一個範例程式碼，表示在單元測試的時候可以替換db。 </p><br><p>不過如果這樣直接執行，也會出錯，因為預設的Mvc是只會實例化預設建構子（沒有參數的建構子），而以我們上面的例子來說，我們沒有預設建構子，因此，Mvc無法實例Controller 就會出錯。 <a href="http://lh5.ggpht.com/-x3lMb3DEL1w/VCWIvhEhmZI/AAAAAAAANa0/M0ol1unb8Lo/s1600-h/image%25255B22%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-09-26-BuildYourOwnApplicationFrameworkOnMvc-04-AutofacMvcIntegration_Asset/image_thumb[10](12).png" width="539" height="109" class="img-responsive"></a></p><figure> <figcaption>沒有預設建構子的錯誤</figcaption> </figure><br><p>這個時候就要靠我們的DI Container了。Mvc只能夠實例化預設建構子是因為它不知道每一個參數是對應到什麼class，因此沒有辦法做下去。但是DI Container會有我們註冊的 Service和Component，因此DI Container知道如何實例化那些對應的建構子參數，達到幫我們注入正確的Component進去。 </p><br><h1 id="WizKMOutline_1411744154693482">Asp .Net Mvc如何在建構Controller的時候，讓DI container介入</h1><br><p>Mvc開發之間，就有考慮到這個問題，因此有一個靜態方法：<code>DependencyResolver.SetResolver(IDependencyResolver)</code>可以讓我們告訴Mvc，當需要建立Controller的時候，不要用你自己的來建立，用註冊進去的<code>IDependencyResolver</code>物件來做建立的動作。 </p><br><p>到這裡就需要來提一下Autofac的Mvc 5 Integration套件，基本上概念非常簡單這個部分的套件幫助我們是做好了<code>IDependencyResolver</code>，並且讓我們能夠為Mvc不同的功能提供注入的服務。 </p><br><h1 id="WizKMOutline_1411744154693637">Autofac Asp.net Mvc Integration</h1><br><p>首先，需要先去nuget下載安裝，這個Integration的nuget指令如下： </p><kbd>Install-Package Autofac.Mvc5</kbd> <br><p>這個integration提供了幾個helper方便我們整合Autofac和Mvc： </p><br><ol><br><li>第一個當然是<code>IDependencyResolver</code>的實作，方便使用Autofac作為Mvc的DI <br></li><li><code>ContainerBuilder</code>有多一個<code>RegisterControllers</code>的擴充方法，只要把Controller所在的Assembly給他， 它就會幫我們把所有Controller都註冊成為Component <br></li><li>之前講註冊Service的時候，沒有提到Component的Lifetime Scope(這方面比較細部因此不會介紹，有興趣可以看文件)，在裝了這個Integration， 會多一個Lifetime Scope是<code>InstancePerHttpRequest</code>，表示每一次Request都是新的物件 <br></li><li>有提供能夠動態注入ModelBinder到Mvc <br></li><li>提供一個Autofac的Module方便注入Http相關 - 因此要取得像Session、Request等變的簡單 <br></li><li>提供注入Property到View和ActionFilter裡面 </li></ol><br><div class="bs-callout bs-callout-info">更多詳細的介紹，請參考文件：<a href="https://github.com/autofac/Autofac/wiki/Mvc-Integration#integrating-with-aspnet-mvc-40">Mvc Integration</a> </div><br><h1 id="WizKMOutline_1411744154693745">Demo</h1><br><p>這邊我用一個簡單的例子來介紹有了DI的強大。 </p><br><p>我們假設要做一個很陽春的Log功能，他會把進來的Request QueryString記錄下來。 </p><br><h2 id="WizKMOutline_1411744154693745">先定義Log服務的Interface和一支實作</h2><pre class="brush: csharp;"><code class="language-csharp line-numbers">public interface ILog
+{
+    void Write(string message);
+}
+
+public class TextWriterLog : ILog
+{
+    public void Write(string message)
+    {
+        File.AppendAllText(@@"R:\logFile.txt", message);
+    }
+}
+</code></pre><br><p>上面沒有太特別的地方，一個interface，和一個寫到檔案的實作。 </p><br><h2 id="WizKMOutline_1411744154693770">在Controller裡面，允許透過建構子注入ILog</h2><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class HomeController : Controller
+{
+    ILog logger;
+
+    public HomeController(ILog inLogger)
+    {
+        logger = inLogger;
+    }
+
+    // GET: Home
+    public ActionResult Index()
+    {
+        logger.Write("進入 Home/Index");
+        return View();
+    }
+}
+</code></pre><br><h3 id="WizKMOutline_1411744154693781">設定DI Container和Mvc結合</h3><br><p>到了這邊，我們就需要去設定DI Container和要註冊的物件 </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">// 在global.asax.cs
+protected void Application_Start()
+{
+    var builder = new ContainerBuilder();
+
+    // 註冊所有的Controller作為Service
+    builder.RegisterControllers(typeof(HomeController).Assembly);
+
+    // 註冊TextWriterLog作為ILog的Service
+    builder.RegisterType&lt;TextWriterLog&gt;().As&lt;Ilog&gt;();
+
+    // 建立 DI Container
+    var container = builder.Build();
+
+    // 用DI Container作為建立Controller時候的DI Resolver。
+    DependencyResolver.SetResolver(new AutofacDependencyResolver(container));
+	
+// 其他Mvc設定
+</code></pre><br><p>這時候把我們的程式run起來，之後就會發現多了一個檔案： <a href="http://lh6.ggpht.com/-lbBnglzEGHo/VCWIyTOnh6I/AAAAAAAANbE/Lt8EaN8PTok/s1600-h/image%25255B25%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; margin: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-09-26-BuildYourOwnApplicationFrameworkOnMvc-04-AutofacMvcIntegration_Asset/image_thumb[11](17).png" width="396" height="120" class="img-responsive"></a></p><figure> <figcaption>TextWriterLog輸出的結果內容</figcaption> </figure><br><h2 id="WizKMOutline_1411744154693370">取得Request裡面的QueryString並且輸出去到檔案</h2><br><p>一開是說會把QueryString的東西也輸出來，這還需要一點設定。 </p><br><p>首先在<code>global.asax.cs做點增加：</code> </p><pre class="brush: csharp; highlight: [6, 7]"><code class="language-csharp line-numbers">// .. 其他內容
+
+// 註冊TextWriterLog作為ILog的Service
+builder.RegisterType&lt;TextWriterLog&gt;().As&lt;Ilog&gt;();
+
+// 註冊Http 相關內容
+builder.RegisterModule(new AutofacWebTypesModule());
+
+// 建立 DI Container
+var container = builder.Build();
+
+// .. 其他內容
+</code></pre><br><br><p>再來，修改我們的<code>TextWriterLog</code> </p><pre class="brush: csharp;"><code class="language-csharp line-numbers">public class TextWriterLog : ILog
+{
+    HttpRequestBase request;
+	
+	// 注入Request
+    public TextWriterLog(HttpRequestBase inRequest)
+    {
+        request = inRequest;
+    }
+
+    public void Write(string message)
+    {
+        var queryString = string.Empty;
+
+        foreach (var item in request.QueryString.AllKeys)
+        {
+            queryString = queryString + item + "=" + 
+				request.QueryString[item] + "&amp;";
+        }
+
+        var result = string.Format("訊息：{0}{1} QueryString：{2}{3}", 
+			message, Environment.NewLine, queryString, Environment.NewLine);
+
+        File.AppendAllText(@@"R:\logFile.txt", result);
+    }
+}
+</code></pre><br><p>最後我們帶上Querystring瀏覽：</p><br><p>&nbsp;<a href="http://lh4.ggpht.com/-h9TKEsuNNnI/VCWI00mvDiI/AAAAAAAANbU/6Bx0Hw8lDN8/s1600-h/image%25255B29%25255D.png"><img title="image" style="border-top: 0px; border-right: 0px; background-image: none; border-bottom: 0px; padding-top: 0px; padding-left: 0px; border-left: 0px; display: inline; padding-right: 0px" border="0" alt="image" src="/posts/migrate/2014-09-26-BuildYourOwnApplicationFrameworkOnMvc-04-AutofacMvcIntegration_Asset/image_thumb[13](16).png" width="311" height="171" class="img-responsive"></a></p><figure> <figcaption>最後輸出結果的截圖</figcaption> </figure><br><p>這邊結果有兩次，第一次是執行起來沒有Querystring，第二次則是有帶上QueryString。 </p><br><h1 id="WizKMOutline_1411744154693225">結語</h1><br><p>希望透過這一篇對於Autofac和Mvc的整合有些了解。 </p><br><p>也希望透過簡單的範例，能夠看到有DI的強大，畢竟我們不需要做什麼，我們只是說我需要一個Request，在方法裡面就會有Request的Instance。 </p><br><p>下一篇我們講開始打造我們的框架，首先從建立我們自己的Log服務開始。 </p><br><h1 id="WizKMOutline_1411744154693286">Reference</h1><br><p>如果想要知道更多關於 Autofac Mvc Integration其他用法，請參考文件： <a href="https://github.com/autofac/Autofac/wiki/Mvc-Integration#integrating-with-aspnet-mvc-40">Mvc Integration</a></p>  

@@ -1,5 +1,6 @@
 #tool nuget:?package=Wyam
 #addin nuget:?package=Cake.Wyam
+#addin "Cake.Npm"
 
 var target = Argument("target", "Default");
 
@@ -48,16 +49,13 @@ Task("Deploy")
         }
 
         // zip the output directory and upload using curl
-         Zip($"{sourceDirectory}/output", "output.zip", $"{sourceDirectory}/output/**/*");
+        // Zip($"{sourceDirectory}/output", "output.zip", $"{sourceDirectory}/output/**/*");
 
-        StartProcess("powershell", new ProcessSettings {
-                Arguments = new ProcessArgumentBuilder()
-                    .Append("-ExecutionPolicy Bypass")
-                    .Append(".\\upload-to-netlify.ps1")
-                    .Append(token)
-                    .Append(".\\output.zip")
-                    .Append(site_name)
-        });
+        // Install the Netlify CLI locally and then run the deploy command
+        NpmInstall("netlify-cli");
+        StartProcess(
+            MakeAbsolute(File("./node_modules/.bin/netlify.cmd")), 
+            $"deploy -p {sourceDirectory}/output -s {site_name} -t {token}" );
     });
 
 Task("Default")

@@ -1,0 +1,48 @@
+Title: "[部落格改版學DevOps][01]爲什麽要改版？"
+Published: 2018-04-17
+Modified: 2018-04-17
+Image: "/posts/2018/04/2018-04-17-migrate-blog-to-ssg-demo-devops-1-why-migrate-to-static-site-generator/1.png"
+Tags: ["「部落格改版學DevOps」", "cake", "wyam", "netlify"]
+Series: ["「部落格改版學DevOps」"]
+---
+<section><figure><img class="img-responsive" src="/posts/2018/04/2018-04-17-migrate-blog-to-ssg-demo-devops-1-why-migrate-to-static-site-generator/1.png" border="0" alt="[部落格改版學DevOps][01]爲什麽要改版？.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/ 和 https://blog.xebialabs.com/2016/03/21/essential-devops-terms/</figcaption></figure></section><section><p>
+		本來我的部落格放在Google的Blogspot（Blogger）上面，不過在某些地方，google的服務不是那麽容易上，加上因爲一直想要測試Wyam（後面提到）因此動了想要改版的念頭。
+		</p><p>
+		剛好借著改版的機會，以部落格這一個真實案例介紹一下DevOps。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1523975570549715" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽改版？</a><br></li><li><a href="#WizKMOutline_1523975570551506" ;="" style="font-size: 15px; line-height: 1.6;">這個系列要講什麽？</a><br></li><li><a href="#WizKMOutline_1523975570551489" ;="" style="font-size: 15px; line-height: 1.6;">這個靜態網站用到的技術</a><br></li><li><a href="#WizKMOutline_1523975570551226" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1523975570549715">爲什麽改版？</h2><p>
+		這次算是第二次改版，最早的部落格是放在<a href="http://dotblog.alantsai.net">點部落</a> 裏面，當初想要換到Blogspot的最主要原因是沒有辦法控制html的<em>所有</em>内容，因此才想換到blogspot上面。
+		</p><p>
+		寫了這幾年，又有想改版的念頭，這次改版最主要的原因是，Blogspot的版型並不好改，他是用xml去搭配出來，因此雖然可以控制整個html内容，但是<em>不好</em>調整，
+		</p><p>
+		還有另外一個想改版的原因是因爲近幾年靜態網站（Static Site）非常的火紅，所有東西都都可以用版控記錄起來，作爲一個開發者當然是想什麽東西都做版控。
+		</p><p>
+		最後壓死駱駝的最後一根稻草就是google服務在某些地方不好上，因此決定了，一次把他換掉。
+		</p></section><section><h2 id="WizKMOutline_1523975570551506">這個系列要講什麽？</h2><p>
+		既然要改版，那麽不如把幾個想要做的一起做，剛好成爲一個系列：
+		</p><dl><dt>
+				介紹Wyam這個.Net的靜態網站產生工具（Static Site Generator）
+			</dt><dd><p>
+					提到Static Site Generator，大部分浮現在腦海都是Jekyll（Ruby）或者Hexo（Nodejs）這種，但是其實有個.Net Open Source的叫做Wyam也是同類型的工具。
+				</p><p>
+				這個工具也可以embed到.Net程式裏面，因此如果有需要類似工具可以考慮使用。
+				</p></dd><dt>
+				介紹CAKE這個build工具
+			</dt><dd>
+                <p>
+				既然網站是透過Wyam build出來的，那麽有個build工具在執行上面就非常方便。之前有介紹過<a href="/tags/psake">psake</a>，基於powershell的一個build script。這次介紹另外一個，也是我認爲
+				比較有前景的CAKE。
+                </p>
+			</dd><dd></dd><dt>
+				Visual Studio Team Services (VSTS) 做DevOps
+			</dt><dd><p>
+				我有另外一個一直還沒結束的系列<a href="/tags/「從net工程師的角度來看devops」">「從net工程師的角度來看devops」</a>，不過那個系列比較偏從頭介紹到尾，并且在後面部署(CD)的部分
+				琢磨比較不多。
+				</p><p>
+				不過這個系列不同之處在於，會用這個真實的部落格用VSTS串聯，然後比較著重於在CD這個部分。因此可以兩個系列搭配看。
+				</p></dd><dd></dd></dl><p></p><p>
+		上面三個是主軸的部分，不過其實還有一些細節用到的技術也會提到給大家做一個參考。
+		</p></section><section><h2 id="WizKMOutline_1523975570551489">這個靜態網站用到的技術</h2><ol><li><em>Wyam</em> - Static Site Generator</li><li><em>netlify</em> - hosting service</li><li><em>prism.js</em> - 網站的syntax highlight</li><li><em>AddThis</em> - 分享不同平臺的服務</li><li><em>Visual Studio Team Service (VSTS)</em> - 做DevOps的工具</li><li><em>blogspot移轉工具</em> - 我自己寫方便做移轉的一個小工具</li></ol><p>
+		這幾個服務在這個系列都會介紹一下，方便有需要的人可以做個參考。
+		</p></section><section><h2 id="WizKMOutline_1523975570551226">結語</h2><p>
+		這篇是整個系列的開篇，在接下來會先從整個的核心做開始，也就是Wyam這個Static Site Generator。
+		</p></section>

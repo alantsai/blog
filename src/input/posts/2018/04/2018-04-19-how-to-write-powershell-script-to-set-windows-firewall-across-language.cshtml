@@ -1,0 +1,67 @@
+Title: "Script改Windows防火墻設定的正確寫法 - 如何能同時在Windows不同語系之間都能執行"
+Published: 2018-04-19
+Modified: 2018-04-19
+Image: "/posts/2018/04/2018-04-19-how-to-write-powershell-script-to-set-windows-firewall-across-language/5a2e3caf-aa19-4232-bb04-3d59faf380fa.jpg"
+Tags: ["powershell", "best practices", "azure"]
+PostDescription: "如何寫一個script能夠用在不同的Windows語系都能夠修改Windows 防火墻(firewall)設定。可以用於設定能夠上傳到Azure啓用VM的VHD。"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/04/2018-04-19-how-to-write-powershell-script-to-set-windows-firewall-across-language/5a2e3caf-aa19-4232-bb04-3d59faf380fa.jpg" border="0" alt="Script改Windows防火墻設定的正確寫法 - 如何能同時在Windows不同語系之間都能執行.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>
+		最近在製作上傳到Azure的VHD的時候就遇到，需要開一些特定的port。
+		</p><p>
+		作爲coder，懶是一種美德，因此當然想要透過使用powershell的方式把整個動作自動化。
+		</p><p>
+		Azure官方文件有些範例script可以參考，但是實際使用起來卻有個但書，就是<em>只能</em>在<em>英文版</em>的OS才有作用（畢竟是外國人寫的script），其他語系就gg了。
+		</p><p>
+		因爲這個原因，所以去找了一些資料，才發現原來要支援多語系的Windows沒有那麽直覺，因此這邊記錄一下以供未來參考。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1524127472615446" ;="" style="font-size: 15px; line-height: 1.6;">攥寫建議做法 TL;DR</a><br></li><li><a href="#WizKMOutline_1524127472616638" ;="" style="font-size: 15px; line-height: 1.6;">Windows防火墻規則的組成</a><br></li><li><a href="#WizKMOutline_1524127472616798" ;="" style="font-size: 15px; line-height: 1.6;">用規則名稱或者群組名稱設定有什麽問題？</a><br></li><li><a href="#WizKMOutline_1524127472616525" ;="" style="font-size: 15px; line-height: 1.6;">要用内部的id做設定而不是顯示名稱</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1524127472616116" ;="" style="font-size: 15px; line-height: 1.6;">如何找到要修改的規則名稱或群組的内部ID？</a><br></li><li><a href="#WizKMOutline_1524127472616965" ;="" style="font-size: 15px; line-height: 1.6;">如何使用内部的id值來改設定</a><br></li></ul><li><a href="#WizKMOutline_1524127472616927" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1524127472615446">攥寫建議做法 TL;DR</h2><dl><dt>
+				盡量使用Windows防火墻的規則來開啓port，而不要自己寫
+			</dt><dd><p>
+				舉例來説，今天要開啓遠端桌面(Remote Desktop)的port (預設是3389)，那麽不要自己建立一個規則，而是直接開啓微軟防火墻内建的遠端桌面群組即可。
+				</p></dd><dd></dd><dt>
+				攥寫的時候，請使用内部的"magic string"做設定而不是呈現名稱
+			</dt><dd><p>
+				可以透過 <code class="language-powershell">Get-NetFirewallRule</code> 來查找特定規則的magic string。
+				</p><p>
+				例如：
+				<pre><code class="language-powershell">Get-NetFirewallRule | sort -unique Group | sort DisplayGroup | ft DisplayGroup,Group</code></pre>
+				可以把所有防火墻的<em>群組顯示名稱</em>及對應的<em>magic string</em> show出來
+				</p></dd><dd></dd></dl><p>
+		接下來會對以上建議原因做個説明。
+		</p></section><section><h2 id="WizKMOutline_1524127472616638">Windows防火墻規則的組成</h2><p>
+		當把防火墻設定打開的時候(可以透過快速鍵 <kbd>Windows + R</kbd> 然後輸入 <code>wf.msc</code>)，可以看到每一條<em>規則</em>是歸屬到某一個<em>群組</em>下面。
+		</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-19-how-to-write-powershell-script-to-set-windows-firewall-across-language/0e4c56d2-4277-47ed-ab87-ffab5145ae37.png" border="0" alt="mmc_2018-04-19_07-41-26.png"><br><figcaption>以遠端桌面為例子，可以看到這個群組有三個規則</figcaption></figure><p>
+		因此，當我們要設定的時候，最好是先找到有沒有内建的規則，然後依照名稱去設定啓用或者停用。
+		</p></section><section><h2 id="WizKMOutline_1524127472616798">用規則名稱或者群組名稱設定有什麽問題？</h2><p>
+		瞭解到了要使用内建的規則或群組之後，那麽應該怎麽設定呢？
+		</p><p>
+		還是以遠端桌面爲例，最常見的規則的script會是：
+		</p><pre><code class="language-powershell">netsh advfirewall firewall set rule group="Remote Desktop" new enable=yes</code></pre><p>
+		這個是一個cmd的指令，可以看到，他把所有在<em>Remote Desktop</em>這個群組的規則全部做一個啓用。
+		</p><p>
+		如果今天這個是在一臺英文版本的OS，這個不會有任何問題，但是如果是在非英文語系，例如簡體中文的OS裏面，那麽會出現<em>找不到的錯誤</em>。
+		</p><p>
+		爲什麽找不到呢？，看一下非英文版的設定畫面就可以看的出來：
+		</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-19-how-to-write-powershell-script-to-set-windows-firewall-across-language/13b17e95-2d80-4fa4-a6eb-c19241bc04d3.jpg" border="0" alt=""><br><figcaption>在非英文語系的<em>Remote Desktop</em>群組被翻譯成爲了對應的中文名稱</figcaption></figure></section><section><h2 id="WizKMOutline_1524127472616525">要用内部的id做設定而不是顯示名稱</h2><p>
+		上面問題很明顯，是因爲用了顯示名稱做定位導致的問題，但是有沒有什麽全語系都通用的值代表同樣群組呢？找了一下，發現了有一組magic string能夠代表。
+		</p><section><h3 id="WizKMOutline_1524127472616116">如何找到要修改的規則名稱或群組的内部ID？</h3><p>
+		這個時候就要使用到powershell了。
+		</p><p>
+		有一個指令，<code class="language-powershell">Get-NetFirewallRule</code>可以用來查找某個規則的裏面id。
+		</p><p>
+		還是一樣的例子，這邊要找出<code>Remote Desktop</code>這個群組的内部ID值，那麽可以使用：
+		</p><pre><code class="language-powershell">Get-NetFirewallRule -DisplayGroup "Remote Desktop"</code></pre><p></p><p>
+		這個時候會列出3筆規則（因爲這個群組有3筆），裏面可以看到<code>Group</code>及<code>Name</code>這兩個參數，這個就是每個語系<em>都一樣的内部值</em>。
+		</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-19-how-to-write-powershell-script-to-set-windows-firewall-across-language/24d9b3b5-58c7-49ff-a6db-0e283d39ea69.png" border="0" alt="powershell_ise_2018-04-19_16-20-31.png"><br><figcaption>看到Group及Name的内部值</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1524127472616965">如何使用内部的id值來改設定</h3><p>
+			其實有了那個内部的值之後，只要把本來群組的Group改成那個值就可以了，以剛剛cmd的範例來説就是變成：
+			</p><pre><code class="language-powershell">netsh advfirewall firewall set rule group="@@FirewallAPI.dll,-28752" new enable=yes</code></pre><p></p><p>
+			可以注意到，本來的<em>Remote Desktop</em>改成了<em>@@FirewallAPI.dll,-28752</em>。
+			</p><p>
+			同樣道理可以用在改規則名稱上面。
+			</p><p>
+			不過既然已經用了powershell，那麽建議也是使用powershell來修改防火墻，以上面的例子在powershell來説就會是：
+				</p><pre><code class="language-powershell">Set-NetFirewallRule -Group "@@FirewallAPI.dll,-28752" -Enabled true</code></pre><p></p></section></section><section><h2 id="WizKMOutline_1524127472616927">結語</h2><p>
+		在這篇介紹了如何在不同語系的Widnows上面用同樣的script來改Windows防火墻的設定。
+		</p><p>
+		這其實也告訴我要寫一個哪裏都能夠跑的script其實沒有那麽容易，特別是當從網路上面參考的語法的時候，需要多費點心思考一下或者測試一下，不然很有可能因爲修改不成功導致上傳到Azure的VHD沒有辦法remote desktop進去
+		造成了很多時間的浪費。
+		</p></section>

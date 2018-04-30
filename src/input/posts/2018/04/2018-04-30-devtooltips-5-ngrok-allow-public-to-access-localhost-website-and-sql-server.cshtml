@@ -1,0 +1,88 @@
+Title: "[開發工具小技巧][05]ngrok讓外部能夠連到localhost的網站及服務"
+Published: 2018-04-30
+Modified: 2018-04-30
+Image: /posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/5b274037-6a37-455b-ac46-387d252809e2.jpg
+Tags: ["「開發工具小技巧」","tool"]
+Series: ["「開發工具小技巧」"]
+PostDescription: "是不是常有local 網站或者sql server需要用別的裝置測試或者外面連綫測試的需求?
+是不是擔心有些測試網站會隨意被別人打開？
+來看看ngrok怎麽解決這些問題"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/5b274037-6a37-455b-ac46-387d252809e2.jpg" border="0" alt="[開發工具小技巧][04]ngrok讓外部能夠連到localhost的網站及服務.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/confused-muddled-illogical-880735/&nbsp;</figcaption></figure></section><section><p>
+		在開發的過程中，有時候會需要從另外一臺機器測試在local的網站及服務。最常見的情況就是當要測試網站在手機上看起來長什麽樣子的時候，或者有時候要讓別人連到自己local的sql serer的時候。
+		</p><p>
+		如果說要測試網站，還可以透過上到一臺測試機器，但是如果是local的sql server的話，除了在同一個局域網外比較容易，其他就需要改到路由什麽，太麻煩了。
+		</p><p>
+		今天介紹的工具，<em>ngrok</em>，就是讓這一切變得容易的工具，而且很佛心的是，<em>免費版就夠一般使用</em>。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1525065134862214" ;="" style="font-size: 15px; line-height: 1.6;">ngrok運作模式</a><br></li><li><a href="#WizKMOutline_1525065134863919" ;="" style="font-size: 15px; line-height: 1.6;">ngrok安裝及設定</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525065134863591" ;="" style="font-size: 15px; line-height: 1.6;">ngrok 小檔案</a><br></li></ul></ul><li><a href="#WizKMOutline_1525065134863721" ;="" style="font-size: 15px; line-height: 1.6;">ngrok的使用</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525065134863862" ;="" style="font-size: 15px; line-height: 1.6;">外部連到local的web服務</a><br></li><li><a href="#WizKMOutline_1525065134863913" ;="" style="font-size: 15px; line-height: 1.6;">外部連到local的tcp服務</a><br></li></ul><li><a href="#WizKMOutline_1525065134863510" ;="" style="font-size: 15px; line-height: 1.6;">ngrok的進階使用</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525065134863202" ;="" style="font-size: 15px; line-height: 1.6;">外鏈的web服務加密</a><br></li><li><a href="#WizKMOutline_1525065134863235" ;="" style="font-size: 15px; line-height: 1.6;">重寫hostname的方式</a><br></li><li><a href="#WizKMOutline_1525065134863415" ;="" style="font-size: 15px; line-height: 1.6;">管理/監控呼叫情況</a><br></li></ul><li><a href="#WizKMOutline_1525065134863274" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1525065134862214">ngrok運作模式</h2><p>
+		本質上ngrok就是一個reverse proxy的工具，透過把local的port map到一個public的地址，讓外部能夠透過這個public地址連到，然後工具用reverse proxy和local實際的port取得資料。
+		</p><figure><figcaption><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/demo.png" style="font-size: 15px; line-height: 1.6;">官網的運作示意圖</figcaption></figure><p>
+		由於這個過程，因此有個缺點，那就是<em>速度相對較慢</em>，尤其是ngrok的伺服器在美國因此也會減少一些速度。不過如果是爲了開發測試用，這個就不算缺點。
+		</p><p>
+		ngrok免費版本提供了一個動態的地址，需要進階功能或者同時map多個服務就需要付費。
+		</p></section><section><h2 id="WizKMOutline_1525065134863919">ngrok安裝及設定</h2><p>
+		大概有幾個步奏：
+		</p><ol><li>下載ngrok - 這個工具是一個免安裝的工具，因此建議加入到path比較好執行</li><li>在ngrok 注冊一個免費賬號</li><li>把賬號token設定一下</li></ol><p></p><dl><dt>
+				下載ngrok
+			</dt><dd><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1525065134863591">ngrok 小檔案</h4><ol><li>官網：<a href="https://ngrok.com/">https://ngrok.com/</a></li><li>下載地址：<a href="https://ngrok.com/download">https://ngrok.com/download</a></li><li>費用功能差異：<a href="https://ngrok.com/pricing">https://ngrok.com/pricing</a></li><li>支援的OS：Windows、Linux及Mac</li><li>Windows建議用Chocolatey安裝：<kbd>choco install ngrok</kbd></li></ol></div></dd><dt>
+				在ngrok注冊一個免費賬號
+			</dt><dd>
+				基本上和一般申請賬號方式沒什麽兩樣，鏈接<a href="https://dashboard.ngrok.com/user/signup">https://dashboard.ngrok.com/user/signup</a>。
+			</dd><dt>
+				把賬號token設定一下
+			</dt><dd><p>
+				注冊完賬號之後，會自動進入dashboard，會看到有個token，把這個設定進去之後當有執行的時候會自動和這個賬號關聯，也可以用web界面看到情況。
+				</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/a89d4850-9abb-430b-98d6-7664385501e9.png" border="0" alt="chrome_2018-04-30_10-46-59.png"><br><figcaption>取得auth token的畫面</figcaption></figure><p>
+				設定完之後會看到在<code>%userprofile%\.ngrok2\ngrok.yml</code>裏面有這個設定。
+				</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/c6b7f156-4dd1-4538-bcc8-af4dde3e1e17.png" border="0" alt="powershell_2018-04-30_10-56-22.png"><br><figcaption>設定完auth token</figcaption></figure></dd></dl></section><section><h2 id="WizKMOutline_1525065134863721">ngrok的使用</h2><p>
+		到這步爲止，所有設定都好了，接下來就是開始使用了。
+		</p><p>
+		這邊會以幾個情景介紹：
+		</p><ol><li>外部連到local的web服務</li><li>外部連到local的tcp服務</li></ol><p></p><section><h3 id="WizKMOutline_1525065134863862">外部連到local的web服務</h3><p>
+			假設有個服務在port：<code>1234</code>，這個時候可以透過以下指令呼叫：
+			</p><pre><code class="language-powershell">ngrok http 1234</code></pre><p>
+			這個時候就會看到一個外部可以用的網址，用哪個就可以連到。
+			</p><p>
+			如果不需要的時候就透過輸入
+			</p><pre><code class="language-powershell">Ctrl+c</code></pre>
+			即可
+			<p></p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/9ff0f1f6-be33-4f75-92a1-e7641d36dbd6.gif" border="0" alt="2018-04-30_11-14-16.gif"><br><figcaption>gif演示使用方式</figcaption></figure></section><section><h3 id="WizKMOutline_1525065134863913">外部連到local的tcp服務</h3><p>
+			如果今天是要讓外面連到local的sql server，ngrok也支援tcp的映射。
+			</p><p>
+			以sql server爲例，衹需要呼叫：
+			</p><pre><code class="language-powershell">ngrok tcp 1433</code></pre><p>
+			再來使用SSMS做測試連綫即可。
+			</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/0a9b97fa-b799-412b-87f7-ec60d5232ced.gif" border="0" alt="2018-04-30_11-36-14.gif"><br><figcaption>gif演示使用方式</figcaption></figure><div class="bs-callout bs-callout-info"><p>
+				從上面兩個gif，尤其是tcp測試那個，會明顯感覺到速度有點慢，這個取決於自己的網速（我這邊還有點慢），加上本身在美國點的原因。
+				</p></div><div class="bs-callout bs-callout-info"><p>
+				要測試前，記得sql server有支援tcp連綫。詳細可以參考我另外一篇：<a href="/posts/2017/11/sql-troubleshooting-guide-mssql-connection-problem">[SQL]為什麼連不到MSSQL資料庫 - 故障排除指南</a>
+				</p></div></section></section><section><h2 id="WizKMOutline_1525065134863510">ngrok的進階使用</h2><p>
+		上面的介紹足夠一般的使用，不過有時候還會有些進階的應用，這邊介紹3個：
+		</p><ol><li>外鏈的web服務加密</li><li>重寫hostname的方式</li><li>管理/監控呼叫情況</li></ol><p></p><section><h3 id="WizKMOutline_1525065134863202">外鏈的web服務加密</h3><p>
+			有時候給別人測試的鏈接不希望任意的人都能夠開啓，ngrok非常貼心的提供了這個服務。
+			</p><p>
+			只需要在mapping的時候加上<code>auth</code>這個參數就可以設定密碼保護。例如：
+			</p><pre><code class="language-powershell">ngrok http --auth=admin:12345 1234</code></pre><p>
+			意思是，賬號要是<code>admin</code>，而密碼是<code>12345</code> map到 1234 port。
+			</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/2a7be4db-df83-453e-80a7-ce6cf2beb54f.gif" border="0" alt="2018-04-30_12-12-33.gif"><br><figcaption>gif演示效果</figcaption></figure></section><section><h3 id="WizKMOutline_1525065134863235">重寫hostname的方式</h3><p>
+			有些服務會使用到hostname的值，這個時候重寫hostname的功能就變得很重要。
+			</p><p>
+			可以使用<code>host-header</code>做設定。
+			</p><p>
+			這邊的例子用的是在IIS裏面設定只有<em>test.com</em>才會binding到<em>80</em>port，使用的指令就是：
+			</p><pre><code class="language-powershell">ngrok http --host-header=test.com 80</code></pre><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/f33e2332-780a-483a-8f82-dd19e2878734.gif" border="0" alt="2018-04-30_12-20-15.gif"><br><figcaption>gif演示效果</figcaption></figure></section><section><h3 id="WizKMOutline_1525065134863415">管理/監控呼叫情況</h3><p>
+			當ngrok執行起來之後，每一個request都會有記錄，可以透過使用command line、連到 localhost:4040
+			</p><figure><img class="img-responsive" src="/posts/2018/04/2018-04-30-devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server/96a00e54-4a01-48df-85eb-ffe3593da9f8.png" border="0" alt="chrome_2018-04-30_12-22-25.png"><br><figcaption>local界面及command line的監控</figcaption></figure><ol><li>當執行起來之後，會看到外部可以連的網址。</li><li>當有request進來，每一個結果寫在下面，從localhost:4040也可以看到，而且内容比較詳細（右邊的截圖）</li></ol></section></section><section><h2 id="WizKMOutline_1525065134863274">結語</h2><p>
+		這篇介紹了ngrok這個工具，并且如何用ngrok讓local的東西能夠在外部被測試到。
+		</p><p>
+		這篇也介紹了如果要保護local的服務，可以用賬號密碼登入的方式避免泄露。如果需要hostname ngrok也有支援。
+		</p><p>
+		如果需要一些更深入的功能，例如網址不要變動，那麽可以考慮從free plan升級。
+		</p><p>
+		你有在有什麽類似的工具嗎？也歡迎分享交流
+		</p></section>
+

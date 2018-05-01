@@ -1,0 +1,123 @@
+Title: "[部落格改版學DevOps][02]Wyam是什麽？"
+Published: 2018-05-01
+Modified: 2018-05-01
+Image: "/posts/2018/05/2018-05-01-migrate-blog-to-ssg-demo-devops-2-what-is-wyam/6bdd9411-2732-4812-bcce-198b63e0da17.jpg"
+Tags: ["「部落格改版學DevOps」", "wyam"]
+Series: ["「部落格改版學DevOps」"]
+PostDescription: "wyam是一個.net寫的Static site generator。爲什麽使用它？還有那些static site generator？怎麽能夠用wyam快速建立出部落格網站呢？這篇將會做這些介紹。"
+---
+<section><figure><img src="/posts/2018/05/2018-05-01-migrate-blog-to-ssg-demo-devops-2-what-is-wyam/6bdd9411-2732-4812-bcce-198b63e0da17.jpg" border="0" alt="[部落格改版學DevOps][02]Wyam是什麽？.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		Wyam是這次改版的核心工具，因爲整個部落格將會使用Wyam來產生出來。
+		</p><p>
+		這篇將會介紹什麽是Wyam，爲什麽要用Wyam和如何使用它快速產生出網站。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1525155518426717" ;="" style="font-size: 15px; line-height: 1.6;">Wyam是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525155518427640" ;="" style="font-size: 15px; line-height: 1.6;">Static Site Generator是什麽？</a><br></li><li><a href="#WizKMOutline_1525155518427234" ;="" style="font-size: 15px; line-height: 1.6;">Static Site Generator有什麽好處？</a><br></li><li><a href="#WizKMOutline_1525155518427274" ;="" style="font-size: 15px; line-height: 1.6;">Static Site Generator有什麽壞處？</a><br></li><li><a href="#WizKMOutline_1525155518427782" ;="" style="font-size: 15px; line-height: 1.6;">一些有名的Static Site Generator</a><br></li><li><a href="#WizKMOutline_1525155518427543" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽選擇Wyam</a><br></li></ul><li><a href="#WizKMOutline_1525155518427282" ;="" style="font-size: 15px; line-height: 1.6;">安裝Wyam</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525155518427361" ;="" style="font-size: 15px; line-height: 1.6;">Wyam小檔案</a><br></li></ul></ul><li><a href="#WizKMOutline_1525155518427772" ;="" style="font-size: 15px; line-height: 1.6;">用Wyam建立部落格</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525155518427298" ;="" style="font-size: 15px; line-height: 1.6;">Recipe和Theme</a><br></li></ul><li><a href="#WizKMOutline_1525155518427250" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1525155518426717">Wyam是什麽？</h2><p>
+		Wyam是一個.Net的Static Site Generator (以下簡稱SSG)。SSG通常用作於產生一些不復雜的靜態網站，例如部落格，或者Library API文件網站。
+		</p><p>
+		既然Wyam是一個SSG，那麽就要來瞭解什麽是SSG？
+		</p><section><h3 id="WizKMOutline_1525155518427640">Static Site Generator是什麽？</h3><p>
+			不管是用什麽語言做網站，到最後產生的都是html的内容由browser去render。而產生html的過程，可能用到了一些Server Code，例如在.Net的世界用 <em>C# (邏輯) 加上Razor (模板)</em>來產生出html。
+			</p><p>
+			這個過程是動態產生的，因此最差的情況下是每一個request進來，同樣的code要跑一次（當然這個過程可以用cache來加速），這個非常的浪費資源，尤其是每一次產生結果都一樣的情況下。
+			</p><p>
+			因此，有一個idea冒出來，<em>有沒有可能一開始我就產生好靜態的内容（html）？</em>這樣host在servr的不再是C#+Razor，而是純html内容。
+			</p><p>
+			SSG就是做這個事情的工具，撰寫的時候還是用類似 <em>程式語言+範本</em>，透過SSG“編譯”成爲html，然後host html。
+			</p></section><section><h3 id="WizKMOutline_1525155518427234">Static Site Generator有什麽好處？</h3><dl><dt>
+				速度相對快
+				</dt><dd>
+				由於已經是html，不需要server 編譯的時間。
+				</dd><dt>
+					任何server都能夠host
+				</dt><dd>
+					基本上不管什麽Server都能夠host html，減少了server的相依性
+				</dd><dt>
+					還擁有傳統的 邏輯+範本 的開發方式
+				</dt><dd>
+					雖然在威力上沒有真正的Server side code强大，但是在建立整個網站的時候，還是可以用習慣的 邏輯+範本的方式開發出最後的html。
+				</dd><dt>
+					可以控制一切
+				</dt><dd>
+					由於一切都是個人撰寫，因此最後html要呈現什麽，完全由自己控制。
+				</dd></dl><p>
+			總結來説在於速度及兼容性很高。
+			</p></section><section><h3 id="WizKMOutline_1525155518427274">Static Site Generator有什麽壞處？</h3><dl><dt>
+					攥寫界面不友善
+				</dt><dd>
+					相較於一般使用CMS或者有後臺的Server網站，在新增文章的時候SSG類型的gui會比較偏coder friendly而不是User Friendly
+				</dd><dt>
+					上板比較不容易
+				</dt><dd>
+					由於要把内容產生出html，因此整個的儲存過程會複雜一些。
+				</dd></dl><p>
+			總結來説，SSG的最大壞處是不太適合一般的User，而對於一般的coder來説，SSG反而是一個很好的機會瞭解整個開發的流程及過程，因爲它其實就是一個簡化版的開發網站工具。
+			</p><div class="bs-callout bs-callout-info">
+				對我自己來説，我覺得從Google Blogger搬出來最大的原因就在於速度以及撰寫容易（xml看起來太累）
+			</div></section><section><h3 id="WizKMOutline_1525155518427782">一些有名的Static Site Generator</h3><dl><dt>
+					Jekyll
+				</dt><dd><p>
+					最出名應該是Jekyll。這個是一個用ruby寫的SSG，最出名的原因是github原生有支援，因此只需要把原始碼check in，github就會自動呼叫編譯出html。
+					</p><p>
+					因此有段時間很流行用github寫部落格，用的就是Jekyll搭配Github Page。
+					</p><p>
+					我沒有選擇jekyll的原因是因爲他是Ruby寫的，而在Windows下面要安裝Jekyll太麻煩了，因此直接被我放棄了。
+					</p></dd><dt>
+					Hexo
+				</dt><dd><p>
+					Hexo也蠻出名，原因是因爲主要使用的是NodeJs，因此在安裝及執行上面非常的簡單。
+					</p><p>
+					我自己本來也打算用Hexo，不過在我知道有Wyam之後就放棄了。
+					</p></dd></dl><p>
+			還有很多SSG，有個網站可以看一下<a href="https://www.staticgen.com/">StaticGen</a>，列出了SSG以及其排名。
+			</p></section><section><h3 id="WizKMOutline_1525155518427543">爲什麽選擇Wyam</h3><dl><dt>
+					使用.Net Framework寫的
+				</dt><dd>
+					因爲是用.Net Framework寫的，因此使用了熟悉的C#做邏輯及Razor做模板。當初還有個考量是如果.Net程式希望embed類似功能，那麽整合起來應該會更加容易級方便
+				</dd><dt>
+					可以使用Razor做文章的撰寫
+				</dt><dd>
+					由於之前在Google Blogspot寫，因此已經習慣用html寫文章。大部分的SSG都只支援Markdown，雖然Markdown有支援HTML，但是有些情況下產生出來還是怪怪的，因此允許使用Razor對我來説是非常方便的一件事情。
+				</dd></dl></section></section><section><h2 id="WizKMOutline_1525155518427282">安裝Wyam</h2><p>
+		介紹了這麽多之後，來看看怎麽安裝Wyam。
+		</p><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1525155518427361">Wyam小檔案</h4><ul><li>官網：<a href="https://wyam.io/">https://wyam.io/</a></li><li>文件：<a href="https://wyam.io/docs/">https://wyam.io/docs/</a></li><li>原始碼：<a href="https://github.com/Wyamio/Wyam">https://github.com/Wyamio/Wyam</a></li><li>最新版本：1.4.1</li><li>支援的OS：目前只有Windows，作者有計劃改成.Net Core，因此未來可能跨平臺</li><li>下載位置：<a href="https://github.com/Wyamio/Wyam/releases">https://github.com/Wyamio/Wyam/releases</a></li><li>Chocolatey安裝：<kbd>choco install wyam</kbd></li><li>Nuget位置：<a href="https://www.nuget.org/packages/Wyam">https://www.nuget.org/packages/Wyam</a></li></ul></div><p>
+		一樣，建議用chocolatey做安裝，原因是wyam其實就是一個command line工具而已，因此自己手動下載在設定path不如直接使用chocolatey安裝比較快。
+		</p><p>
+		在接下來的demo我使用的版本會是<em>1.3.0</em>，就我所知主要是底層有調整，但是api本身沒有變，因此應該沒有差才對。
+		</p></section><section><h2 id="WizKMOutline_1525155518427772">用Wyam建立部落格</h2><p>
+		安裝完了之後，就可以用Wyam來建立一個部落格網站。打開powershell或者cmd之後，執行：
+		</p><pre><code class="language-powershell">wyam new --recipe Blog
+wyam --recipe Blog --theme CleanBlog
+wyam --preview --recipe Blog --theme CleanBlog
+</code></pre><dl><dt>
+				wyam new --recipe Blog
+			</dt><dd><p>
+				用Blog這個"食譜"產生出對應的設定
+			</p><p>
+				執行完了之後會在資料夾下面多出幾個檔案：
+				</p><ul><li><em>config.wyam</em> - 設定產生的一些參數</li><li><em>input</em> - 這個資料夾裏面包含產生的範本</li></ul><p></p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-01-migrate-blog-to-ssg-demo-devops-2-what-is-wyam/a1d5fe9a-ed29-4778-a078-6c6140c132e9.png" border="0" alt="powershell_2018-05-01_13-51-48.png"><br><figcaption>產生完的資料夾和檔案結構</figcaption></figure></dd><dt>
+wyam --recipe Blog --theme CleanBlog
+			</dt><dd><p>
+			
+				用Blog這個"食譜"搭配CleanBlog這個"主題"產生出html
+			</p><p>
+				執行完了會多出一個資料夾<em>output</em>，裏面會有最後要發佈的html内容：
+				</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-01-migrate-blog-to-ssg-demo-devops-2-what-is-wyam/bf58f08c-3ff6-4efc-ae89-e7233b9fdcb7.png" border="0" alt="powershell_2018-05-01_13-57-27.png"><br><figcaption>最後產生的内容結構</figcaption></figure></dd><dt>
+				wyam --preview --recipe Blog --theme CleanBlog			
+			</dt><dd><p>
+				這個是起一個server，讓我們更好的看整個結果。
+				</p><p>
+				使用網址：<code>http://localhost:5080</code>可以看到實際的結果。
+				</p><p>
+				如果要把這個網站停掉，那麽就是在界面直接輸入<kbd>Ctrl+c</kbd></p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-01-migrate-blog-to-ssg-demo-devops-2-what-is-wyam/4e0f889c-6b43-4a8d-8bd4-eea47b860e63.jpg" border="0" alt=""><br><figcaption>CleanBlog Theme的内容</figcaption></figure></dd></dl><section><h3 id="WizKMOutline_1525155518427298">Recipe和Theme</h3><p><em>Recipe</em>其實就是某種產生的組合，而<em>Theme</em>則是不同的模板方式。
+			</p><p>
+			官方預設帶了3種Recipe：
+			</p><ol><li>Blog</li><li>BookSite</li><li>Docs</li></ol><p></p><p>
+			而每一種Recipe有幾個不同的Theme可以搭配嘗試，有興趣的話可以從官網找到有提供的然後產生看看那些適合你：
+			<a href="https://wyam.io/recipes/">官方的Recipes</a></p></section></section><section><h2 id="WizKMOutline_1525155518427250">結語</h2><p>
+		這篇介紹了什麽是Wyam，什麽是Static Site Generator，以及如何使用Wyam的Recipe及Theme建立出一個部落格網站。
+		</p><p>
+		在下一篇開始介紹Wyam的運作機制，如何修改設定達到產生出來的内容會不一樣。
+		</p></section>

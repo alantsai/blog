@@ -1,7 +1,7 @@
 <div class="site-heading">
     @if(Context.String(BlogKeys.Description) != null)
     {
-        <h1>@Context.String(BlogKeys.Description)</h1>
+        <h1>@Context.String(BlogKeys.Title) </h1>
     }
     @if(Context.String(BlogKeys.Intro) != null)
     {            
@@ -9,6 +9,8 @@
         {
             <hr class="small">
         }
+        <span class="subheading">學而不思則罔，思而不學則殆，不思不學則“網貸”</span>
+        <span class="subheading">@Context.String(BlogKeys.Description)</span>
         <span class="subheading">@Context.String(BlogKeys.Intro)</span>
     }
 </div>

@@ -3,46 +3,19 @@
     var Published = Model.Get<DateTime>(BlogKeys.Published);   
     var Tags = Model.Get<string[]>(BlogKeys.Tags);
 }
-
-<div class="post-heading">
-    <h1>@Model.WithoutSettings.String(BlogKeys.Title)</h1>
-    @if(!string.IsNullOrWhiteSpace(Lead))
+<div class="site-heading">
+    @if(Context.String(BlogKeys.Description) != null)
     {
-        <h2 class="subheading">@Lead</h2>
-    }            
-    <div class="meta">        
-        @if (Published != default(DateTime))
+        <h1>@Context.String(BlogKeys.Title) </h1>
+    }
+    @if(Context.String(BlogKeys.Intro) != null)
+    {            
+        @if(Context.String(BlogKeys.Description) != null)
         {
-            <text>
-                <i class="fa fa-calendar fa-fw"></i>@Published.ToString("yyyy-MM-dd dddd")
-            <br></text>
+            <hr class="small">
         }
-    </div>
-    @if (Tags != null)
-    {
-        <div class="tags">
-            @foreach (string tag in Tags.OrderBy(x => x))
-            {
-                IDocument tagDocument = Documents[Blog.Tags].FirstOrDefault(x => x.String(BlogKeys.Tag) == tag && x.Get<int>(Keys.CurrentPage) == 1);
-                if(tagDocument != null)
-                {                
-                    <a role="button" href="@Context.GetLink(tagDocument)" class="btn btn-default btn-xs"><i class="fa fa-tag fa-fw"></i>@tag</a>
-                }
-            }
-        </div>     
-    } 
-    <div>
-        <span class='post-author vcard'>
-張貼者&#65306;
-<span class='fn' itemprop='author' itemscope='itemscope' itemtype='http://schema.org/Person'>
-<meta content='https://plus.google.com/100603753670492098693' itemprop='url'/>
-<a class='g-profile' href='https://plus.google.com/100603753670492098693' rel='author' title='author profile'>
-<span itemprop='name'>
-Alan Tsai
-</span>
-</a>
-</span>
-</span>
-
-    </div>
+        <span class="subheading">學而不思則罔，思而不學則殆，不思不學則“網貸”</span>
+        <span class="subheading">@Context.String(BlogKeys.Description)</span>
+        <span class="subheading">@Context.String(BlogKeys.Intro)</span>
+    }
 </div>

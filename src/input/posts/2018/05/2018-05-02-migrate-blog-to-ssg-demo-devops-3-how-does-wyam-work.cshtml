@@ -1,0 +1,93 @@
+Title: "[部落格改版學DevOps][03]Wyam的運作模式"
+Published: 2018-05-02
+Modified: 2018-05-02
+Image: "/posts/2018/05/2018-05-02-migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work/5d20e9e2-ed9b-42c1-bd9d-3c1347427152.jpg"
+Tags: ["「部落格改版學DevOps」", "wyam"]
+Series: ["「部落格改版學DevOps」"]
+PostDescription: "Wyam到底是怎麽運作的呢？要寫一篇文章會由什麽資訊組成呢？
+這篇介紹Wyam裏面的recipe、pipeline以及module的概念。和整個資料夾的組成結構。"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/05/2018-05-02-migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work/5d20e9e2-ed9b-42c1-bd9d-3c1347427152.jpg" border="0" alt="[部落格改版學DevOps][03]Wyam的運作模式.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/05/migrate-blog-to-ssg-demo-devops-2-what-is-wyam" style="font-size: 15px; line-height: 1.6;">[部落格改版學DevOps][02]Wyam是什麽？</a>)<span style="font-size: 15px; line-height: 1.6;">介紹了Wyam的安裝及如何用它來建立一個部落格網站之後，如果想要調整產生的内容就會需要瞭解Wyam的運作模式。</span></p><p>
+		在這一篇將會對Wyam的幾個概念及如何做微調做介紹。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1525173473899623" ;="" style="font-size: 15px; line-height: 1.6;">Waym的檔案結構</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525173473899400" ;="" style="font-size: 15px; line-height: 1.6;">config.wyam</a><br></li><li><a href="#WizKMOutline_1525173473899200" ;="" style="font-size: 15px; line-height: 1.6;">input 資料夾</a><br></li></ul><li><a href="#WizKMOutline_1525173473899218" ;="" style="font-size: 15px; line-height: 1.6;">一篇文章的組成結構</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525173473899181" ;="" style="font-size: 15px; line-height: 1.6;">meta的部分</a><br></li><li><a href="#WizKMOutline_1525173473899890" ;="" style="font-size: 15px; line-height: 1.6;">内容的部分</a><br></li></ul><li><a href="#WizKMOutline_1525173473899822" ;="" style="font-size: 15px; line-height: 1.6;">瞭解Wyam執行模式</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1525173473899565" ;="" style="font-size: 15px; line-height: 1.6;">module</a><br></li><li><a href="#WizKMOutline_1525173473899184" ;="" style="font-size: 15px; line-height: 1.6;">pipeline</a><br></li></ul><li><a href="#WizKMOutline_1525173473899485" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1525173473899623">Waym的檔案結構</h2><p>
+		Wyam有兩個重要的檔案/資料夾：
+		</p><ol><li><em>config.wyam</em></li><li><em>input</em>資料夾</li></ol><p></p><section><h3 id="WizKMOutline_1525173473899400">config.wyam</h3><p>
+			config.wyam是設定Wyam在編譯的時候執行什麽(方式)的一個設定檔案。因此要對整個編譯過程做調整，或者設定一些參數，都是在這個檔案裏面做設定。
+			</p><p>
+			這個檔案本質上是一個C# base的DSL語言，因此在撰寫上面把他當成C#的source code再寫就可以了。因此要特別注意像是結束要加上分號等這種事情。
+			</p><p>
+			更多資訊可以參考官網的文件：
+			</p><ul><li><a href="https://wyam.io/docs/usage/configuration">Config可以設定的東西</a></li><li><a href="https://wyam.io/docs/usage/settings">那些可以設定的Global值</a> - 會影響到預設產生出來的html</li><li><a href="https://wyam.io/recipes/blog/settings">Blog recipe特別的設定</a></li></ul><p></p></section><section><h3 id="WizKMOutline_1525173473899200">input 資料夾</h3><p>
+			這個資料夾裏面有：
+			</p><ol><li>posts - 這個資料夾</li><li>about.md - 這個檔案</li></ol><p></p><p>
+			input 資料夾放的東西是要被執行（編譯）的<em>原始碼</em>。這裏面包含了<em>範本（Template）</em>，<em>文章</em>以及其他用到的<em>asset（圖片，css等）</em>。
+			</p><p>
+			如果對應到畫面，可以看到<em>about.md</em>對應到最後產生在menu 上面的<em>about</em>而，<em>posts/first-post.md</em>則對應到第一篇的文章。
+			</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-02-migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work/b3c5263b-e43c-4c60-9d58-62094211a02e.png" border="0" alt="explorer_2018-05-01_18-03-07.png"><br><figcaption>原始和最後產生出來的對應</figcaption></figure><div class="bs-callout bs-callout-info">
+				如果注意看，會發現在產生出來的還有<em>Archive</em>及<em>Tags</em>這兩個，這兩個是blog recipe額外產生出來。稍後還會在介紹。
+			</div></section></section><section><h2 id="WizKMOutline_1525173473899218">一篇文章的組成結構</h2><p>
+		上面瞭解了幾個重要的檔案之後，接下來看看一篇文章是怎麽組成。
+		</p><p>
+		在所有的Static Site Generator對於文章都會分兩個部分：
+		</p><ol><li>文章的<em>meta</em> - 關於這篇文章的一些meta資訊，例如【標題】、【發佈時間】、【Tag】等</li><li>文章的<em>内容</em> - 這篇要呈現的内容</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-02-migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work/935ed847-a805-4e43-86d9-7990d3d2bdd1.png" border="0" alt=""><br><figcaption>官方介紹結構</figcaption></figure><p>
+		這個在一篇文章的體現方式是透過<code>---</code>（3個減號）來區分，上半段是<em>Front Matter</em>(設定Metadata)，下半段是<em>内文</em>。
+		</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-02-migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work/13da0953-e611-4b27-9cc6-d99ccaa3d103.png" border="0" alt=""><br><figcaption>範例第一篇的内容</figcaption></figure><section><h3 id="WizKMOutline_1525173473899181">meta的部分</h3><p>
+			meta是關於這篇文章的metadata資訊，設定之後，在模板的地方就可以用 <code>Model.Get&lt;T&gt;()</code>的方式取到值，用於套版。
+			</p><p>
+			在Wyam meta可以用兩種格式來寫：
+			</p><ol><li>YAML</li><li>JSON</li></ol><p></p><p>
+			預設使用的是YAML，因此如果想使用JSON除了設定上面使用JSON的格式，也會需要去<em>config.wyam</em>裏面做調整。
+			</p><p>
+			在Blog recipe裏面有幾個預設的meta值可以設定，相關可以參考：<a href="https://wyam.io/recipes/blog/document-metadata">官網Blog Document Metadata</a></p><div class="bs-callout bs-callout-warning"><p>
+				需要注意，在文件提到的<code>BlogKeys.Tags</code>，在設定上面不需要<em>BlogKeys</em>的部分，只需要<code>Tags</code>即可。
+				</p><p>
+				如果是在<em>模板</em>的地方要取得這個<em>Tags</em>的值，才會使用<code>BlogKeys.Tags</code>這個<em>constant參數</em>(而這個constant 參數的值就是<em>Tags</em>)。
+				</p><p>
+				其他參數是一樣的概念。
+				</p></div></section><section><h3 id="WizKMOutline_1525173473899890">内容的部分</h3><p>
+			這個就是文章的核心内容。
+			</p><p>
+			Wyam預設支援兩種格式：
+			</p><ol><li>markdown</li><li>razor</li></ol><p></p><div class="bs-callout bs-callout-info">
+				如果要用Razor做撰寫，會需要做一些設定，後面在提。
+			</div><div class="bs-callout bs-callout-info">
+				如果上面兩種格式都不喜歡，只要.Net有對應的library，那麽其實只需要寫一些C#就能夠使用。
+			</div></section></section><section><h2 id="WizKMOutline_1525173473899822">瞭解Wyam執行模式</h2><p>
+		上面瞭解了文章格式之後，接下來瞭解一下整個是怎麽串起來，Wyam的執行架構。
+		</p><p>
+		Wyam裏面有兩個概念：
+		</p><ol><li><em>Module</em> - 一個動作的最小單位</li><li><em>Pipeline</em> - 好幾個module組合在一起</li></ol><p></p><p>
+		Wyam就是透過定義每一個pipeline有什麽module會執行，然後定義pipeline的執行順序。
+		</p><p>
+		而<em>recipe</em>其實就是一個已經定義好的pipeline組合而已。
+		</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-02-migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work/c9626d23-984c-4cf6-9eb1-ee7f9df60851.png" border="0" alt="powershell_2018-05-01_18-41-38.png"><br><figcaption>可以看到，blog recipe執行的時候總共有14個pipeline被執行，而每一個pipeline則有不同的module</figcaption></figure><section><h3 id="WizKMOutline_1525173473899565">module</h3><p>
+			Module定義的是做一件事情的最小單位。
+			</p><p>
+			舉例來説，剛剛介紹内容的時候有提到<em>Front Matter</em>裏面的metadata可以是JSON或者是YAML的格式。Wyam是怎麽支援這兩種格式呢？其實就是因爲有兩個module：
+			</p><ol><li>YAML</li><li>JSON</li></ol><p></p><p>
+			因此，預設使用YAML做parsing，如果要調整，只需要把pipeline裏面的module改成使用JSON Module即可。
+			</p><p>
+			module可以做很多種事情，完全取決於你的想象力。例如有些是從内文裏面截取出 介紹説明，并且把這個值放到metadata裏面讓套版可以使用。
+			</p><p>
+			詳細module作用可以參考：
+			</p><ul><li><a href="https://wyam.io/docs/concepts/modules">幾種module運作模式</a></li><li><a href="https://wyam.io/modules/">内建module</a></li></ul><p></p><div class="bs-callout bs-callout-info">
+				如果内建的不夠自己用，要自己寫module其實很容易。如果不想包成能夠重複使用，那麽只需要寫在<em>config.wyam</em>即可。後面在微調的時候會在介紹。
+			</div></section><section><h3 id="WizKMOutline_1525173473899184">pipeline</h3><p>
+			如果說module是最小單位的動作，pipeline就是把這些最小單位組合起來，然後達到某個目的的module組合。
+			</p><p>
+			pipeline概念介紹可以參考官網的<a href="https://wyam.io/docs/concepts/pipelines">pipeline模式</a></p><p>
+			要調整現有的pipeline可以參考官網的<a href="https://wyam.io/docs/concepts/recipes#pipelines">調整pipeline裏面的module</a></p></section><p>
+		瞭解了module及pipeline之後，有一個概念就很好理解了，那就是<em>recipe</em>。
+		</p><p><em>recipe</em>就是已經事先定義好的<em>pipeline集合</em>。因此如果要微調recipe，只需要調整pipeline裏面的module即可。
+		</p></section><section><h2 id="WizKMOutline_1525173473899485">結語</h2><p>
+		透過這一篇，相信對於整個Wyam的運作有了一些基本的概念。對於Wyam裏面如何使用recipe來組合pipeline，然後用pipeline組合module的流程清楚了。
+		</p><p>
+		也介紹了一篇内容的組成和重要的<em>config.wyam</em>檔案可以用來做一些調整。
+		</p><p>
+		在下一篇將會對於如何微調做一些介紹，和一般blog會設定的值做介紹。
+		</p></section>

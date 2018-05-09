@@ -1,0 +1,113 @@
+Title: "[部落格改版學DevOps][04]如何調整Wyam產生的内容 - Theme及模板介紹"
+Published: 2018-05-03
+Modified: 2018-05-03
+Image: "/posts/2018/05/2018-05-03-migrate-blog-to-ssg-demo-devops-4-how-to-tune-wyam-theme-template/4c08da89-fc1e-48ba-b12c-1e69fab6eede.jpg"
+Tags: ["「部落格改版學DevOps」", "wyam"]
+Series: ["「部落格改版學DevOps」"]
+PostDescription: "怎麽調整Wyam產生出來的内容？也就是怎麽調整模板呢？
+這篇介紹Wyam的theme概念并且如何調整theme以符合自己的需求"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/05/2018-05-03-migrate-blog-to-ssg-demo-devops-4-how-to-tune-wyam-theme-template/4c08da89-fc1e-48ba-b12c-1e69fab6eede.jpg" border="0" alt="[部落格改版學DevOps][04]如何調整Wyam產生的内容 - 設定、Theme及模板介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/05/migrate-blog-to-ssg-demo-devops-3-how-does-wyam-work">[部落格改版學DevOps][03]Wyam的運作模式</a>)
+		介紹完了Wyam的運作模式了之後，雖然對於整個如何組裝起來有了瞭解，但是對於最基本的如何調整產生出來的内容還是不清楚。
+		</p><p>
+		這一篇將會介紹怎麽透過設定的方式調整最後的產出，然後如何透過調整模板的方式達到完全控制。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1525388828039768" ;="" style="font-size: 15px; line-height: 1.6;">config.wyam可以先設定的部分</a><br></li><li><a href="#WizKMOutline_1525388828039349" ;="" style="font-size: 15px; line-height: 1.6;">Theme是什麽？</a><br></li><li><a href="#WizKMOutline_1525388828039499" ;="" style="font-size: 15px; line-height: 1.6;">Theme的版型在那裏？</a><br></li><li><a href="#WizKMOutline_1525388828039851" ;="" style="font-size: 15px; line-height: 1.6;">調整版型</a><br></li><li><a href="#WizKMOutline_1525388828039407" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1525388828039768">config.wyam可以先設定的部分</h2><p>
+		還記得上一篇提到config.wyam裏面可以設定一些值，而有些預先定義好的值會被原生的套版使用，因此有些透過改設定就可以調整產出。
+		</p><p>
+		這邊會列出幾個比較重要的設定做介紹，完整的還是要參考官網。
+		</p><dl><dt>
+				BlogKeys.Title
+			</dt><dd>
+				設定網站的名稱
+			</dd><dt>
+				BlogKeys.Description		
+			</dt><dd>
+				網站的説明
+			</dd><dt>
+				BlogKeys.Intro
+			</dt><dd>
+				網站的介紹
+			</dd></dl><p>
+		假設把這幾個做設定了之後，可以看到網站就發生了變化：
+		</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-03-migrate-blog-to-ssg-demo-devops-4-how-to-tune-wyam-theme-template/04c9e94d-d95f-461e-aaca-47b3fa140d2a.png" border="0" alt="chrome_2018-05-03_22-36-31.png"><br><figcaption>本來名稱是My Blog并且只有一個大大的welcome，現在都和設定一起變換</figcaption></figure><p></p><p>
+		其他還有好幾個設定蠻重要的列在下面：
+		</p><dl><dt>
+				Keys.Host
+			</dt><dd>
+				網站的host網址 - 影響到像rss產生的網址
+			</dd><dt>
+				BlogKeys.ArchivePageSize
+			</dt><dd>
+				Archive要幾筆為一頁
+			</dd><dt>
+				BlogKeys.IncludeDateInPostPath
+			</dt><dd>
+				產生的網址要不要包含年份和月份作爲一部分
+			</dd><dt>
+				BlogKeys.ArchiveExcerpts
+			</dt><dd>
+				Archive的Index頁面是不是不要顯示全部文章内容，而是只顯示部分内容
+			</dd><dt>
+				BlogKeys.IndexPaging
+			</dt><dd>
+				首頁要不要做分頁
+			</dd><dt>
+				BlogKeys.IndexPageSize
+			</dt><dd>
+				首頁分頁要幾筆為一頁
+			</dd></dl><p></p></section><section><h2 id="WizKMOutline_1525388828039349">Theme是什麽？</h2><p>
+		上面看到可以透過設定的方式修改最後產生的内容，但是畢竟設定只是部分的内容而已，如果要更大幅度的調整呢？
+		</p><p>
+		在看調整模板之前，要先瞭解一下再編譯的時候，輸入的Theme到底是什麽東西。
+		</p><p>
+		首先，可以先嘗試兩個不同的theme：
+		</p><pre><code class="language-powershell">wyam --preview --recipe Blog --theme CleanBlog
+wyam --preview --recipe Blog --theme Phantom</code></pre><p></p><p>
+		從下面截圖可以看到雖然是一樣的内容但是模板和樣式完全不同：
+		</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-03-migrate-blog-to-ssg-demo-devops-4-how-to-tune-wyam-theme-template/f95d02ca-2fa4-4d47-8ab4-29a07299f102.png" border="0" alt="chrome_2018-05-03_22-49-54.png"><br><figcaption>兩個不同theme的内容</figcaption></figure><p></p><p>
+		所以，其實theme就是wyam預先設定好的<em>模板組合</em>。因此切換theme就是在<em>切換模板</em>。
+		</p><p>
+		那麽是否有可能以現有的theme爲基礎然後在做調整呢？
+		</p><p>
+		wyam的作者已經有留了這個空間，因此完全可以用和預設一樣的版型然後在做一些調整。
+		</p></section><section><h2 id="WizKMOutline_1525388828039499">Theme的版型在那裏？</h2><p>
+		所有theme的模板可以在github找到：<a href="https://github.com/Wyamio/Wyam/tree/develop/themes">https://github.com/Wyamio/Wyam/tree/develop/themes</a></p><p>
+		假設今天要用CleanBlog Theme爲基礎，那麽可以把裏面内容下下來：<a href="https://github.com/Wyamio/Wyam/tree/develop/themes/Blog/CleanBlog">https://github.com/Wyamio/Wyam/tree/develop/themes/Blog/CleanBlog</a></p><p>
+		接下來可以把下載下來的放到<code>input</code>下面即可。
+		</p><p>
+		Wyam在執行的時候，會把<em>有存在</em>input下面的模板<em>覆蓋</em>預設的模板，換句話説如果只是要改部分的話，其實不需要全部。不過，如果要徹底的控制權的話，那麽建議是全部都下載下來。
+		</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-03-migrate-blog-to-ssg-demo-devops-4-how-to-tune-wyam-theme-template/1e794dac-823c-4304-a4d8-a21dc9133bc2.png" border="0" alt="Code_2018-05-04_06-16-46.png"><br><figcaption>最後放進去之後就會多出一些.cshtml及assets這個資料夾</figcaption></figure><div class="bs-callout bs-callout-info">
+			官網其實有介紹，如果要改某個部分只需要某些檔案即可<a href="https://wyam.io/recipes/blog/themes/cleanblog">https://wyam.io/recipes/blog/themes/cleanblog</a></div></section><section><h2 id="WizKMOutline_1525388828039851">調整版型</h2><p>
+		整個套版使用的是razor，因此如果有些開發Asp .Net Mvc的經驗應該馬上能夠瞭解整個是怎麽串接起來。	
+		</p><p>
+		這邊會需要瞭解兩個type：
+		</p><dl><dt>
+				IDocument
+			</dt><dd><p>
+				一篇文章的type就是IDocument，因此還記得上上篇提到每一個文章都有所謂的metadata就可以用：<code>Model.Get&lt;T&gt;("key");</code>去的值，例如<code>Model.Get&lt;string[]&gt;(BlogKeys.Tags);</code>
+				就能夠取得這篇文章的所有tag。
+				</p></dd><dt>
+				IExecutionContext 
+			</dt><dd><p>
+					這個可以理解為記錄整個pipeline資訊的context物件。可以透過<code>@Context</code>取得到。
+					</p><p>
+					還記得之前在<em>config.wyam</em>裏面設定了一些值，可以透過<code>Context</code>取到，因此<code>@Context.String(BlogKeys.Description)</code>就能夠取得到Description這個值。
+					這個物件也能過取得所有的Document。
+					</p><p>
+					Context這個物件還有一些Extension的方法，例如<code>GetLink</code>，能夠簡單產生出正確的網址。
+					</p></dd></dl><p></p><div class="bs-callout bs-callout-warning"><p>
+			這邊我不會詳細介紹套版的細節，大概瞭解上面兩個重要的Type之後，在參考一下預設theme裏面的套版基本上就能夠修改出想要的效果。
+			</p><p>
+			如果對於那個部分不太清楚，或者想調整那邊不過不知道在那裏的話，歡迎隨時問我。
+			</p></div></section><section><h2 id="WizKMOutline_1525388828039407">結語</h2><p>
+		這篇對於Wyam裏面的Theme以及如何修改Theme預設套版的部分做了一些介紹。
+		</p><p>
+		到了目前爲止應該對於Wyam如何運作，如何調整有了基本的概念，接下來要開始看另外一個問題，也就是怎麽把文章從原始部落格（我的例子是google blogger）搬移到wyam裏面。
+		</p><p>
+		因此，在接下來將會介紹migration注意事項及如何調整Wyam搭配migration的内容。
+		</p></section>

@@ -1,0 +1,104 @@
+Title: "[部落格改版學DevOps][05]實際遷移-準備及驗證篇"
+Published: 2018-05-18
+Modified: 2018-05-18
+Image: "/posts/2018/05/2018-05-18-migrate-blog-to-ssg-demo-devops-5-migration-process-and-how-to-modify-wyam-blog-recipe/67ef54a3-fd3e-4686-8b37-2e7f220f8b5a.jpg"
+Tags: ["「部落格改版學DevOps」", "wyam"]
+Series: ["「部落格改版學DevOps」"]
+PostDescription: "要搬遷系統會經歷過那些步驟呢？有哪些事情是需要考量的呢？這篇將會介紹搬遷需要做的準備，并且以一個例子如何透過看source code來解決問題，并且如何改wyam的recipe"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/05/2018-05-18-migrate-blog-to-ssg-demo-devops-5-migration-process-and-how-to-modify-wyam-blog-recipe/67ef54a3-fd3e-4686-8b37-2e7f220f8b5a.jpg" border="0" alt="[部落格改版學DevOps][05]實際遷移-準備及驗證篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/05/migrate-blog-to-ssg-demo-devops-4-how-to-tune-wyam-theme-template">[04]如何調整Wyam產生的内容 - Theme及模板介紹</a>)介紹完了Wyam的版型調整之後，基本上Wyam的功能就介紹完啦。</p><p>
+		接下來要做的就是從Google的Blogger移轉到用Wyam來產生了。
+		</p><p>
+		這篇將會對於一般搬遷任何東西的時候會經歷過的流程，并且先從計劃的部分開始考量起。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1526603989672847" ;="" style="font-size: 15px; line-height: 1.6;">搬遷會經歷的過程</a><br></li><li><a href="#WizKMOutline_1526603989673115" ;="" style="font-size: 15px; line-height: 1.6;">要搬遷什麽？</a><br></li><li><a href="#WizKMOutline_1526603989673862" ;="" style="font-size: 15px; line-height: 1.6;">幾個搬遷考量點</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1526603989673481" ;="" style="font-size: 15px; line-height: 1.6;">計劃好搬遷内容及位置</a><br></li><li><a href="#WizKMOutline_1526603989673726" ;="" style="font-size: 15px; line-height: 1.6;">計劃好搬遷内容的格式</a><br></li><li><a href="#WizKMOutline_1526603989673830" ;="" style="font-size: 15px; line-height: 1.6;">計劃好内容的檔名</a><br></li></ul><li><a href="#WizKMOutline_1526603989673490" ;="" style="font-size: 15px; line-height: 1.6;">驗證</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1526603989673259" ;="" style="font-size: 15px; line-height: 1.6;">修正</a><br></li></ul><li><a href="#WizKMOutline_1526603989673551" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1526603989672847">搬遷會經歷的過程</h2><p>
+		一般在搬遷任何東西（不管是系統還是像這種部落格搬遷）都會至少經歷四個步奏：
+		</p><figure><img class="img-responsive" src="/posts/2018/05/2018-05-18-migrate-blog-to-ssg-demo-devops-5-migration-process-and-how-to-modify-wyam-blog-recipe/27ea0f66-7ba4-4a47-bd57-d4a86edf66d5.png" border="0" alt=""><br><figcaption>4個階段</figcaption></figure><ol><li><em><strong>Plan</strong></em> - 計劃/準備的部分其實就是瞭解<em>什麽</em>要搬遷，搬遷到對應的什麽<em>服務</em></li><li><em><strong>Validate</strong></em> - 驗證計劃是否可行。例如搬遷過去的服務是否能夠符合預期的運作正常。這邊要注意，通常都是先用<em>一部分</em>的資料做測試，不然東西很多的時候，在驗證的時候時間就很長</li><li><em><strong>Migrage</strong></em> - 這個就是實際執行搬遷的計劃。</li><li><em><strong>Monitor</strong></em> - 搬遷之後還需要一段觀察期，持續優化實際運行有沒有什麽問題</li></ol></section><section><h2 id="WizKMOutline_1526603989673115">要搬遷什麽？</h2><p>
+		基本上以部落格來説，搬遷可以分爲兩個部分：
+		</p><ol><li><em><strong>文章</strong></em> - 和文章任何有關的東西，至少有
+				<ul><li>内文</li><li>文章標簽（tag）</li><li>留言</li><li>圖片</li></ul></li><li><em><strong>meta及seo相關</strong></em> - 怎麽保留舊網站已有的url seo rank到新網站，及到時候如何做正確的轉網址。這個部分之後提到SEO在細説。
+			</li></ol><p></p><p>
+		以目前來説可以先從<em>文章</em>的部分做起，從基本的内文、文章標簽及圖片開始起。
+		</p></section><section><h2 id="WizKMOutline_1526603989673862">幾個搬遷考量點</h2><section><h3 id="WizKMOutline_1526603989673481">計劃好搬遷内容及位置</h3><p>
+		第一個遇到的問題是，文章到底要放在那邊？
+		</p><p>
+		依照Wyam原始的結構可以知道，文章是要放在<code>posts</code>下面。可是資料夾結構應該怎麽放呢？是把檔案直接丟到這個資料夾下面，還是還要做隔層呢？
+		</p><p>
+		另外一個問題是，文章裏面的圖片要放在哪裏？和文章放在同一層還是要在加一層資料夾？
+		</p><p>
+		這幾個都是最好先考量好的問題，因爲放的位置會牽扯到最後產生的<em>網址</em>（這個網址其實可以改，不過會需要調整Wyam產生的方式），并且會影響到未來寫文章放的地方。
+		</p><div class="bs-callout bs-callout-info"><p>
+			給大家一個參考，我最後決定的做法是，搬遷過來的文章放在<code>posts\migrate</code>資料夾裏面，每篇文章的檔案會有日期作爲前戳，然後文章的圖片會在建立一個資料夾名稱就是<code>{文章檔案名稱}_Asset</code>。
+			</p><p>
+			詳細可以參考github：<a href="https://github.com/alantsai/blog/tree/master/src/input/posts/migrate">Migrate資料夾</a></p></div></section><section></section><h3 id="WizKMOutline_1526603989673726">計劃好搬遷内容的格式</h3><p>
+		另外一個問題是，文章的格式要放什麽？
+		</p><p>
+		目前主流的格式是Markdown，如果最後想要用Markdown就會需要把html轉markdown。
+		</p><p>
+		不過，這邊可能就有個落差，因爲我試過的html轉markdown都有點小問題。markdown本身支援html，因此理論上可以把html改副檔名變成md即可，但是實際上也有點小問題。
+		</p><p>
+		Wyam的另外一個好處就是有支援cshtml。而cshtml基本上就是html+C#。因此純html情況下比markdown本身的支援度還要好。
+		</p><div class="bs-callout bs-callout-info">
+			最後我的決定就是把轉出來的内容變成chstml，畢竟我自己寫部落格也是習慣使用html。不過有個事情要注意，因爲<code>@@</code>在cshtml裏面是關鍵字，因此要全部改成2個@@。
+		</div></section><section><h3 id="WizKMOutline_1526603989673830">計劃好内容的檔名</h3><p>
+		在SEO裏面來説，貌似好的url名稱能夠讓seo提升，而在wyam裏面，檔名就是url的一部分。
+		</p><p>
+		因此，這個時候要考慮好之後轉過來的檔名是什麽。
+		</p><div class="bs-callout bs-callout-info">
+			這邊我有做了一些處理，因爲如果檔名和原始網址一樣，當檔案多了以後很難從檔名知道那些屬於什麽時候的。因此，我的檔名前面是包含<code>yyyy-MM-dd</code>的資訊，方便排序看。
+		</div></section><section><h2 id="WizKMOutline_1526603989673490">驗證</h2><p>
+		經過上面的考量之後，接下來就是要手動產生一筆試試看會不會遇到什麽問題。
+		</p><p>
+		而這個也是驗證及調試的階段。
+		</p><p>
+		因此，這個時候可以手動建立一筆資料，副檔名使用<code>cshtml</code>，丟到<code>input\posts\migrate</code>下面，然後去產生。
+		</p><p>
+		這個時候就gg了，發現沒有產生出html，爲什麽呢？
+		</p><section><h3 id="WizKMOutline_1526603989673259">修正</h3><p>
+			open source的好處就是在這，文件找不到的問題可以去看source code XD。
+			</p><p>
+			透過source code可以找到某一段(<a href="https://github.com/Wyamio/Wyam/blob/develop/src/recipes/Wyam.Web/Pipelines/BlogPosts.cs#L82-L89">github-GetModules()</a>)：
+</p><pre data-line="6"><code class="language-csharp">
+{
+	RazorPosts,
+	new Concat
+	{
+		new ReadFiles(ctx =&gt; $"{settings.PostsPath.Invoke&lt;string&gt;(ctx)}/{{!_,!index,}}*.cshtml"),
+		new Meta(WebKeys.EditFilePath, (doc, ctx) =&gt; doc.FilePath(Keys.RelativeFilePath)),
+		new If(settings.ProcessIncludes, new Include()),
+		new FrontMatter(new Yaml.Yaml())
+	}
+},</code></pre><p></p><p>
+			這邊注意到了嗎？在讀取cshtml的時候，他只有在<em>第一層</em>找*.cstml。因此，當放到了<code>posts\migrate\</code>下面，并沒有在他的查找範圍，因此沒有產生出任何東西。
+			</p><p>
+			知道了這個之後，就可以做一些調整，還記得<code>config.wyam</code>可以控制產生邏輯/方式，因此直接寫在裡面：
+</p><pre><code class="language-csharp">
+// 調整Razor讀取的位置，包含任意資料夾 - 原本的只有第一層而已。其他和原始邏輯一樣。
+Pipelines["BlogPosts"].Replace("RazorPosts", 
+	Concat(
+		ReadFiles(ctx =&gt; $"{ctx.DirectoryPath(BlogKeys.PostsPath).FullPath}/**/{{!_,!index,}}*.cshtml"),
+		Meta("EditFilePath", (doc, ctx) =&gt; doc.FilePath(Keys.RelativeFilePath)),
+		If((doc, ctx) =&gt; doc.Bool(BlogKeys.ProcessIncludes), Include()),
+		FrontMatter(Yaml())
+	)
+);
+</code></pre><p></p><p>
+			這段的重點其實只有從<code>/{{!_,!index,}}*.cshtml</code> =&gt; <code>/**/{{!_,!index,}}*.cshtml</code>。換句話説，從本來的一層，改成不管那一層都做搜索。
+			</p><p>
+			這樣在產生的時候就沒有問題了啦。
+			</p></section></section><section><h2 id="WizKMOutline_1526603989673551">結語</h2><p>
+		這篇介紹了通常在搬遷任何東西會經歷過的4個階段：Plan、Validate、Migrate及Monitor。
+		</p><p>
+		這篇主要專注於plan以及validate的兩個部分做介紹。先規劃好那些會搬遷，然後建立一篇簡單的文章做範例測試。這個時候就遇到了問題。
+		</p><p>
+		對於這個問題，透過看source code瞭解問題在那邊，讓後做了調整。
+		</p><p>
+		一直重複這個動作直到預計要驗證的都驗證完了之後，接下來就可以準備搬遷了。
+		</p><p>
+		下一篇，將會對於搬遷的部分做説明。
+		</p></section>

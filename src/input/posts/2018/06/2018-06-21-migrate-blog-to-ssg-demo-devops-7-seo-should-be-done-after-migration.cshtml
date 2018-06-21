@@ -1,0 +1,86 @@
+Title: "[部落格改版學DevOps][07]搬遷之後要做的SEO處理"
+Published: 2018-06-21
+Modified: 2018-06-21
+Image: "/posts/2018/06/2018-06-21-migrate-blog-to-ssg-demo-devops-7-seo-should-be-done-after-migration/a5f6e041-3fb2-4f29-8cfd-0a3659cdd956.jpg"
+Tags: ["「部落格改版學DevOps」", "seo", "wyam"]
+Series: ["「部落格改版學DevOps」"]
+PostDescription: "搬遷完成之後肯定不想流失之前的seo ranking。那麽應該要做什麽處理呢？這篇介紹搬遷部落格之後該做的seo調整"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/06/2018-06-21-migrate-blog-to-ssg-demo-devops-7-seo-should-be-done-after-migration/a5f6e041-3fb2-4f29-8cfd-0a3659cdd956.jpg" border="0" alt="[部落格改版學DevOps][07]搬遷之後要做的SEO處理.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section>
+
+<section><p>
+		在上一篇(<a href="/posts/2018/06/migrate-blog-to-ssg-demo-devops-6-migration-execution">[06]實際遷移-執行篇</a><span style="font-size: 15px; line-height: 1.6;">)介紹完了如何從google下載需要的檔案以及相片并且透過工具產生出cshtml之後，基本上</span><em style="font-size: 15px; line-height: 1.6;">資料</em><span style="font-size: 15px; line-height: 1.6;">搬遷算完成了。</span></p><p>
+		但是延伸出的一個大問題是，我之前積纍的seo怎麽辦？假設您原本的網站才剛開沒多久，那麽可以考慮的是就不管他（不過如果走這條路的話其實資料也沒有必要搬遷過來，甚至搬遷過來之後因爲重複資料的關係會導致seo更差），
+		另外一個就是需要做一點處理。
+		</p><p>
+		這篇介紹的就是搬遷之後所需要注意的地方。
+		</p><div class="bs-callout bs-callout-info">
+			題外話，這裏不會介紹一般seo需要做什麽，而是特別針對搬遷之後需要做些什麽。如果對於一般seo有興趣可以google一下，還蠻多資料，如果想從我這邊瞭解的話也歡迎透過FB、Line或者留言告訴我哦。
+		</div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1529594978744825" ;="" style="font-size: 15px; line-height: 1.6;">搬遷之後的seo注意事項</a><br></li><li><a href="#WizKMOutline_1529594978745950" ;="" style="font-size: 15px; line-height: 1.6;">原來的網站需要處理的部分</a><br></li><li><a href="#WizKMOutline_1529594978745967" ;="" style="font-size: 15px; line-height: 1.6;">調整產生出來的頁面</a><br></li><li><a href="#WizKMOutline_1529594978745378" ;="" style="font-size: 15px; line-height: 1.6;">舊網址自動導向新的地方</a><br></li><li><a href="#WizKMOutline_1529594978745713" ;="" style="font-size: 15px; line-height: 1.6;">讓新部落格文章的FB讚保留</a><br></li><li><a href="#WizKMOutline_1529594978745325" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1529594978744825">搬遷之後的seo注意事項</h2><p>
+		做seo最主要的目的是讓搜索引擎找得到你的内容，而搜索引擎透過索引的方式會把你的網站依照各家的演算法記錄下來。
+		</p><p>
+		這邊很重要的一點就是網址，由於搬遷之後，多多少少網址有了些變化，造成了從搜索引擎來説，新的網址是全新的内容因此不會和本來已經在索引庫的關聯起來。
+		</p><p>
+		而搬遷seo的部分在做的事情就是讓搜索引擎知道，我這篇其實和原來的xxx篇（在搜索引擎的記錄裏）是同一個，以保持一樣的搜索排名。
+		</p><p>
+		要達到這個目的，需要分兩個部分來處理：
+		</p><ol><li><em>原來的網站</em> - 從google blogger搬離了之後原來的網站還是在的，怎麽告訴搜索引擎這裏的内容和新網站是同樣的内容是這邊修改的目的</li><li><em>新的網站</em> - 如果有人已經有了舊網站的網址，如何讓他們點了不會出現404（網頁找不到）？并且怎麽保留一些例如FB的讚</li></ol><p></p></section><section><h2 id="WizKMOutline_1529594978745950">原來的網站需要處理的部分</h2><p>
+		原來的部落格（以我的例子是<a href="http://alantsai2007.blogspot.com">http://alantsai2007.blogspot.com</a>）要不要保留看個人，假設需要保留的話，那麽需要在html裡面加點東西。
+		</p><p>
+		概念是這樣，從搜索引擎的角度來説，網路上有兩個地方的内容一樣，舊的部落格以及新搬遷的部落格。如果說有些人去了舊的，有些人去了新的，首先影響到了seo評分（畢竟流量分散了），再來搜索引擎不知道以誰爲主。
+		</p><p>
+		因此要在html加上一個標簽，格式如下：
+</p><pre><code class="language-plain">&lt;link href="新部落格的網址" rel='canonical'/&gt;</code></pre><p></p><p>
+		這個就會告訴搜索引擎，其實這兩個内容一樣并且是以那個網站<em>爲主</em>。這個就是seo提到的canoical url。
+		</p><p>
+		那在blogger怎麽設定呢？還記得上一篇的console程式有一段奇奇怪怪的xml内容，那個就是每一篇有轉換的產生出對應的blogger xml標簽可以用做設定。
+		</p><dl><dt>
+				調整上一篇提到的cosnole程式
+			</dt><dd><p>
+				由於每個人的blogger網址不同（我的是alantsai2007）因此需要修改<a href="https://github.com/alantsai/mhat-consoleapp-blogger_to_wyam/blob/master/src/MHAT.BloggerToWyam.ConsoleApp/Bll/Process/XmlBackupProcess.cs#L94-L99">XmlBackupProcess.cs</a>裡面的<code>bloggerName</code>參數值。
+			</p><p>
+			調整canonical裡面的url domain改成自己的
+			</p><p>
+			如果想要blogger自動跳轉到最新的地方，那麽把meta開頭的地方反註解即可。
+			</p><figure><img class="img-responsive" src="/posts/2018/06/2018-06-21-migrate-blog-to-ssg-demo-devops-7-seo-should-be-done-after-migration/c0dbe382-34b3-4849-abd2-4fe0fe76a765.png" border="0" alt="devenv_2018-06-21_21-39-54.png"><br><figcaption>調整的地方</figcaption></figure></dd><dt>
+				設定在blogger裡面
+			</dt><dd><p>
+		去blogger的後臺 -&gt; 主題 -&gt; 編輯HTML 然後把 console產生出的内容貼到 &lt;head&gt;的下面
+		</p><figure><img class="img-responsive" src="/posts/2018/06/2018-06-21-migrate-blog-to-ssg-demo-devops-7-seo-should-be-done-after-migration/a2a7d844-4904-4b02-ab99-1c4a2cde9898.png" border="0" alt="chrome_2018-06-21_21-42-10.png"><br><figcaption>找到編輯html的位置</figcaption></figure><p></p></dd></dl></section><section><h2 id="WizKMOutline_1529594978745967">調整產生出來的頁面</h2><p>
+		在舊的部落格調整好了之後，接下來就要調整新網站產生出的内容。
+		</p><ul><li>當有人使用舊的網址，會自動導向新的地方</li><li>讓新部落格文章的FB讚保留</li></ul><section><h2 id="WizKMOutline_1529594978745378">舊網址自動導向新的地方</h2><p>
+			由於wyam預設產生出來的網址會有包含<code>posts</code>這一層，這個和之前blogger不同，blogger是直接就接日期了，因此會造成如果有人有舊的網址，到新的網站會找不到的情況。
+			</p><p>
+			wyam已經有考慮到這種情況的發生，因此有個設定叫做<code>RedirectFrom</code>。
+			</p><p>
+			只要把這個設定加入本來網址的路徑，那麽他會在對應路徑產生一個檔案，這個檔案和我們上個階段加入到google blogger的概念一樣，有一個canoical url會被設定并且會自動導向正確的。
+			</p><p>
+			透過這個設定，我們就可以避免有保留舊網址的人不會出現404。
+			</p><div class="bs-callout bs-callout-info">
+				RedirectFrom在console 產生cshtml的時候就有加入，詳細修改可以看：<a href="https://github.com/alantsai/mhat-consoleapp-blogger_to_wyam/blob/master/src/MHAT.BloggerToWyam.ConsoleApp/Model/BlogPostModel.cs#L20">BlogPostModelToCshtmlLogic.cs</a>，裡面其實就是把domain的部分拿掉，只保留相對路徑
+			</div><div class="bs-callout bs-callout-info">
+				爲了好區分，最後產生的檔案有包含日期，但是因爲有開啓（<a href="https://github.com/alantsai/blog/blob/master/src/config.wyam#L12">Settings[BlogKeys.IncludeDateInPostPath] = "true";</a>）產生日期資料夾（像是blogger那樣）這樣網址有兩次日期資訊很奇怪，因此在產生的時候有做處理，最後產生的檔名<em>拿掉了</em>日期的部分（<a href="https://github.com/alantsai/blog/blob/master/src/config.wyam#L54-L73">config.wyam</a>）
+			</div><div class="bs-callout bs-callout-warning">
+				題外話，如果是標簽（blogger稱爲Label在wyam是tag）的話，wyam本身沒有自帶，如果也想要舊網址沒問題會需要改設定，這個我沒有研究。
+			</div></section><section><h2 id="WizKMOutline_1529594978745713">讓新部落格文章的FB讚保留</h2><p>
+			把文章挂載FB的讚需要給他文章的url，其實和上面問題一樣，因爲新的地方網址不同了，因此做了一個處理。
+			</p><p>
+			如果<em>有設定</em><code>RedirectFrom</code>，那麽網址就使用RedirectFrom，不然就用新的。
+			</p><p>
+			這樣既保留了原始的讚數，新的能夠用新的網址。
+			</p><p><a href="https://github.com/alantsai/blog/blob/master/src/input/_partial_fbLike.cshtml#L3-L17">_partial_fbLike.cshtml</a></p></section></section><section><h2 id="WizKMOutline_1529594978745325">結語</h2><p>
+		在這篇介紹了搬遷之後要做的seo處理。
+		</p><p>
+		基本上在做的都是對於新網址以及舊網址之間差異的一個對應。
+		</p><p>
+		這個其實不只針對部落格，只要是網站其實都符合這個規則，因此如果有網站搬遷也可以參考一下。
+		</p><p>
+		到目前爲止已經準備好可以上綫了，不過接下來的問題是，網站要架設在哪裏？自己買虛擬機器？還是用github page這種免費服務呢？
+		</p><p>
+		在下篇將會介紹一個佛心架設靜態網站的服務<em>netlify</em>。
+		</p></section>

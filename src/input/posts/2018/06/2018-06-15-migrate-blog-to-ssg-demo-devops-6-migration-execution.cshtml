@@ -1,0 +1,76 @@
+Title: "[部落格改版學DevOps][06]實際遷移-執行篇"
+Published: 2018-06-15
+Modified: 2018-06-15
+Image: "/posts/2018/06/2018-06-15-migrate-blog-to-ssg-demo-devops-6-migration-execution/70f9847d-b665-41b9-aba2-56548e9ec005.jpg"
+Tags: ["「部落格改版學DevOps」"]
+Series: ["「部落格改版學DevOps」"]
+PostDescription: "理論和測試都做過了之後，接下來就是執行實際的搬遷動作。這篇將會介紹如何從google blogger匯出文章及圖片，然後透過工具轉換成爲wyam可以吃的cshtml"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/06/2018-06-15-migrate-blog-to-ssg-demo-devops-6-migration-execution/70f9847d-b665-41b9-aba2-56548e9ec005.jpg" border="0" alt="[部落格改版學DevOps][06]實際遷移-執行篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇（<a href="/posts/2018/05/migrate-blog-to-ssg-demo-devops-5-migration-process-and-how-to-modify-wyam-blog-recipe">[05]實際遷移-準備及驗證篇</a><span style="font-size: 15px; line-height: 1.6;">）介紹了搬遷前面的計劃以及驗證之後，在這一篇將會介紹如何實際做搬遷的動作。</span></p></section>
+	
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1529054475086414" ;="" style="font-size: 15px; line-height: 1.6;">搬遷工具</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1529054475087118" ;="" style="font-size: 15px; line-height: 1.6;">每篇文章的内容</a><br></li><li><a href="#WizKMOutline_1529054475087794" ;="" style="font-size: 15px; line-height: 1.6;">每篇文章的圖片</a><br></li><li><a href="#WizKMOutline_1529054475087495" ;="" style="font-size: 15px; line-height: 1.6;">把blogger匯出的内容處理成爲chstml的工具</a><br></li></ul><li><a href="#WizKMOutline_1529054475087117" ;="" style="font-size: 15px; line-height: 1.6;">mhat-consoleapp-blogger_to_wyam的工具使用</a><br></li><li><a href="#WizKMOutline_1529054475087549" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more-->
+	<section><h2 id="WizKMOutline_1529054475086414">搬遷工具</h2><p>
+		透過上篇的驗證，知道最後想要產出的結果是cshtml的内容，并且會放到<code>posts</code>資料夾下面。
+		</p><p>
+		接下來的問題就是，怎麽把google blogger的内容轉換成我們要的結果呢？
+		</p><p>
+		會需要先準備好三個部分的内容：
+		</p><ol><li>每篇文章的内容</li><li>每篇文章的圖片</li><li>把blogger匯出的内容處理成爲chstml的工具</li></ol><section><h3 id="WizKMOutline_1529054475087118">每篇文章的内容</h3><p>
+			google blogger其實有提供一個匯出的功能，匯出來會是一個單一的xml檔案。
+			</p><p>
+			可以透過進入到blogger的後臺，在<code>設定</code> -&gt; <code>其他</code> -&gt; <code>備份内容</code>點下去，會出現一個pop up，選擇<code>儲存至您的電腦</code>就可以了
+			</p><figure><img class="img-responsive" src="/posts/2018/06/2018-06-15-migrate-blog-to-ssg-demo-devops-6-migration-execution/ef8e4562-f7dd-4eb1-aa84-14b19b47a7d7.png" border="0" alt="chrome_2018-06-15_15-52-44.png"><br><figcaption>備份的位置截圖</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				這個xml檔案其實不只有文章的内容，裡面還有包括像是留言這些東西。因此在處理blogger的xml檔案需要做一些過濾。
+			</div></section><section><h3 id="WizKMOutline_1529054475087794">每篇文章的圖片</h3><p>
+			假設是用類似Open Live Writer來寫部落格文章的話，那麽圖片會自動上傳到google photo裡面。（我不太確定如果用google blogger的編輯器會上傳到哪裏，但是我估計應該也是google photo）
+			</p><p>
+			如果説對於圖片放在google photo沒有意見，那麽其實這一步可以不用做。
+			</p><p>
+			如果希望圖片也一起搬遷過去（我這邊的例子會包含圖片），那麽雖然google photo沒有匯出的功能，但是google有個服務叫做takeout，可以透過他來把圖片匯出。
+			</p><dl><dt>
+					進入到Google takeout
+				</dt><dd><p>
+			首先要先到Google Takeout：<a href="https://takeout.google.com/settings/takeout">https://takeout.google.com/settings/takeout</a></p></dd><dt>
+					把其他服務勾選掉
+				</dt><dd>
+					預設會把所有服務都<em>包含</em>在匯出，我們只需要圖片，因此可以先選旁邊的按鈕<code>Selete None</code><figure><img class="img-responsive" src="/posts/2018/06/2018-06-15-migrate-blog-to-ssg-demo-devops-6-migration-execution/c9df7a8b-cf3a-4662-af1e-06ea44d715c3.png" border="0" alt="chrome_2018-06-15_15-58-50.png"><br><figcaption>把所有服務勾選掉</figcaption></figure></dd><dt>
+					找到Google Photos并且勾選起來
+				</dt><dd>
+					往下捲，會找到<code>Google Photos</code>，把他enable之後，展開點<code>Photo Albums</code><figure><img class="img-responsive" src="/posts/2018/06/2018-06-15-migrate-blog-to-ssg-demo-devops-6-migration-execution/22cb760c-2db0-4783-9e36-255945e34eac.png" border="0" alt="chrome_2018-06-15_16-01-11.png"><br><figcaption>啓用google photos，展開下拉</figcaption></figure></dd><dt>
+					選擇兩個album：<code>Open Live Writer</code>和<code>Windows Live Writer</code></dt><dd>
+					Open Live Writter是Windows Live Writer的open source版本，假設這兩個工具都有用過，那麽兩個都應該下載下來
+					<figure><img class="img-responsive" src="/posts/2018/06/2018-06-15-migrate-blog-to-ssg-demo-devops-6-migration-execution/0fb94365-ff2b-4b9a-928b-de4203c6aac9.png" border="0" alt="chrome_2018-06-15_16-04-12.png"><br><figcaption>只選擇兩個album</figcaption></figure></dd><dt>
+					下載下來
+				</dt><dd>
+					確認之後（右上角的<code>OK</code>），然後在最下面的<code>Next</code>就可以進入到產生下載鏈接的部分。
+				</dd></dl><p>
+			透過下載鏈接，整個圖片就備份出來了。
+			</p></section><section><h3 id="WizKMOutline_1529054475087495">把blogger匯出的内容處理成爲chstml的工具</h3><p>
+			當google blogger的文章内容以及每篇文章的圖片準備好了之後，接下來要做的事情就是把他們轉換成cshtml。
+			</p><p>
+			我有用C#寫了一個console的程式，主要目的就是做這個事情，可以從github上面下載。
+			</p>
+<pre><code class="language-powershell">
+git clone https://github.com/alantsai/mhat-consoleapp-blogger_to_wyam.git
+</code></pre>
+			</section><p>
+		有了這三個内容之後，就可以準備轉換成wyam需要的cshtml。接下來介紹一下怎麽使用轉換的cshtml工具。
+		</p></section><section><h2 id="WizKMOutline_1529054475087117">mhat-consoleapp-blogger_to_wyam的工具使用</h2><p>
+		要使用很簡單，從github clone下來之後，透過visual studio編譯之後，對產生出來的exe給出以下3個參數：
+		</p><ol><li><code>-p</code> - 從blogger匯出的xml内容，也就是上一章節的<em>第一個</em>檔案</li><li><code>-i</code> - 從google photo備份的圖片，也就是上一章節的<em>第二個</em>檔案</li><li><code>-o</code> - 最後產出來的結果要存放的位置</li></ol><p></p><div class="bs-callout bs-callout-warning">
+		這個程式屬於sample類型的，因此要完全符合個人需求會需要做一些客制化調整。所以并沒有提供一個已經編譯好的版本。如果説想要使用但是又沒有visual studio可以編譯再和我説，我在提供編譯過後的版本。
+		</div><div class="bs-callout bs-callout-info">
+			關於程式碼的更多訊息請參考github上面的内容，程式本身還蠻直覺，如果有任何問題也歡迎隨時聯繫我。
+		</div><p>
+		最後，執行完成得到的内容（也就是<code>-o</code>的路徑）就可以直接複製到<code>posts</code>下面的資料夾，并且看到網站内容都出來啦。
+		</p></section><section><h2 id="WizKMOutline_1529054475087549">結語</h2><p>
+		到目前爲止，整個搬遷過程算是完成了大部分，畢竟資料什麽都已經過來了，但是資料過來就算ok了嗎？
+		</p><p>
+		搬遷其實是搬動到一個全新的環境，長接觸seo的就知道，全新代表著之前積纍的seo算是全部白廢掉了。
+		</p><p>
+		因此，下一篇，要對於seo處理的部分做一些介紹，讓我們搬遷了之後，還保留著對應的seo。
+		</p></section>

@@ -1,0 +1,89 @@
+Title: "[部落格改版學DevOps][08]netlify 超佛心的靜態網站hosting服務 - 不只做hosting還有更多"
+Published: 2018-07-02 06:01
+Modified: 2018-07-02 06:01
+Image: "/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/df4adb98-7f18-4eb1-a983-3d5ac28c6ce1.jpg"
+Tags: ["「部落格改版學DevOps」", "tool", "netlify", "「開發工具小技巧」"]
+Series: ["「部落格改版學DevOps」", "「開發工具小技巧」"]
+PostDescription: "網站準備好了之後，下一步就是要找一個地方把他hosting（架設起來）
+那邊可以host這種靜態網站呢？
+netlify是一個production等級的host服務，非常適合像是部落格這種類型，更重要的是，他是免費的服務
+來看看有什麽優勢"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/df4adb98-7f18-4eb1-a983-3d5ac28c6ce1.jpg" border="0" alt="[部落格改版學DevOps][08]netlify 超佛心的靜態網站hosting服務 - 不只做hosting還有更多.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		當把網站開發好，要做的下一個事情就是要找個地方把他host（架設）起來。
+		</p><p>
+		那麽host在哪裏就成了一個最大的問題。雖然有一些免費服務像是Github Pages或者是一些非常便宜的服務例如最近Azure Storage上面也可以host靜態網站了，
+		但是這些服務其實對於部落格或者一些靜態網站來説不一定是最適合的。
+		</p>
+		<p>
+今天要介紹的服務，netlify是專門針對靜態網站（Static Site）hosting提供的一個超佛心的免費服務。
+		</p>
+		<p>
+		特別適合用來host自己的部落格或者一些靜態網站。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1530449275854965" ;="" style="font-size: 15px; line-height: 1.6;">Netlify是個什麽樣的服務？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530449275854929" ;="" style="font-size: 15px; line-height: 1.6;">Netlify小檔案</a><br></li></ul><li><a href="#WizKMOutline_1530449275854704" ;="" style="font-size: 15px; line-height: 1.6;">手動發佈一個靜態網站</a><br></li><li><a href="#WizKMOutline_1530449275854163" ;="" style="font-size: 15px; line-height: 1.6;">一些優化調整</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530449275854560" ;="" style="font-size: 15px; line-height: 1.6;">調整netlify給的網站名稱</a><br></li><li><a href="#WizKMOutline_1530449275854491" ;="" style="font-size: 15px; line-height: 1.6;">設定自己的domain</a><br></li><li><a href="#WizKMOutline_1530449275854659" ;="" style="font-size: 15px; line-height: 1.6;">自動對css及js做bundling及minification和圖片壓縮</a><br></li></ul><li><a href="#WizKMOutline_1530449275854555" ;="" style="font-size: 15px; line-height: 1.6;">更新網站 - 重新發佈</a><br></li><li><a href="#WizKMOutline_1530449275854445" ;="" style="font-size: 15px; line-height: 1.6;">其他功能</a><br></li><li><a href="#WizKMOutline_1530449275854295" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1530449275854965">Netlify是個什麽樣的服務？</h2><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1530449275854929">Netlify小檔案</h4><ul><li>官網：<a href="https://www.netlify.com/">https://www.netlify.com/</a></li><li>費用：基本免費，有付費機制</li><li>功能：除了host靜態網站之外，有提供Continuous Deployment、網站Redirect、身份驗證、表單功能等一些production等級需要的功能</li><li>適合情景：非常適合用來架設部落格或者一些production的靜態網站</li></ul></div><p>
+		講到免費的靜態網站hosting，第一個想到的應該會是Github Pages。畢竟用git做網站版控是很直覺的事情，那麽push上去之後網站就出現了，甚至透過靜態程式碼工具（例如Jekyll）github甚至能夠幫忙build出最後的html内容。
+		</p>
+		<p>還有一些要一點費用但是就有非常穩定的服務，例如Azure Storage host靜態網站最近就剛上綫。</p>
+		<p>
+		可是如果要讓Github Pages 或者 Azure Storage做更多的事情就變得比較困難了，舉例來説：
+		</p><ul><li>如果我的網站需要做 轉址（Redirect）怎麽辦？</li><li>如果我的網站設定了自定義的域名（Custom Domain）需要https怎麽辦？</li><li>如果我的網站需要接受使用者傳遞内容（例如表單送出）怎麽辦？</li><li>如果我的網站需要上綫前的預覽（Preview）怎麽辦？</li><li>如果我的網站需要回復到上一個版本但是操作人不會git怎麽辦？</li></ul><p></p><p>
+		以上這些問題，不一定都解決不了，但是並<em>不容易</em>做到，而這也是爲什麽需要像是Netlify這種hosting服務。
+		</p><p>
+		在官網上，Netlify給自己的定義是：<code>Build, deploy, and manage modern web projects</code>，因此他不只是一個靜態網站的hosting服務而已。
+		</p><div class="bs-callout bs-callout-info">
+			並不是説github page不好，而是兩者定位不同。github page比較像是一個專案的介紹網站，而Netlify則是production等級的hosting。有點像是有個是業餘選手一個是專業選手的差別。
+		</div><p>
+		雖然功能很多，但是今天還是主要focus在靜態hosting這一塊。
+		</p></section><section><h2 id="WizKMOutline_1530449275854704">手動發佈一個靜態網站</h2><p>
+		基本上去netlify上面注冊一個帳號，注冊完了之後登入進去的第一個畫面就是顯示所有的靜態網站。
+		</p><p>
+		要發佈一個靜態網站非常容易，只需要把含有靜態網站的資料夾拖拉到網頁上面的框框即可。因此，我們只需要把wyam產生出來的靜態網站資料夾拖拉上去即可。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/c0d633f2-c6fe-4261-bfee-7424c0df265f.png" border="0" alt="explorer_2018-07-01_19-50-40.png"><br><figcaption>拖拉方式上傳靜態網站</figcaption></figure><p>
+		稍等一下之後，上傳完會自動導向網站的頁面。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/13b23b11-9dd6-4038-8422-52ea80deefc7.png" border="0" alt="chrome_2018-07-01_19-53-57.png"><br><figcaption>導向網站的頁面</figcaption></figure><p></p><p>
+		從上面的圖可以看到，會自動給一個亂數的subdomain，并且可以透過瀏覽器直接瀏覽到網站。
+		</p></section><section><h2 id="WizKMOutline_1530449275854163">一些優化調整</h2><p>
+		網站發佈出來了之後，可以調整一些設定讓網站整體起來更好，這邊會介紹以下幾個：
+		</p><ol><li>調整netlify給的網站名稱</li><li>設定自己的domain</li><li>自動對css及js做bundling及minification和圖片壓縮</li></ol><p></p><section><h3 id="WizKMOutline_1530449275854560">調整netlify給的網站名稱</h3><p>
+			可以透過 <em>Settings &gt; Change Site name &gt; 輸入新的site name</em></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/7e3c324b-67b6-4cd5-9857-9fb246f1f525.png" border="0" alt="chrome_2018-07-01_20-04-47.png"><br><figcaption>調整site name名稱</figcaption></figure><p></p><p>
+			修改了sitename有幾個好處，首先是會影響netlify給的網址讓他看起來更加有意義，另外一個好處是之後要發佈會更容易辨識發佈到那個網站。
+			</p></section><section><h3 id="WizKMOutline_1530449275854491">設定自己的domain</h3><p>
+			如果有自己的domain當然是使用自己的domain比較好。
+			</p><p>
+			設定方式很簡單，只需要加一個CNAME指向netlify的sitename，然後在netlify上面驗證通過即可。
+			</p><p>
+			CNAME方式看各家的dns 設定方式，舉例來説，如果是GoDaddy的話如下圖：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/778c948d-1241-48ee-a907-9ea905494c28.png" border="0" alt="chrome_2018-07-01_20-10-26.png"><br><figcaption>從官方説明截圖下來，以這個例子是要設定一個www到mysitename.netlify.com這個sitename</figcaption></figure><p></p><p>
+			dns設定好了之後，接下來需要設定的就是netlify這邊，<em>Settings &gt; Domain Management &gt; Add Custom Domain</em></p><p>
+			然後輸入最後的完整custom domain，選擇<em>verify</em>做好驗證就可以了。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/45baf15d-dcad-4cdf-a090-971d13c89019.png" border="0" alt="chrome_2018-07-01_20-16-36.png" style="font-size: 15px; line-height: 1.6;"><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/9e9f9472-1be7-40e2-a0d3-dbf921ef2b78.png" border="0" alt="chrome_2018-07-01_20-17-08.png"><figcaption>增加custom domain的截圖</figcaption></figure></section><section><h3 id="WizKMOutline_1530449275854659">自動對css及js做bundling及minification和圖片壓縮</h3><p>
+			netlify還有一個設定，能夠自動幫忙把css及js做bundling以及minification加上圖片壓縮，這個可以加速整個網站的下載速度提升seo。
+			</p><p>
+			還有一個好處是會自動把css、js及圖片透過cloudfront的cdn做鏈接，因此也不用擔心不同地點看網站的速度。
+			</p><p>
+			要啓動這個功能，切換到：<em>Settings &gt; Build Deploy &gt; Asset optimization &gt; 勾選全部項目 &gt; Save</em></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/9f63e6a3-585f-4dc9-a6b0-095ad3b85462.png" border="0" alt="chrome_2018-07-01_20-22-42.png"><br><figcaption>設定優化</figcaption></figure><p></p><p>
+			設定完了之後，去看網站是還沒有效果，因爲這個是在 <em>發佈網站</em>的時候觸發，因此要重新再上傳一次就會觸發。
+			</p><p>
+			如果網站更新了之後在上去看你的網站的css以及js，除了内容被做過bundling和minification，網址也全部變成了cloudfrount的cdn。
+			</p></section></section><section><h2 id="WizKMOutline_1530449275854555">更新網站 - 重新發佈</h2><p>
+		可以從上面切換到<em>Deploys &gt; 把新的内容用拖拉方式上傳</em></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-02-migrate-blog-to-ssg-demo-devops-8-netlify-free-static-site-hosting-service/819ed385-50ef-47cd-8816-6a2051de84ca.png" border="0" alt="chrome_2018-07-01_20-26-49.png"><br><figcaption>更新網站内容的方式</figcaption></figure><p></p><p>
+		在這個畫面也可以看到每一次更版的操作，并且可以在這個畫面退版。
+		</p></section><section><h2 id="WizKMOutline_1530449275854445">其他功能</h2><p>
+		netlify還有很多功能，像是加入https，讓網站和github結合，有push的時候自動出發CI及CD，有pull request的時候自動建立出一個preview網站等。
+		</p><p>
+		其他部分還有像是某些網址轉址，表單接收，權限驗證等等，因此netlify真的不是單純的hosting網站而已，而是production等級的服務。
+		</p><p>
+		如果說今天使用的靜態網站產生器不是wyam，而是其他更加知名例如Jekyll、Hugo等，那麽netlify内建的CI服務其實可以建制出來，因此只需要把原始的檔案push到github，剩下就自動串接起來。
+		</p><div class="bs-callout bs-callout-info">
+			那些有支援netlify的靜態網站生成器可以從這個網站看到<a href="https://www.staticgen.com/">https://www.staticgen.com/</a>，這裏面也列出了靜態網站生成器的排名。
+		</div></section><section><h2 id="WizKMOutline_1530449275854295">結語</h2><p>
+		希望透過這一篇的介紹大家對於netlify的好處及用途有個詳細的瞭解，并且可以開始考慮靜態網站可以開始使用netlify作爲host。
+		</p><p>
+		netlify的介紹就到這邊，到目前爲止，網站搬遷完成了，hosting的地方也完成了（這個有點像是開發完成了也上綫了），接下來就是日常的撰寫文章（日常維護網站），如果每一次都透過拖拉的方式來更新網站很浪費時間。
+		</p><p>
+		因此接下來看看怎麽可以讓這些動作脚本化以及自動化。
+		</p></section>

@@ -1,0 +1,136 @@
+Title: "[tool]用acs-engine在azure透過VMSS建立出kubernetes (k8s) 自動延展的cluster - 上篇"
+Published: 2018-06-30 18:41
+Modified: 2018-06-30
+Image: "/posts/2018/06/2018-06-30-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-prepareation/17da2aa5-1ff1-4d44-ab3e-55e6a15aff6f.jpg"
+Tags: ["tool", "azure", "kubernetes (k8s)", "faq"]
+Series: []
+PostDescription: "Kubernetes (k8s) 是目前最火熱的container orchestration的工具
+雖然azure有PaaS的服務，但是如果想要用IaaS架設應該怎麽做呢？
+這篇將透過acs-engine介紹如何產生出建立在azure上面的ARM template建立出vmss架構的k8s cluster"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/06/2018-06-30-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-prepareation/17da2aa5-1ff1-4d44-ab3e-55e6a15aff6f.jpg" border="0" alt="[tool]用acs-engine在azure透過VMSS建立出kubernetes (k8s) 自動延展的cluster - 上篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>
+	最近有機會接觸到要用azure的IaaS服務建立出可以自動擴展的kubernetes (以下簡稱k8s) 叢集 (以下簡稱cluster)。
+	</p><p>
+	雖然常碰azure的一定會知道，其實azure有提供k8s的PaaS服務（不管是Azure kubernetes Service (AKS) 還是 更高一層的 Azure Container Instance (ACI))但是有些地方是沒有那些服務的（可以期待9月）或者如果想要自己控制完整的vm那要怎麽辦呢？
+	</p><p>
+	這篇將會快速介紹一下用acs-engine產生在Azure IaaS上面可以使用的k8s自動延展的cluster，在下一篇在介紹如何操作并且看到azure怎麽和k8s整合。
+	</p></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1530352705173316" ;="" style="font-size: 15px; line-height: 1.6;">k8s是什麽？</a><br></li><li><a href="#WizKMOutline_1530352705173813" ;="" style="font-size: 15px; line-height: 1.6;">acs-engine是什麽</a><br></li><ul><li><a href="#WizKMOutline_1530352705173755" ;="" style="font-size: 15px; line-height: 1.6;">acs-engine小檔案</a></li></ul><li><a href="#WizKMOutline_1530352705173693" ;="" style="font-size: 15px; line-height: 1.6;">準備好Azure CLI 2.0工具</a><br></li><li><a href="#WizKMOutline_1530352705173947" ;="" style="font-size: 15px; line-height: 1.6;">準備acs-engine的設定檔案</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530352705173268" ;="" style="font-size: 15px; line-height: 1.6;">1. 取得acs-engine的範例檔案</a><br></li><li><a href="#WizKMOutline_1530352705173488" ;="" style="font-size: 15px; line-height: 1.6;">2. 產生出ssh的public key</a><br></li><li><a href="#WizKMOutline_1530352705173867" ;="" style="font-size: 15px; line-height: 1.6;">3. 建立服務的ResourceGroup</a><br></li><li><a href="#WizKMOutline_1530352705173902" ;="" style="font-size: 15px; line-height: 1.6;">4. 建立會產生vm的Service Principal</a><br></li><li><a href="#WizKMOutline_1530352705173145" ;="" style="font-size: 15px; line-height: 1.6;">5. 修改acs-engine的檔案</a><br></li></ul><li><a href="#WizKMOutline_1530352705173247" ;="" style="font-size: 15px; line-height: 1.6;">用設定檔案產生出以及發佈ARM template</a><br></li><li><a href="#WizKMOutline_1530352705173923" ;="" style="font-size: 15px; line-height: 1.6;">發佈ARM Template</a><br></li><li><a href="#WizKMOutline_1530352705173413" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1530352705173316">k8s是什麽？</h2><div class="bs-callout bs-callout-info"><p>
+			其實我還沒有打算介紹k8s這一塊，我預計未來應該會開一個系列，但是因爲有先碰到了，因此才打算先寫出來。但是又怕完全沒看過會不理解，因此有了一個簡單的介紹。
+			</p><p>
+			如果大家想多知道關於k8s，歡迎隨時留言給我。
+			</p></div><p>
+		瞭解k8s延伸擴展之前需要簡單的知道一下一個k8s的cluster架構。可以看到以下從Wikipedia取得的一張架構圖，以今天的demo來説需要知道：
+		</p><figure><figcaption><img class="img-responsive" src="/posts/2018/06/2018-06-30-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-prepareation/600px-Kubernetes.png" style="font-size: 15px; line-height: 1.6;">wikipedia取得的架構圖</figcaption></figure><dl><dt>
+				Master
+			</dt><dd>
+				整個k8s的大腦，用來管理整個node設定。
+			</dd><dt>
+				Node
+			</dt><dd>
+				實際執行工作的節點，一般來説一臺電腦就是一個node。裡面有kubelet專門和master溝通。
+			</dd><dt>
+				pod
+			</dt><dd>
+				在k8s裡面最小的執行單位。可以簡單理解成一個container服務（實際上可以有好多個container組成一個pod，不過以這篇來説不用想的太複雜）
+			</dd><dt>
+				services
+			</dt><dd>
+				在圖裏面沒有畫的很明顯，不過因爲等一下demo會做到因此介紹一下。services可以理解成爲load balancer，想象一下如果我有同樣服務起了多個pod，怎麽和這些pod溝通？使用到的就是service，因此簡單理解
+				成爲load balancer即可。
+			</dd></dl><p></p><div class="bs-callout bs-callout-info">
+			題外話，k8s這個架構有沒有覺得很眼熟？如果之前有follow我的<a href="http://blog.alantsai.net/tags/%E3%80%8Cdata-science-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E9%BA%BC%E5%BE%9E%E4%B8%80%E5%80%8B%E5%AE%8C%E5%85%A8%E5%A4%96%E8%A1%8C%E8%A7%92%E5%BA%A6%E4%BE%86%E7%9C%8B%E3%80%8D">[data science 到底是什麼從一個完全外行角度來看]</a>系列，應該會記得有一篇在介紹Hadoop的cluster (<a href="http://blog.alantsai.net/posts/2017/12/data-science-series-07-deeper-look-at-yarn-and-hdfs-in-hadoop">[07]更深入看看Hadoop裡面的YARN和HDFS</a>)的時候提到了NameNode以及DataNode。是不是從概念角度和k8s的Master和Node一樣的概念？
+		</div><p>
+		微軟現在非常擁抱開源，尤其是在k8s這個部分，要知道當初的創始者就被挖角到了微軟，加上k8s的一些周邊工具有一部分都是微軟在contribute，因此azure和k8s有深度整合，使用起來很容易。
+		</p><p>
+		好啦這篇就只介紹這些基本概念，而我們想透過azure做到的就是自動延展node的機器。
+		</p></section><section><h2 id="WizKMOutline_1530352705173813">acs-engine是什麽</h2><p>
+		瞭解了架構之後，我們當然可以直接透過建立vm然後自己安裝k8s的master以及node，然後做一些設定達到自動延展，但是這邊的基礎知識需要非常瞭解。而微軟非常佛心了開源了一個工具，也就是acs-engine。
+		</p><p>
+		acs-engine的主要功能就是透過設定檔（一個json檔案）幫忙產生出Azure的ARM（Azure Resource Manager）Template，讓我們可以快速部署不同的container orchestration到azure。
+		</p><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1530352705173755">acs-engine小檔案</h4><ol><li>有支援的container orchestration：DC/OS、kubernetes、OpenShift、Swarm Mode以及Swarm</li><li>github專案位置：<a href="https://github.com/Azure/acs-engine">https://github.com/Azure/acs-engine</a></li><li>一些參考的範例：<a href="https://github.com/Azure/acs-engine/tree/master/examples">https://github.com/Azure/acs-engine/tree/master/examples</a></li><li>工具下載位置：<a href="https://github.com/Azure/acs-engine/releases">https://github.com/Azure/acs-engine/releases</a></li><li>Windows x64直接下載地址：<a href="https://github.com/Azure/acs-engine/releases/download/v0.19.0/acs-engine-v0.19.0-windows-amd64.zip">https://github.com/Azure/acs-engine/releases/download/v0.19.0/acs-engine-v0.19.0-windows-amd64.zip</a></li><li>最新版本：0.19</li></ol></div><p>
+		首先可以透過上面的鏈接把windows的版本下載下來，接下來就是準備要建立ARM的json設定檔案。
+		</p></section><section><h2 id="WizKMOutline_1530352705173693">準備好Azure CLI 2.0工具</h2><p>
+		接下來有些操作會透過azure cli來執行，方便未來自動化。如果要使用需要先安裝。
+		</p><p>
+		可以透過從這個下載頁面（<a href="https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest">https://docs.microsoft.com/en-us/cli/azure/install-azure-cli?view=azure-cli-latest</a>）找到不同os
+		版本的下載鏈接。
+		</p><p>
+		Windows可以透過下載鏈接（<a href="https://aka.ms/installazurecliwindows">https://aka.ms/installazurecliwindows</a>）直接下載下來。
+		</p></section><section><h2 id="WizKMOutline_1530352705173947">準備acs-engine的設定檔案</h2><p>
+			要產生acs-engine的檔案需要先做一點前置作業：
+			</p><ol><li>取得acs-engine的範例檔案</li><li>產生出ssh的public key</li><li>建立服務的ResourceGroup</li><li>建立會產生vm的Service Principal</li><li>修改acs-engine的檔案</li></ol><section><h3 id="WizKMOutline_1530352705173268">1. 取得acs-engine的範例檔案</h3><p>
+				整個範例專案可以從github上面下載得到 (<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s">https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s</a>)，
+				而範例檔案可以從：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/kubernetes-vmss.json">src/kubernetes-vmss.json</a></p></section><section><h3 id="WizKMOutline_1530352705173488">2. 產生出ssh的public key</h3><p>
+				由於k8s在linux上面跑起來比較順，因此使用的OS是ubuntu。而要連到linux最方便的方式就是透過ssh。
+				</p><p>
+				因此要把ssh的public key設定進去。
+				</p><p>
+				建立ssh的public key很簡單，可以透過指令：
+				</p><pre><code class="language-powershell">ssh-keygen -f id_rsa -C "alan@alantsai.net"</code></pre><p><code>-C</code>的部分可以輸入email。
+				</p><p>
+				產生出來之後，在<code>%userprofile%\.ssh</code>多了兩個檔案，其中裡面有個檔案是：<code>id_rsa.pub</code>，用notepad打開之後，會取得一個<em>ssh-rsa</em>開頭的一串字。
+				</p><p>
+				這個内容就設定到範本裡面的<code>KeyData</code>把<code>{ssh-rsk 開頭的public key}</code>換成上面取得的内容。
+				</p><div class="bs-callout bs-callout-info">
+					如果對於ssh部分不瞭解，可以參考我之前的一篇：
+					<a href="http://blog.alantsai.net/posts/2015/09/use-ssh-in-windows-for-github">何謂ssh？在Windows下如何使用ssh？如何在Windows透過ssh下載和上傳程式到github?</a></div></section><section><h3 id="WizKMOutline_1530352705173867">3. 建立服務的ResourceGroup</h3><p>
+				透過ResourceGroup能夠把不同的服務放在一起，并且等一下的Service Principal會設定在這個層級的權限。
+				</p><p>
+				這個部分會透過azure cli工具（az）來執行：
+				</p><pre><code class="language-powershell">az login
+
+$SUBSCRIPTION_ID = ""
+$RESOURCE_GROUP_NAME = ""
+
+az account set --subscription $SUBSCRIPTION_ID
+
+# create ResourceGroup
+az group create `
+    --name "$RESOURCE_GROUP_NAME" `
+    --location "southeastasia"</code></pre><ul><li><code>$SUBSCRIPTION_ID</code>是設定要建立在那個azure的subscription裡面。可以透過<code>az account list</code>來取得所有account的subscription，裡面的<code>id</code>值</li><li><code>$RESOURCE_GROUP_NAME</code>要建立的resource group名稱</li><li>目前建立是放在東南亞(southeastasia)，如果要換地方可以改這裏</li></ul><p></p><div class="bs-callout bs-callout-info">
+					以上的指令可以在github看到：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/prepare-config/01-prepare-config.ps1">src/prepare-config/01-prepare-config.ps1</a></div></section><section><h3 id="WizKMOutline_1530352705173902">4. 建立會產生vm的Service Principal</h3><p>
+				這個一樣使用az來建立，可以透過以下指令：
+				</p><pre><code class="language-powershell">az ad sp create-for-rbac --role="Contributor" --scopes="/subscriptions/${SUBSCRIPTION_ID}/resourceGroups/${RESOURCE_GROUP_NAME}"
+				</code></pre><p></p><p>
+				執行完了之後會返回這個service principal的appid以及secret：
+				</p><figure><img class="img-responsive" src="/posts/2018/06/2018-06-30-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-prepareation/8c1f5f37-dce0-40ea-9038-7cfea9e36e77.png" border="0" alt=""><br><figcaption>建立完返回的訊息</figcaption></figure><p></p><p>
+				這個值要記錄好，<code>appid</code>以及<code>password</code>等一下設定檔案會用到。
+				</p><div class="bs-callout bs-callout-info">
+					以上的指令可以在github看到：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/prepare-config/01-prepare-config.ps1">src/prepare-config/01-prepare-config.ps1</a></div></section><section><h3 id="WizKMOutline_1530352705173145">5. 修改acs-engine的檔案</h3><p>
+				以上準備工作就做的差不多了，接下來就是下載範例設定檔案并且做一些修改。範例檔案可以從
+				：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/kubernetes-vmss.json">src/kubernetes-vmss.json</a> 取得
+				</p><p>
+				裡面<code>{}</code>包住的地方是一定要調整的：
+				</p><ol><li><code>dnsPrefix</code>，對應的key是<code>change</code>：這個用來設定master服務的dns名稱，因此一定是一個沒有人有用過的名稱</li><li><code>keyData</code>，對應的key是<code>ssh-rsk 開頭的public key</code>：這個輸入上面第2步取得的ssh public key</li><li><code>clientId</code>，對應的key是<code>{ad 的client id}</code>：輸入第4步取得的<code>app id</code></li><li><code>secret</code>，對應的key是<code>{{ad 的密碼}}</code>：輸入第4步取得的<code>password</code></li></ol><p></p></section></section><section><h2 id="WizKMOutline_1530352705173247">用設定檔案產生出以及發佈ARM template</h2><p>
+		取得了上面的檔案之後，可以透過指令：
+		</p><pre><code class="language-powershell">acs-engine.exe generate kubernetes-vmss.json
+		</code></pre><p></p><p>
+		執行完了之後，會產生出一個資料夾叫做：<code>./_output/${DNS_PREFIX}/</code> - 這個DNS_PREFIX就是之前在設定檔案裡面的<code>dnsPrefix</code>值。
+		</p><p>
+		裡面的内容就是ARM template。
+		</p><div class="bs-callout bs-callout-info">
+			以上的指令可以在github看到：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/prepare-config/02-generate-arm.ps1">src/prepare-config/02-generate-arm.ps1</a></div></section><section><h2 id="WizKMOutline_1530352705173923">發佈ARM Template</h2><p>
+		有了template了之後，可以透過以下指令把他發佈到Azure上面：
+</p><pre><code class="language-powershell">$DNS_PREFIX = ""
+az group deployment create `
+    --name "atk8sacsenginevmssdeploy" `
+    --resource-group "${RESOURCE_GROUP_NAME}" `
+    --template-file "./_output/${DNS_PREFIX}/azuredeploy.json" `
+    --parameters "./_output/${DNS_PREFIX}/azuredeploy.parameters.json"
+</code></pre><p></p><p>
+		記得要設定<code>$DNS_PREFIX</code>和範本裡面的<code>dnsPrefix</code>一樣。
+		</p><p>
+		稍等一會可以透過以下指令檢查vm有沒有建立出來：
+</p><pre><code class="language-powershell">az vm list -g ${RESOURCE_GROUP_NAME} -o table</code></pre><p></p><p>
+		最後的結果也可以到Azure上面看：
+		</p><figure><img class="img-responsive" src="/posts/2018/06/2018-06-30-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-prepareation/9b33db94-d306-47a2-82b0-fbbd9a9141de.png" border="0" alt=""><br><figcaption>產生完的結果</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+			以上的指令可以在github看到：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/prepare-config/03-deploy-arm.ps1">src/prepare-config/03-deploy-arm.ps1</a></div><div class="bs-callout bs-callout-info">
+				以上的整個指令整合在一起可以在github看到：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/prepare-config/00-all-together.ps1">src/prepare-config/00-all-together.ps1</a></div></section><section><h2 id="WizKMOutline_1530352705173413">結語</h2><p>
+		這篇介紹了k8s的基本概念，并且使用了acs-engine在azure上面建立出k8s的cluster。
+		</p><p>
+		在下一篇將介紹怎麽使用，并且k8s和azure整合的體驗是如何。
+		</p></section>

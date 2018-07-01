@@ -1,0 +1,87 @@
+Title: "[tool]用acs-engine在azure透過VMSS建立出kubernetes (k8s) 自動延展的cluster - 下篇"
+Published: 2018-07-01 11:41
+Modified: 2018-07-01
+Image: "/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/2c8d0157-8832-418b-805d-d92dc2b365cd.jpg"
+Tags: ["tool", "azure", "kubernetes (k8s)", "faq"]
+Series: []
+PostDescription: "昨天那篇使用了acs-engine把k8s的服務在azure的vmss架設起來了之後
+這篇將會對建立出來的cluster進行操作，并且看看這些k8s的操作對於azure上面的整合是如何"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/2c8d0157-8832-418b-805d-d92dc2b365cd.jpg" border="0" alt="[tool]用acs-engine在azure透過VMSS建立出kubernetes (k8s) 自動延展的cluster - 上篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>
+		在上一篇(<a href="posts/2018/06/use-acs-engine-generate-arm-for-running-kubernetes-in-azure-vmss-prepareation">用acs-engine在azure透過VMSS建立出kubernetes (k8s) 自動延展的cluster - 上篇</a><span style="font-size: 15px; line-height: 1.6;">)介紹了如何使用acs-engine這個工具產生出了可以在azure上面部署的ARM template，并且成功部署上了Azure。</span></p><p>
+		在這篇將會延續上篇建立出來的vm，并且透過工具對建立出來的k8s cluster做操作，并且看看azure和k8s怎麽的深度結合。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1530415739057726" ;="" style="font-size: 15px; line-height: 1.6;">準備工作</a><br></li><li><a href="#WizKMOutline_1530415739057859" ;="" style="font-size: 15px; line-height: 1.6;">對k8s cluster做操作</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530415739057448" ;="" style="font-size: 15px; line-height: 1.6;">ssh進入master做操作</a><br></li><li><a href="#WizKMOutline_1530415739057648" ;="" style="font-size: 15px; line-height: 1.6;">在local設定k8s config遠端操作</a><br></li></ul><li><a href="#WizKMOutline_1530415739057429" ;="" style="font-size: 15px; line-height: 1.6;">架設簡單nginx服務</a><br></li><li><a href="#WizKMOutline_1530415739057452" ;="" style="font-size: 15px; line-height: 1.6;">透過vmss自動對node做scaling</a><br></li><li><a href="#WizKMOutline_1530415739057872" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section>
+		
+		<section>
+			<div class="bs-callout bs-callout-default">
+				以下用到的指令整合在一起可以從我的github看到：<a href="https://github.com/alantsai-samples/mhat-acs-enginge-azure-k8s/blob/master/src/02%20access-k8s/access-k8s-cluster.ps1">mhat-acs-enginge-azure-k8s/src/02 access-k8s/access-k8s-cluster.ps1</a>
+			</div>
+			
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1530415739057726">準備工作</h2><p>
+		在這篇將會使用到k8s的command line工具<em>kubectl</em>。
+		</p><p>
+		不同的作業系統有不同的安裝方式，詳細可以參考官網：<a href="https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl&gt;">https://kubernetes.io/docs/tasks/tools/install-kubectl/#install-kubectl&gt;</a></p><p>
+		以Windows來説，建議可以透過chocolate來安裝，比較省事：
+		</p><pre><code class="language-powershell">choco install kubernetes-cli</code></pre><p></p><p>
+		安裝好了之後，記得重開powershell，然後直接輸入<code>kubectl</code>，會看到kubectl的help畫面。
+		</p></section><section><h2 id="WizKMOutline_1530415739057859">對k8s cluster做操作</h2><p>
+		接下來就要對建立出來的cluster做操作，有兩種方式可以對k8s的cluster做操作：
+		</p><ol><li>ssh進入master做操作</li><li>在local設定k8s config遠端操作</li></ol><p></p><section><h3 id="WizKMOutline_1530415739057448">ssh進入master做操作</h3><p>
+		第一種操作方式是ssh進入到master那臺機器，首先要有master的網址，這個可以從azure portal看到dns的名稱。
+		</p><p>
+		只需要找到master這個vm，裡面的DNS Name即可：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/d4a4c765-8e6d-4348-b9e8-6867da660409.png" border="0" alt="chrome_2018-07-01_10-59-25.png"><br><figcaption>找到dns名稱</figcaption></figure><p></p><p>
+		之後就可以透過ssh的指令進入：
+		</p><pre><code class="language-powershell">ssh azureuser@@{dnsName}</code></pre>
+		記得把<code>{dnsName}</code>調整成爲剛剛查到的dns名稱
+		<p></p><div class="bs-callout bs-callout-info">
+			題外話，dns name其實就是之前的dns prefix設定加上看是在那個region的vm組成。
+		</div><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/6cba3d59-9698-4b41-b1ba-7d84e82a6862.png" border="0" alt="powershell_2018-07-01_11-03-06.png"><br><figcaption>ssh進去可以看到是ubuntu的機器</figcaption></figure><p>
+		進入了之後，就可以用<code>kubectl</code>來做操作，所以舉例來説：
+		</p><pre><code class="language-powershell">kubectl get nodes</code></pre><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/24967fe1-1813-4bcb-97e1-1fbce1364713.png" border="0" alt=""><br><figcaption>可以看到vmss裡面的node節點，目前是2臺node，1臺master</figcaption></figure><div class="bs-callout bs-callout-warning">
+			剛建立以我的應該是3臺node和1臺master，但是我忘記截圖了，這張是review的時候後來補上的，因此和下面從localhost的node數字不同，但是實際上兩個會一樣。
+		</div></section><section><h3 id="WizKMOutline_1530415739057648">在local設定k8s config遠端操作</h3><p>
+			上面的操作方式是遠端進去，但是還有一種是在local操作但是指令是發到遠端，我個人比較喜歡這種模式。
+			</p><p>
+			要做到遠端操作需要取得k8s的config設定檔案，可以在local透過以下指令取得：
+			</p><pre><code class="language-powershell">scp azureuser@@{dnsName}:.kube/config .
+$env:KUBECONFIG = "./config"
+kubectl get nodes</code></pre><p></p><p>
+			記得要調整<em>{dnsName}</em>以符合你的master dns名稱。
+			</p><p>
+			執行完了之後，會看到和上面ssh進入master之後get nodes一樣的内容。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/ec5fd89e-89b2-4bf4-86a2-b9753b80b76f.png" border="0" alt="powershell_2018-07-01_11-05-49.png"><br><figcaption>執行完的結果</figcaption></figure></section></section><section><h2 id="WizKMOutline_1530415739057429">架設簡單nginx服務</h2><p>
+		有了cluster建立出來并且還可以操作之後，接下來來測試部署一個簡單的nginx服務。
+		</p><p>
+		首先，可以下這個指令：
+		</p><pre><code class="language-powershell">kubectl run nginx --image nginx
+kubectl expose deployment nginx --port=80</code></pre><p></p><p>
+		這個啓動nginx的一個pod，然後把80 port開放出來。
+		</p><pre><code class="language-powershell">kubectl get pods</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/66d4c7d2-2d6d-4dd8-8e80-97875c3a6919.png" border="0" alt="powershell_2018-07-01_11-08-07.png"><br><figcaption>可以看到起了一個pod</figcaption></figure><p></p><p>
+		接下來要調整k8s的service讓我們外網也能夠連綫的到。
+		</p><p>
+		執行以下指令來調整service：
+		</p><pre><code class="language-powershell">kubectl edit svc/nginx</code></pre><p>
+		把<em>ClusterIP</em>改成<em>LoadBalancer</em>。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/330e215a-a92a-4e4a-8eeb-56ea23b2386d.png" border="0" alt="notepad_2018-07-01_11-08-58.png"><br><figcaption>修改成爲LoadBalancer</figcaption></figure><p>
+		可以呼叫：
+		</p><pre><code class="language-powershell">kubectl get services</code></pre>看到目前service的内部及外部ip
+		<p></p><div class="bs-callout bs-callout-info">
+			等到建立出來可以去portal看，會發現多了一組對外ip，這個也是剛剛service裡面的那個外部ip的對應。因此可以看到，k8s和azure有做了深度整合。
+			<figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/1a2c795c-d1a7-425e-8966-b8914b1ad203.png" border="0" alt="chrome_2018-07-01_11-11-54.png"><br><figcaption>可以看到多了一組外部ip并且一組load balancer</figcaption></figure></div><p>
+		最後使用那個外部ip，在外網也可以看到nginx的服務。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/05646dd0-bef8-4b73-8c2c-14e60b90308a.png" border="0" alt="chrome_2018-07-01_11-11-18.png"><br><figcaption>nginx外部ip連綫成功</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1530415739057452">透過vmss自動對node做scaling</h2><p>
+		到目前爲止我們看了如何建立出pod并且能夠把service和azure的loadbalancer接上了，還有一個深度整合的地方，那就是自動做scaling。
+		</p><p>
+		由於建立的node是使用vmss，因此可以使用vmss的auto scaling做到依照例如cpu超過多少等指標來自動scaling。
+		</p><p>
+		也可以手動調整instance數，舉例來説，如果我把我的instance改成了2：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/13ee1298-efa2-4e02-a8bd-eb89c3afb456.png" border="0" alt="chrome_2018-07-01_11-15-45.png"><br><figcaption>設定instance改成2</figcaption></figure><p></p><p>
+		稍等一下再用<code>kubectl get nodes</code>，會看到node變成了2臺。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-01-use-acs-engine-generate-ARM-for-running-kubernetes-in-azure-vmss-access-and-usage/86b5275e-d89f-4798-b951-f0121a90c603.png" border="0" alt="powershell_2018-07-01_11-25-18.png"><br><figcaption>node變成了2臺機器</figcaption></figure><p>
+		當然手動做的了，自動也做的了，這個部分和一般的vmss auto scaling沒有什麽兩樣
+		</p></section><section><h2 id="WizKMOutline_1530415739057872">結語</h2><p>
+		透過了上篇(<a href="posts/2018/06/use-acs-engine-generate-arm-for-running-kubernetes-in-azure-vmss-prepareation">用acs-engine在azure透過VMSS建立出kubernetes (k8s) 自動延展的cluster - 下篇</a><span style="font-size: 15px; line-height: 1.6;">)以及這一篇的介紹，希望對於如何在azure上面建立k8s可以自動擴展node的cluster有了更清楚的瞭解，并且透過這篇可以看到k8s和azure的深度整合。</span></p><p>
+		k8s會暫時不往下寫了，如果有興趣的朋友，或者想知道更多可以隨時透過部落格或者其他social media聯繫我。
+		</p></section>

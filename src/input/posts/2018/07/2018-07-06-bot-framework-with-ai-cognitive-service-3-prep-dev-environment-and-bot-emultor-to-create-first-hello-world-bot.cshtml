@@ -1,0 +1,85 @@
+Title: "[chatbot + AI = 下一代操作模式][03]建立第一個chatbot - EchoBot"
+Published: 2018-07-06 06:01
+Modified: 2018-07-06 06:01
+Image: "/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/ed84f038-299e-4a36-8e7b-6602b64369ad.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "瞭解了Bot Framework之後，要怎麽開始開發呢？
+會需要什麽環境準備呢？
+這篇介紹取得Project Template讓我們可以快速建立chatbot以及如何使用bot emulator來進行測試"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/ed84f038-299e-4a36-8e7b-6602b64369ad.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][03]建立第一個chatbot - EchoBot.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture">[02]微軟的Bot Framework是什麽？</a>)以一個high level的角度看了微軟的Bot Framework的CaaP解決方案，接下來就要看看細節的地方。</p><p>
+		這篇將會以建立一個chatbot的hello world來看看開發chatbot會用到什麽工具，并且整體的感受是如何。
+		</p>
+		<div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-03">alantsai-samples/mhat-hotelbot:blog/chapter-03</a>
+		</div>
+	</section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1530956993401839" ;="" style="font-size: 15px; line-height: 1.6;">情景介紹</a><br></li><li><a href="#WizKMOutline_1530956993401232" ;="" style="font-size: 15px; line-height: 1.6;">建立第一個Bot - EchoBot</a><br></li><li><a href="#WizKMOutline_1530956993401930" ;="" style="font-size: 15px; line-height: 1.6;">用bot emulator測試bot</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530956993401483" ;="" style="font-size: 15px; line-height: 1.6;">bot emulator v3</a><br></li><li><a href="#WizKMOutline_1530956993401517" ;="" style="font-size: 15px; line-height: 1.6;">bot emulator v4</a><br></li></ul><li><a href="#WizKMOutline_1530956993401332" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1530956993401839">情景介紹</h2><p>
+		在接下來的一系列demo當中都會環繞在一個情景，這樣希望給大家在開發的過程中不是只是瞭解如何使用，而是以<em>解決問題</em>的角度去看到chatbot的優勢。
+		</p><p>
+		想象一下，我們有家專門在訂房的網站，我們是否能夠開發一個bot讓訂房變得簡單以及流暢呢？
+		</p><p>
+		千里之行始於足下，我們就先來建立出最基本的chatbot，先瞭解一下開發是什麽feel。
+		</p><div class="bs-callout bs-callout-info">
+			雖然説我們主體的情景是訂房bot，但是有些基礎的介紹還是會先獨立分開。
+		</div></section><section><h2 id="WizKMOutline_1530956993401232">建立第一個Bot - EchoBot</h2><p>
+		要開始開發bot當然要先熟悉使用到的工具以及使用到的Template。
+		</p><p>
+		首先，需要有2個工具準備好：
+		</p><dl><dt>
+				Visual Studio 2017
+			</dt><dd>
+				如果還沒有Visual Studio，可以去下載一個community版本，如果需要離綫安裝可以參考我之前寫過的一篇
+				<a href="/posts/2017/03/visualstudio2017-offline-install">建立離線安裝(Offline Install)包</a></dd><dt>
+				BotBuilder的Project Template
+			</dt><dd><p>
+					可以從Visual Studio Marketplace下載到<a href="https://marketplace.visualstudio.com/items?itemName=BotBuilder.BotBuilderV3">Bot Builder Template for Visual Studio</a></p><p>
+					下載下來是一個vsix檔案，只需要點兩下安裝即可。
+				</p><div class="bs-callout bs-callout-info">
+					題外話，這個vsix是最近才出來的，以前還需要自己手動下載zip template檔案然後放到特定資料夾，對製作template有興趣可以看看我之前另外一個系列：<a href="/tags/%E3%80%8C%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84template-%E5%BB%BA%E7%AB%8B%E4%B8%80%E8%87%B4%E6%80%A7%E7%A8%8B%E5%BC%8F%E7%A2%BC%E3%80%8D">「打造自己的template-建立一致性程式碼」</a></div></dd></dl><p></p><p>
+		兩個工具都准備好了之後，就可以把Visual Studio啓動起來，然後準備開一個EchoBot的專案：<code>Visual C# -&gt; Bot Framework -&gt; Bot Builder Echo Bot</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/49c6b770-c380-4c95-95c0-fcf95b50baf7.png" border="0" alt=""><br><figcaption>建立一個echo bot的template</figcaption></figure><p></p><p>
+		建立出來了之後，直接透過<kbd>Ctrl + F5</kbd>把網站啓動起來：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/931ee81a-926a-4800-adff-7a068cb356c1.png" border="0" alt="ApplicationFrameHost_2018-07-07_17-03-01.png"><br><figcaption>啓動看到的畫面</figcaption></figure><p></p><p>
+		之前有提過底層是Asp .Net Web Api，那麽我們要用REST client例如Postman來和bot溝通嗎？可以使用Postman但是要自己組合那些json内容非常的累，微軟也知道所以做了一個工具叫做Bot Emulator讓我們和bot溝通變得容易。
+		</p></section><section><h2 id="WizKMOutline_1530956993401930">用bot emulator測試bot</h2><p>
+		Bot Emulator和BotBuilder一樣是open source的專案<a href="https://github.com/Microsoft/BotFramework-Emulator/releases">Microsoft/BotFramewokr-Emulator</a>，然後也一樣有兩個版本V3以及V4.
+		</p><p>
+		V3和V4可以同時存在，因此可以兩個都裝。V3和V4各有優缺點，我兩個都會介紹一下，一般來説主要用V4，但是測試一些功能的時候會需要V3。
+		</p><p>
+		可以直接從github的<a href="https://github.com/Microsoft/BotFramework-Emulator/releases">release</a>頁面找到最新的版本，下載下來之後，點兩下安裝就可以了。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/9bd1ba79-61a7-4a44-8a9c-78daa64c97d8.png" border="0" alt="Bot Framework Emulator_2018-07-07_17-13-19.png"><br><figcaption>左邊是V3版本，右邊是V4，很明顯V4用的是electron為基地</figcaption></figure><p>
+		接下來分別介紹一下V3以及V4的操作方式 - 其實差不多，有i額深入功能未來有使用在介紹。
+		</p><section><h3 id="WizKMOutline_1530956993401483">bot emulator v3</h3><p>
+			使用emulator第一件事情要先輸入網址，如果port沒有被占用，預設會是<code>3978</code>。因此只要在網址輸入：<code>http://localhost:3978/api/messages</code>然後選<kbd>connect</kbd>即可。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/b766fba9-0d7a-4c21-8c34-21135ef0b479.png" border="0" alt="botframework-emulator_2018-07-07_17-16-27.png"><br><figcaption>連上chatbot</figcaption></figure><p></p><p>
+			連上了之後，就可以和捏機器人聊天啦，我們輸入任何東西，他都會反回來并且告訴我們總共幾個字：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/6dc6b83a-c209-4bad-83df-2d14c1402f88.png" border="0" alt="botframework-emulator_2018-07-07_17-19-44.png"><br><figcaption>測試chatbot</figcaption></figure><p></p><p>
+			在每一個訊息上面，可以點一下能夠看到實際傳遞的json内容：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/2d8e441b-9bfb-41c1-86f0-f8ce1dff7246.png" border="0" alt="botframework-emulator_2018-07-07_17-20-27.png"><br><figcaption>選了一筆訊息右邊會顯示json格式</figcaption></figure><p></p><p>
+			在右下角則是整體的log訊息，有時候出現錯誤或者emulator有什麽問題可以在裡面看到：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/23a06593-d98f-4877-ba2b-89e9c90f3436.png" border="0" alt="2018-07-07_17-22-18.png"><br><figcaption>log資訊</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1530956993401517">bot emulator v4</h3><p>
+			使用v4版本從整體來説比v3完整，他有專案的概念。舉例來説，我們這個專案叫做HotelBot，可能有很多測試的點，例如local一個網址，上production有個網址，上uat有個網址。如果是v3的話，我們只能夠自己手動設定網址。
+			</p><p>
+			不過到了v4，可以把他們存到一個檔案<em>.bot</em>，然後不同的網址是<em>endpoint</em>。要建立這個檔案可以透過<code>File -&gt; New bot</code>來建立，或者透過<code>File -&gt; Open Bot</code>
+			直接開啓專案裡面的<code>MHAT.HotelBot.bot</code>。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/72530ec6-126a-4fc4-87ae-67e6be1613af.png" border="0" alt="Bot Framework Emulator_2018-07-07_17-32-12.png"><br><figcaption>開啓.bot檔案</figcaption></figure><p></p><p>
+			從左邊可以看到<em>Endpoint</em>，這邊可以有多筆，主要設定的是網址的部分，可以點右鍵做修改，或者按下+來增加新的網址（例如有local網址，production 網址等）：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/7985241f-68a8-43d7-b7cb-710a67025d0d.png" border="0" alt="Bot Framework Emulator_2018-07-07_17-34-39.png"><br><figcaption>修改鏈接設定</figcaption></figure><p></p><p>
+			和V3一樣，可以直接輸入，然後點了某一比可以看到原始的json檔案，以及右小角的log資訊：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/8161c830-fd9a-47b6-ae12-9eead71d3561.png" border="0" alt="Bot Framework Emulator_2018-07-07_17-35-57.png"><br><figcaption>v4的操作界面</figcaption></figure><p></p><p>
+			假設今天要demo，可以進入<em>Presentation Mode</em>，在右上角，點下去了之後，畫面變成全螢幕，并且只顯示輸入的畫面。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/46ebd835-5b7f-42df-9199-3f88ca6b2177.png" border="0" alt="gvim_2018-07-07_17-37-45.png"><br><figcaption>Presentation Mode的按鈕位置</figcaption></figure><p></p><p>
+			然後輸入的内容是可以保存下來成爲一個<em>.transcribe</em>檔案，如果之後需要重現，就直接打開這個transcribe檔案就好：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/2d702103-aaa6-4fa1-94ee-98928a6792e0.png" border="0" alt="Bot Framework Emulator_2018-07-07_17-39-13.png"><br><figcaption>把對話儲存下來</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1530956993401332">結語</h2><p>
+		這篇把開發用到的工具以及template准備了好。并且嘗試建立出了一個Hello World等級的Chatbot，EchoBot。
+		</p><p>
+		透過這一篇大家對於開發的流程應該有個概念，用Visual Studio改code，然後用bot emulator做測試。
+		</p><p>
+		接下來的問題是，怎麽改code呢？botbuilder是怎麽運作的呢？我們下一篇在介紹。
+		</p></section>

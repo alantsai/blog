@@ -1,0 +1,151 @@
+Title: "[chatbot + AI = 下一代操作模式][04]瞭解BotBuilder的組成"
+Published: 2018-07-07 06:01
+Modified: 2018-07-07 06:01
+Image: "/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/9415b647-b987-4c49-8aa7-747219e6cd1a.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇建立出了一個EchoBot并且瞭解如何使用bot emulator來進行測試
+在這一篇將會深入看一下建立出來的code，并且瞭解如何修改來調整chatbot的邏輯"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/9415b647-b987-4c49-8aa7-747219e6cd1a.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][04]瞭解BotBuilder的架構.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">[03]建立第一個chatbot - EchoBot</a>)透過使用Project Template建立出一個EchoBot出來，并且透過了bot emulator瞭解了如何和chatbot做測試。</p><p>
+		這篇將會深入一些，看看BotBuilder的組成以及一些比較重要的class。
+		</p></section>
+		<div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-04">alantsai-samples/mhat-hotelbot:blog/chapter-04</a>
+		</div>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531024842070435" ;="" style="font-size: 15px; line-height: 1.6;">BotBuilder的運作方式</a><br></li><li><a href="#WizKMOutline_1531024842070420" ;="" style="font-size: 15px; line-height: 1.6;">MessageController.cs</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531024842071748" ;="" style="font-size: 15px; line-height: 1.6;">Activity</a><br></li></ul><li><a href="#WizKMOutline_1531024842071275" ;="" style="font-size: 15px; line-height: 1.6;">RootDialog.cs</a><br></li><li><a href="#WizKMOutline_1531024842071506" ;="" style="font-size: 15px; line-height: 1.6;">調整chatbot</a><br></li><li><a href="#WizKMOutline_1531024842071863" ;="" style="font-size: 15px; line-height: 1.6;">這篇幾個重要Keyword總結</a><br></li><li><a href="#WizKMOutline_1531024842071795" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1531024842070435">BotBuilder的運作方式</h2><p>
+		首先看一下上一篇建立出來的的VS 專案内容。裡面東西不復雜，可以看到只有幾個資料夾以及class：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/e48e4d81-b2c3-474b-948b-12604055ac60.png" border="0" alt="devenv_2018-07-08_11-28-39.png"><br><figcaption>最基本的BotBuilder專案結構</figcaption></figure><p></p><p>
+		我們可以看一下：
+		</p><ol><li>MessagesController.cs</li><li>RootDialog.cs</li></ol><p></p></section><section><h2 id="WizKMOutline_1531024842070420">MessageController.cs</h2><p>
+		之前有提到過，BotBuilder是以Asp .Net Web Api為基地，因此一定會有一個Controller作爲進入點。而這個class就是我們整個服務的進入點。
+		</p><p>
+		往裏面看可以看到只有一個Post方法，并且接的參數形態是<code>Activity</code>。然後依照不同的<em>ActivityType</em>，有不同的處理：
+</p><pre><code class="language-csharp">public async Task<httpresponsemessage> Post([FromBody]Activity activity)
+{
+	if (activity.GetActivityType() == ActivityTypes.Message)
+	{
+		await Conversation.SendAsync(activity, () =&gt; new Dialogs.RootDialog());
+	}
+	else
+	{
+		HandleSystemMessage(activity);
+	}
+	var response = Request.CreateResponse(HttpStatusCode.OK);
+	return response;
+}</httpresponsemessage></code></pre><p></p><p>
+		當ActivityType是<em>訊息</em>類型的時候，我們會呼叫RootDialog，要不然會到另外一個方法裡面處理不同類型的ActivityType。
+		</p><p>
+		那<code>Activity</code>這個class是什麽東西呢？
+		</p><section><h3 id="WizKMOutline_1531024842071748">Activity</h3><p>
+				還記得之前的一張圖嗎：
+				</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/3d2ce310-ff24-4f29-9ab0-d01e38cab2a9.png" border="0" alt="a238a09a-ee30-4106-8ec1-175e92acb902.png"><br><figcaption>整個Bot Framework的結構</figcaption></figure><p></p><p>
+				我們提到過，爲了支援不同平臺，BotBuilder會用一個統一格式作爲最後的資料結構，而Activity或者更抽象的說IActivity就是這麽一個統一的形態。
+				</p><p>
+				因此BotBuilder每一次收到的都是一個Activity，而Activity又有分形態：
+				</p><dl><dt>
+						ActivityTypes.Message
+					</dt><dd>
+						最常見的一種形態，只要是使用者傳入的訊息都是這種。
+					</dd><dt>
+						ActivityTypes.ConversationUpdate
+					</dt><dd>
+						當有使用者加入或者退出chatbot的時候
+					</dd><dt>
+						ActivityTypes.DeleteUserData
+					</dt><dd>
+						當使用者退出chatbot并且要求刪除資料。這個可以用來清理chatbot對於某個使用者記錄的訊息。
+					</dd><dt>
+						ActivityTypes.Typing
+					</dt><dd>
+						當使用者正在打字的時候，還沒送出的類型。這種使用情景比較少。
+					</dd><dt>
+						ActivityTypes.Typing
+					</dt><dd>
+						一般來説這種都是平臺用來確定chatbot是不是還活著。
+					</dd></dl><p></p><p>
+				Activity取決於不同的Type也會包含不同的資訊。例如，如果是ActivityTypes.Message，那麽取決於是什麽類型的訊息（文字、圖片或語音）那麽從Activity取得資料的方式也不同。
+				</p><p>
+				最基本的文字類型，可以透過<code>Text</code>這個Property取得值。其他的訊息類型後面有遇到在介紹。
+				</p></section></section><section><h2 id="WizKMOutline_1531024842071275">RootDialog.cs</h2><p>
+			Dialog是BotBuilder裡面的一個概念，可以簡單理解成爲：<em>專門處理一件事情的最小單位</em>，所以例如我的chatbot有查訂單和查旅館兩個功能，那麽就有2個dialog分別處理對應事情。
+			</p><p>
+			Dialog在後面拆分邏輯的時候會有更加詳細的介紹，以目前來説可以理解為RootDialog是我們的文字訊息處理的主要邏輯。
+			</p><p>
+			一個正確的Dialog有兩個條件：
+			</p><ol><li>實作<code>IDialog&lt;T&gt;</code></li><li>把class訂位<code>Serlizable</code></li></ol><p></p><p>
+			整個程式碼如下：
+</p><pre><code class="language-csharp">public Task StartAsync(IDialogContext context)
+{
+	context.Wait(MessageReceivedAsync);
+
+	return Task.CompletedTask;
+}
+
+private async Task MessageReceivedAsync(IDialogContext context, IAwaitable&lt;object&gt;result)
+{
+	var activity = await result as Activity;
+
+	// Calculate something for us to return
+	int length = (activity.Text ?? string.Empty).Length;
+
+	// Return our reply to the user
+	await context.PostAsync($"You sent {activity.Text} which was {length} characters");
+
+	context.Wait(MessageReceivedAsync);
+}</code></pre><p></p><p><code>StartAsync</code>是IDialog本身要求實作的部分，他透過<code>context.Wait</code>表示<em>等待下一個訊息要直接由 <code>MessageReceivedAsync</code></em>做處理。
+			</p><p>
+			而在MessageReceivedAsync裡面則是從Activity裡面取得了文字内容，并且透過context回傳了文字本身内容以及長度。
+			</p><p>
+			最後呼叫了一個<code>context.wait</code>，并且指向同一個方法。換句話説，變成了無限回圈，下一個訊息還是由MessageRecievedAsysnc來處理。
+			</p><div class="bs-callout bs-callout-info"><code>IDialogContext</code>是一個輔助上下文的物件 - 裡面可以取得和這個使用者相關的一些訊息，和控制接下來的chatbot流程。下一篇將會介紹這個部分，因此暫時忽略。
+			</div></section><section><h2 id="WizKMOutline_1531024842071506">調整chatbot</h2><p>
+			有了以上的資訊之後，對於如何修改程式就有了基本概念。我們要把理論變成實作。
+			</p><p>
+			假設今天有了一個需求：如果使用者輸入了<code>Hello</code>，chatbot回傳<code>World</code>，要不然就保留目前的回傳内容。
+			</p><p>
+			那麽怎麽修改呢？
+			</p><p>
+			從上面的理解知道所有邏輯都在RootDialog裡面，因此如果在裡面加入一些判斷邏輯就可以啦：
+			</p><pre><code class="language-csharp">private async Task MessageReceivedAsync(IDialogContext context, IAwaitable&lt;object&gt; result)
+{
+	var activity = await result as Activity;
+
+	if (activity.Text == "Hello")
+	{
+		await context.PostAsync("World");
+	}
+	else
+	{
+		// Calculate something for us to return
+		int length = (activity.Text ?? string.Empty).Length;
+
+		// Return our reply to the user
+		await context.PostAsync($"You sent {activity.Text} which was {length} characters");
+	}
+
+	context.Wait(MessageReceivedAsync);
+}</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/a4d18055-a6cf-4e1a-bd9d-0a033696a5a0.png" border="0" alt="Bot Framework Emulator_2018-07-08_12-27-38.png"><br><figcaption>測試結果</figcaption></figure></section><section><h2 id="WizKMOutline_1531024842071863">這篇幾個重要Keyword總結</h2><dl><dt>
+					IActivity
+				</dt><dd>
+					整個BotBuilder接受以及傳送的一個共用的資料形態。
+				</dd><dt>
+					IDialog
+				</dt><dd>
+					一個最小單位的功能邏輯 - 透過Dialog可以做到Separtation of Concern。
+				</dd><dt>
+					IDialogContext
+				</dt><dd>
+					處理Chatbot上下文以及流程的物件。
+				</dd></dl></section><section><h2 id="WizKMOutline_1531024842071795">結語</h2><p>
+			這篇對於整個BotBuilder的運作以及幾個重要物件做了介紹，并且透過一個小修改調整了chatbot的邏輯。
+			</p><p>
+			可是接下來有個很重要的問題是，我如果要記錄和使用者有關的訊息要怎麽存？
+			</p><p>
+			下一篇，將會看一下專門處理上下文的物件<code>IDialogContext</code>。
+			</p>
+				</section>

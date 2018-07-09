@@ -1,0 +1,129 @@
+Title: "[chatbot + AI = 下一代操作模式][05]深入IDialogContext - 處理上下文、對外的聯係和state"
+Published: 2018-07-09 06:01
+Modified: 2018-07-09 06:01
+Image: "/posts/2018/07/2018-07-09-bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state/4ff79c80-eedf-46d3-b363-632b5471ee52.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇把EchoBot的程式碼看了一遍，并且把BotBuilder重要的幾個物件都介紹了
+接下來會在更深入一些。
+這篇將會介紹IDialogContext的3個作用。其中2個在上篇介紹過了，這篇將會著重在state管理這塊"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-09-bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state/4ff79c80-eedf-46d3-b363-632b5471ee52.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][05]深入IDialogContext - 處理上下文以及對外的聯係.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-4-bot-builder-architecture">[04]瞭解BotBuilder的組成</a>)完整看了EchoBot的程式碼組成，并且瞭解了BotBuilder一些常見的物件。并且依照所學調整了部分程式碼。</p><p>
+		這一篇將會聚焦在其中一個管理上下文以及對來連綫的物件<code>IDialogContext</code>。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-05">alantsai-samples/mhat-hotelbot:blog/chapter-05</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531092387958269" ;="" style="font-size: 15px; line-height: 1.6;">IDialogContext的用途</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531092387958490" ;="" style="font-size: 15px; line-height: 1.6;">儲存和conversation或者user有關訊息的方式</a><br></li></ul><li><a href="#WizKMOutline_1531092387958773" ;="" style="font-size: 15px; line-height: 1.6;">Conversation是什麽</a><br></li><li><a href="#WizKMOutline_1531092387958541" ;="" style="font-size: 15px; line-height: 1.6;">實際修改</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531092387958537" ;="" style="font-size: 15px; line-height: 1.6;">先判斷是否已經有使用者的姓名</a><br></li><li><a href="#WizKMOutline_1531092387958440" ;="" style="font-size: 15px; line-height: 1.6;">當詢問使用者名稱的時候記錄下一個回答是記錄名字</a><br></li><li><a href="#WizKMOutline_1531092387958306" ;="" style="font-size: 15px; line-height: 1.6;">把回傳是使用者名稱，儲存起來</a><br></li></ul><li><a href="#WizKMOutline_1531092387958157" ;="" style="font-size: 15px; line-height: 1.6;">最後結果</a><br></li><li><a href="#WizKMOutline_1531092387958486" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1531092387958269">IDialogContext的用途</h2><p>
+		還記得主要邏輯是在<code>RootDialog.cs</code>裡面，而其中在裏面的程式碼用IDialogContext做了兩件事情：
+		</p><ol><li><em>context.Wait()</em> - 用來控制接下來的訊息要被什麽方法處理</li><li><em>context.PostyAsync</em> - 用來回傳訊息給使用者的方法</li></ol><p></p><p>
+		透過這兩個方法，可以看出IDialogContext有兩個作用：
+		</p><ol><li><em>控制流程</em> (底層<code>Internals.IDialogStack</code>) - <code>Wait</code>代表接下來的訊息處理，還有一些別的，例如 <code>Call</code> 用來呼叫別的Dialog</li><li><em>和外界聯係</em> (底層<code>Internals.IBotToUser</code>) - <code>PostAsync</code>把訊息回傳給使用者。</li></ol><p></p><p>
+		IDialogContext還有一個重要的功能，就是用來儲存和conversation或者user有關訊息的方式 (底層<code>Internals.IBotData</code>)。
+		</p><section><h3 id="WizKMOutline_1531092387958490">儲存和conversation或者user有關訊息的方式</h3><p>
+			記錄訊息有三個等級：
+			</p><dl><dt>
+					ConversationData
+				</dt><dd>
+					和某個<em>conversation</em>有關的記錄。
+				</dd><dt>
+					PrivateConversationData
+				</dt><dd>
+					和某個<em>user</em>在某個<em>conversation</em>有關的記錄
+				</dd><dt>
+					UserData
+				</dt><dd>
+					和某個<em>user</em>有關的訊息 - 包含所有的channel以及conversation。
+				</dd></dl><p></p><div class="bs-callout bs-callout-info">
+			預設，這些訊息是儲存在<em>Memory</em>裡面，因此上了Production等級記得要做一些調整，預設有支援可以儲存在Azure的Cosmos DB或者Table Storage，當然如果有需要也可以儲存在別的地方，可以自己寫或者找套件。
+			</div><p>
+			這3個等級要依照需求去儲存，例如，假設是一個和使用者有關的訊息但是不和任一個conversation有關，例如他的名字，那麽可以儲存在<code>UserData</code>。反過來説，如果是某些訊息和某次conversation有關，例如
+			查旅館的時候記錄選擇了那個，那麽就可以使用<code>PrivateConversationData</code>。
+			</p><p>
+			最後，要使用這些儲存很容易，把他們當成Dictionary使用就好。
+			</p></section></section><section><h2 id="WizKMOutline_1531092387958773">Conversation是什麽</h2><p>
+		在上面提到儲存等級的時候，提到了兩個詞，Channel以及conversation。
+		</p><p>
+		channel之前提到過，其實就是使用者使用的溝通平臺。有可能你的bot部署到多個平臺，那麽用channel來區分可以做一些特定平臺相關處理
+		</p><p>
+		conversation則是某一次的交談。例如，一整串的對話就屬於一組conversation。等到10天後又過來就變成另外一組conversation。
+		</p><p>
+		這些資料其實有儲存在<code>Activity</code>裡面，我們透過emulator可以看到實際的值：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-09-bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state/6ec91745-5ef7-4f63-86f3-8c362c28a2cb.png" border="0" alt="Bot Framework Emulator_2018-07-08_18-18-23.png"><br><figcaption>第1點可以看到是channel的值，然後conversation id來區分conversation</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1531092387958541">實際修改</h2><p>
+		上面提到了這些理論，接下來我們就來實際調整chatbot。
+		</p><p>
+		這邊的需求是，如果沒有使用者的姓名，需要先和使用者取得，取到了之後，不管使用者輸入什麽都會直接回傳并且加上使用者的姓名。
+		</p><p>
+		要做到上面的需求，整個流程變成：
+		</p><ol><li>先判斷是否已經有使用者的姓名 </li><li>當詢問使用者名稱的時候記錄下一個回答是記錄名字</li><li>把回傳是使用者名稱，儲存起來</li></ol><p></p><section><h3 id="WizKMOutline_1531092387958537">先判斷是否已經有使用者的姓名</h3><p>
+			這邊使用了<code>UserData</code>做儲存，因爲使用者姓名可能在多個conversation都可以使用（當然用什麽取決需求）
+			</p><p>
+			整個code調整如下：
+</p><pre><code class="language-csharp">private async Task MessageReceivedAsync(IDialogContext context, IAwaitable&lt;object&gt; result)
+{
+	var activity = await result as Activity;
+
+	context.UserData.TryGetValue&lt;string&gt;("Name", out string name);
+
+	if(string.IsNullOrEmpty(name))
+	{
+		// 還沒有姓名
+	}
+	else
+	{
+		// 已經有姓名直接輸出 姓名 + 輸入内容
+		await context.PostAsync($"{name}: {activity.Text}");
+	}
+
+	context.Wait(MessageReceivedAsync);
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1531092387958440">當詢問使用者名稱的時候記錄下一個回答是記錄名字</h3><p>
+			我們接下來要處理詢問使用者名稱的部分。整個code如下：
+			</p><pre><code class="language-csharp">....
+if(string.IsNullOrEmpty(name))
+{
+	context.PrivateConversationData.
+		TryGetValue&lt;bool&gt;("IsAskName", out bool isAskName);
+
+	if(isAskName)
+	{
+		// 詢問過名字，準備記錄
+	}
+	else
+	{
+		context.PrivateConversationData.SetValue&lt;bool&gt;("IsAskName", true);
+
+		await context.PostAsync("您的名字是？");
+	}
+}
+....</code></pre><p>
+			用<code>PrivateConversationData</code>來記錄是否詢問過名字，這邊選擇<code>PrivateConversationData</code>是因爲這個資訊和使用者有關，并且只和這次的conversation有關。
+			</p><p>
+			需要這個中繼的<code>IsAskName</code>是這樣才好區分已經在問名字還是正在詢問名字。
+			</p><div class="bs-callout bs-callout-warning">
+				後面有更加好的處理方式，現在先暫時這樣。
+			</div></section><section><h3 id="WizKMOutline_1531092387958306">把回傳是使用者名稱，儲存起來</h3><p>
+			那最後一塊就是做名稱儲存就是這樣：
+			</p><pre><code class="language-csharp">...
+if(isAskName)
+{
+	context.UserData.SetValue&lt;string&gt;("Name", activity.Text);
+
+	await context.PostAsync($"{activity.Text} 您好，能夠幫助您什麽");
+}
+else
+{
+	context.PrivateConversationData.SetValue&lt;bool&gt;("IsAskName", true);
+
+	await context.PostAsync("您的名字是？");
+}
+...</code></pre></section><section><h2 id="WizKMOutline_1531092387958157">最後結果</h2><p>
+			接下來我們可以把chatbot run起來并且用emulator做一些測試。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-09-bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state/f20d2e5f-e0ec-459f-8b01-4ba1aa9ba058.png" border="0" alt="Bot Framework Emulator_2018-07-08_18-42-42.png"><br><figcaption>測試結果</figcaption></figure><div class="bs-callout bs-callout-warning">
+				這邊會發現有個地方滿違和，也就是我需要先輸入一個<em>你好</em>才觸發整個chatbot。這個其實可以在使用者剛加入chatbot的時候詢問。這個就可以用<code>ActivityTypes.ConversationUpdate</code>來做這些處理。
+			</div></section></section><section><h2 id="WizKMOutline_1531092387958486">結語</h2><p>
+		這一篇介紹了<code>IDialogContext</code>這個物件的作用，并且這篇著重於如何儲存個人資料。希望透過這篇對於IDialogContext的作用及用途會更清楚。
+		</p><p>
+		在下一篇我們切換一下，如果只能輸出一般文字對現在使用者來説還是太乾了，來看看BotbBuilder在傳輸不同資料格式上面有什麽幫助。
+		</p></section>

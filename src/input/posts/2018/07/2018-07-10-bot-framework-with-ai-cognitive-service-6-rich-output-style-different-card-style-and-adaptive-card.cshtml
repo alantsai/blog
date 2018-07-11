@@ -1,0 +1,248 @@
+Title: "[chatbot + AI = 下一代操作模式][06]不只能輸出文字 - 看看各種内建卡片模式以及可自定的Adaptive Card"
+Published: 2018-07-10 06:01
+Modified: 2018-07-10 06:01
+Image: "/posts/2018/07/2018-07-10-bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card/349634a5-5219-433e-877d-d3c2829ee1c4.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "對chatbot開發有一點概念之後，輸出都醜醜的怎麽行呢，是時候去調整一下ui拉
+chatbot不只能夠輸出文字，還可以輸出比較漂亮像是卡片類型的格式。如果内建的卡片樣板不夠，還可以自己用Adaptive Card來刻
+這一篇將來看看有哪些卡片樣式，并且如何使用，然後透過Adaptive Card打造自己喜歡的樣式"
+---
+<section><figure><img src="/posts/2018/07/2018-07-10-bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card/349634a5-5219-433e-877d-d3c2829ee1c4.jpg" border="0" alt="不只能輸出文字 - 看看各種内建卡片模式以及自定的Adaptive Card.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state">[05]深入IDialogContext - 處理上下文、對外的聯係和state</a>)看了<code>IDialogContext</code>的作用以及如何用3個主要作用的state的部分來儲存使用者相關的訊息。</p><p>
+		到目前爲止我們的機器人回復的内容都是文字。如果今天我的内容比較豐富，例如有圖片+文字怎麽辦？有沒有更好的呈現方式。
+		</p><p>
+		這篇將來看看<code>Activity</code>裡面的<code>Attachment</code>搭配<code>Card</code>呈現多元樣式的概念。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-06">alantsai-samples/mhat-hotelbot:blog/chapter-06</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531177816177346" ;="" style="font-size: 15px; line-height: 1.6;">Attachment是什麽？</a><br></li><li><a href="#WizKMOutline_1531177816177215" ;="" style="font-size: 15px; line-height: 1.6;">總共有哪些卡片樣式</a><br></li><li><a href="#WizKMOutline_1531177816177571" ;="" style="font-size: 15px; line-height: 1.6;">嘗試建立豐富的卡片式</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531177816177916" ;="" style="font-size: 15px; line-height: 1.6;">Hero Card</a><br></li><li><a href="#WizKMOutline_1531177816177736" ;="" style="font-size: 15px; line-height: 1.6;">Receipt Card</a><br></li><li><a href="#WizKMOutline_1531177816177606" ;="" style="font-size: 15px; line-height: 1.6;">Adaptive Card</a><br></li></ul><li><a href="#WizKMOutline_1531177816178432" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1531177816178433" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1531177816177346">Attachment是什麽？</h2><p>
+		還記得我們之前提到，所有的訊息流通其實都是一個<code>IActivity</code>，其實從chatbot發出去的也是<code>IActivity</code>，只不過是一個更訊息像的<code>IMessageActivity</code>（如果看看
+		<code>IDialogContext.PostAsync</code>會發現除了允許一個字串之外，也允許接受一個<code>IMessageActivity</code>）。
+		</p><p>
+		而<code>Attachment</code>是<code>IMessageActivity</code>的其中一個欄位，可以放不同類型的内容。
+		</p><p>
+		在這一篇，將會著重放一些<em>豐富格式</em>的内容。由於這些豐富格式看起來像一張一張卡片，因此又稱之爲<em>Rich Card Message</em></p></section><section><h2 id="WizKMOutline_1531177816177215">總共有哪些卡片樣式</h2><dl><dt>
+				Animation Card
+			</dt><dd>
+				可以播放影片或者GIF檔案的卡片
+			</dd><dt>
+				Audio Card
+			</dt><dd>
+				可以播放聲音檔案的卡片
+			</dd><dt>
+				Hero Card
+			</dt><dd>
+				有一張大圖，一些文字説明，然後一些按鈕點下去可以觸發別的事情。Hero Card是用的最多的一種
+			</dd><dt>
+				Thumbnail Card
+			</dt><dd>
+				呈現圖片的卡片
+			</dd><dt>
+				Receipt Card
+			</dt><dd>
+				收據卡。可以有品相，然後最後的費用
+			</dd><dt>
+				Sigin Card
+			</dt><dd>
+				讓bot登入到第三方系統的卡片
+			</dd><dt>
+				Video Card
+			</dt><dd>
+				可以用用來播放影片的卡片
+			</dd></dl><p>
+		以上是所有内建的卡片，雖然大部分的情景都夠使用了，但是如果有些想要自己定義怎麽辦？
+		</p><p>
+		BotBuilder有支援<em>Adaptive Card</em>，因此可以自己定義不同組合。
+		</p><div class="bs-callout bs-callout-info"><em>Adaptive Card</em>不是BotBuilder才有的東西，這個是微軟提出的一個概念，BotBuilder只是剛好其中一個有支援這個樣式的框架之一。詳細資訊可以參考：<a href="https://adaptivecards.io/">https://adaptivecards.io/</a></div><p>
+		有些卡片樣式可以定義一些按鈕可以讓使用者點選，這些動作會是<code>CardAction</code>形態。
+		</p></section><section><h2 id="WizKMOutline_1531177816177571">嘗試建立豐富的卡片式</h2><p>
+		有了上面的概念之後，我們來實際實作一下這些不同的卡片樣式，我們不會全部都做，但是至少給大家一個feel怎麽建立出這些卡片，然後最後會留給大家一個參考鏈接。
+		</p><p>
+		我們會實作：
+		</p><ol><li>Hero Card</li><li>Receipt Card</li><li>Adaptive Card</li></ol><p></p><section><h3 id="WizKMOutline_1531177816177916">Hero Card</h3><p>
+			回到我們的情景，使用者可能會查某一家飯店，那這個時候我們要返回這家飯店的圖片，以及讓使用者點了可以到官網的按鈕。
+			</p><p>
+			要達成這個目標，首先我們先增加一個新的判斷：
+</p><pre><code class="language-csharp">...
+if (activity.Text == "查飯店")
+{
+	// 返回飯店的圖片以及可以打開官網的按鈕
+}
+else
+{
+	// 已經有姓名直接輸出 姓名 + 輸入内容
+	await context.PostAsync($"{name}: {activity.Text}");
+}
+...</code></pre><p></p><p>
+			上面的code還是延續我們之前的sample程式碼，只是本來echo使用者輸入的内容，現在變成特定文字會做特定事情，其餘保留。
+			</p><p>
+			再來是建立出一個要被回復出去的<code>IMessageActivity</code>，并且組出我們要的<code>HeroCard</code>，最後把結果輸出
+			</p><pre><code class="language-csharp">// 建立一個回復
+var returnMessage = activity.CreateReply();
+
+// 建立一個HeroCard
+var herocard = new HeroCard()
+{
+	Title = "xxx飯店",
+	Text = "5星級高級大飯店",
+	Images = new List&lt;CardImage&gt;()
+	{
+		   new CardImage("https://cdn.pixabay.com/photo/2016/02/10/13/32/hotel-1191709_1280.jpg")
+	},
+	Buttons = new List&lt;CardAction&gt;()
+	{
+		new CardAction("openUrl", "官網", "http://www.google.com")
+	}
+};
+
+returnMessage.Attachments =new List&lt;Attachment&gt;() { herocard.ToAttachment() };
+
+// 送出
+await context.PostAsync(returnMessage);</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-10-bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card/e2cdf75e-8a5d-4373-9690-90966efa44ad.png" border="0" alt="Bot Framework Emulator_2018-07-09_23-54-46.png"><br><figcaption>測試結果</figcaption></figure><p>
+從上面的測試結果，可以看出如果我們整個串起來，從詢問名字到請問使用者用途，整體起來開始有點feel了。
+</p><p>
+然後我們的HeroCard也讓他看起來便的更加漂亮，除了有圖片，還可以點下去開啓官網
+</p><div class="bs-callout bs-callout-info">
+	題外話，<code>CardAction</code>還可以有不同類型，我們目前這種是開啓網頁，其他還有例如點了就輸入某些内容方便輸入。
+</div></section><section><h3 id="WizKMOutline_1531177816177736">Receipt Card</h3><p>
+			假設今天使用者想要訂房，我們可能會顯示會需要多少錢，這個時候就可以使用Receipt Card。
+			</p><pre><code class="language-csharp">else if(activity.Text == "訂房")
+{
+	var returnMessage = activity.CreateReply();
+
+	var receiptCard = new ReceiptCard()
+	{
+		Title = "訂房費用",
+		Total = "NT$ 120",
+		Tax = "NT$ 20",
+		Items = new List&lt;ReceiptItem&gt;()
+		   {
+			   new ReceiptItem()
+			   {
+					Title = "1大房",
+					Price = "90",
+					Quantity = "1",
+					Image = new CardImage("https://cdn.pixabay.com/photo/2014/08/11/21/40/wall-416062__180.jpg")
+			   },
+			   new ReceiptItem()
+			   {
+				   Title = "飲料",
+				   Price = "10",
+				   Quantity = "1",
+				   Image = new CardImage("https://cdn.pixabay.com/photo/2014/09/26/19/51/coca-cola-462776_1280.jpg")
+			   }
+		   }
+	};
+
+	returnMessage.Attachments = new List&lt;Attachment&gt;() { receiptCard.ToAttachment() };
+
+	await context.PostAsync(returnMessage);
+}</code></pre><p>
+上面的程式碼其實和<code>HeroCard</code>沒什麽兩樣，差異只在於他們自己有的特定欄位，但是光看名稱應該就蠻好理解。
+</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-10-bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card/de66a7e1-1622-4f57-8e8c-7b94d4468a19.png" border="0" alt="Bot Framework Emulator_2018-07-09_23-55-49.png"><br><figcaption>執行結果</figcaption></figure></section><section><h3 id="WizKMOutline_1531177816177606">Adaptive Card</h3><p>
+			内建的一些卡片樣式其實很夠大部分使用情景了。但是，如果今天你想要自己刻畫呈現的内容怎麽辦？
+			</p><p>
+			例如說我希望，查飯店的時候，左邊是飯店的一些資訊，右邊則是飯店圖片的縮圖，透過内建的卡片樣式是做不到。這個時候就需要<em>Adaptive Card</em>。
+			</p><p>
+			要使用Adaptive Card，先安裝的套件，直接使用nuget：<kbd>Install-Package Microsoft.AdaptiveCards</kbd></p><p>
+			今天我想達到的效果是，左邊是飯店資訊，右邊是飯店的圖片，然後有鏈接可以點去官網，在Adaptive Card我們可以透過使用<code>ColumnSet</code>做到
+			</p><p>
+			以下是完整的程式碼：
+			</p><pre><code class="language-csharp">...
+else if(activity.Text == "查飯店v2")
+{
+	var returnMessage = activity.CreateReply();
+
+	var card = new AdaptiveCard();
+	var columSet = new ColumnSet();
+	columSet.Columns.Add(new Column()
+	{
+		Size = "1",
+		Items = new List&lt;CardElement&gt;()
+		 {
+			 new TextBlock()
+			 {
+				  Text = "豪華大飯店",
+				  Weight = TextWeight.Bolder,
+				  Size = TextSize.ExtraLarge
+			 },
+			 new TextBlock()
+			 {
+				 Text = "4.2 ★★★☆ (120) ",
+				 IsSubtle = true,
+				   Wrap = false
+			 }
+		 }
+	});
+
+	columSet.Columns.Add(new Column()
+	{
+		Size = "1",
+		Items = new List&lt;CardElement&gt;()
+		{
+			new Image()
+			{
+				Url = "https://cdn.pixabay.com/photo/2016/02/10/13/32/hotel-1191709_1280.jpg",
+				Size = ImageSize.Auto
+			}
+		}
+	});
+
+	card.Body.Add(columSet);
+
+	card.Actions.Add(new OpenUrlAction()
+	{
+		Title = "官網",
+		Url = "http://wwww.google.com"
+	});
+
+	returnMessage.Attachments.Add(new Attachment()
+	{
+		Content = card,
+		ContentType = AdaptiveCard.ContentType
+	});
+
+	await context.PostAsync(returnMessage);
+}
+...</code></pre><p>
+上面的程式碼相較於之前的長很多，但是如果仔細看會發現很多都是在設定<em>排版</em>相關的資訊。如果直接和下圖的結果對照應該就能夠看出感覺：
+</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-10-bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card/31317f17-b80e-4543-931a-a3c51bd3702e.png" border="0" alt="Bot Framework Emulator_2018-07-10_06-50-37.png"><br><figcaption>adaptive card輸出的結果</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+如果對Adaptive Card有興趣，可以去他的官網(<a href="https://adaptivecards.io">官網介紹</a>)瞭解更多，他那裏有一個綫上UI設計的工具(<a href="https://adaptivecards.io/visualizer">Visualizer</a>)，可以那邊設計好了再來寫這個code。
+然後這個是微軟另外一個project，因此別的地方也可以使用
+</div>
+<div class="bs-callout bs-callout-warning">
+	不過Adaptive Card在某些channel上面是不支援的，後面我們在提到channel支援的部分會在提到，大家先有個映像就好。
+</div>
+</section></section><section><h2 id="WizKMOutline_1531177816178432">結語</h2><p>
+		透過這篇是不是開始覺得chatbot也是可以很漂亮的。輸出内容不再是醜醜的文字，而是做成類似卡片的方式輸出，如果内建格式不夠使用，還可以使用Adaptive Card來自己微調。
+		</p><p>
+		到目前爲止大家是不是開始覺得程式碼有點髒了？所有邏輯都寫在一起，然後根本是靠if else來切換邏輯。那如果需要使用者輸入類似表單多欄位不是要寫到死？
+		</p><p>
+		下一篇，我們先對於表單欄位輸入類型的處理方式透過FormFlow介紹一下，然後關於邏輯切割的部分在之後的Dialogs章節在介紹。
+		</p></section>
+	<section>
+			<h2 id="WizKMOutline_1531177816178433">參考資料</h2> 
+			<dl>
+				<dt>
+					官方介紹card style相關的文件
+				</dt>
+				<dd>
+					<a href="https://docs.microsoft.com/en-us/azure/bot-service/dotnet/bot-builder-dotnet-add-rich-card-attachments?view=azure-bot-service-3.0">https://docs.microsoft.com/en-us/azure/bot-service/dotnet/bot-builder-dotnet-add-rich-card-attachments?view=azure-bot-service-3.0</a>
+				</dd>
+				<dt>
+					Adaptive Card的首頁介紹用途
+				</dt>
+				<dd>
+					<a href="https://adaptivecards.io">https://adaptivecards.io</a>
+				</dd>
+				<dt>
+					sample程式碼顯示所有内建卡片建立方式以及呈現樣子的截圖
+				</dt>
+				<dd>
+					<a href="https://github.com/Microsoft/BotBuilder-Samples/tree/master/CSharp/cards-RichCards">https://github.com/Microsoft/BotBuilder-Samples/tree/master/CSharp/cards-RichCards</a>
+				</dd>
+			</dl>
+		</section>

@@ -48,7 +48,9 @@
     </div>
     @Html.Partial("_partial_fbLike", Model)
 </section>
-                @RenderBody()
+                <section itemprop="articleBody">
+                    @RenderBody()
+                </section>
             </article>
         </div>
     </div>
@@ -65,7 +67,7 @@
 <script type="application/ld+json">
 {
   "@@context": "http://schema.org",
-  "@@type": "NewsArticle",
+  "@@type": "BlogPosting",
   "mainEntityOfPage": {
     "@@type": "WebPage",
     "@@id": "@Context.GetLink(Model, true)"

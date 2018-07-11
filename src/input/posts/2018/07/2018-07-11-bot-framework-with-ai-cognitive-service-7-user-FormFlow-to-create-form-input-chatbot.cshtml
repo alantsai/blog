@@ -1,0 +1,103 @@
+Title: "[chatbot + AI = 下一代操作模式][07]使用FormFlow讓Chatbot搜集表單資訊更容易"
+Published: 2018-07-11 08:01
+Modified: 2018-07-11 08:01
+Image: "/posts/2018/07/2018-07-11-bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot/f62d9068-22df-4c0a-bccd-ffa0c8bcd418.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "到目前爲止我們對於整個chatbot的開發有了基本概念，并且我們開始感覺到程式碼有點髒了。
+不過在重構之前，這邊要在介紹另外一種情景，如何讓chatbot透過交談方式取得使用者資料填寫表單
+這篇介紹FormFlow - 用來做這個事情的模組的基本使用"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-11-bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot/f62d9068-22df-4c0a-bccd-ffa0c8bcd418.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][07]使用FormFlow讓Chatbot搜集表單資訊更容易.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card">[06]不只能輸出文字 - 看看各種内建卡片模式以及可自定的Adaptive Card</a>)介紹了如何透過Rich Card把bot輸出的内容變成更加漂亮的卡片樣式。</p><p>
+		到目前爲止，所有的邏輯都在一起，作爲開發人員會開始覺得程式碼已經開始有些味道了（smell）了。如果今天我們想要透過交談對話中取得一些使用者的資訊，例如填寫表單，那可以想象要寫更多的if/else來處理。感覺程式碼會更加臟。
+		</p><p>
+		還好BotBuilder在表單類型的溝通有一個模組叫做<code>FormFlow</code>，在這一篇將來介紹如何使用FormFlow來設計從使用者收集資料。
+		</p>
+		<div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-07">alantsai-samples/mhat-hotelbot:blog/chapter-07</a></div>
+	</section>
+		<section>
+			<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531268606029183" ;="" style="font-size: 15px; line-height: 1.6;">FormFlow是什麽？</a><br></li><li><a href="#WizKMOutline_1531268606030357" ;="" style="font-size: 15px; line-height: 1.6;">如何使用FormFlow</a><br></li><li><a href="#WizKMOutline_1531268606030606" ;="" style="font-size: 15px; line-height: 1.6;">實際使用FormFlow</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531268606030126" ;="" style="font-size: 15px; line-height: 1.6;">1. 定義Model</a><br></li><li><a href="#WizKMOutline_1531268606030691" ;="" style="font-size: 15px; line-height: 1.6;">2. 把Model轉成FormFlow</a><br></li><li><a href="#WizKMOutline_1531268606030532" ;="" style="font-size: 15px; line-height: 1.6;">3. 觸發FormFlow</a><br></li></ul><li><a href="#WizKMOutline_1531268606030765" ;="" style="font-size: 15px; line-height: 1.6;">測試FormFlow</a><br></li><li><a href="#WizKMOutline_1531268606030740" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1531268606029183">FormFlow是什麽？</h2><p>
+		我們使用服務性類型的網站多多少少都需要填寫表單，例如，搜索飯店需要輸入一些條件，要注冊帳號需要輸入使用者資訊等。這些類型資訊可以統稱為表單類型的輸入。
+		</p><p>
+		回到chatbot角度，想一下這種表單開發在bot裡面要怎麽做？以我們現有知識的做法其實就是一堆if/else，同時還要記錄上下文（知道那些欄位有輸入過，那些沒有），并且要提供功能讓使用者看目前輸入了那些，并且如何修改已經輸入過的欄位
+		等等。
+		</p><p>
+		因此，要做好一個流程以及體驗需要花蠻多時間，因此BotBuilder有提供了一個模組叫做<code>FormFlow</code>。透過FormFlow，我們在開發這種表單輸入將會變得非常簡單。我們就來看看怎麽使用FormFlow。
+		</p></section><section><h2 id="WizKMOutline_1531268606030357">如何使用FormFlow</h2><p>
+		如果有寫過MVC的會知道，當我們要開發一個表單的時候，第一件事情先定義出最後表單的<em>Model</em>。因爲透過Model我們可以做Model Binding得到强型別的物件，在C#處理會變得更加方便。
+		</p><p>
+		同樣道理，BotBuilder的FormFlow也是從Model開始。我們定義出一個我們表單的模型，并且透過使用<em>Attribute</em>調整呈現内容，最後我們收到的結果就會是這個Model。
+		</p></section><section><h2 id="WizKMOutline_1531268606030606">實際使用FormFlow</h2><p>
+			我們會經歷過幾個步奏：
+			</p><ul><ol><li>定義Model</li><li>把Model轉成FormFlow</li><li>觸發FormFlow</li></ol></ul><p></p><section><h3 id="WizKMOutline_1531268606030126">1. 定義Model</h3><p>
+			在我們的使用情景來説，訂房者想透過chatbot來訂房，那我們就會問一些問題來取得一些資訊，我們會需要：
+			</p><ul><li>從那天入住</li><li>住幾個晚上</li><li>幾個人</li><li>床大小</li></ul><p></p><p>
+			因此我們可以先建立一個Model有這些資訊：
+</p><pre><code class="language-csharp">public enum BedSizeOptions
+{
+	King = 1,
+	Queen,
+	Single
+}
+
+[Serializable]
+public class RoomReservation
+{
+	public DateTime StartDate { get; set; }
+	public int NumberOfNightToStay { get; set; }
+	public int NumberOfOccupants { get; set; }
+	public BedSizeOptions BedSize { get; set; }
+}</code></pre><p></p><p>
+這邊可以看到有不同的欄位形態，我們的床大小使用的是enum，透過enum可以限制使用者不要亂輸入。
+</p><p>
+然後我們的model需要定義爲<code>Serializable</code></p></section><section><h3 id="WizKMOutline_1531268606030691">2. 把Model轉成FormFlow</h3><p>
+Model有了之後，再來是我們要一個方法把Model轉換成爲一個FormFlow。直接在<code>RoomReservation</code>裡面定義一個方法：
+</p><pre><code class="language-csharp">...
+public static IForm&lt;RoomReservation&gt; BuildForm()
+{
+	return new FormBuilder&lt;RoomReservation&gt;()
+		.Build();
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1531268606030532">3. 觸發FormFlow</h3>
+
+最後，只需要在需要的時候觸發即可。FormFlow的結果是用CallBack方式來接：
+<p></p><pre><code class="language-csharp">...
+else if(activity.Text == "訂房v2")
+{
+	var reserveRoomForm = 
+		FormDialog.FromForm(RoomReservation.BuildForm,
+			FormOptions.PromptInStart);
+
+	context.Call(reserveRoomForm, AfterReserveRoomAsync);
+}
+...
+private async Task AfterReserveRoomAsync(IDialogContext context
+            , IAwaitable&lt;RoomReservation&gt; result)
+{
+	RoomReservation reservation = null;
+
+	reservation = await result;
+
+	await context.PostAsync($"得到的結果：{Environment.NewLine} {JsonConvert.SerializeObject(reservation)}");
+
+	context.Wait(MessageReceivedAsync);
+}</code></pre><div class="bs-callout bs-callout-warning">
+	這邊要注意一個事情，由於FormFlow觸發的方式不同，因此<code>context.Wait(MessageReceivedAsync)</code>不能<em>集中</em>在一個地方，而是每一個else裡面要放一個，然後FormFlow放在結束的callback裡面
+</div></section></section><section><h2 id="WizKMOutline_1531268606030765">測試FormFlow</h2><p>
+			首先可以測試順的流程（輸入的内容都對），可以參考以下的git動畫：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-11-bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot/dbf72bc9-51c1-43d1-a4c7-7330cb1cc4f7.gif" border="0" alt="2018-07-11_07-55-25.gif"><br><figcaption>測試對流程的功能</figcaption></figure><p></p><p>
+			不過其實在輸入的過程當中是有形態保護，例如，如果日期我輸入錯誤：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-11-bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot/b4e44f7e-5bce-47fc-885b-cceea24b89f0.png" border="0" alt="Bot Framework Emulator_2018-07-11_07-56-33.png"><br><figcaption>日期形態的防呆</figcaption></figure><p></p><p>
+			在表單填寫過程其實有些特殊指令，這些可以從輸入<kbd>Help</kbd>看到有哪些：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-11-bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot/48b1f2bb-8d69-44bc-88e6-60b3b6808f52.png" border="0" alt="Bot Framework Emulator_2018-07-11_07-57-48.png"><br><figcaption>Help畫面内容</figcaption></figure><p></p><p>
+			假設想要看到目前輸入那些内容，可以輸入<kbd>status</kbd>：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-11-bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot/b445a19f-7ebf-4f59-88f8-d4d029a88298.png" border="0" alt="Bot Framework Emulator_2018-07-11_07-59-19.png"><br><figcaption>輸入status看到目前輸入過的内容</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1531268606030740">結語</h2><p>
+			透過這篇可以看到要有個好使用的表單輸入流程並不容易，需要考慮怎麽防呆欄位，怎麽修改目前已經輸入的内容等等。而這些FormFlow都幫我們處理好了。
+			</p><p>
+			不過透過這篇我們會發現，目前介紹的FormFlow雖然夠用，但是使用上還不那麽順暢。例如，英文當然沒有什麽問題，但是如果中文客戶怎麽辦？如果要退出FormFlow如何讓使用者看到更友善的訊息？
+			因此，下一篇將會對如何調整FormFlow在做個介紹。
+			</p></section>

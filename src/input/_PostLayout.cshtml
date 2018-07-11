@@ -3,6 +3,7 @@
 
     var Lead = Model.String(BlogKeys.Lead);
     var Published = Model.Get<DateTime>(BlogKeys.Published);   
+    var Modified = Model.Get<DateTime>("Modified"); 
     var Tags = Model.Get<string[]>(BlogKeys.Tags);
 }
 
@@ -47,7 +48,9 @@
     </div>
     @Html.Partial("_partial_fbLike", Model)
 </section>
-                @RenderBody()
+                <section itemprop="articleBody">
+                    @RenderBody()
+                </section>
             </article>
         </div>
     </div>
@@ -60,3 +63,33 @@
 </div>
 
 @Html.Partial("_PostFooter.cshtml")
+
+<script type="application/ld+json">
+{
+  "@@context": "http://schema.org",
+  "@@type": "BlogPosting",
+  "mainEntityOfPage": {
+    "@@type": "WebPage",
+    "@@id": "@Context.GetLink(Model, true)"
+  },
+  "headline": "@Model.String("Title")",
+  "image": [
+    "http://@(Model.String(Keys.Host))@Model.String("Image")"
+   ],
+  "datePublished": "@Published.ToString("o")",
+  "dateModified": "@Modified.ToString("o")",
+  "author": {
+    "@@type": "Person",
+    "name": "Alan Tsai"
+  },
+   "publisher": {
+    "@@type": "Organization",
+    "name": "Alan Tsai",
+    "logo": {
+      "@@type": "ImageObject",
+      "url": "http://blog.alantsai.net/assets/images/profile.jpg"
+    }
+  },
+  "description": "@Model.String("PostDescription")"
+}
+</script>

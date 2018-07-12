@@ -1,0 +1,168 @@
+Title: "[chatbot + AI = 下一代操作模式][08]如何微調FormFlow讓使用上更流暢"
+Published: 2018-07-12 20:41
+Modified: 2018-07-12 20:41
+Image: "/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/d72fc894-3e34-4cff-979c-04e4f3649b0b.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇介紹了如何使用FormFlow來讓chatbot透過交談的方式取得使用者的資料
+不過，當我們細的去看，會發現有些地方還是太粗糙，例如中文化，例如資料驗證等
+這篇來看看怎麽處理這些細節的部分"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/d72fc894-3e34-4cff-979c-04e4f3649b0b.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][08]如何微調FormFlow讓使用上更流暢.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot">[07]使用FormFlow讓Chatbot搜集表單資訊更容易</a>)我們瞭解了如何透過使用建立Model然後搭配FormFlow的方式讓我們的chatbot可以從使用者那邊搜集到表單類型的資訊。</p><p>
+		不過我們也開始遇到一些問題，舉例來説，欄位名稱是英文，如果中途退出就gg了等等的細節問題。這些問題需要我們對Model或者FormFlow建立的時候做一些調整。
+		</p><p>
+		這篇將和大家介紹一下，如何做這些調整。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-08">alantsai-samples/mhat-hotelbot:blog/chapter-08</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531398922878603" ;="" style="font-size: 15px; line-height: 1.6;">如何微調FormFlow内容？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531398922878322" ;="" style="font-size: 15px; line-height: 1.6;">增加開始時候的説明文字</a><br></li><li><a href="#WizKMOutline_1531398922878742" ;="" style="font-size: 15px; line-height: 1.6;">處理使用者退出不報錯</a><br></li><li><a href="#WizKMOutline_1531398922878893" ;="" style="font-size: 15px; line-height: 1.6;">調整呈現的文字</a><br></li><li><a href="#WizKMOutline_1531398922878296" ;="" style="font-size: 15px; line-height: 1.6;">加强資料驗證</a><br></li><li><a href="#WizKMOutline_1531398922878860" ;="" style="font-size: 15px; line-height: 1.6;">内建多語系説明</a><br></li></ul><li><a href="#WizKMOutline_1531398922878386" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li><li><a href="#WizKMOutline_1531398922878847" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more-->
+	<section><h2 id="WizKMOutline_1531398922878603">如何微調FormFlow内容？</h2><p>
+		還記得以前學MVC的時候，做CRUD資料的部分都是搭配Entity Framework儲存在資料庫。那個時候，表單呈現的欄位也是用Model定義出來，如果欄位名稱要調整，那時候我們需要做什麽？
+		</p><p>
+		沒錯，那時候我們會用<em>DataAnnotation Attribute</em>來給我們的Model欄位提供一些資訊，在前臺的Helper產生欄位的時候就會使用這些資訊對產生内容做出微調。而BotBuilder是<em>一樣的概念</em>。
+		</p><p>
+		還有另外一種微調方式是在把Model轉換成爲FormFlow的時候，那邊也可以做一些調整。
+		</p><p>
+		在這篇，將會對以下幾個微調的地方做説明：
+		</p><ul><li>增加開始時候的説明文字</li><li>處理使用者退出不報錯</li><li>調整呈現的文字</li><li>加强資料驗證</li><li>内建多語系説明</li></ul><p></p><section><h3 id="WizKMOutline_1531398922878322">增加開始時候的説明文字</h3><p>
+			目前，當我們觸發FormFlow的時候，直接就進入了每一個欄位的問題，不過可能對使用者來説少了一個引導詞。因此，一般來説會加一個説明接下來會發生什麽事情。
+			</p><p>
+			加的方式是透過建立FormFlow的時候多執行一個<code>Message</code>的方法：
+</p><pre><code class="language-csharp">public static IForm&lt;RoomReservation&gt; BuildForm()
+{
+	return new FormBuilder&lt;RoomReservation&gt;()
+		.Message
+		("歡迎使用訂房功能。接下來將會問您一系列問題好讓我們幫您找到最好的房間。" +
+			$"{Environment.NewLine}有任何問題隨時打入Help將有幫助文字出現。")
+		.Build();
+}</code></pre><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/58eb2ecb-c8d8-48e8-8431-2d0ec2afcd4d.png" border="0" alt="Bot Framework Emulator_2018-07-12_06-46-11.png"><br><figcaption>呈現效果，左邊是沒加過之前，右邊是加過之後</figcaption></figure></section><section><h3 id="WizKMOutline_1531398922878742">處理使用者退出不報錯</h3><p>
+			使用者在填寫表單過程中，如果有退出的情況（輸入quit），這個時候系統會報錯。原因是，當使用者退出的時候，一個exception會被丟出來。目前我們沒有接任何exception因此直接導致整個機器人就出錯了。
+			</p><p>
+			要解決也簡單，我們只要在FormFlow觸發時給的那個CallBack加上處理即可：
+			</p><pre><code class="language-csharp">private async Task AfterReserveRoomAsync(IDialogContext context
+            , IAwaitable&lt;RoomReservation&gt; result)
+{
+	RoomReservation reservation = null;
+
+	try
+	{
+		reservation = await result;
+
+		await context.PostAsync($"得到的結果：{Environment.NewLine} {JsonConvert.SerializeObject(reservation)}");
+	}
+	catch(FormCanceledException&lt;RoomReservation&gt; ex)
+	{
+		string reply;
+
+		if (ex.InnerException == null)
+		{
+			reply = $"您在 {ex.Last} 的時候退出了 -- 如果有遇到任何問題請告訴我們";
+		}
+		else
+		{
+			reply = "機器人暫時罷工了，請稍後嘗試";
+		}
+
+		await context.PostAsync(reply);
+	}
+	finally
+	{
+		context.Wait(MessageReceivedAsync);
+	}
+}</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/7370da32-c235-4b0a-91e8-99b6a3e112c1.png" border="0" alt="Bot Framework Emulator_2018-07-12_06-54-40.png"><br><figcaption>左邊是原來的結果，右邊是經過處理的結果</figcaption></figure></section><section><h3 id="WizKMOutline_1531398922878893">調整呈現的文字</h3><p>
+			FormFlow在處理英文的時候我盡量幫忙切字，因此詢問欄位的時候不會怪怪的。例如，我們的<em>StartDate</em>在詢問的時候很好的切割變成：<em>sart date</em></p><p>
+			不過中文不是這樣運作，這個時候我們可以透過給Property Attribute設定來告訴FormFlow呈現内容是什麽。總共有3個Attribute和這個有關：
+			</p><dl><dt>
+					DescribeAttribute
+				</dt><dd>
+					這個是用來設定欄位的名稱
+				</dd><dt>
+					PromptAttribute
+				</dt><dd>
+					這個是用來設定整段問題的文字。
+				</dd><dt>
+					TemplateAttribute
+				</dt><dd>
+					這個和DescribeAttribute是一樣的，不過會影響到<em>每個欄位</em>，DescribeAttribute則是只影響到有被設定的那個欄位。
+				</dd></dl><p></p><p>
+			假設今天我們的<code>StartDate</code>要呈現為：<em>入住日期</em>，那麽我們可以在Model裡面加入<code>PromptAttribute</code>：
+			</p><pre><code class="language-csharp">[Serializable]
+public class RoomReservation
+{
+	[Describe("入住日期")]
+	public DateTime StartDate { get; set; }
+...</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/27a54ece-5dda-4cb6-a2b0-43354c4fc841.png" border="0" alt="Bot Framework Emulator_2018-07-12_07-11-13.png"><br><figcaption>左邊是原來的内容，右邊是有調整過呈現的内容</figcaption></figure><p>
+我們可以看到，修改之後，欄位文字變成我們在Describe定義的那樣，不過整體文字還是英文。這個時候就是<code>PromptAttribute</code>進來的時候：
+</p><pre><code class="language-csharp">[Serializable]
+public class RoomReservation
+{
+	[Describe("入住日期")]
+	[Prompt("請輸入您的 {&amp;}")]
+	public DateTime StartDate { get; set; }
+...</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/99ccca1c-75b7-4da7-932f-b64a90eae3b7.png" border="0" alt="Bot Framework Emulator_2018-07-12_07-47-12.png"><br><figcaption>左邊是原來的内容，右邊是調整過呈現的内容</figcaption></figure><p><code>PromptAttribute</code>修改的是某個欄位的輸出，但是如果我全部的欄位都要調整呢？這個時候就是使用<code>TemplateAttribute</code>的時候。<code>TemplateAttribute</code>是放到<em>class</em>等級，因此影響所有欄位。
+</p><div class="bs-callout bs-callout-info">
+	Prompt和Template輸入的内容其實是<em>pattern language</em>，裡面有一些特殊字用來替換，例如<em>{&amp;}</em>代表這個地方放入欄位名稱。更多特殊字可以參考：<a href="https://docs.microsoft.com/en-us/azure/bot-service/dotnet/bot-builder-dotnet-formflow-pattern-language?view=azure-bot-service-3.0">Customize user experience with pattern language</a></div></section><section><h3 id="WizKMOutline_1531398922878296">加强資料驗證</h3><p>
+			欄位輸入的很大一個注意事項就是驗證，需要過濾掉使用者輸入有問題的欄位。
+			</p><p>
+			内建FormFlow已經有幫忙驗證基本形態，舉例來説，如果是數字形態，那麽輸入文字FormFlow會提示輸入錯誤。如果是enum，輸入不在enum的欄位也會提示，不過有些更商務邏輯的驗證就需要開發者處理。
+			</p><p>
+			舉例來説，數字類型的輸入只允許1到10之類。或者說，如果某個欄位輸入了什麽，另外一個欄位的值就要是多少。
+			</p><p>
+			在FormFlow有提供三種方式：
+			</p><ol><li>使用<code>NumericAttribute</code> - 定義數字型可以在什麽範圍内</li><li>使用 <code>PatternAttribute</code> - 用RegEx定義，輸入的内容可以是什麽</li><li>使用 FormFlow 來定義複雜邏輯</li></ol><p></p><p>
+			首先，先來看看數字型的驗證：
+</p><pre><code class="language-csharp">[Serializable]
+public class RoomReservation
+{
+	...
+	[Numeric(1, 5)]
+	public int NumberOfNightToStay { get; set; }
+...</code></pre><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/e92c46f6-c473-4d27-83b4-fa0de4bbdefb.png" border="0" alt="Bot Framework Emulator_2018-07-12_08-40-30.png"><br><figcaption>左邊是原來的情況，右邊則是加入後的結果</figcaption></figure><p><code>PatternAttribute</code>和<code>NumericAttribute</code>是一樣的概念，也是透過設定在某個欄位上面就有效果。
+			</p><p>
+			最後一種可以在建立FormFlow的時候設定驗證邏輯。除了驗證邏輯之外，也可以用來改值。舉例來説，如果我要把所有的開始日期都加1天，我可以透過這個客製邏輯方式達到：
+			</p><pre><code class="language-csharp">public static IForm&lt;RoomReservation&gt; BuildForm()
+{
+	return new FormBuilder&lt;RoomReservation&gt;()
+		.Message
+		("歡迎使用訂房功能。接下來將會問您一系列問題好讓我們幫您找到最好的房間。" +
+			$"{Environment.NewLine}有任何問題隨時打入Help將有幫助文字出現。")
+		.Field(nameof(StartDate),
+				validate: async (state, value) =&gt;
+				{
+					var result = new ValidateResult
+						{ IsValid = true, Value = value };
+
+					var datetime = (DateTime)value;
+
+					result.Value = datetime.AddDays(1);
+
+					return result;
+				})
+		  .Field(nameof(NumberOfNightToStay))
+		  .Field(nameof(NumberOfOccupants))
+		  .Field(nameof(BedSize))
+		.Build();
+}</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/75f6ff70-6cac-46a3-b281-3db0d3f44659.png" border="0" alt="Bot Framework Emulator_2018-07-12_20-03-04.png"><br><figcaption>最後呈現結果，每次日期+1</figcaption></figure></section><section><h3 id="WizKMOutline_1531398922878860">内建多語系説明</h3><p>
+			到目前爲止，我們的FormFlow主要都是英文，當然我們可以透過上面介紹的例如<code>Template</code>來達到全部改成中文，但是實際上FormFlow本身就有支援多語系。
+			</p><div class="bs-callout bs-callout-info">
+				内建只有簡體中文，如果要繁體中文就需要自己處理了。
+			</div><p>
+			我們可以透過Bot Emulator v3 版本，連綫的時候輸入中文的語系：<code>zh-cn</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/fcaafe69-3843-4c35-9682-3d03143df702.png" border="0" alt="botframework-emulator_2018-07-12_20-11-56.png"><br><figcaption>設定locale的畫面</figcaption></figure><p></p><p>
+			接下來我們做測試，會發現FormFlow裡面本來是英文全部變成中文啦：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/8c117446-1256-4f8c-b12a-44de3313c91c.png" border="0" alt="botframework-emulator_2018-07-12_20-12-40.png"><br><figcaption>FormFlow全部變成了中文</figcaption></figure><p></p><p>
+			不過我們同時會發現，本來關鍵字也變成了中文。例如看狀態的<code>status</code>，可能以爲是<code>狀態</code>，但是實際上是<code>进度</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/291471b3-4376-4920-85ac-542ed3c62cac.png" border="0" alt="botframework-emulator_2018-07-12_20-13-14.png"><br><figcaption>看到目前輸入情況</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				詳細的關鍵字，可以從官方source code看到：<a href="https://github.com/Microsoft/BotBuilder/blob/cc35ac5af30de5898514f53a509538df232952dd/CSharp/Library/Microsoft.Bot.Builder/MultilingualResources/Microsoft.Bot.Builder.zh-Hans.xlf">BotBuilder/CSharp/Library/Microsoft.Bot.Builder/MultilingualResources/Microsoft.Bot.Builder.zh-Hans.xlf</a></div></section></section><section><h2 id="WizKMOutline_1531398922878386">參考資料</h2><dl><dt>
+				官方介紹今天提到的内容
+			</dt><dd><a href="https://docs.microsoft.com/en-us/azure/bot-service/dotnet/bot-builder-dotnet-formflow-advanced?view=azure-bot-service-3.0">Advanced features of FormFlow</a></dd></dl></section><section><h2 id="WizKMOutline_1531398922878847">結語</h2><p>
+		我們發現FormFlow非常的好用，能夠快速收集使用者的資料來完成表單填寫。
+		</p><p>
+		但是，魔鬼藏在細節裡面，而這些細節能夠透過這篇裡面做一些微調。
+		</p><p>
+		是時候在回到我們之前的問題，邏輯全部都擠在了<code>RootDialog</code>裡面，那以後怎麽維護？我們的SOLID都去了哪裏？
+		</p><p>
+		BotBuilder考慮到了這個事情，因此有<code>IDialog</code>，下一篇將來看看怎麽拆分我們邏輯讓一切變得更加乾净并且更SOLID。
+		</p></section>

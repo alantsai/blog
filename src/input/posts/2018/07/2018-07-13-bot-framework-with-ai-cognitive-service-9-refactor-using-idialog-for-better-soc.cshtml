@@ -1,0 +1,149 @@
+Title: "[chatbot + AI = 下一代操作模式][09]使用IDialog來實現SoC"
+Published: 2018-07-13 07:05
+Modified: 2018-07-13 07:05
+Image: "/posts/2018/07/2018-07-13-bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc/d10f4aa9-bfc1-4ce0-a868-44b89ad1d1ca.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "refactor"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "chatbot會動之後就要來考慮程式碼品質的問題啦
+這篇介紹一下怎麽透過IDialog來重構邏輯達到可以重複使用，并且做到SoC (Seperation of Concern）"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-13-bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc/d10f4aa9-bfc1-4ce0-a868-44b89ad1d1ca.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][09]使用IDialog來實現SoC.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience">[08]如何微調FormFlow讓使用上更流暢</a>)介紹完FormFlow之後，我們需要回來看一下目前最大的問題，也就是程式碼都寫在一隻<code style="font-size: 15px; line-height: 1.6;">RootDialog</code><span style="font-size: 15px; line-height: 1.6;">裡面。</span></p><p>
+		BotBuilder有考慮到這件事情，因此内建用<code>IDialog</code>來解決這個問題。
+		</p><p>
+		這篇來看看<code>IDialog</code>怎麽做到SoC (Seperation of Concern)。
+		</p>
+		<div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-09">alantsai-samples/mhat-hotelbot:blog/chapter-09</a></div>
+	</section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531435558722177" ;="" style="font-size: 15px; line-height: 1.6;">重新思考一下bot的操作模式</a><br></li><li><a href="#WizKMOutline_1531435558723482" ;="" style="font-size: 15px; line-height: 1.6;">重構詢問姓名的邏輯到IDialog</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531435558723990" ;="" style="font-size: 15px; line-height: 1.6;">建立出一個NameDialog</a><br></li><li><a href="#WizKMOutline_1531435558723402" ;="" style="font-size: 15px; line-height: 1.6;">把邏輯從RootDialog搬到NameDialog</a><br></li><li><a href="#WizKMOutline_1531435558723452" ;="" style="font-size: 15px; line-height: 1.6;">調整RootDialog - 決定什麽時候進入NameDialog</a><br></li></ul><li><a href="#WizKMOutline_1531435558723845" ;="" style="font-size: 15px; line-height: 1.6;">優化NameDialog</a><br></li><li><a href="#WizKMOutline_1531435558723711" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1531435558722177">重新思考一下bot的操作模式</h2><p>
+		在進入IDialog之前，我們先來想一下目前的bot和以前的desktop程式或者web程式有什麽不同。
+		</p><p>
+		想象一下，如果今天我們現有功能是寫成一個Desktop的App。
+		</p><p>
+		每一個功能我們就會有一個頁面，因此，我們會有：
+		</p><ol><li>讓使用者輸入姓名的頁面</li><li>讓使用者查飯店的頁面</li><li>讓使用者訂房的頁面</li></ol><p></p><p>
+		而這些頁面之間的<em>跳轉</em>我們是透過<em>按鈕</em>點下去之後出現pop up的方式做完輸入之後，可能按下一個確認鍵把資料儲存起來然後又回到了程式的<em>主頁</em>。
+		</p><p>
+		剛剛上面提到的是傳統的app概念，那回到chatbot呢？其實是一樣的概念，只不過我們不是透過按下按鈕來切換功能，而是透過<em>輸入文字</em>、<em>圖片</em>和<em>語音</em>來跳轉（多媒體輸入之後在介紹）
+		</p><p>
+		剛剛是使用者面的感受，那從程式的角度呢？不管是desktop還是web，一個頁面就會有一隻獨立的cs檔案，除非你把所有功能都寫在一個頁面上面，要不然多多少少邏輯還是會拆分出來，不會造成一個頁面好多個邏輯，無形之中做到了
+		SoC。
+		</p><p>
+		但是在我們目前的chatbot來説，全部都還是在一起，那麽類似desktop或web每一種頁面一個邏輯的對應東西是什麽？那就是<code>IDialog</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-13-bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc/ee036c77-1bf2-42a5-9067-1437778ee173.png" border="0" alt="dialogs-screens.png"><br><figcaption>傳統desktop和chatbot的對應，來源：https://docs.microsoft.com/en-us/azure/bot-service/dotnet/bot-builder-dotnet-manage-conversation-flow?view=azure-bot-service-3.0</figcaption></figure></section><section><h2 id="WizKMOutline_1531435558723482">重構詢問姓名的邏輯到IDialog</h2><p>
+		我們用一個例子來學習怎麽使用IDialog來切分邏輯。
+		</p><p>
+		我們第一個功能是取得使用者的名字，這個我們可以重構到另外一個IDialog，我稱之爲<em>NameDialog</em></p><p>
+		我們會經歷以下幾個步奏：
+		</p><ol><li>建立出一個NameDialog</li><li>把邏輯從RootDialog搬到NameDialog</li><li>調整RootDialog - 決定什麽時候進入NameDialog</li></ol><p></p><section><h3 id="WizKMOutline_1531435558723990">建立出一個NameDialog</h3><p>
+			要建立一個<code>IDialog</code>需要兩件事情：
+			</p><ol><li>要加入<code>[Serializable]</code></li><li>要實作<code>IDialog&lt;T&gt;</code> - 其中的T代表會回傳的内容形態</li></ol><p></p><pre><code class="language-csharp">[Serializable]
+public class NameDialog : IDialog&lt;string&gt;
+{
+	public Task StartAsync(IDialogContext context)
+	{
+		throw new NotImplementedException();
+	}
+}</code></pre></section><section><h3 id="WizKMOutline_1531435558723402">把邏輯從RootDialog搬到NameDialog</h3><p>
+			邏輯很簡單，當這個<em>Dialog</em>觸發的時候，會詢問使用者的名稱，然後把使用者輸入的内容回傳回來。程式碼變成：
+			</p><pre><code class="language-csharp">...
+public async Task StartAsync(IDialogContext context)
+{
+	await context.PostAsync("您的名字是？");
+
+	context.Wait(MessageReceivedAsync);
+}
+
+private async Task MessageReceivedAsync
+	(IDialogContext context, IAwaitable&lt;IMessageActivity&gt; result)
+{
+	var message = await result;
+
+	context.Done(message.Text);
+}
+...</code></pre><div class="bs-callout bs-callout-info">
+	這邊發現，本來我們需要有個暫存來知道是不是問過名字這件事，但是透過Dialog這件事情就不需要暫存資料就可以做到了，因爲<code>StartAsync</code>自動分開了。
+</div><div class="bs-callout bs-callout-info">
+	我們這個Dialog主要邏輯變成詢問名字了 - 當然問到了之後可以直接存起來，或者像我們這樣回傳，然後看呼叫的人怎麽處理。我個人傾向讓呼叫的人決定怎麽處理，這樣能夠更generic。
+</div></section><section><h3 id="WizKMOutline_1531435558723452">調整RootDialog - 決定什麽時候進入NameDialog</h3><p>
+			我們在<code>RootDialog</code>還是會判斷有沒有取得過名字，沒有的話就觸發我們<code>NameDialog</code></p><pre><code class="language-csharp">...
+context.UserData.TryGetValue&lt;string&gt;("Name", out string name);
+
+if(string.IsNullOrEmpty(name))
+{
+	context.Call(new NameDialog(), GreetingAfterAsync);
+}
+...</code></pre><p>
+我們可以看到，整個判斷問過名字了沒的部分都沒了，全部由<code>NameDialog</code>處理了，然後我們會在那邊取得使用者輸入的姓名，將會在<code>GreetingAfterAsync</code>的callback裡面做處理。
+</p> 
+<pre><code class="language-csharp">private async Task GreetingAfterAsync(IDialogContext context,
+            IAwaitable&lt;string&gt; result)
+{
+	var name = await result;
+
+	context.UserData.SetValue&lt;string&gt;("Name", name);
+
+	await context.PostAsync($"{name} 您好，能夠幫助您什麽");
+
+	context.Wait(MessageReceivedAsync);
+}</code></pre><p>
+可以看到，<code>NameDialog</code>取得了名稱，在這個callback裡面得到了之後，把這個名稱寫到<code>UserData</code>裡面。
+</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-13-bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc/5bf419d9-bd4f-4244-a0e3-d4aab9a0fc18.png" border="0" alt="botframework-emulator_2018-07-13_00-43-05.png"><br><figcaption>測試執行結果</figcaption></figure><p>
+從上面的測試結果可以看出，我們保持了和以前一樣的流程，但是内部邏輯拆開了。我們有一個專門詢問名字的<code>NameDialog</code>，至於取得的名字之後要做什麽，我們交由呼叫這個Dialog的程式去控制，達到SoC。
+</p></section></section><section><h2 id="WizKMOutline_1531435558723845">優化NameDialog</h2><p>
+		到目前爲止，NameDialog的邏輯和未重構前一樣，不過這邊少了一個防呆，也就是如果使用者<em>沒有輸入</em>任何名字怎麽辦？
+		</p><p>
+		我們應該要有個邏輯，做這個檢查：
+		</p><pre><code class="language-csharp">private async Task MessageReceivedAsync
+            (IDialogContext context, IAwaitable&lt;IMessageActivity&gt; result)
+{
+	var message = await result;
+
+	if(string.IsNullOrEmpty(message.Text))
+	{
+		await context.PostAsync("請您輸入您的名字");
+
+		context.Wait(MessageReceivedAsync);
+	}
+
+	context.Done(message.Text);
+}</code></pre><p>
+不過這個時候會遇到另外一個問題，如果使用者一直輸入不符合條件的姓名，他會<em>無限回圈</em>在這裡面。因此，這種類型的重試，都記得要做所謂的只嘗試幾次，避免使用者<em>卡在這個Dialog</em>。
+</p><pre><code class="language-csharp">private int Attempt = 3;
+
+private async Task MessageReceivedAsync
+            (IDialogContext context, IAwaitable&lt;IMessageActivity&gt; result)
+{
+	var message = await result;
+
+	if(string.IsNullOrEmpty(message.Text))
+	{
+		Attempt = Attempt - 1;
+
+		if (Attempt &gt; 0)
+		{
+			await context.PostAsync("請您輸入您的名字");
+
+			context.Wait(MessageReceivedAsync);
+		}
+		else
+		{
+			context.Fail(new TooManyAttemptsException("取不到名字"));
+		}
+	}
+
+	context.Done(message.Text);
+}</code></pre><div class="bs-callout bs-callout-info">
+	從這裡可以看出，拆IDialog是很有必要的，想象一下全部寫在<code>RootDialog</code>，不止邏輯看起來複雜，無法做單元測試，同樣邏輯還不能夠重複使用。因此，好好使用Dialog對整個chatbot開發是關鍵。
+</div></section><section><h2 id="WizKMOutline_1531435558723711">結語</h2><p>
+		程式設計師最需要注意的就是保持程式碼的“乾净”，而好好使用IDialog就是讓chatbot程式碼乾净的好幫手。
+		</p><p>
+		到目前爲止，chatbot的重要觀念都已經介紹完了，細節的部分還有很多，不過以目前所知要開發出一個chatbot已經不是什麽太難的事情了。
+		</p><p>
+		在要轉換文章重心之前，要對目前的code做一次大重構，把這篇所學的IDialog概念都使用上。
+		</p><p>
+		下一篇將是一個階段性的總結。
+		</p></section>

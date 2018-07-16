@@ -1,0 +1,63 @@
+Title: "[chatbot + AI = 下一代操作模式][12]準備上綫 - 用Bot Channel Registration注冊chatbot"
+Published: 2018-07-16 21:05
+Modified: 2018-07-16 21:05
+Image: "/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/b05bd02d-46d8-4877-ba4f-b103b4030db8.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "把chatbot部署到了app service之後就需要建立bot channel registration來把chatbot和channel連在一起
+這篇先介紹chatbot相關的設定和如何做測試。
+下篇再來介紹channel設定的部分。"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/b05bd02d-46d8-4877-ba4f-b103b4030db8.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][12]準備上綫 - 用Bot Channel Registration注冊chatbot.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release">[11]準備上綫 - chatbot發佈到Azure App Service</a>)介紹了如何用visual studio把chatbot部署到了Azure的PaaS服務，App Service。</p><p>
+		這一篇將來看另外一個部分，也就是如何把chatbot和不同的channel連接在一起的服務，Azure Bot Service裡面的Bot Channel Registration (以下簡稱Channel Registration)。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531746297288648" ;="" style="font-size: 15px; line-height: 1.6;">Azure Bot Service的Channel Registration</a><br></li><li><a href="#WizKMOutline_1531746297288104" ;="" style="font-size: 15px; line-height: 1.6;">建立Channel Registration</a><br></li><li><a href="#WizKMOutline_1531746297288160" ;="" style="font-size: 15px; line-height: 1.6;">設定Channel Registration</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531746297288286" ;="" style="font-size: 15px; line-height: 1.6;">設定對應的Chatbot Message Endpoint</a><br></li><li><a href="#WizKMOutline_1531746297288108" ;="" style="font-size: 15px; line-height: 1.6;">chatbot設定和channel一樣的Microsoft AppId 和 Password</a><br></li></ul><li><a href="#WizKMOutline_1531746297288308" ;="" style="font-size: 15px; line-height: 1.6;">測試目前的設定</a><br></li><li><a href="#WizKMOutline_1531746297288806" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1531746297288648">Azure Bot Service的Channel Registration</h2><p>
+		再來回顧一下整個Azure Bot Service的架構。從下圖可以看到，在Channel和Chatbot之間有個轉換格式的Connector Service。這個Connector Service從服務體現來説就是Channel Registration。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/b9aa9d2d-1711-4097-ad3b-d929582c3d6d.jpg" border="0" alt=""><br><figcaption>Channel Registration在整個架構的位置</figcaption></figure><p>
+		簡單來説，Channel Registration有點像是把Channel和Chatbot鏈接在一起的膠水，有了這個我們可以設定我們那個chatbot要和那些channel連接。
+		</p></section><section><h2 id="WizKMOutline_1531746297288104">建立Channel Registration</h2><p>
+		要建立Channel Registration首先要開啓Azure的Portal（<a href="https://portal.azure.com">https://portal.azure.com</a>）
+		</p><p>
+		透過左上角的<code>Create Resource</code> -&gt; 搜索 <code>bot channel registration</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/27075a3d-49d1-4b8b-85c6-a20c74b790b3.png" border="0" alt="chrome_2018-07-16_19-35-20.png"><br><figcaption>搜索channel registration</figcaption></figure><p></p><p>
+		在清單裡面點選<code>Bot Channel Registration</code>然後按下<code>Create</code>。
+		</p><p>
+		接下來會輸入一些channel registration的訊息：
+		</p><ul><li><em>Bot Name</em> - 隨便取，後面可以修改 - <em>最好</em>不要和其他服務名稱一樣，避免建立Micorosft App Id/Password的時候出錯。</li><li><em>Subscription</em> - 建立在那個訂閲</li><li><em>Resource Group</em> - 這邊就選擇和Chatbot App Service一起，方便之後刪掉</li><li><em>Pricing tier</em> - 目前有2個等級F0 是<em>免費</em>，F1則是付費。兩個最大差異是 F1有SLA保證，然後F0有送出的訊息數限制</li><li><em>Message Endpoint</em> - 這個是設定我們chatbot發布到app service的網址 - 這個先留空，等一下再設定</li><li><em>Application Insight</em> - 這個系列不會介紹做分析的部分，因此這裏選擇了<code>Off</code></li></ul><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/22b9bdc9-dfa0-4f1d-9532-7831a2829f3d.png" border="0" alt="chrome_2018-07-16_20-03-35.png"><br><figcaption>建立channel registration的畫面截圖</figcaption></figure><p>
+		填寫完成之後，就按下<code>Create</code>即可。
+		</p></section><section><h2 id="WizKMOutline_1531746297288160">設定Channel Registration</h2><p>
+		當我們的Channel Registration建立出來了之後，有2個地方需要做設定：
+		</p><ol><li>對應的Chatbot Message Endpoint</li><li>chatbot設定和channel一樣的Microsoft AppId/Password</li></ol><p></p><p>
+		設定好了之後，可以設定那些channel要開啓使用。
+		</p><section><h3 id="WizKMOutline_1531746297288286">設定對應的Chatbot Message Endpoint</h3><p>
+			還記得上一篇app service部署之後怎麽取得網址的方式，只需要在那個網址後面加上<code>/api/messages</code>就是我們chatbot的message endpoint。
+			</p><p>
+			開啓建立出來的channel registration，選擇<code>Settings</code>，然後可以在<code>Message Endpoint</code>輸入你的chatbot網址。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/556f5c28-6994-45ac-b073-e120362a036e.png" border="0" alt="chrome_2018-07-16_20-05-09.png"><br><figcaption>設定 Message Endpoint</figcaption></figure><p>
+			設定好了，按下存檔即可。
+			</p></section><section><h3 id="WizKMOutline_1531746297288108">chatbot設定和channel一樣的Microsoft AppId 和 Password</h3><p>
+			在上一步設定了mesage endpoint，可以想象一下如果可以隨時輸入任意網址做注冊的話，那麽誰知道這個服務是不是合法可以使用。
+			</p><p>
+			因此，chatbot需要有些設定，能夠驗證這個服務是自己。
+			</p><p>
+			Channel Registration裡面有一個Microsoft AppId/Password，可以從 <code>Settings</code>裡面的<code>Microsoft App Id</code>，點下<code>Manage</code>進入：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/d48676a5-a253-4931-a52b-7a00cb8a8f09.png" border="0" alt="chrome_2018-07-16_20-14-06.png"><br><figcaption>開啓Microsoft App Id的manage畫面</figcaption></figure><p></p><p>
+			點下去之後會開啓管理畫面，可以按下<kbd>產生新密碼</kbd>來產生一組密碼：
+			</p><ol><li>點下去產生新的密碼</li><li>這個會是<em>BotId</em></li><li>應用程式識別碼就是要的<em>MicrosoftAppId</em></li><li>產生的新密碼只會顯示1次，如果沒有記錄下來，下次再建立一次就好。這個就是<em>MicrosoftAppPassword</em></li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/d87fdd83-f956-4406-9928-8f2c9cf47fa5.png" border="0" alt="chrome_2018-07-16_20-22-32.png"><br><figcaption>設定畫面</figcaption></figure><p></p><p>
+			接下來要去chatbot的App Service裡面設定剛剛取得的3個值：
+			</p><ol><li>輸入<kbd>Setting</kbd>篩選出<code>Application Settings</code></li><li>點選<code>Application Settings</code></li><li>在<code>App Setting Name</code>輸入 <code>BotId</code></li><li>在<code>App Setting Name</code>輸入 <code>MicrosoftAppId</code></li><li>在<code>App Setting Name</code>輸入 <code>MicrosoftAppPassword</code></li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/01c2579c-54bf-429f-a559-df43dc85fd89.png" border="0" alt="chrome_2018-07-16_20-23-06.png"><br><figcaption>設定app service</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1531746297288308">測試目前的設定</h2><p>
+			如果上面的設定都沒有問題，那麽chatbot就已經設定好了。不過要確認目前設定有沒有問題可以透過Channel Registration裡面的<code>Test in web chat</code></p><p>
+			如果<code>Test in web chat</code>有出現錯誤，那麽就要檢查一下上面兩步的設定有沒有問題。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-16-bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration/1e23d2a6-1904-4720-98b7-1e09dd33ea01.png" border="0" alt="chrome_2018-07-16_20-32-33.png"><br><figcaption>測試channel設定有沒有問題</figcaption></figure></section><section><h2 id="WizKMOutline_1531746297288806">結語</h2><p>
+		在這一篇，介紹了如何在Azure上面建立出了一個<code>Bot Channel Registration</code>的服務，并且如何做必須要的設定。
+		</p><p>
+		設定好了之後，透過<code>Test in web chat</code>的方式測試是否設定上面有問題。
+		</p><p>
+		不過到目前爲止還是沒辦法讓一般使用者使用chatbot，原因是還沒有介紹如何設定channel 連接。
+		</p><p>
+		下一篇將來看看最容易設定的channel，web control。
+		</p></section>

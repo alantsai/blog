@@ -1,0 +1,53 @@
+Title: "[chatbot + AI = 下一代操作模式][11]準備上綫 - chatbot發佈到Azure App Service"
+Published: 2018-07-15 21:05
+Modified: 2018-07-15 21:05
+Image: "/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/2f2f0369-fc79-498a-91c3-005832b7bd64.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "azure-app-service"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "瞭解完BotBuilder的基本開發，接下來就是看上綫的部分。
+這篇先從部署我們的chatbot到azure的app service説起
+看如何使用Visual Studio部署，以及如何用azure portal做基本管理"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/2f2f0369-fc79-498a-91c3-005832b7bd64.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][11]準備上綫 - chatbot發佈到Azure App Service.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-10-refactor-all-using-idialog-and-show-built-in-idialog">[10]用IDialog全部重構 - 階段性總結</a>)我們把所有的程式用Dialog重構了之後，對於chatbot開發暫時到了一個段落。當然，目前功能還非常的雛形，但是以目前介紹的東西已經足夠寫出一個好的chatbot，因此各位可以自由發揮。</p><p>
+		接下來我們要開始看看上綫的部分。當chatbot開發完了之後，該怎麽讓他上綫？需要搭配什麽服務。這篇將會看第一個部分，把chatbot先host在azure的app service上面。
+		</p></section>
+		<section>
+			<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531659121976464" ;="" style="font-size: 15px; line-height: 1.6;">上綫需要做一些什麽？</a><br></li><li><a href="#WizKMOutline_1531659121976394" ;="" style="font-size: 15px; line-height: 1.6;">把chatbot發佈到app service上面</a><br></li><li><a href="#WizKMOutline_1531659121976176" ;="" style="font-size: 15px; line-height: 1.6;">到Azure portal看看建立的app service</a><br></li><li><a href="#WizKMOutline_1531659121976226" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1531659121976464">上綫需要做一些什麽？</h2><p>
+		在講上綫之前，我們先來看看到目前爲止，在開篇提到的架構目前在什麽位置上面。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/a61b135e-cb53-44b4-8479-1f46cdedf1db.jpg" border="0" alt=""><br><figcaption>架構圖以及目前位置</figcaption></figure><p>
+		透過上圖，我們可以看出目前爲止我們專注的都在右邊開發的部分，那接下來上綫我們就需要注意左邊的<em>Azure Bot Service</em>的部分。
+		</p><p>
+		chatbot 要上綫，會需要幾個部分：
+		</p><ol><li><em>把chatbot本身部署上去</em> - 到目前爲止開發的chatbot，其實就是一個web api的服務。我們需要找到一個地方能夠host我們這個服務。</li><li><em>用azure bot service的channel registration注冊我們chatbot host在哪裏</em> - 從上面的圖可以之後，我們有個對應各個channel的服務，這個就是channel registration</li><li><em>在對應channel設定</em> - 舉例來説，如果我們想在FB放上我們的chatbot，或者slack放上chatbot，這些需要在channel的使用端做一些設定。</li></ol><p></p><p>
+		在這一篇我們將專注在第一點，也就是把chabot部署上去。既然我們稍後會使用到Azure的bot service，那麽部署在Azure就是一個很好的選擇，加上Visual Studio和Azure整合上非常方便，因此，我們將部署我們的chatbot
+		到azure的PaaS服務，App Service上面。
+		</p></section><section><h2 id="WizKMOutline_1531659121976394">把chatbot發佈到app service上面</h2><div class="bs-callout bs-callout-warning">
+			這篇我不會介紹如何申請azure。如果您目前沒有任何訂閲，您可以去官網申請一個30天試用（<a href="https://azure.microsoft.com/zh-tw/free/">立即建立免費的 Azure 帳戶</a>）來完成接下來的操作。
+		</div><p>
+		首先，在專案點下右鍵，然後選擇<code>Publish</code>：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/0e51385a-87d4-4de0-b174-9c8de09535cc.png" border="0" alt="devenv_2018-07-15_20-15-40.png"><br><figcaption>選擇publish的截圖</figcaption></figure><p></p><p>
+		在彈出的畫面，左邊選擇<code>App Service</code>，然後右邊選擇<code>Create New</code>，然後選擇下面的<code>publish</code>：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/325dc696-a574-4062-8e3e-9f6ebd9d52ae.png" border="0" alt="2018-07-15_20-16-49.png"><br><figcaption>建立app service的截圖</figcaption></figure><p></p><p>
+		接下來我麽要建立會部署的App Service資訊：
+		</p><ol><li>右上角可以設定你azure訂閲對應的帳號，這邊切換到有你訂閲的即可</li><li>AppName是app service的名稱，將會影響到預設的網址。因此如果已經有人用了，會沒辦法取一樣的名稱</li><li>Subscription是選擇你要部署的訂閲，如果說你的帳號有多個訂閲就是這裡切換</li><li>Resourc Group可以把你的azure資源用一個邏輯層包在一起，之後如果這些服務不需要了話，可以一次快速刪掉。如果建立新的，可以點旁邊的<code>New</code>，不然就是用下拉選取</li><li>Hosting Plan則是hosting那臺的機器規格，會影響到價錢。一樣，如果要新建立就選擇<code>New</code>。這邊我選了一臺在<code>East Asia</code>，也就是香港機房的機器，離我們近一些</li><li>最後選擇Create</li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/661a7e05-9919-4fd5-9e6e-06fb67fe6cc5.png" border="0" alt="devenv_2018-07-15_20-19-52.png"><br><figcaption>建立app service并且發佈的設定畫面</figcaption></figure><p></p><p>
+		按下<code>Create</code>之後，我們就需要稍等一下，他會建立機器并且幫我們把程式推上去。成功之後，會自動開啓瀏覽器，瀏覽到我們網站的網址。
+		</p><p>
+		到這一步就是完成chatbot程式碼的部署。
+		</p></section><section><h2 id="WizKMOutline_1531659121976176">到Azure portal看看建立的app service</h2><p>
+		如果有需要管理chatbot的服務機器，可以透過到azure的portal（<a href="http://portal.azure.com">http://portal.azure.com</a>），然後從我們的Resource Group可以看到多了一個App Service：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/978ddd2f-2992-4ef8-b759-8aa0ad103850.png" border="0" alt="chrome_2018-07-15_20-32-35.png"><br><figcaption>Resource Group目前有的服務</figcaption></figure><p></p><p>
+		點進去之後，有幾個部分按鈕可能會使用到（都在上面）：
+		</p><ol><li><code>Browse</code>會開啓chatbot服務的網址，之後設定會需要這個網址</li><li><code>Stop</code>如果服務不需要，可以透過這個按鈕關掉服務，關掉之後，要在啓用這個按鈕會變成<code>Start</code></li>
+			<li><code>Get publish profiles</code> - 可以從azure portal建立好app service之後，再從這邊取得publish profile，然後讓專案透過這個profile發佈上azure的app service。不過VS已經整合的很好了，
+				因此不太需要自己這麽麻煩分開做</li> 
+		</ol><figure><img class="img-responsive" class="img-responsive" src="/posts/2018/07/2018-07-15-bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release/63a69b2a-9955-4c50-95f1-aa23ff5c0d23.png" border="0" alt="chrome_2018-07-15_20-34-16.png"><br><figcaption>管理app service的界面</figcaption></figure></section><section><h2 id="WizKMOutline_1531659121976226">結語</h2><p>
+		在這篇介紹了Azure的App Service的服務，并且看了如何把chatbot的程式發佈到azure的app service。
+		</p><p>
+		也簡單的介紹了如何控制那臺app service的服務。
+		</p><p>
+		在下一篇，將來看看如何把這篇部署上去的chatbot的服務注冊到bot channel registration裡面。
+		</p></section>

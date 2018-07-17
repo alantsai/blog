@@ -9,6 +9,12 @@
     if(string.IsNullOrEmpty(uniqueSocialUrl))
     {
         uniqueSocialUrl = Context.GetLink(post, true);
+
+            if(uniqueSocialUrl.Contains("/posts/") &&
+                post.Get<DateTime>(BlogKeys.Published) < new DateTime(2018,07,17, 00, 00, 00))
+        {
+            uniqueSocialUrl = uniqueSocialUrl.Replace("https:", "http:");
+        }
     }
     else
     {

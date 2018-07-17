@@ -27,6 +27,25 @@
         {
           description = Model.String("PostDescription");
         }
+
+        // 取得這篇的網址 - 如果有舊資料表示是從blogspot來的，因此網址用以前的網址
+        // 如果沒有表示是新的網址，用新的。
+        var uniqueSocialUrl = Model.String(Keys.RedirectFrom);
+
+        if(string.IsNullOrEmpty(uniqueSocialUrl))
+        {
+                uniqueSocialUrl = Context.GetLink(Model, true);
+
+                if(     uniqueSocialUrl.Contains("/posts/") &&
+                        Model.Get<DateTime>(BlogKeys.Published) < new DateTime(2018,07,17, 00, 00, 00))
+                {
+                        uniqueSocialUrl = uniqueSocialUrl.Replace("https:", "http:");
+                }
+        }
+        else
+        {
+                uniqueSocialUrl = "http://" + Model.String(Keys.Host) + "/" + uniqueSocialUrl;
+        }
 }
 
 <!DOCTYPE html>
@@ -99,7 +118,7 @@
                                 <meta content='@Model.String(BlogKeys.Image)' itemprop='image' name='twitter:image:src' property='og:image'/>
                         }
                 }
-                <meta property="og:url" content="@Context.GetLink(Model, true)" />
+                <meta property="og:url" content="@uniqueSocialUrl" />
                 <!-- TODO: More social graph meta tags -->
 
                 <script src="@Context.GetLink("/assets/js/jquery.min.js")"></script>

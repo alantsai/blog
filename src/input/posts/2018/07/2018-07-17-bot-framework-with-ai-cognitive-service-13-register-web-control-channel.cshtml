@@ -1,0 +1,46 @@
+Title: "[chatbot + AI = 下一代操作模式][13]上綫 - 開啓web control channel"
+Published: 2018-07-17 21:05
+Modified: 2018-07-17 21:05
+Image: "/posts/2018/07/2018-07-17-bot-framework-with-ai-cognitive-service-13-register-web-control-channel/62d9c74f-67ed-4894-8934-429826d780b2.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇瞭解了如何把chatbot和bot channel registration關聯起來
+這篇介紹一下怎麽和channel關聯起來。先從最簡單的web control開始，讓任意網站都能夠使用chatbot"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-17-bot-framework-with-ai-cognitive-service-13-register-web-control-channel/62d9c74f-67ed-4894-8934-429826d780b2.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][13]上綫 - 開啓web control channel.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		透過上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration">[12]準備上綫 - 用Bot Channel Registration注冊chatbot</a>)，chatbot已經和bot channel registration設定好了，可以上綫了。</p><p>
+		接下來需要做的就是設定對應的channel。
+		</p><p>
+		這篇將來看看最容易的channel，web control。看如何取得相關的資訊讓chatbot可以在任意網站上面出現。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-13">alantsai-samples/mhat-hotelbot:blog/chapter-13</a></div></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531794798665290" ;="" style="font-size: 15px; line-height: 1.6;">什麽是web control channel</a><br></li><li><a href="#WizKMOutline_1531794798665937" ;="" style="font-size: 15px; line-height: 1.6;">設定channel的方式</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531794798666173" ;="" style="font-size: 15px; line-height: 1.6;">在bot channel registration加入channel</a><br></li><li><a href="#WizKMOutline_1531794798666786" ;="" style="font-size: 15px; line-height: 1.6;">在對應的channel平臺做設定</a><br></li></ul><li><a href="#WizKMOutline_1531794798666410" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1531794798665290">什麽是web control channel</h2><p>
+		channel代表不同類型的來源。例如FB、Slack、Telegram等。由於大部分的channel是和某一個平臺綁定，因此各個平臺設定方式有點不同，因此下一篇將會介紹常見的channel，FB。
+		</p><p>
+		有一種channel設定最簡單，也就是web control channel。這種channel本質上就是一個<em>ifram</em>，因此可以放在任意可以host html的地方。由於沒有牽扯到第三方，因此設定上最簡單。
+		</p></section><section><h2 id="WizKMOutline_1531794798665937">設定channel的方式</h2><p>
+		要加入任何channel都會需要做2個事情：
+		</p><ol><li>在bot channel registration加入channel</li><li>在對應的channel平臺做設定</li></ol><p></p><section><h3 id="WizKMOutline_1531794798666173">在bot channel registration加入channel</h3><p>
+			首先，進入azure的<a href="https://portal.azure.com/">portal</a>，然後開啓上一篇建立的channel registration服務。
+			</p><p>
+			開啓channel registration之後，選擇：
+			</p><ol><li><code>Channels</code></li><li>預設有增加web control的channel，可以從右邊的<code>edit</code>來取得一些相關資訊</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-17-bot-framework-with-ai-cognitive-service-13-register-web-control-channel/fae082a2-8c66-418e-9b0a-327cbf5cb761.png" border="0" alt="chrome_2018-07-17_09-57-32.png"><br><figcaption>調整web control channel的資訊</figcaption></figure><p>
+			在右邊下半部則是可以加入其他的channel。之後介紹加入FB chanenl將會使用到。
+			</p><p>
+			點下<em>Edit</em>之後，可以看到一些設定需要的值：
+			</p><ol><li><em>secret key</em>有兩組，用來控制避免任何人可以把你的bot放在自己的網站裡面。按下<code>show</code>可以看到實際的key</li><li>把key複製下來</li><li>複製 提供的 iframe 代碼</li><li>在第2步取得的key要替換<code>YOUR_SECRET_HERE</code></li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-17-bot-framework-with-ai-cognitive-service-13-register-web-control-channel/6f1b95fd-2a86-4a34-98bd-cb12ccc17e5f.png" border="0" alt="chrome_2018-07-17_10-02-06.png"><br><figcaption>web control的edit畫面</figcaption></figure></section><section><h3 id="WizKMOutline_1531794798666786">在對應的channel平臺做設定</h3><p>
+			以web control爲例，channel 平臺就是任何頁面可以host html。以目前的例子，可以把他放到chatbot網站啓動的那個html頁面上面。
+			</p><p>
+			開啓Visual Studio，然後在專案的root有個<code>default.htm</code>，打開然後在結束<code>body</code>前加入上一步取得的設定：
+</p><pre><code class="language-html">&lt;iframe style="height:600px" src='https://webchat.botframework.com/embed/MHATHotelBotChannelReg?s=YOUR_SECRET_HERE'&gt;</code></pre><p></p><div class="bs-callout bs-callout-info">
+				這邊和原始複製有點不同是增加了一個<code>style="height:600px"</code>，這樣web control的chatbot才不會太短。
+			</div><div class="bs-callout bs-callout-warning">
+				要注意需要把取得的secret key放入到<code>YOUR_SECRET_HERE</code>，
+			</div><p>
+			發佈上去之後，在chatbot的首頁就會多出一個chatbot的輸入框：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-17-bot-framework-with-ai-cognitive-service-13-register-web-control-channel/fbc9cdf8-0af8-4627-ae85-b686882e8451.png" border="0" alt="chrome_2018-07-17_10-19-56.png"><br><figcaption>測試結果</figcaption></figure></section></section><section><h2 id="WizKMOutline_1531794798666410">結語</h2><p>
+		這篇介紹了如何設定bot channel registration的另外一邊，也就是和channel連接的設定方式。
+		</p><p>
+		透過最容易的channel，web control，可以看出chatbot可以透過iframe的方式在任意網站非常容易地挂載上去。
+		</p><p>
+		下一篇將會介紹和其他第三方平臺接上的channel設定方式。
+		</p></section>

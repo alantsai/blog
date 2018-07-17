@@ -4,6 +4,8 @@ using Wyam.Web.Pipelines;
 
 // Customize your settings and add new ones here
 Settings[Keys.Host] = "blog.alantsai.net";
+Settings[Keys.LinksUseHttps] = "true";
+
 Settings[BlogKeys.ArchivePageSize] = 7;
 Settings[BlogKeys.Title] = "Alan Tsai 的學習筆記";
 Settings[BlogKeys.Description] = "記錄軟體開發的點點滴滴";

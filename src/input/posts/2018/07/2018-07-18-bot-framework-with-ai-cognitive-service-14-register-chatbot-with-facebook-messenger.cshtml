@@ -1,0 +1,92 @@
+Title: "[chatbot + AI = 下一代操作模式][14]上綫 - 把facebook粉絲頁和chatbot接上"
+Published: 2018-07-18 22:05
+Modified: 2018-07-18 22:05
+Image: "/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/e061326e-a55d-4511-ba5e-fa0ead2423be.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇瞭解了如何把chatbot和bot channel registration關聯起來
+這篇介紹一下怎麽和channel關聯起來。先從最簡單的web control開始，讓任意網站都能夠使用chatbot"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/e061326e-a55d-4511-ba5e-fa0ead2423be.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][14]上綫 - 把facebook粉絲頁和chatbot接上.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-13-register-web-control-channel">[13]上綫 - 開啓web control channel</a>)看了如何開啓web control的channel，透過iframe讓chatbot可以在任意網站出現。</p><p>
+		這篇將看看如何把chatbot和別的平臺的聊天工具整合，這邊將介紹内建有支援的channel，Facebook Messenger。
+		</p></section>
+		<section>
+			<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531922742100953" ;="" style="font-size: 15px; line-height: 1.6;">chatbot和Facebook整合需要做的設定</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531922742100973" ;="" style="font-size: 15px; line-height: 1.6;">1. 建立一個粉絲頁</a><br></li><li><a href="#WizKMOutline_1531922742100556" ;="" style="font-size: 15px; line-height: 1.6;">2. 取得建立的粉絲頁Id</a><br></li><li><a href="#WizKMOutline_1531922742100337" ;="" style="font-size: 15px; line-height: 1.6;">3. 建立一個Facebook App</a><br></li><li><a href="#WizKMOutline_1531922742100314" ;="" style="font-size: 15px; line-height: 1.6;">4. 取得Facebook App的id及密碼</a><br></li><li><a href="#WizKMOutline_1531922742100975" ;="" style="font-size: 15px; line-height: 1.6;">5. 設定Facebook app允許api取得app 設定</a><br></li><li><a href="#WizKMOutline_1531922742100490" ;="" style="font-size: 15px; line-height: 1.6;">6. 啓動Messenger</a><br></li><li><a href="#WizKMOutline_1531922742100820" ;="" style="font-size: 15px; line-height: 1.6;">7. 取得Page Access Token</a><br></li><li><a href="#WizKMOutline_1531922742100788" ;="" style="font-size: 15px; line-height: 1.6;">8. 設定bot channel registration</a><br></li><li><a href="#WizKMOutline_1531922742100938" ;="" style="font-size: 15px; line-height: 1.6;">9. 設定Webhook</a><br></li><li><a href="#WizKMOutline_1531922742100500" ;="" style="font-size: 15px; line-height: 1.6;">10. 測試結果</a><br></li></ul><li><a href="#WizKMOutline_1531922742100998" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1531922742100953">chatbot和Facebook整合需要做的設定</h2><p>
+		和web control不同的是，由於要和Facebook接，因此設定上需要做的事情比較多，整體設定分三個部分：		
+		</p><ol><li>建立粉絲頁 - Messenger是跟著粉絲頁走，因此需要先建立一個</li><li>建立Facebook app - 需要有權限才有辦法把Facebook Messenger和chatbot連接</li><li>設定bot channel registration - 加入Facebook Messenger的channel</li></ol><p></p><p>
+		實際落實下來的步奏會是：
+		</p><ol><li>建立一個粉絲頁</li><li>取得建立的粉絲頁Id</li><li>建立一個Facebook App</li><li>取得Facebook App的id及密碼</li><li>設定Facebook app允許api取得app 設定</li><li>啓動Messenger</li><li>取得Page Access Token</li><li>設定bot channel registration</li><li>設定Webhook</li><li>測試結果</li></ol> 
+		接下來實際看看怎麽一步一步完成chatbot和Facebook Messenger接上。
+		<p></p><section><h3 id="WizKMOutline_1531922742100973">1. 建立一個粉絲頁</h3><p>
+			可以透過網址：<a href="https://www.facebook.com/bookmarks/pages">https://www.facebook.com/bookmarks/pages</a>進入建立粉絲頁的畫面。
+			</p><dl><dt>
+					按下 <code>Create Page</code></dt><dd>
+					這頁會列出目前登入帳號全部有權限的Page，點<code>Create Page</code>即可。
+				</dd><dt>
+					選擇右邊的Community or Public figure
+				</dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/8d4c91ff-9f65-41b3-82aa-5cabf574e998.jpg" border="0" alt="chrome_2018-07-18_20-25-30.jpg"><br><figcaption>選擇右邊然後按下Get Started</figcaption></figure></dd><dt>
+					輸入Page Name和Category
+				</dt><dd><p><code>Page Name</code>隨便輸入，如果名稱不符合規則會有提示。這邊測試情況是都要縮小。
+					</p><p><code>category</code>可以隨便輸入。
+					</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/886e8d92-57dd-4453-bfd9-12c8aad05ef8.jpg" border="0" alt="chrome_2018-07-18_20-27-05.jpg"><br><figcaption>輸入page name和category</figcaption></figure></dd><dt>
+					skip profile和cover photo
+				</dt><dd>
+					如果有要正式經營會放上對應的圖片，以這邊的例子不需要，因此點選skip即可。
+				</dd></dl><p>
+			到了這一步，粉絲頁就建立好了。
+			</p></section><section><h3 id="WizKMOutline_1531922742100556">2. 取得建立的粉絲頁Id</h3><p>
+			直接從粉絲頁的首頁複製網址下來，例如我的是<a href="https://www.facebook.com/pg/Mhatchatbotdemo-494592600999398">https://www.facebook.com/pg/Mhatchatbotdemo-494592600999398</a></p><p>
+			到下面的網站<a href="https://findmyfbid.com/">https://findmyfbid.com/</a>然後按下<code>find numeric id</code>，在跳出的畫面就是page id。
+			</p><p>
+			把這個值記錄下來。
+			</p></section><section><h3 id="WizKMOutline_1531922742100337">3. 建立一個Facebook App</h3><p>
+			透過網址：<a href="https://developers.facebook.com/quickstarts/?platform=web">https://developers.facebook.com/quickstarts/?platform=web</a></p><dl><dt>
+					點選右上角的<code>Skip and Create App Id</code></dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/435572c2-5a47-4923-b449-d2391639c47b.jpg" border="0" alt="chrome_2018-07-18_20-35-45.jpg"><br><figcaption>點選右上角的按鈕</figcaption></figure></dd><dt>
+					輸入app name以及聯係人的email
+				</dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/e0ef92e1-f8d9-4730-92ae-6f9591ba8137.jpg" border="0" alt="chrome_2018-07-18_20-38-55.jpg"><br><figcaption>輸入可以識別的app name</figcaption></figure></dd><p>
+				稍等一下app就建立好了。
+				</p></dl></section><section><h3 id="WizKMOutline_1531922742100314">4. 取得Facebook App的id及密碼</h3><ol><li>點選 Settings下面的 Basic</li><li>複製 App Id</li><li>選擇按鈕 <code>show</code></li><li>需要驗證密碼，然後實際的app secret將會出現 - 複製下來</li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/f4aa1091-02a8-459e-9411-2d02b0506bec.jpg" border="0" alt="chrome_2018-07-18_20-40-10.jpg"><br><figcaption>取得app id以及密碼</figcaption></figure></section><section><h3 id="WizKMOutline_1531922742100975">5. 設定Facebook app允許api取得app 設定</h3><ol><li>選擇左邊的 Settings -&gt; Advanced</li><li>往下卷找到 <code>Allow Api Access App Settings</code></li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/0d807252-a604-4a75-86de-3207a77d5cc1.jpg" border="0" alt="chrome_2018-07-18_20-40-55.jpg"><br><figcaption>設定Allow Api Access App Settings的畫面</figcaption></figure><p>
+			記得要按下<code>Save</code></p></section><section><h3 id="WizKMOutline_1531922742100490">6. 啓動Messenger</h3><ol><li>點選右邊的<code>Dashboard</code></li><li>在 Messenger的部分按下<code>Set up</code></li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/167561df-ee92-4d99-9eff-03908b74164b.jpg" border="0" alt="chrome_2018-07-18_20-41-42.jpg"><br><figcaption>設定Messenger</figcaption></figure></section><section><h3 id="WizKMOutline_1531922742100820">7. 取得Page Access Token</h3><p>
+			往下卷，找到<code>Token Generation</code>，在<code>page</code>的下拉選擇稍早建立的<em>page</em>名稱，會跳出一個畫面確定是否用目前帳號確認。
+			</p><p>
+			按下<code>continu</code>確認之後，在<code>Page Access Token</code>的輸入框會是需要的值
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/afa60dc7-fa13-4c07-a698-f6690217b56a.jpg" border="0" alt="chrome_2018-07-18_20-42-56.jpg" style="font-size: 15px; line-height: 1.6;">&nbsp;<img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/56fcb813-c133-4f79-9f82-eddc5d6915f7.jpg" border="0" alt="chrome_2018-07-18_20-43-32.jpg"><figcaption>設定Page Access Token的值</figcaption></figure></section><section><h3 id="WizKMOutline_1531922742100788">8. 設定bot channel registration</h3><p>
+			回到Azure Portal (<a href="https://portal.azure.com/">https://portal.azure.com/</a>)上面找到上一篇建立出來的bot channel registration，并且設定Facebook channel：
+			</p><div class="bs-callout bs-callout-warning">
+				Facebook那邊的設定畫面先別關掉，建議另開頁面處理bot channel registration的部分。
+			</div><dl><dt>
+					選擇 <code>Channel</code>然後在右邊選擇 <code>Facebook Messenger</code></dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/e155ebe5-4c88-4bb3-b837-97d1902910ad.jpg" border="0" alt="chrome_2018-07-18_20-45-21.jpg"><br><figcaption>設定Facebook Messenger chanenl</figcaption></figure></dd><dt>
+					在enter your Facebook credentials 輸入目前搜集到的資訊
+				</dt><dd>
+					看名稱應該就知道要輸入什麽，都是目前爲止在搜集的資訊：
+					<figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/2e5ea502-fe3d-4189-833c-9517bad16957.jpg" border="0" alt="chrome_2018-07-18_20-47-23.jpg"><br><figcaption>設定從fb取得的值</figcaption></figure></dd><dt>
+					往下卷會取得要在fb上面設定的callback以及token
+				</dt><dd>
+					把這兩個值複製下來，再下一步會需要用到：
+					<figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/342aa668-5104-4e02-bc40-f91407d824cb.jpg" border="0" alt="chrome_2018-07-18_20-48-22.jpg"><br><figcaption>複製callback網址以及token</figcaption></figure></dd></dl><div class="bs-callout bs-callout-info">
+				複製兩個資訊下來之後，記得要<em>save</em>，要不然Facebook的Messenger channel設定不會起作用。
+			</div></section><section><h3 id="WizKMOutline_1531922742100938">9. 設定Webhook</h3><p>
+			接下來回到Facebook Messenger設定webhook的部分。
+			</p><p>
+			在<code>Page Access Token</code>的下面是<code>Webhooks</code>，按下<code>Setup Webhooks</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/99b861fc-3ab1-44b0-967f-b5f8053f9470.jpg" border="0" alt="chrome_2018-07-18_20-43-59.jpg"><br><figcaption>點下Setup Webhooks</figcaption></figure><p></p><p>
+			在 <code>Callback Url</code>以及<code>Verify Token</code>輸入上一步在bot channel registration注冊Facebook channel取得的值，并且記得勾選<em>前4個</em> <code>Subscription Fields</code>
+			記得按下 <code>verification and save</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/193b1555-bdea-4c68-82b3-d1f3087c43a4.jpg" border="0" alt="chrome_2018-07-18_20-48-56.jpg"><br><figcaption>設定subscription fields</figcaption></figure><p></p><p>
+			輸入完了之後，回到<code>webhooks</code>，從下拉選單，選擇到Page的名稱，按下<code>subscribe</code>即可：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/1fd4c271-ad20-4668-bb30-d580517b63f3.jpg" border="0" alt="chrome_2018-07-18_20-49-51.jpg"><br><figcaption>注冊webhook</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1531922742100500">10. 測試結果</h3><p>
+			以上設定就完成了。接下來可以到粉絲也上面，然後按下<code>Messenger</code>按鈕進行測試。
+			</p><p>
+			可以看到，整個交談過程，在local還是web都和Facebook Messenger的反應一樣。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-18-bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger/aa88140a-7252-47f0-aca9-f8fdd12903ba.jpg" border="0" alt="chrome_2018-07-18_20-56-13.jpg"><br><figcaption>測試結果</figcaption></figure></section></section><section><h2 id="WizKMOutline_1531922742100998">結語</h2><p>
+		這篇介紹了如何把chatbot和Facebook的Messenger連接了在一起，并且經過測試可以看出和其他channel的執行結果一樣。
+		</p><p>
+		其他的channel設定都大同小異，不過每個channel有每個的設定方式，詳細做法可以透過google 搜索。
+		</p><p>
+		不過，如果有些channel不在bot channel registration怎麽辦？舉例來説如果想要和Line連接怎麽辦？或者任意程式連接該怎麽做？
+		</p><p>
+		下一篇將介紹<em>DirectLine Channel</em>，能夠任何程式碼都可以和chatbot接上。
+		</p></section>

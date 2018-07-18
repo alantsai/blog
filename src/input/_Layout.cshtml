@@ -27,6 +27,25 @@
         {
           description = Model.String("PostDescription");
         }
+
+        // 取得這篇的網址 - 如果有舊資料表示是從blogspot來的，因此網址用以前的網址
+        // 如果沒有表示是新的網址，用新的。
+        var uniqueSocialUrl = Model.String(Keys.RedirectFrom);
+
+        if(string.IsNullOrEmpty(uniqueSocialUrl))
+        {
+                uniqueSocialUrl = Context.GetLink(Model, true);
+
+                if(     uniqueSocialUrl.Contains("/posts/") &&
+                        Model.Get<DateTime>(BlogKeys.Published) < new DateTime(2018,07,17, 00, 00, 00))
+                {
+                        uniqueSocialUrl = uniqueSocialUrl.Replace("https:", "http:");
+                }
+        }
+        else
+        {
+                uniqueSocialUrl = "http://" + Model.String(Keys.Host) + "/" + uniqueSocialUrl;
+        }
 }
 
 <!DOCTYPE html>
@@ -40,6 +59,8 @@
                 <meta name="description" content="@description" />
                 <meta content='@description' itemprop='description' name='twitter:description' property='og:description'/>
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">        
+
+                <link rel="canonical" href="@Context.GetLink(Model, true)" />
 
                 <!-- bing webmaster auth -->
                 <meta content='EA3A6B1EDDA2B1FEC8F0A565D0789804' name='msvalidate.01'/>
@@ -84,7 +105,7 @@
                 @if(string.IsNullOrWhiteSpace(Title))
                 {
                         <meta property="og:type" content="blog" />
-                        <meta content='http://1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
+                        <meta content='//1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
                 }
                 else
                 {
@@ -92,27 +113,27 @@
                         <meta content='summary' name='twitter:card'/>
                         if(string.IsNullOrWhiteSpace(Model.String(BlogKeys.Image)))
                         {
-                                <meta content='http://1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
+                                <meta content='//1.gravatar.com/avatar/e1ae813d9d045bf8ec50264f8be7b026' itemprop='image' name='twitter:image:src' property='og:image'/>
                         }
                         else
                         {
                                 <meta content='@Model.String(BlogKeys.Image)' itemprop='image' name='twitter:image:src' property='og:image'/>
                         }
                 }
-                <meta property="og:url" content="@Context.GetLink(Model, true)" />
+                <meta property="og:url" content="@uniqueSocialUrl" />
                 <!-- TODO: More social graph meta tags -->
 
-                <script src="@Context.GetLink("/assets/js/jquery.min.js")"></script>
-                <script src="@Context.GetLink("/assets/js/bootstrap.min.js")"></script>     
+                <script defer src="@Context.GetLink("/assets/js/jquery.min.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/bootstrap.min.js")"></script>     
                 @*
                 <script src="@Context.GetLink("/assets/js/highlight.min.js")"></script>
                 *@
-                <script src="@Context.GetLink("/assets/js/prism.js")"></script>
-                <script src="@Context.GetLink("/assets/js/clean-blog.js")"></script>
-                <script src="@Context.GetLink("/assets/js/d3.v3.min.js")"></script>
-                <script src="@Context.GetLink("/assets/js/trianglify.min.js")"></script>
-                <script src="@Context.GetLink("/assets/js/Please-compressed.js")"></script>
-                <script src="@Context.GetLink("/assets/js/background-check.min.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/prism.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/clean-blog.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/d3.v3.min.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/trianglify.min.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/Please-compressed.js")"></script>
+                <script defer src="@Context.GetLink("/assets/js/background-check.min.js")"></script>
                         
                 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
                 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -224,7 +245,7 @@
   "@@context": "http://schema.org",
   "@@type": "Person",
   "name": "Alan Tsai",
-  "url": "http://blog.alantsai.net",
+  "url": "https://blog.alantsai.net",
   "sameAs": [
     "https://twitter.com/AlanTsai2007",
     "https://plus.google.com/+AlanTsai2007",
@@ -243,8 +264,8 @@
   "@@context": "http://schema.org",
   "@@type": "Organization",
   "name": "Alan Tsai",
-  "url": "http://blog.alantsai.net",
-  "logo": "http://blog.alantsai.net/assets/images/profile.jpg"
+  "url": "https://blog.alantsai.net",
+  "logo": "https://blog.alantsai.net/assets/images/profile.jpg"
 }
 </script>
         </body>

@@ -1,0 +1,169 @@
+Title: "[chatbot + AI = 下一代操作模式][15]上綫 - 透過Direct Line把chatbot和任意程式做連接"
+Published: 2018-07-19 21:05
+Modified: 2018-07-19 21:05
+Image: "/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/d07b92d4-5496-4d5a-b9cc-16349d7adb1c.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "在上一篇看完了如何把chatbot和Facebook Messenger，内建的channel，做關聯。
+但是如果今天想要關聯的不在内建channel怎麽辦？Direct Line Channel就是用來和任意可以呼叫http的程式關聯chatbot的channel
+這篇將來看看，如何用console來和chatbot做關聯
+
+#botframework #chatbot #caap #cap #聊天機器人 #azure"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/d07b92d4-5496-4d5a-b9cc-16349d7adb1c.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][15]上綫 - 透過Direct Line把chatbot和任意程式做連接.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger">[14]上綫 - 把facebook粉絲頁和chatbot接上</a>)介紹了如何把chatbot和Facebook Messenger做了連接。bot channel registration還有好幾個内建的其他channel可以設定做關聯，至於怎麽設定可以透過google的方式去找到相關資料，因此其他内建的channel
+		這邊不在做介紹。</p><p>
+		不過，雖然任意網站可以用web control channel來連接，并且有些内建的channel，可是如果想要在不是内建的channel關聯chatbot怎麽辦？舉例來説，如果今天想要和Line關聯或者微信怎麽辦？或者如果想要在任何程式和chatbot
+		做關聯？
+		</p><p>
+		這就是Direct LIne Channel的目的，只要可以用程式來控制，那麽就可以透過Direct LIne Channel來和chatbot關聯。
+		</p><p>
+		這篇將會透過開發一個console程式和chatbot程式溝通。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-15">alantsai-samples/mhat-hotelbot:blog/chapter-15</a></div></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532005122054312" ;="" style="font-size: 15px; line-height: 1.6;">如何使用Direct LIne Channel</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532005122054177" ;="" style="font-size: 15px; line-height: 1.6;">在bot channel registration 裡面增加Direct Line Channel</a><br></li><li><a href="#WizKMOutline_1532005122054999" ;="" style="font-size: 15px; line-height: 1.6;">在程式裡面使用Direct Line Api - 這邊將以console程式為例子</a><br></li><li><a href="#WizKMOutline_1532005122054539" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1532005122054826" ;="" style="font-size: 15px; line-height: 1.6;">微調訊息處理内容</a><br></li><li><a href="#WizKMOutline_1532005122054726" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1532005122054312">如何使用Direct LIne Channel</h2><p>
+		要使用Direct Line會經過幾個步奏：
+		</p><ol><li>在bot channel registration 裡面增加Direct Line Channel</li><li>在程式裡面使用Direct Line Api - 這邊將以console程式為例子</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1532005122054177">在bot channel registration 裡面增加Direct Line Channel</h3><p>
+			透過在 Bot Channel Registration 裡面選擇 <code>channel</code>，然後按下<code>Configure Direct Line</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/0850e7f2-3ed9-43ab-ae26-27a86036ae94.jpg" border="0" alt="chrome_2018-07-19_20-01-44.jpg"><br><figcaption>設定Direct Line Channel</figcaption></figure><p></p><p>
+			在<code>Configure Direct Line</code>的畫面，可以看到有2組secret key，這兩組是用來和Direct Line 連接的重要資訊，透過按下<code>Show</code>，然後把對應的key複製下來。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/aab42f29-c2f7-4302-a453-2dcb29ec5b94.jpg" border="0" alt="chrome_2018-07-19_20-03-15.jpg"><br><figcaption>取得secrete的截圖</figcaption></figure></section><section><h3 id="WizKMOutline_1532005122054999">在程式裡面使用Direct Line Api - 這邊將以console程式為例子</h3><dl><dt>
+					建立一個新的console project，并且安裝Direct Line 的Library
+				</dt><dd>
+					開啓一個新的console project，然後透過nuget安裝一個套件叫做：<code>Microsoft.Bot.Connector.Direct Line</code></dd><dt>
+					透過設定檔取得Direct Line Channel的Secret Key和BotId
+				</dt><dd><pre><code class="language-csharp">private static string directLineSecret = 
+	ConfigurationManager.AppSettings["DirectLineSecret"];
+
+private static string botId = ConfigurationManager.AppSettings["BotId"];
+
+private static string fromUser = "DirectLineSampleClientUser";</code></pre></dd><dt>
+					建立送訊息給chatbot以及從chatbot取得回復的兩個方法
+				</dt><dd><pre><code class="language-csharp">private static async Task StartBotConversation()
+{
+	DirectLineClient client = new DirectLineClient(directLineSecret);
+
+	var conversation = await client.Conversations.StartConversationAsync();
+
+	new System.Threading.Thread(async () =&gt; await 
+		ReadBotMessagesAsync(client, conversation.ConversationId)).Start();
+
+	Console.Write("Command&gt; ");
+
+	while (true)
+	{
+		string input = Console.ReadLine().Trim();
+
+		if (input.ToLower() == "exit")
+		{
+			break;
+		}
+		else
+		{
+			if (input.Length &gt; 0)
+			{
+				Activity userMessage = new Activity
+				{
+					From = new ChannelAccount(fromUser),
+					Text = input,
+					Type = ActivityTypes.Message
+				};
+
+				await client.Conversations.PostActivityAsync(conversation.ConversationId, userMessage);
+			}
+		}
+	}
+}
+
+private static async Task ReadBotMessagesAsync(DirectLineClient client, string conversationId)
+{
+	string watermark = null;
+
+	while (true)
+	{
+		var activitySet = await client.Conversations.GetActivitiesAsync(conversationId, watermark);
+		watermark = activitySet?.Watermark;
+
+		var activities = from x in activitySet.Activities
+						 where x.From.Id == botId
+						 select x;
+
+		foreach (Activity activity in activities)
+		{
+			Console.WriteLine(activity.Text);
+
+			Console.Write("Command&gt; ");
+		}
+
+		await Task.Delay(TimeSpan.FromSeconds(1)).ConfigureAwait(false);
+	}
+}</code></pre></dd><dt>
+					呼叫啓動寄送訊息給chatbot的程式
+				</dt><dd><pre><code class="language-csharp">static void Main(string[] args)
+{
+    StartBotConversation().Wait();
+}</code></pre></dd></dl></section><section><h3 id="WizKMOutline_1532005122054539">測試結果</h3><p>
+			接下來在<code>App.Config</code>裡面設定好Direct Line的secret以及bot id。
+			</p><p>
+			把console啓動起來。
+			</p><p>
+			開始輸入指令。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/25812efb-d663-4082-b2a7-1e0bacabf2c6.jpg" border="0" alt="cmd_2018-07-19_20-21-39.jpg"><br><figcaption>測試console directline</figcaption></figure><p>
+			從上面的截圖可以看到，整個的運作模式和其他channel操作沒什麽兩樣，不過發現<code>查飯店</code>沒有任何東西被顯示出來，這個是爲什麽呢？
+			</p></section></section><section><h2 id="WizKMOutline_1532005122054826">微調訊息處理内容</h2><p>
+		Direct LIne是一個很好學習底層connector在做的事情，還記得connector service做的一件事情是把<code>Activity Message Format</code>（chatbot在看的）轉換成各自的<code>Channel Message Format</code>。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/f3972cf8-435d-4ba7-ab71-5164347d9de9.jpg" border="0" alt="b9aa9d2d-1711-4097-ad3b-d929582c3d6d.jpg"><br><figcaption>整體架構圖</figcaption></figure><p></p><p>
+		由於Direct Line是一個通用性的channel，因此需要自己處理格式轉換的部分，而其他内建的channel則已經幫忙處理好了這塊。因此，訊息輸出需要依照傳送進來的内容格式不同而做出不同處理。
+		</p><p>
+		首先，將建立一個新的方法用來輸出<code>HeroCard</code>：
+		</p><pre><code class="language-csharp">private static void RenderHeroCard(Attachment attachment)
+{
+	const int Width = 70;
+	Func&lt;string, string&gt; contentLine = (content) 
+		=&gt; string.Format($"{{0, -{Width}}}", 
+			string.Format("{0," + ((Width + content.Length) / 2)
+				.ToString() + "}", content));
+
+	var heroCard = JsonConvert
+		.DeserializeObject&lt;HeroCard&gt;
+			(attachment.Content.ToString());
+
+	if (heroCard != null)
+	{
+		Console.WriteLine("/{0}", new string('*', Width + 1));
+		Console.WriteLine("*{0}*", contentLine(heroCard.Title));
+		Console.WriteLine("*{0}*", new string(' ', Width));
+		Console.WriteLine("*{0}*", contentLine(heroCard.Text));
+		Console.WriteLine("{0}/", new string('*', Width + 1));
+	}
+}</code></pre><p>
+然後在取得訊息的時候，多一個判斷看看<code>Attachment</code>有沒有HeroCard，有的話在做處理：
+</p><pre><code class="language-csharp">...	
+foreach (Activity activity in activities)
+{
+	Console.WriteLine(activity.Text);
+
+	if (activity.Attachments != null)
+	{
+		foreach (Attachment attachment in activity.Attachments)
+		{
+			switch (attachment.ContentType)
+			{
+				case "application/vnd.microsoft.card.hero":
+					RenderHeroCard(attachment);
+					break;
+			}
+		}
+	}
+
+	Console.Write("Command&gt; ");
+}
+...</code></pre><p></p><p>
+測試結果：
+</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-19-bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program/46124d59-e347-41a4-a155-1f974b3ee62e.jpg" border="0" alt="chrome_2018-07-19_20-42-37.jpg"><br><figcaption>測試查飯店效果，左邊是console，右邊是web control</figcaption></figure><div class="bs-callout bs-callout-warning">
+	HeroCard裡面還有鏈接和圖片，如果要完整當然也要做出對應處理。不過，這邊只是要show如何做出對應處理，因此剩下就看大家的情景做微調。
+</div></section><section><h2 id="WizKMOutline_1532005122054726">結語</h2><p>
+		Direct Line非常的强大，讓任何程式只要能夠送出http request就能夠和chatbot做連接。
+		</p><p>
+		到目前爲止，開發chatbot的知識有了，chatbot上綫的知識也有了，要寫出一個有用的chatbot已經夠了。chatbot相關的介紹也到了一個尾聲。
+		</p><p>
+		在下一篇將來做一個快速的review，看一下目前的chatbot還有的問題，以及接下來AI怎麽進入到整個的開發環節讓chatbot更加智能。
+		</p></section>

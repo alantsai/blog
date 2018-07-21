@@ -1,0 +1,73 @@
+Title: "[chatbot + AI = 下一代操作模式][17]語義識別服務 - LUIS概念介紹"
+Published: 2018-07-21 21:05
+Modified: 2018-07-21 21:05
+Image: "/posts/2018/07/2018-07-21-bot-framework-with-ai-cognitive-service-17-text-semantic-recognition-service-luis-concept-intro/355a172e-25fc-462a-a666-64e01e004eb3.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai", "luis"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "在接下來的文章都將關注在微軟的AI服務cognitive service上面
+先從最多需求的語義分析LUIS開始看起
+這篇比較短，將介紹LUIS的基本概念"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-21-bot-framework-with-ai-cognitive-service-17-text-semantic-recognition-service-luis-concept-intro/355a172e-25fc-462a-a666-64e01e004eb3.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][17]語義識別服務 - LUIS概念介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve">[16]BotBuilder開發總結 - 下一步是搭AI服務</a>)快速的總結了目前爲止的内容以及接下來的重點，Cognitive Service的AI服務包含的内容。</p><p>
+		這篇將來看看最會被用到的服務，語義識別的AI 服務 LUIS的基本概念介紹。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532178669349256" ;="" style="font-size: 15px; line-height: 1.6;">什麽是LUIS？</a><br></li><li><a href="#WizKMOutline_1532178669350379" ;="" style="font-size: 15px; line-height: 1.6;">LUIS解決什麽問題？</a><br></li><li><a href="#WizKMOutline_1532178669350243" ;="" style="font-size: 15px; line-height: 1.6;">LUIS幾個keywrod及概念</a><br></li><li><a href="#WizKMOutline_1532178669350572" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽使用LUIS而不是其他的服務？</a><br></li><li><a href="#WizKMOutline_1532178669350236" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1532178669349256">什麽是LUIS？</h2><p>
+		LUIS其實是一個縮寫，全稱是：<em>Language Understanding Intelligent Service</em>。服務的首頁可以在<a href="https://www.luis.ai">https://www.luis.ai</a>看到。
+		</p><p>
+		整個LUIS背後是由Azure在運行，luis.ai這個網站則是用來<em>管理</em>文字分析用的一個界面。因此，整個的LUIS操作以及使用都是在這個網址上面。
+		</p><p>
+		LUIS有提供免費的服務，不過如果需要更加穩定的服務，可以選擇付費。而費用則是和Azure 訂閲綁在一起。
+		</p></section><section><h2 id="WizKMOutline_1532178669350379">LUIS解決什麽問題？</h2><p>
+		上面提到LUIS是一個語義識別的服務，不過這是什麽意思？
+		</p><p>
+		舉個例子來説好了，假設今天在酒店櫃檯，有個客人走過來并且説了一句：<em>我想要訂1間雙人房2個晚上</em>。
+		</p><p>
+		作爲人類很直覺的會把部分語句拆出來：
+		</p><ol><li>客人想要訂房</li><li>需要1間房間</li><li>要住2個晚上</li></ol><p></p><p>
+		人類很直覺的把這段語句處理好了，可是如果程式面要處理這個可以怎麽做？當然，可以用拆字的方式，但是同樣意思的内容可以有好多種説法，總不可能把每種拆字組合都寫起來吧，那工程師不用做其他邏輯光在定義這些拆字法就搞死自己了。
+		</p><p>
+		LUIS就是一個幫工程師解決這個問題的服務。換句話説，透過簡單的設定可以讓輸入的語句拆解出類似上面列出的結構。
+		</p><p>
+		因此，LUIS是個語義識別的服務，透過直覺的設定來建立出符合自己application的文字分析模型。
+		</p></section><section><h2 id="WizKMOutline_1532178669350243">LUIS幾個keywrod及概念</h2><p>
+		LUIS有幾個keywrod，把幾個keyword搞懂之後，在實際設定文字模型就不會有什麽問題。
+		</p><dl><dt>
+				Intent - 意圖
+			</dt><dd>
+				任何一個語句都有某個目的，在LUIS裡面稱之爲Intent。例如想要訂房，是屬於<em>訂房的意圖</em>，如果是要查飯店，那麽就屬於<em>查找的意圖</em>。意圖是LUIS的最基本概念，因此在規劃的時候要先把所有意圖定義出來。
+			</dd><dt>
+				Utterances - 句子
+			</dt><dd>
+				Intent是由多個Utterances組合。舉例來説，<em>我要訂1間雙人房</em>和<em>我要訂3間單人房</em>這<em>2</em>個句子（Utterances）都屬於<em>訂房</em>意圖（Intent）
+			</dd><dt>
+				Entities - 名詞
+			</dt><dd><p>
+				有了Intent和Utterances在判斷簡單的Intent的時候就夠用，但是有些句子裡面的關鍵字是需要截取出來，這些就是entities。
+				</p><p>
+				還是用上面的例子，會發現兩個句子裡面大部分一樣只有兩個地方不同：
+				</p><ol><li><em>1間</em> vs <em>3間</em></li><li><em>雙人房</em> vs <em>單人房</em></li></ol><p></p><p>
+				這些不同之處是想要截取出來的部分 - 可以想象，從開發的角度來説，訂房可能是個方法，這兩個值會是參數的一部分，因爲其他邏輯都會一樣。在LUIS裡面來説，截取出來的部分就是Entities。
+				</p><p>
+				依照不同的資料内容，在定義Entities的時候可以給與不同的形態。例如，數字類型還是日期類型等等。
+				</p></dd></dl><p>
+		LUIS有一些内建可以直接使用的Intent以及可以直接使用的Entities，開發者只需要透過luis.ai的網頁就可以設定自己的utterances以及intent來符合業務的需求。
+		</p></section><section><h2 id="WizKMOutline_1532178669350572">爲什麽使用LUIS而不是其他的服務？</h2><p>
+		像LUIS這種的服務網路上還是有類似的，并且使用上概念非常類似。如果有用過別的語義識別的服務，那麽對於切換到LUIS不會覺得很突兀，因爲概念都差不多。
+		</p><p>
+		不過LUIS的優勢是什麽呢？爲什麽考慮用LUIS而不是用其他的？
+		</p><p>
+		當然，有部分是因爲LUIS在使用上非常的容易，并且和Azure有深度整合，在付費的地方又和Azure綁在一起，因此付款很方便。除了這些有點之外，LUIS其中一個很大的優勢是<em>有支援中文</em>。
+		</p><p>
+		中文是世界上最難處理的語言之一，原因在於英文可以透過空白簡單斷字，但是中文不依靠空白，并且判斷需要依靠文字的上下文，因此斷錯地方，意思完全不一樣。
+		</p><p>
+		因此，要做中文的語義識別是非常的困難。因此有這麽一個LUIS服務對於開發者來説省掉非常多的事情。
+		</p></section><section><h2 id="WizKMOutline_1532178669350236">結語</h2><p>
+		在這篇介紹了LUIS的用途以及基礎的概念，透過這一篇對於整個LUIS的運作應該有了一個模糊的概念。
+		</p><p>
+		在下一篇，將會把這篇瞭解到的基礎和概念在luis.ai的網頁上面實際以目前的例子操作一遍，把理論和實際使用結合。
+		</p></section>

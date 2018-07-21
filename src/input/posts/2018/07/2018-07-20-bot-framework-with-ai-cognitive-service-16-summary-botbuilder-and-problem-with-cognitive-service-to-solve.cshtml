@@ -1,0 +1,71 @@
+Title: "[chatbot + AI = 下一代操作模式][16]BotBuilder開發總結 - 下一步是搭AI服務"
+Published: 2018-07-20 22:05
+Modified: 2018-07-20 22:05
+Image: "/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/68dbdf12-4905-4298-b936-d037558d8fdb.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "chatbot開發介紹到了一個段落了，看完到目前爲止的内容已經能夠開發出一個可用的chatbot了
+但是，細細想一下會發現，目前所擁有知識開發出來的chatbot太笨，并且使用上還不友善
+這篇來總結一下，并且看看搭配一個AI服務，cognitive service能夠解決什么問題"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/68dbdf12-4905-4298-b936-d037558d8fdb.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][16]BotBuilder開發總結 - 下一步是搭AI服務.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program">[15]上綫 - 透過Direct Line把chatbot和任意程式做連接</a>)介紹完了Direct Line Channel之後，Azure Bot Service 和 BotBuilder 搭配開發chatbot的部分就到了一個尾聲。當然，裡面還有很多細節可以介紹，但是以目前介紹的内容來説，要開發出一個能用的chatbot已經不是什麽問題。</p><p>
+		那下一步是什麽？在介紹bot builder的過程會發現，開發chatbot其實蠻死板的，有沒有辦法讓他更加智能一些？如果搭上最近幾年很火的AI服務就可以。
+		</p><p>
+		這篇將快速回顧一下目前bot builder所學到的内容，以及下一步如何搭配AI服務來增加可用性。
+		</p></section>
+		<section>
+			<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532095796894685" ;="" style="font-size: 15px; line-height: 1.6;">整個Azure Bot Service</a><br></li><li><a href="#WizKMOutline_1532095796894950" ;="" style="font-size: 15px; line-height: 1.6;">目前爲止的chatbot開發有什麽問題？</a><br></li><li><a href="#WizKMOutline_1532095796894990" ;="" style="font-size: 15px; line-height: 1.6;">AI服務怎麽解決這些問題？</a><br></li><li><a href="#WizKMOutline_1532095796894292" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1532095796894685">整個Azure Bot Service</h2><figure><img class="img-responsive" src="/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/23aeb2bf-0c43-4b11-badc-cb8b785e63bd.jpg" border="0" alt="a238a09a-ee30-4106-8ec1-175e92acb902.jpg"><br><figcaption>整個Azure Bot Service的框架</figcaption></figure><p>
+		知道大家應該已經看膩上面那張圖，不過在回來看一下應該會更有感。
+		</p><p>
+		從右邊的bot builder框架開發出chatbot，再到左邊的搭配bot channel registration把chatbot和各個channel連接起來，在整個過程介紹了：
+		</p><ol><li>bot builder的開發，從模擬器測試，邏輯最小單位的Dialog、到FormFlow再到訊息卡片話呈現</li><li>把chatbot上綫，使用到了Azure的App Service來做hosting</li><li>透過bot channel registration把chatbot和各個channel做關聯，有任意網頁的web control，有Facebook Messenger再到任意程式都可以接的Direc tLIne Channel</li></ol><p></p><p>
+		到這邊對於整個chatbot開發應該有些感覺了，但是會發現chatbot有個很大的問題，那就是<em>感覺像玩具</em>，蠻好玩，但是如果真的用來做什麽，好像又沒有什麽辦法，這是爲什麽？
+		</p></section><section><h2 id="WizKMOutline_1532095796894950">目前爲止的chatbot開發有什麽問題？</h2><p>
+		如果沒有真的開發下去，可能還沒發現什麽，但是如果回想一下目前整個操作，會發現：
+		</p><dl><dt>
+				太笨了，如果使用者輸入複雜語句就gg了
+			</dt><dd><p>
+				chatbot不是新奇的東西，本質上他就是一個大大的switch程式，輸入關鍵字，就有對應動作，但是如果今天換個説法呢？舉例來説，像目前的範例有個指令是<em>查飯店</em>，但是如果有使用者習慣用<em>酒店</em>那不就gg了。
+			</p><p>
+			或許會説，那我就把都有可能的語句寫進去不就得了。好吧，或許這樣可以，但是其實人類是一直在新增文字。我曾經聽過一個在做文字分析的專家説，他們曾經做過從電商平臺的留言統計<em>快遞很快</em>有幾種説法，當下做完發現
+			2000多種，結果半年之後在統計發現變成了3000多種（專家説的準確數字我可能記得沒有很清楚，但是概念是一樣的，説辭增長是很快的），怎麽可能把這些語句都寫進去？舉例來説，如果不完游戲，就不知道<em>gg</em>是什麽，
+			不過因爲玩游戲的多了所以gg有點變成通用詞了。
+			</p></dd><dt>
+				輸入内容太單調
+			</dt><dd>
+				目前爲止都是用文字作爲輸入的方式，不過文字有時候打起來太慢或者不方便。可不可以用圖片來代替文字？可不可以用說的來下達指令？當以這種模式來思考的時候，會發現chatbot有點變成生活小秘書了，如果我可以直接
+				用説的或者我看到的東西拍照來下指令，那麽整個的操作體驗完全不同。任何科幻類型的電影或者書都一定有個智能系統，是不是都用説的就可以叫他們做事，就像鋼鐵人裡面的Jarvis一樣。
+			</dd><dt>
+				知識太少
+			</dt><dd>
+				這邊指的知識太少是本身資訊内容太少。舉例來説，如果是訂房的bot，如果不能夠顯示所有在記錄裡面的飯店那麽基本上沒有什麽用。因此，取決於chatbot是哪一種類型，背後可能都會搭配一個龐大但是搜索快的資料庫。
+			</dd></dl></section><section><h2 id="WizKMOutline_1532095796894990">AI服務怎麽解決這些問題？</h2><p>
+		微軟在Azure上面有一系列的AI服務叫做<em>Cognitive Service</em>，裡面包含了一些已經包好的AI服務讓我們可以搭在任意的程式裡面。這其中和chatbot搭配非常適合。
+		</p><div class="bs-callout bs-callout-info">
+			未來篇章可能會稱Cognitive Service這個AI服務為AI - 從純技術的角度來説，自己建立模型才是<em>真</em>AI，但是自己建立模型技術含量太高（詳細可以參考我的 <a href="https://blog.alantsai.net/tags/%E3%80%8Cdata-science-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E9%BA%BC%E5%BE%9E%E4%B8%80%E5%80%8B%E5%AE%8C%E5%85%A8%E5%A4%96%E8%A1%8C%E8%A7%92%E5%BA%A6%E4%BE%86%E7%9C%8B%E3%80%8D">「data science 到底是什麼從一個完全外行角度來看」</a>），因此有一些已經建立好并且釋放出來的服務
+			像是Cognitive Service應該叫做AI<em>服務</em>才對。當然，Cognitive Service有部分可以讓你自己training model的一部分，因此叫做 AI 勉强也算。
+		</div><figure><img class="img-responsive" src="/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/08b59d7d-2970-4bd9-a1cb-2f810a0ed67b.jpg" border="0" alt=""><br><figcaption>cognitive service的所有服務，來源：https://blogs.msdn.microsoft.com/bluesky/2017/05/11/build-2017-cognitive-services-update-en/</figcaption></figure><p>
+		導入Cognitive Service怎麽解決上面提到的問題？
+		</p><dl><dt>
+				太笨了，如果使用者輸入複雜語句就gg了
+			</dt><dd>
+				在Cognitive Service有一系列的語言相關的AI服務，最重要的是LUIS。因此，可以透過整合LUIS到chatbot裡面，讓在判別user的用意更加的容易以及方便。避免要在程式裡面寫上大大的switch。
+			</dd><dt>
+				輸入内容太單調
+			</dt><dd>
+				在Cognitive Service有一系列的圖片以及語音服務，因此可以透過搭配讓chatbot能夠接受語音或者圖片類型的輸入。
+			</dd><dt>
+				知識太少
+			</dt><dd>
+				假設，今天只是簡單的知識庫，例如FAQ那種，那麽Cognitive Service有個專門的服務稱爲<em>QnA Maker</em>可以搭配。如果是大型資料類型，例如所有的產品型號，那麽可以搭配Azure上面的CosmosDB以及Azure Search
+				達到大資料量儲存并且快速搜索的效果。
+			</dd></dl></section><section><h2 id="WizKMOutline_1532095796894292">結語</h2><p>
+		這篇，快速的review了一下目前爲止所看到的内容，并且點出了一些chatbot問題所在。
+		</p><p>
+		這些問題可以透過搭配Azure的AI 服務，Cognitive Service來解決，并且快速看了幾個裡面可以用到的服務。
+		</p><p>
+		在接下來就要開始往這些服務做介紹，由語言文字處理的LUIS開始。
+		</p></section>

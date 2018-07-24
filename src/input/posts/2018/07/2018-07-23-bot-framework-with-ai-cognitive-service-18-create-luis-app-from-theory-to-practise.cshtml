@@ -1,0 +1,66 @@
+Title: "[chatbot + AI = 下一代操作模式][18]在LUIS建立app - 概念變成實作"
+Published: 2018-07-23 19:05
+Modified: 2018-07-23 19:05
+Image: "/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/4f907a43-e1ac-42b9-9644-894f07b279db.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "luis"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了luis的理論之後，這篇來看看如何在luis裡面建立出一個app (model)
+如何透過網頁設定app的intent以及utterance，并且如何透過測試功能來矯正utterance的intent"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/4f907a43-e1ac-42b9-9644-894f07b279db.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][18]在LUIS建立app - 概念變成實作.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-17-text-semantic-recognition-service-luis-concept-intro">[17]語義識別服務 - LUIS概念介紹</a>)介紹完了微軟的語義識別服務LUIS的概念之後，在這一篇將把理論變成實作。</p><p>
+		來看一下怎麽實際建立出一個符合目前chatbot的模型。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532343223806415" ;="" style="font-size: 15px; line-height: 1.6;">如何開始使用LUIS？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532343223806993" ;="" style="font-size: 15px; line-height: 1.6;">登入到luis.ai的系統</a><br></li><li><a href="#WizKMOutline_1532343223806845" ;="" style="font-size: 15px; line-height: 1.6;">建立一個Application</a><br></li></ul><li><a href="#WizKMOutline_1532343223806862" ;="" style="font-size: 15px; line-height: 1.6;">定義一個intent</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532343223806950" ;="" style="font-size: 15px; line-height: 1.6;">輸入和這個intent相關的utterances</a><br></li><li><a href="#WizKMOutline_1532343223806772" ;="" style="font-size: 15px; line-height: 1.6;">訓練模型</a><br></li><li><a href="#WizKMOutline_1532343223806206" ;="" style="font-size: 15px; line-height: 1.6;">測試及矯正識別結果</a><br></li></ul><li><a href="#WizKMOutline_1532343223806722" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1532343223806415">如何開始使用LUIS？</h2><p>
+		要使用LUIS要做以下幾個動作：
+		</p><ol><li>登入到luis.ai的系統</li><li>建立一個Application</li><li>定義一個intent</li><li>輸入和這個intent相關的utterances</li><li>訓練模型</li><li>測試及矯正識別結果</li></ol><p></p><section><h3 id="WizKMOutline_1532343223806993">登入到luis.ai的系統</h3><p>
+			整個LUIS的操作都要透過<a href="https://wwww.luis.ai">https://wwww.luis.ai</a>這個網站，進去了之後就有一個<code>Login/Sign up</code>的按鈕。
+			</p><p><em>最好</em>選擇有Azure Subscription的帳號，是爲了當需要切換到付費的時候比較方便。當然，之後就算要把在LUIS建立出來的model做搬遷到其他帳號也能夠非常容易做到，因此也不用太過擔心。
+			</p></section><section><h3 id="WizKMOutline_1532343223806845">建立一個Application</h3><p>
+			在LUIS，每一個模型都是一個Application，畢竟不同的application在對待相同的utterance可能是不一樣的處理方式。
+			</p><p>
+			所以，要開始之前需要建立一個Application。
+			</p><p>
+			可以透過，在<code>My Apps</code>下面的按鈕<code>Create new app</code>來建立新的application：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/1af2965a-eb6e-4c85-afff-22915f40ef51.jpg" border="0" alt="chrome_2018-07-23_17-06-39.jpg"><br><figcaption>Create new app的截圖</figcaption></figure><p></p><p>
+			按下之後，會有個pop up出現，需要輸入：
+			</p><ol><li>app的名稱，這個注意不要和其他app的名字重複了</li><li>culture - 這邊只得是會用來<em>輸入</em>的文字語言。和界面語言沒有關係。因此，如果今天建立的是給英文語系的app，那就是留<code>English</code></li><li>description - 這個隨意，是在app 清單裡面用來自己區分差別的文字</li><li>沒問題之後就按下<code>Done</code>就好了</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/88337d5c-3320-42cf-a925-c0fb58bdab60.jpg" border="0" alt="chrome_2018-07-23_17-11-34.jpg"><br><figcaption>建立出新的app pop up畫面欄位截圖</figcaption></figure><p>
+			稍等一下，就會自動進入到App的首頁
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/00fe88f9-f254-4b56-a725-18303756869a.jpg" border="0" alt="chrome_2018-07-23_17-14-33.jpg"><br><figcaption>app首頁</figcaption></figure><p>
+			可以看到，預設會建立一個intent叫做<code>None</code>。
+			</p></section><section><h2 id="WizKMOutline_1532343223806862">定義一個intent</h2><p>
+			可以透過按下<code>Create new intent</code>來建立新的intent：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/b8d0832a-4662-4ccd-9b93-427aae33865c.jpg" border="0" alt="chrome_2018-07-23_17-17-31.jpg"><br><figcaption>在Intents 裡面 按下Create new intent</figcaption></figure><p></p><p>
+			這個時候會跳出一個pop up設定intent的名稱：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/6b90600f-15ac-4201-96c0-0555ffa9c425.jpg" border="0" alt="chrome_2018-07-23_17-19-10.jpg"><br><figcaption>輸入intent名稱</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				intent 名稱可以是中文，不過個人習慣還是會寫英文。
+			</div><p>
+			稍等一下會直接進入到這個intent的utterance以及entity定義畫面。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/0c4f125e-0997-470d-baeb-9e05a6dd5657.jpg" border="0" alt="chrome_2018-07-23_17-20-43.jpg"><br><figcaption>建立完intent看到的畫面</figcaption></figure></section><section><h3 id="WizKMOutline_1532343223806950">輸入和這個intent相關的utterances</h3><p>
+			直接在輸入框裡面輸入和這個intent相關的utterance然後按下<kbd>enter</kbd>鍵即可，utterance將會在清單裡面出現：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/f19ec81b-916c-49a6-926a-63bd3c052bab.jpg" border="0" alt="chrome_2018-07-23_17-25-03.jpg"><br><figcaption>輸入utterance</figcaption></figure><p></p><p>
+			加所有目前可以想象的到的utterance進去，越多越好，建議每一個intent<em>最好有5個</em>utterance以上。
+			</p></section><section><h3 id="WizKMOutline_1532343223806772">訓練模型</h3><p>
+			當Utterance都輸入好了之後，接下來就是要把這些輸入内容“儲存”到模型裡面，因此要做一個訓練模型的動作。
+			</p><p>
+			可以點右上角的<code>Train</code>來執行：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/95e4f824-bd76-4161-957a-e75a8f4d67b9.jpg" border="0" alt="chrome_2018-07-23_17-59-01.jpg"><br><figcaption>右上角Train按鈕的位置</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				如果有修改沒有Train過，按鈕前面會有個紅色的點，因此如果未來在測試發現怎麽都沒有用，注意看看是不是還沒有Train過。
+			</div><p>
+			Train會需要一些些時間，如果train好了，除了紅點會變成綠點之外，如果是第一次train，右邊的<code>Test</code>按鈕會變成可以按。
+			</p></section><section><h3 id="WizKMOutline_1532343223806206">測試及矯正識別結果</h3><p>
+			當模型透過Train建立出來了之後，可以做測試：
+			</p><ol><li>透過右上角的按鈕</li><li>輸入要測試的語句，按下<kbd>enter</kbd>按鍵</li><li>看看測試結果</li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/704542cd-4027-4784-aa6c-5736467ac9ae.jpg" border="0" alt="chrome_2018-07-23_18-04-42.jpg"><br><figcaption>測試模型的按鈕</figcaption></figure><p></p><p>
+			如果說測試的語句裡面發現定位intent錯誤，例如輸入：<code>找住的地方</code>，這個時候可以透過：
+			</p><ol><li>按下<code>Inspect</code>連接</li><li>在Intent旁邊按下<code>Edit</code> - 截圖沒有這個按鈕，因爲按下去就不見了，但是實際上會有</li><li>在輸入框找到正確的intent即可</li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-23-bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise/102c1930-8d2f-4c13-8f82-cf8d6078a14b.jpg" border="0" alt="chrome_2018-07-23_18-08-34.jpg"><br><figcaption>透過inspect來修正intent</figcaption></figure><p></p><p>
+			inspect還有別的功能，例如可以把目前版本和正式版本（production）做比對，或者可以看到斷出來的entities等，這些功能未來會在介紹。
+			</p><div class="bs-callout bs-callout-info">
+				題外話，從截圖可以看到，其實SearchHotel的intent判斷率也有30%，和None只差了2%。因此，LUIS不是想象中簡單文字清單而已，内部是由很多複雜的AI邏輯在裡面。因此，語句越多，判斷的成功率也越高。
+			</div><div class="bs-callout bs-callout-warning">
+				有個地方要注意，當修改完intent，記得要按下<code>Train</code>才有效果。
+			</div><p>
+			當更新好了之後，在測試一次，會發現準確的定位到了intent。
+			</p></section></section><section><h2 id="WizKMOutline_1532343223806722">結語</h2><p>
+		這篇看了怎麽建立LUIS的application并且幾個重要的概念，intent以及utterance怎麽建立。luis還有蠻多的細節還沒有介紹，例如entities的使用，建立phrase lists等，這些在未來篇幅會在介紹。
+		</p><p>
+		有了LUIS的application之後，接下來就是要結合在chatbot上面，下一篇，將來看看如何發佈今天建立的LUIS application，并且看看BotBuilder内建的LuisDialog怎麽讓chatbot和luis無縫接軌。
+		</p></section>

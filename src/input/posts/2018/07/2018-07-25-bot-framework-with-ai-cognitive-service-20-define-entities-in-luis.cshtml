@@ -1,0 +1,89 @@
+Title: "[chatbot + AI = 下一代操作模式][20]LUIS深入使用 - 定義Entities來截取參數"
+Published: 2018-07-25 22:05
+Modified: 2018-07-25 22:05
+Image: "/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/cf6bf9f8-f630-4af8-8337-b783ac331546.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai", "luis"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何整合LUIS到BotBuilder裡面了之後
+這篇在回到LUIS看看其他進階功能，先從entities開始
+看看entities的作用并且如何定義"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/cf6bf9f8-f630-4af8-8337-b783ac331546.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][20]LUIS深入使用 - 定義Entities來截取參數.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot">[19]把LUIS和BotBuilder整合</a>)看完了如何把LUIS model發佈出來并且在BotBuilder怎麽整合在一起之後。</p><p>
+		接下來在更深入的看看如何把LUIS使用到最大化。先從Entities開始介紹起。
+		</p></section>
+<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532564553849585" ;="" style="font-size: 15px; line-height: 1.6;">Entities是什麽？</a><br></li><li><a href="#WizKMOutline_1532564553850687" ;="" style="font-size: 15px; line-height: 1.6;">Entities有什麽用？</a><br></li><li><a href="#WizKMOutline_1532564553850556" ;="" style="font-size: 15px; line-height: 1.6;">建立Entities</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532564553851166" ;="" style="font-size: 15px; line-height: 1.6;">建立一個intent</a><br></li><li><a href="#WizKMOutline_1532564553851876" ;="" style="font-size: 15px; line-height: 1.6;">建立出utterance</a><br></li><li><a href="#WizKMOutline_1532564553851486" ;="" style="font-size: 15px; line-height: 1.6;">使用内建的entities做定義</a><br></li><li><a href="#WizKMOutline_1532564553851138" ;="" style="font-size: 15px; line-height: 1.6;">測試天數的entities</a><br></li><li><a href="#WizKMOutline_1532564553851735" ;="" style="font-size: 15px; line-height: 1.6;">使用自定的entities定義單位</a><br></li><li><a href="#WizKMOutline_1532564553851408" ;="" style="font-size: 15px; line-height: 1.6;">測試建立出來的單位</a><br></li></ul><li><a href="#WizKMOutline_1532564553851559" ;="" style="font-size: 15px; line-height: 1.6;">管理Entities</a><br></li><li><a href="#WizKMOutline_1532564553851183" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1532564553849585">Entities是什麽？</h2><p>
+		可以把Entities想成是句子裡面的參數，也就是會變動的部分。舉例來説，如果我今天要訂房，可能會説，<em>我要住3個晚上</em>。換另外一個人，可能變成<em>我要住5個晚上</em>。
+		</p><p>
+		從這個語句裡面，有2個參數：
+		</p><ol><li><em>3</em>和<em>5</em> - 代表要住的天數</li><li><em>晚上</em> - 代表的是單位</li></ol><p></p><p>
+		透過把這些參數定義出來，就是今天要介紹的Entities。
+		</p></section>
+		<section><h2 id="WizKMOutline_1532564553850687">Entities有什麽用？</h2><p>
+		在寫程式裡面，會把重複的邏輯變成一個方法，而變化的地方變成方法傳入的參數。
+		</p><p>
+		同理，intent可以比喻成爲方法，而entities就是參數，透過這兩個結合，不用寫那麽多種組合的utterance。
+		</p><p>
+		另外一個好處是，在識別意圖的時候，entities可以被識別出來，讓程式可以使用，讓整個intent用同一個方法處理，而entities 作爲傳入進去的參數。
+		</p></section><section><h2 id="WizKMOutline_1532564553850556">建立Entities</h2><p>
+		entities是定義在utterance上面，而utterance是依附在intent上面，因此先從建立intent開始。
+		</p><p>
+		接下來的執行動作將會是：
+		</p><ol><li>建立一個intent</li><li>建立出utterance</li><li>使用内建的entities定義天數</li><li>測試天數的entities</li><li>使用自定的entities定義單位</li><li>測試建立出來的單位</li></ol><p></p><section><h3 id="WizKMOutline_1532564553851166">建立一個intent</h3><p>
+				這邊要在建立一個新的intent，這個intent用來識別使用者想要訂房。因此叫做<em>ReserveRoom</em></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/e502d25c-9ce8-428e-86b6-432d6d52f11f.png" border="0" alt="chrome_2018-07-25_19-53-38.png"><br><figcaption>建立出ReserveRoom intent</figcaption></figure></section><section><h3 id="WizKMOutline_1532564553851876">建立出utterance</h3><p>
+			接下來要定義一個utterance。這邊將會以一個簡單的例子做測試。
+			</p><p>
+			一般來説，訂房都會說要住多久，因此，加入一個<em>我要住3晚</em>的utterance。
+			</p></section><section><h3 id="WizKMOutline_1532564553851486">使用内建的entities做定義</h3><p>
+			上面的語句可以看到，<em>3</em>是一個關鍵。代表著總共有幾個晚上。
+			</p><p>
+			因此，可以把這個定義成爲一個entities。
+			</p><p>
+			要定義非常簡單，只需要把滑鼠移動上去，會有一個框框把目前選到的字包住，然後點下左鍵，就可以設定要定義成爲什麽entities：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/de6b1989-353f-4096-b218-f903526b75e3.png" border="0" alt="chrome_2018-07-25_19-55-41.png"><br><figcaption>選取要設定3的entities</figcaption></figure><p></p><p>
+			由於這個entities都會是數字，因此要定義為一個數字形態。而數字屬於内建的entities清單，因此選擇了<code>Browse prebuilt entities</code>。
+			</p><p>
+			點下去了之後，會出現一個pop up，這個時候只需要搜索<code>number</code>，就可以找到内建的數字形態<code>number</code>。
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/a2f2f0f7-0ae8-4cfa-8209-6ed7a9fa95d8.png" border="0" alt="chrome_2018-07-25_19-56-21.png"><br><figcaption>找到内建的number形態</figcaption></figure><p></p><p>
+			當選擇好了之後，在清單裡面，會發現本來的3變成了<code>number</code>，這個可以透過右邊的<code>Entities Views</code>來切換要顯示entities名稱還是實際的值。如果滑鼠移動上去，會顯示對應的值：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/a2cd0601-ae48-4700-89a8-9102fc029fbb.png" border="0" alt="chrome_2018-07-25_19-56-41.png"><br><figcaption>清單裡面會預設顯示entities的名稱</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1532564553851138">測試天數的entities</h3><p>
+			首先，可以先輸入定義的utterance，可以看到，使用有training的utterance找到是很正常的：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/4f9495fb-eee8-4eb4-b8de-3b6a44e74534.png" border="0" alt="chrome_2018-07-25_20-37-12.png"><br><figcaption>測試training的utterance</figcaption></figure><p></p><p>
+			這個時候來換一下晚上住幾晚的數字，變成<code>我要住10晚</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/0ac33e92-e76f-42d2-8be4-7e0ed6e0f5a0.png" border="0" alt="chrome_2018-07-25_20-39-16.png"><br><figcaption>測試我要住10晚</figcaption></figure><p></p><p>
+			從截圖可以發現，發現entities有對應到，但是intent錯了。
+			</p><p>
+			這個是因爲training的基數太小了，因此可以把這組新的也加入utterance清單。
+			</p></section><section><h3 id="WizKMOutline_1532564553851735">使用自定的entities定義單位</h3><p>
+			接下來再來定義另外一個entities。3<em>晚</em>其實是一個單位。有可能是3<em>天</em>（也就是2晚）。
+			</p><p>
+			因此來增加一個entities用來發現unit。
+			</p><p>
+			這次因爲不屬於任何已經存在的entities清單，因此，將建立一個自定義的entities。
+			</p><ol><li>先選到文字<em>晚</em></li><li>輸入<em>unit</em> - 因爲不存在所以找不到</li><li>按下<code>Create new entities</code></li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/069d6b2a-9e12-4b23-a0bf-8a5874e06d54.png" border="0" alt="chrome_2018-07-25_19-57-31.png"><br><figcaption>建立新的entities</figcaption></figure><p>
+			在pop up出來的畫面定義entities名稱<em>unit</em>，Entity Type選擇<em>simple</em>。
+			</p><div class="bs-callout bs-callout-warning">
+				entities可以有不同的形態，包含組合（Composition）類型，或者繼承（hierarchy）類型。以這邊的<em>3天</em>為例子，composition其實比較適合。不過這篇以簡單介紹爲主，
+				因此這邊將不會介紹這些其他形態，如果有興趣可以看官網的説明。
+			</div><p>
+			新增好了這個entities之後，將來建立一個新的utterance，<em>我要住4天</em>，這個時候，把<em>天</em>的部分設定entities為<em>unit</em></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/e4673053-2a15-4636-a7ff-d1e3ae0b129e.png" border="0" alt="chrome_2018-07-25_19-58-39.png"><br><figcaption>設定好unit</figcaption></figure></section><section><h3 id="WizKMOutline_1532564553851408">測試建立出來的單位</h3><p>
+			接下來，按下<code>Train</code>之後，接下來做一個測試。
+			</p><p>
+			測試會發現，<code>number</code>以及<code>unit</code>都可以識別出來。
+			</p></section><p>
+		到目前爲止整個entities的定義就完成了。
+		</p></section><section><h2 id="WizKMOutline_1532564553851559">管理Entities</h2><p>
+		透過左邊可以切換成爲以entities爲主，看的到總共有多少entities有被使用和定義出來。
+		</p><p>
+		如果要修正entities將可以在這個位置做到：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-25-bot-framework-with-ai-cognitive-service-20-define-entities-in-luis/d2fa0af5-c325-43b5-bedf-8a900a2dfd6f.png" border="0" alt="chrome_2018-07-26_08-14-35.png"><br><figcaption>entities的管理畫面</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1532564553851183">結語</h2><p>
+		這篇介紹了如何在LUIS裡面從句子裡面特定字的部分，也就是entities的部分。
+		</p><p>
+		透過測試可以看到，LUIS可以在判斷intent之外也取得到這些entities。
+		</p><p>
+		下一篇將切回到程式的部分，將來看看如何在程式裡面使用這些entities。
+		</p></section>

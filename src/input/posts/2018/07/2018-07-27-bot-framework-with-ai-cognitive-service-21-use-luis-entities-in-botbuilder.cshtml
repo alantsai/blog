@@ -1,0 +1,122 @@
+Title: "[chatbot + AI = 下一代操作模式][21]LUIS深入使用 - 如何在BotBuilder使用entities"
+Published: 2018-07-27 22:05
+Modified: 2018-07-27 22:05
+Image: "/posts/2018/07/2018-07-27-bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder/acbaca2c-7b48-49f1-823f-82d9563d1ee2.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai", "luis"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何整合LUIS到BotBuilder裡面了之後
+這篇在回到LUIS看看其他進階功能，先從entities開始
+看看entities的作用并且如何定義"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-27-bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder/acbaca2c-7b48-49f1-823f-82d9563d1ee2.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][21]LUIS深入使用 - 如何在BotBuilder使用entities.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-20-define-entities-in-luis">[20]LUIS深入使用 - 定義Entities來截取參數</a>)看完了如何定義entities之後，在這篇將來看看如何把定義的entities在程式裡面使用起來。</p><p>
+		這一篇將先從加入訂房的intent，并且會依照使用者輸入的内容解析出來的entities作爲初始的表單值。
+		</p><p>
+		一起來看看如何在程式使用entities。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-21">alantsai-samples/mhat-hotelbot:blog/chapter-21</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532705374572545" ;="" style="font-size: 15px; line-height: 1.6;">調整程式使用entities</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532705374572686" ;="" style="font-size: 15px; line-height: 1.6;">調整RootLuisDialog - 加入ReserveRoom intent的方法</a><br></li><li><a href="#WizKMOutline_1532705374572392" ;="" style="font-size: 15px; line-height: 1.6;">把本來和訂房有關的邏輯搬入</a><br></li><li><a href="#WizKMOutline_1532705374572845" ;="" style="font-size: 15px; line-height: 1.6;">修正FormFlow建立方式 - 允許傳入預設值</a><br></li><li><a href="#WizKMOutline_1532705374572357" ;="" style="font-size: 15px; line-height: 1.6;">調整邏輯加入entities的值</a><br></li><li><a href="#WizKMOutline_1532705374572628" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1532705374572196" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1532705374572545">調整程式使用entities</h2><p>
+		將來調整現有的程式碼，會經過一下幾個動作：
+		</p><ol><li>調整<code>RootLuisDialog</code> - 加入<code>ReserveRoom</code> intent的方法</li><li>把本來<code>RootDialog</code>和訂房有關的邏輯搬入</li><li>修正FormFlow建立方式 - 允許傳入預設值</li><li>調整邏輯加入entities的值</li><li>測試結果</li></ol><p></p><section><h3 id="WizKMOutline_1532705374572686">調整RootLuisDialog - 加入ReserveRoom intent的方法</h3><p>
+			首先，要在<code>RootLuisDialog</code>裡面增加一個新的方法，這個方法用來處理<code>ReserveRoom</code> intent相關的邏輯
+			</p><pre><code class="language-csharp">[LuisIntent("ReserveRoom")]
+public Task ReserveRoom
+	(IDialogContext context, LuisResult result)
+{
+	return Task.CompletedTask;
+}</code></pre></section><section><h3 id="WizKMOutline_1532705374572392">把本來和訂房有關的邏輯搬入</h3><p>
+			接下來從<code>RootDialog</code>把呼叫<code>ReserveRoomDialog</code>那段邏輯搬進來到<code>ReserveRoom</code>方法裡面：
+</p><pre><code class="language-csharp">[LuisIntent("ReserveRoom")]
+public Task ReserveRoom
+	(IDialogContext context, LuisResult result)
+{
+	context.Call(new ReserveRoomDialog(), ReserverRoomAfterAsync);
+
+	return Task.CompletedTask;
+}
+....</code></pre><p></p><div class="bs-callout bs-callout-warning">
+				總共還有兩個callback需要搬動，不過爲了節省篇幅，所以這邊就不列出來了。詳細可以參考github上面的檔案。
+			</div></section><section><h3 id="WizKMOutline_1532705374572845">修正FormFlow建立方式 - 允許傳入預設值</h3><p>
+			目前的FormFlow預設都是空值，但是如果有去的entities的話，這個值可以作爲預設值。因此，先調整FormFlow的建立方式。
+			</p> 
+			修改<code>ReserveRoomDialog</code>：
+				<p></p><pre><code class="language-csharp">public ReserveRoomDialog(RoomReservation inRoomReservation)
+{
+	RoomReservationState = inRoomReservation;
+}
+
+public ReserveRoomDialog()
+	:this(new RoomReservation())
+{
+
+}
+
+public RoomReservation RoomReservationState { get; }
+
+public Task StartAsync(IDialogContext context)
+{
+	var reserveRoomForm =
+		new FormDialog&lt;RoomReservation&gt;
+			(RoomReservationState,
+				RoomReservation.BuildForm, 
+				FormOptions.PromptInStart);
+...</code></pre></section><section><h3 id="WizKMOutline_1532705374572357">調整邏輯加入entities的值</h3><p>
+			這邊要把entities截取出來并且傳入到處理FormFlow的Dialog。
+			</p><p>
+					從<code>LuisResult.Entities</code>裡面可以取得所有被截取出來的entities，這邊用個簡單邏輯，如果有<code>unit</code>表示也有數字，依照這個概念取得要住幾晚
+					</p><pre><code class="language-csharp">[LuisIntent("ReserveRoom")]
+public Task ReserveRoom
+	(IDialogContext context, LuisResult result)
+{
+
+	var roomReservation = new RoomReservation();
+
+	// 取得unit的entity
+	var unitEntity = result.Entities
+		.FirstOrDefault(x =&gt; x.Type == "unit");
+
+	// 有表示會給預設住多久
+	if(unitEntity != null)
+	{
+		var numberEntity = result.Entities
+			.FirstOrDefault(x =&gt; x.Type == "builtin.number");
+
+		var number = int.Parse(numberEntity.Entity);
+
+		// 如果單位是 天，表示實際住的晚上天數會減少1
+		if(unitEntity.Entity == "天")
+		{
+			number = number - 1;
+		}
+
+		roomReservation.NumberOfNightToStay = number;
+	}
+
+	context.Call(new ReserveRoomDialog(roomReservation),
+		ReserverRoomAfterAsync);
+
+	return Task.CompletedTask;
+}</code></pre></section><section><h3 id="WizKMOutline_1532705374572628">測試結果</h3><p>
+			以上是整個需要做調整的修改，接下來就可以進行測試了，這邊有三種情景：
+			</p><dl><dt>
+					我要住
+				</dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-27-bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder/275e0f35-6798-491e-8385-d636be99c01b.png" border="0" alt="botframework-emulator_2018-07-27_23-10-38.png"><br><figcaption>沒有說要住幾天的情況下，給的是預設天數0</figcaption></figure><div class="bs-callout bs-callout-info">
+						題外話，上篇在training的時候沒有train過<code>我要住</code>，但是LUIS判別正確。這就是LUIS强大的地方，定義的越多，沒定義的語句也能夠判斷的出來。這個不是簡單if else可以做到的功能。
+					</div></dd><dt>
+					我要住3晚
+				</dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-27-bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder/95c73453-c75f-478b-811a-c9b361079e89.png" border="0" alt="botframework-emulator_2018-07-27_23-07-27.png"><br><figcaption>可以看到預設已經輸入了3晚</figcaption></figure></dd><dt>
+					我要住5天
+				</dt><dd><figure><img class="img-responsive" src="/posts/2018/07/2018-07-27-bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder/89995e91-5680-4225-8643-22928c29dac6.png" border="0" alt="botframework-emulator_2018-07-27_23-08-01.png"><br><figcaption>可以看到，天數的邏輯是-1，幾晚正確的放進去</figcaption></figure></dd></dl><p></p></section></section><section><h2 id="WizKMOutline_1532705374572196">結語</h2><p>
+		這篇看了如何在程式裡面取得LUIS判斷出來的entities，并且使用這些entities來給表單預設值。
+		</p><p>
+		entities定義的好會讓整個使用體驗非常好，因爲使用者可以用<em>自然的語言</em>做出填寫表單的動作。
+		</p><p>
+		當然，entities不止可用在定義表單的預設值，可以用的地方非常多，這就要看工程師們的想象力啦。
+		</p><p>
+		到目前爲止，LUIS的使用以及程式對接都清楚了，不過有些上綫之後管理層面的部分還沒介紹，例如怎麽持續完善這個LUIS的app，怎麽備份，怎麽對LUIS app做備份等等。
+		</p><p>
+		下一篇先從如何持續完善開始。
+		</p></section>

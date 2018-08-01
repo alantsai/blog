@@ -1,0 +1,65 @@
+Title: "[chatbot + AI = 下一代操作模式][22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key"
+Published: 2018-07-29 23:05
+Modified: 2018-07-29 23:05
+Image: "/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/183a7da4-05ee-43c8-96a8-45fa339d71ee.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai", "luis"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何把BotBuilder和LUIS的entities結合了之後，基本上LUIS的使用應該就很清楚了。
+不過，和軟體上綫一樣，難不在開發，而是在之後的維護。LUIS也是一樣。
+接下來幾篇要介紹的是管理LUIS的部分，先從如何持續加强app、加入不同region的key、加入共同編輯者以及備份和匯入"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/183a7da4-05ee-43c8-96a8-45fa339d71ee.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder">[21]LUIS深入使用 - 如何在BotBuilder使用entities</a>)介紹完了如何在程式碼裡面使用LUIS截取的Entities之後，基本上LUIS的設定以及和程式碼如何搭配使用就基本上介紹完了。</p><p>
+		程式最困難不是在開發，而是上綫之後的維護，LUIS的app也是如此，怎麽樣讓LUIS的app越來越好是接下來幾篇要介紹的部分。
+		</p><p>
+		這篇先從四個部分開始：<em>依照使用者輸入内容來加强app</em>、<em>如何使用不同region的LUIS</em>、<em>多人維護 app</em>和<em>備份/匯入 app</em>。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532879290604855" ;="" style="font-size: 15px; line-height: 1.6;">依照使用者輸入内容持續加强LUIS app</a><br></li><li><a href="#WizKMOutline_1532879290604280" ;="" style="font-size: 15px; line-height: 1.6;">如何使用不同region的LUIS</a><br></li><li><a href="#WizKMOutline_1532879290604187" ;="" style="font-size: 15px; line-height: 1.6;">多人維護app</a><br></li><li><a href="#WizKMOutline_1532879290604264" ;="" style="font-size: 15px; line-height: 1.6;">備份/匯入 app</a><br></li><li><a href="#WizKMOutline_1532879290604593" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1532879290604855">依照使用者輸入内容持續加强LUIS app</h2><p>
+		LUIS的intent以及utterance定義的越多，那麽在判斷的時候就越不會有問題。
+		</p><p>
+		當程式上綫了之後，怎麽知道使用者輸入了什麽并且LUIS app把他判別了什麽intent是這個部分要看的内容。
+		</p><p>
+		LUIS内建了記錄的功能，只要進入到LUIS app裡面，從左邊的menu找到<code>Review endpoint utterance</code>：
+		</p><ol><li>清單列出使用者輸入過的utterance</li><li>預設選的是目前app判別的intent，可以透過下來切換</li><li>按下可以把這個utterance直接加入到選擇的intent</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/efb2bf6d-9ec9-44e1-adbc-2349f16c222d.png" border="0" alt="chrome_2018-07-29_22-58-20.png"><br><figcaption>看使用者輸入的utterance以及目前app 的判別</figcaption></figure><p>
+		透過常常去review使用者輸入的utterance，不止能夠知道使用者在怎麽輸入内容，并且透過這個界面可以快速修正utterance的intent讓app變得更加準確。
+		</p></section><section><h2 id="WizKMOutline_1532879290604280">如何使用不同region的LUIS</h2><p>
+		預設的LUIS提供的服務是在<em>北美</em>。如果只是要測試或者做POC的話，其實沒什麽問題，速度也不慢，不過如果今天要上綫，能夠和其他服務器在同一個region是比較好的。
+		</p><p>
+		LUIS有提供不同的region，不過要使用到這些region的LUIS需要加入從Azure建立出來的LUIS key：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/53a36f1b-e507-4141-8ece-4596767833dc.png" border="0" alt="chrome_2018-07-29_23-04-34.png"><br><figcaption>預設只有北美，其他區域需要加key</figcaption></figure><p></p><p>
+		首先，先進入到azure的portal（<a href="https://portal.azure.com">https://portal.azure.com</a>），然後直接建立一個<code>Language Understaning</code>的服務：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/7e156114-624c-4c35-9bf1-b276e269627c.png" border="0" alt="ApplicationFrameHost_2018-07-29_23-10-45.png"><br><figcaption>建立Language Understanding</figcaption></figure><p></p><p>
+		輸入LUIS的名稱（用來識別用），選擇地區，然後選擇那種費用等級，最後按下建立即可
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/f607f7a4-79c9-483c-8250-a230009f9178.png" border="0" alt="ApplicationFrameHost_2018-07-29_23-12-56.png"><br><figcaption>建立LUIS的key</figcaption></figure><p></p><p>
+		建立好了之後，就可以切換回luis.ai：
+		</p><ol><li>按下<code>add key</code></li><li>選擇正確的Azure directory</li><li>選擇用的subscription</li><li>選擇剛剛建立的LUIS</li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/27f396ce-533a-4163-8362-a89b5a358400.png" border="0" alt="chrome_2018-07-29_23-16-51.png"><br><figcaption>加入剛剛建立的key</figcaption></figure><p></p><p>
+		加入好了之後，切換到<code>Asia Regions</code>將會看到多出了一個endpoint，并且可以用那個endpoint來呼叫LUIS：
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/5e945da2-55a3-4e13-a391-1e9a26c144b2.png" border="0" alt="chrome_2018-07-29_23-19-39.png"><br><figcaption>多了一個Asia Region的endpoint</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1532879290604187">多人維護app</h2><p>
+		有時候一個app可能會請多個管理者在做維護，如果要把有這個app的account給別人太不方便了。
+		</p><p>
+		LUIS考慮到了這個事情，可以在<code>Settings</code>裡面加入<code>Collaborator</code>，被加入的帳號登入到luis.ai也可以管理這個app
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/35d45429-cbd8-4c48-a8eb-75b70895dc69.png" border="0" alt="chrome_2018-07-29_23-24-31.png"><br><figcaption>加入一個collaborator</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1532879290604264">備份/匯入 app</h2><p>
+		雖然説LUIS app是放在azure上面的服務，因此不太需要擔心檔案會因爲機器挂掉而不見這種事情。不過，有時候還是會希望能夠備份目前的LUIS app情況。
+		</p><p>
+		例如，花了很多時間定義好了intent以及utterance，想要留一份避免如果有人把它玩壞，這個時候就可以使用備份的功能把目前的model儲存一份到local。
+		</p><p>
+		做法很簡單，只需要透過點選：
+		</p><ol><li>點選settings</li><li>按下某個版本右邊的三個點</li><li>選擇匯出</li></ol><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/69376606-34b6-4d67-beaa-d37870b14879.png" border="0" alt="2018-07-29_23-30-56.png"><br><figcaption>匯出0.1版本的app</figcaption></figure><p></p><p>
+		會有一個json檔案可以儲存下來，這個檔案就代表目前的LUIS app設定。
+		</p><p>
+		可以用這個json檔案來建立一個一樣的LUIS app，切換到luis的app設定畫面：
+		</p><ol><li>按下<code>import new app</code></li><li>選擇剛剛備份的json檔案</li><li>可以另外取一個名字</li><li>按下<code>done</code></li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/b3d71857-07e5-463b-991d-52fbd2524fd7.png" border="0" alt="chrome_2018-07-29_23-33-23.png"><br><figcaption>用匯入方式建立app</figcaption></figure><p>
+		完成之後，一個新的app會被建立出來，這個app和備份出來的那個在intent的設定會是一樣的。
+		</p><div class="bs-callout bs-callout-warning">
+			在備份的時候有看到version這個事情，在稍後的篇在介紹關於版本控制這件事情。
+		</div></section><section><h2 id="WizKMOutline_1532879290604593">結語</h2><p>
+		這篇介紹了一些LUIS管理方面的功能，從持續精進LUIS app到把app 做備份，透過這篇對於如何維護LUIS app應該會更加有感覺。
+		</p><p>
+		雖然説在luis.ai設定intent很方便，不過這個界面主要還是給非工程師的使用者用。作爲工程師還是希望可以透過某種方式版控LUIS的app修改。當然可以透過備份然後commit那個備份檔案，但是有沒有可能從json出發然後直接更新LUIS的app？
+		</p><p>
+		下一篇將來看看如何透過在本機的檔案，直接修改LUIS app。
+		</p></section>

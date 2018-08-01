@@ -1,0 +1,116 @@
+Title: "[chatbot + AI = 下一代操作模式][23]LUIS管理工具 - luis-api和LUDown介紹"
+Published: 2018-08-01 23:05
+Modified: 2018-08-01 23:05
+Image: "/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/fb86363d-2228-4948-b199-ddbbfb52245d.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "luis"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何透過web界面提供給一般使用者方便并且容易的去管理和維護LUIS的app
+不過作爲開發者，透過web界面在操作上面并且可重復性上面還是不太方便，如果有透過CLI操作可預先寫好script管理就方便多了。
+今天介紹的兩個工具：luis-apis和LUDown就是方便自動化和脚本化管理的好工具"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/fb86363d-2228-4948-b199-ddbbfb52245d.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][23]LUIS管理工具 - luis-api和LUDown介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key">[22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key</a>)看了一些luis.ai的portal裡面提供維護LUIS app的功能，透過web界面這個讓一般使用者可以很容易的進行一些微調。</p><p>
+		不過如果從開發者的角度，如果我想要透過script的方式去維護可不可以？然後在定義intent、utterance以及entities的時候是否可以不直接透過web界面就做到？
+		</p><p>
+		這篇，將來看看<code>luis-apis</code>以及<code>LUDown</code>這兩個小工具。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533154770777207" ;="" style="font-size: 15px; line-height: 1.6;">luis-apis是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533154770777798" ;="" style="font-size: 15px; line-height: 1.6;">怎麽安裝luis-apis</a><br></li><li><a href="#WizKMOutline_1533154770777866" ;="" style="font-size: 15px; line-height: 1.6;">設定luis-apis</a><br></li><li><a href="#WizKMOutline_1533154770777602" ;="" style="font-size: 15px; line-height: 1.6;">使用luis-apis</a><br></li></ul><li><a href="#WizKMOutline_1533154770777805" ;="" style="font-size: 15px; line-height: 1.6;">LUDown是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533154770777476" ;="" style="font-size: 15px; line-height: 1.6;">安裝LUDown</a><br></li><li><a href="#WizKMOutline_1533154770777473" ;="" style="font-size: 15px; line-height: 1.6;">建立.lu檔案</a><br></li><li><a href="#WizKMOutline_1533154770778132" ;="" style="font-size: 15px; line-height: 1.6;">.lu檔案變成JSON model</a><br></li><li><a href="#WizKMOutline_1533154770778892" ;="" style="font-size: 15px; line-height: 1.6;">把JSON Model發佈到luis.ai</a><br></li><li><a href="#WizKMOutline_1533154770778545" ;="" style="font-size: 15px; line-height: 1.6;">把JSON Model轉換回.lu檔案</a><br></li></ul><li><a href="#WizKMOutline_1533154770778380" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1533154770777207">luis-apis是什麽？</h2>
+				
+		<div class="bs-callout bs-callout-default">
+			<h4>luis-apis小檔案</h4> 
+			<ul>
+				<li>Github Repo：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/LUIS">https://github.com/Microsoft/botbuilder-tools/tree/master/LUIS</a></li> 
+			</ul> 
+		</div>
+			
+			<p>
+		luis.ai的那個web界面其實和Azure portal是一樣的概念，兩個都是呼叫<em>REST api</em>來控制對應資源，一個是用來控制LUIS的app，另外一個則是控制Azure的資源。
+		</p><p>
+		由於使用的是REST Api，因此理論上誰都可以寫工具call apli來控制資源。微軟為Azure提供了Powershell和CLI版本可以控制，而LUIS也有一樣的CLI工具，叫做<code>luis-apis</code>。
+		</p><section><h3 id="WizKMOutline_1533154770777798">怎麽安裝luis-apis</h3><p>
+			這是一隻用node js寫的CLI工具，因此安裝方式就是透過npm來裝：<kbd>npm install -g luis-apis</kbd></p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/0bfd4896-c668-4499-adf5-2b108007ce19.png" border="0" alt="powershell_2018-08-01_18-54-23.png"><br><figcaption>透過npm安裝</figcaption></figure></section><section><h3 id="WizKMOutline_1533154770777866">設定luis-apis</h3><p>
+			裝好了之後，需要做一些設定告知用的key等等，因此可以輸入：<kbd>luis init</kbd></p><p>
+			這個時候會用問答的方式建立出一個<code>.luisrc</code>檔案
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/ee77f595-4d1d-426a-b69d-28a6e4a8f852.png" border="0" alt="powershell_2018-08-01_18-55-11.png"><br><figcaption>輸入内容建立出設定檔案</figcaption></figure><div class="bs-callout bs-callout-info">
+				一開始詢問的<code>Authorization key</code>，可以從右上角，點名字之後裡面的settings看到：
+				<figure><img class="img-responsive" src="/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/fd73bf1b-bdc7-4141-ae84-f76e8187af9c.png" border="0" alt="chrome_2018-08-01_18-56-36.png"><br><figcaption>找到Authoring Key</figcaption></figure></div></section><section><h3 id="WizKMOutline_1533154770777602">使用luis-apis</h3><p>
+			所有的指令結構都是：<code>luis {動作} {功能}</code></p><ol><li>{動作} 指的是 新增(add)、刪除(delete)、修改(update)和列表(list) - 這邊列的是幾個常見的，還有其他可以用</li><li>{功能} 指的是這個動作對什麽resource有起作用，例如 app、intent、entity等</li></ol><p></p><p>
+			舉例來説，如果要列出所有的apps可以透過輸入：<kbd>luis list apps</kbd>：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/67846d20-a871-45e3-a167-1dd72b60b00a.png" border="0" alt="powershell_2018-08-01_19-02-02.png"><br><figcaption>json格式顯示所有的app</figcaption></figure><p></p><p>
+			指令太多了，我這邊不會在往更深入的介紹，如果有興趣直接參考官方文件比較快：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/LUIS">https://github.com/Microsoft/botbuilder-tools/tree/master/LUIS</a></p></section></section><section><h2 id="WizKMOutline_1533154770777805">LUDown是什麽？</h2>
+		<div class="bs-callout bs-callout-default">
+			<h4>LUDown小檔案</h4> 
+			<ul>
+				<li>Github Repo：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown">https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown</a></li> 
+				<li>參考文件：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown/docs">https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown/docs</a></li> 
+			</ul> 
+		</div>
+		
+		<p>
+		上面介紹的<code>luis-apis</code>是在CLI控制LUIS的一些設定，不過如果想要管控實際intent裡面定義的utterance以及entity的内容怎麽辦？例如說假設我想要版控我的這些設定怎麽做？
+		</p><p>
+		這就是LUDown進來的地方，LUDown的功能就是把一個<em>類似 markdown 語法</em>的檔案（副檔名一般是.lu)轉換成爲LUIS裡面的JSON model檔案（還記得上篇備份出來的json檔案嗎？就是這個），
+		讓開發者可以用容易的方式定義出intent，并且好版控管理。
+		</p><p>
+		如果已經有現有的JSON model檔案也可以透過LUDown把他轉換成爲.lu檔案。
+		</p><section><h3 id="WizKMOutline_1533154770777476">安裝LUDown</h3><p>
+			LUDown也是用node js寫的，因此安裝透過npm：<kbd>npm i -g ludown</kbd></p><p>
+			安裝好了之後可以直接輸入<code>ludown</code>試試看有沒有找到。
+			</p></section><section><h3 id="WizKMOutline_1533154770777473">建立.lu檔案</h3><p>
+			假設今天要建立一個從無到有的Model，那麽會從定義.lu檔案開始
+			</p><p>
+			如果有寫過markdown的話，那麽非常容易上手，舉例來説，假設今天要定義一個<em>查找</em>的intent，那麽可能定義如下：
+			</p><pre><code class="language-markdown"># SearchHotel
+- 查 {place=飯店}
+- 找 {place=郵局}</code></pre><p>
+			上面這些内容總共定義出了 <em>1個</em>intent 叫做 <code>SearchHotel</code>，<em>2個</em> Utterance，并且在這兩個 utterance各定義了entity <code>place</code>。
+			</p><p>
+			所以：
+			</p><ol><li># 定義的是intent</li><li>- 定義的是每一個intent裡面的utterance</li><li>{entityName=value} - 這個則是定義entity名稱以及在這段utterance裡面的值</li></ol><p></p><div class="bs-callout bs-callout-info">
+				透過建立出這麽一個.lu檔案，在維護大一點的model變得很容易。web界面好操作，但是那個是對於<em>一般使用者</em>來説，今天如果要key好多intent以及utterance，用web界面都會需要<em>等畫面load好</em>
+				，無形中浪費掉很多時間。如果可以在檔案定義好，然後一次更新上去不是很方便？更別説有版控這個利器。
+			</div><div class="bs-callout bs-callout-info">
+				更多.lu的寫法可以參考：
+				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/lu-file-format.md">https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/lu-file-format.md</a></div></section><section><h3 id="WizKMOutline_1533154770778132">.lu檔案變成JSON model</h3><p>
+			.lu檔案是給人看的，而LUIS要看的是JSON model檔案，因此這個時候LUDown就出來了。
+			</p><p>
+			透過ludown的parse指令即可，整個參數是：<code>ludown parse toluis -l &lt;folder with .lu files&gt; [-s -o &lt;outputfolder&gt; -n &lt;luisAppName&gt; --verbose -c &lt;luisAppCulture&gt;]</code></p><p>
+			舉例來説：<code>ludown parse toluis -l .\</code></p><p>
+			會把目前資料夾下面 *.lu 轉換成爲 1 個 JSON Model。因此如果model很大，可以拆成1個intent對應1個檔案，這樣既好管理，在發佈又不會有問題。
+			</p><div class="bs-callout bs-callout-warning">
+				預設建立的Model是英文，所以如果是要給中文的Model使用的JSON檔案，需要設定參數<code>-c</code>。
+			</div><div class="bs-callout bs-callout-info">
+				更多參數説明可以參考：
+				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/create-luis-json.md">https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/create-luis-json.md</a></div></section><section><h3 id="WizKMOutline_1533154770778892">把JSON Model發佈到luis.ai</h3><p>
+			有了JSON Model之後，下一步就是把這個Model部署到luis.ai上面。
+			</p><p>
+			部署上去有兩種做法：
+			</p><ol><li>透過web 界面（上篇有介紹過）</li><li>透過 luis-apis的CLI工具</li></ol><p></p><p>
+			使用<code>luis-apis</code>非常的簡單，只需要透過指令：<code>luis import application --in LUISApp.json</code>即可。
+			</p></section><section><h3 id="WizKMOutline_1533154770778545">把JSON Model轉換回.lu檔案</h3><p>
+			當把.lu檔案轉換成爲JSON Model并且部署上去了之後，很有可能一般使用者會直接透過luis.ai來更新model，那這樣兩邊不就不一致了嗎？
+			</p><p>
+			LUDown有考慮到這個問題，因此可以透過上一篇提到的把現行JSON Model匯出來之後，透過<code>refresh</code>指令把JSON Model變成.lu檔案。
+			</p><p>
+			指令很簡單：<code>ludown refresh -i export.json</code></p><p>
+			這個時候變成了.lu檔案之後，直接commit就更新了最新的設定到版控。
+			</p><div class="bs-callout bs-callout-info">
+				匯出除了從web界面執行，也可以用<code>luis-apis</code>來達到。
+			</div><div class="bs-callout bs-callout-info">
+				更多參數可以參考：
+				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/refresh-command.md">https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/refresh-command.md</a></div></section></section><section><h2 id="WizKMOutline_1533154770778380">結語</h2><p>
+		當管理的LUIS Model變大的時候，只透過web界面來操作有時候是不夠快速，并且沒辦法批次建立或者修改Model。
+		</p><p>
+		透過今天介紹的兩個工具：<code>luis-apis</code>能夠把在web任意操作透過CLI方式控制，達到可撰寫常用scripts快速重複類似的動作。透過<code>LUDown</code>讓JSON Model變成人可以容易看并且好修改的類似markdown語法的檔案，
+		讓調整LUIS Model變的非常的輕鬆。
+		</p><p>
+		到目前爲止，LUIS的整個基本功能介紹，以及他的周邊配套工具基本都介紹完了。雖然還有非常多的細節還可以往下看，不過有了目前這些知識之後，在往下的内容在需要的時候再去看也能夠很容易理解。
+		</p><p>
+		透過LUIS賦予chatbot處理文字上面的AI話之後，接下來看看另外一個很好的輸入方式，圖片，并且Cognitive Service怎麽幫助這一塊。
+		</p><p>
+		下一篇，來看看Cognitive Service裡面的Computer Visiion。
+		</p></section>

@@ -1,0 +1,78 @@
+Title: "[chatbot + AI = 下一代操作模式][24]圖像識別的服務 - Computer Vision概觀介紹"
+Published: 2018-08-03 21:05
+Modified: 2018-08-03 21:05
+Image: "/posts/2018/08/2018-08-03-bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview/c3bab906-b2db-44db-8f76-e6cb39d255b3.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "computer-vision"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了LUIS的管理工具之後，文字處理的神器LUIS就暫時介紹到一個段落
+接下來看看另外一種常見的輸入方式，用拍照的方式輸入
+這篇看看，在Cognitive Service提供了那些Vision服務，并且看看其中的Computer Vision能夠做到什麽"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-03-bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview/c3bab906-b2db-44db-8f76-e6cb39d255b3.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][24]圖像識別的服務 - Computer Vision概觀介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro">[23]LUIS管理工具 - luis-api和LUDown介紹</a>)瞭解完了LUIS管理工具之後，基本上文字處理方面的神器LUIS介紹完了。當然，文字相關的處理還有一些服務可以介紹，例如<code>QnA Maker</code>，不過這個在之後的篇幅再來説明。</p><p>
+		接下來的篇幅將來看看另外一種越來越常見的輸入方式：<em>圖像</em>。有沒有什麽可以讓開發者處理圖像變得簡單？
+		</p><p>
+		這篇先來介紹一下微軟Cognitive Service裡面和<em>視覺（Vision）</em>有關的服務，并且概觀瞭解已經Training好的圖像識別服務<code>Computer Vision</code>，看一下這個服務是什麽并且能夠做到什麽。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533302998870377" ;="" style="font-size: 15px; line-height: 1.6;">Cognitive Service的Vision服務</a><br></li><li><a href="#WizKMOutline_1533302998870554" ;="" style="font-size: 15px; line-height: 1.6;">Computer Vision是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533302998870265" ;="" style="font-size: 15px; line-height: 1.6;">圖像識別</a><br></li><li><a href="#WizKMOutline_1533302998870532" ;="" style="font-size: 15px; line-height: 1.6;">識別名人以及地名</a><br></li><li><a href="#WizKMOutline_1533302998870550" ;="" style="font-size: 15px; line-height: 1.6;">OCR(圖像文字識別)</a><br></li><li><a href="#WizKMOutline_1533302998870191" ;="" style="font-size: 15px; line-height: 1.6;">圖片智能建立縮圖</a><br></li></ul><li><a href="#WizKMOutline_1533302998870212" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1533302998870377">Cognitive Service的Vision服務</h2><p>
+		Cognitive Service有提供一系列和Vision有關的服務，這些服務可以讓在開發不同情景功能的時候節省非常多開發者的時間。
+		</p><p>
+		所有的服務如下：
+		</p><dl><dt>
+				Computer Vision
+			</dt><dd>
+				由微軟使用非常大量圖片Train好的一個圖像分類（Classification）、圖像辨別、名人識別、OCR和手寫文字識別的AI服務。在接下來的内容會在更深入的看一下每一個功能。
+			</dd><dt>
+				Face API
+			</dt><dd>
+				識別人臉的API，可以用來判斷人臉的心情，判斷是不是同一個人臉、以及人臉識別的服務。在這個系列不會介紹到這個服務，不過如果有需要做人臉識別可以使用這個來處理。
+			</dd><dt>
+				Custom Vision
+			</dt><dd>
+				由開發者自己train出來的圖像分類的服務。這個將會在將來的篇幅介紹。
+			</dd></dl><p>
+		這篇將來看看Computer Vision的Overview。
+		</p></section><section><h2 id="WizKMOutline_1533302998870554">Computer Vision是什麽？</h2><p>
+		Computer Vision是一個微軟用非常大量圖片Train好的AI Model。主要作用是把圖片做分類和識別，總共有幾個主要的功能：
+		</p><ol><li>圖像識別</li><li>辨識名人以及地名</li><li>OCR（圖像文字識別）</li><li>圖片智能建立縮圖</li></ol><p></p><section><h3 id="WizKMOutline_1533302998870265">圖像識別</h3><p>
+			這邊的圖像識別指的是嘗試從圖片取得一些關鍵資訊，例如從圖片找到一些關鍵字以及嘗試判斷出這張圖片在説些什麽。還有一些別的資訊例如圖片的主要顔色等。
+			</p><p>
+			這個最好的測試方式是到官方的Demo頁面：
+			<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision/#analyze">https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision/#analyze</a></p><p>
+			從下圖可以看出：
+			</p><ol><li>可以取得圖片的關鍵資訊（tag）</li><li>嘗試找到一行字介紹圖片内容（caption）</li><li>也可以自己上傳一張圖片嘗試識別内容</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-03-bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview/7c364510-45df-4375-8240-c8d64abaa291.png" border="0" alt="chrome_2018-08-03_21-02-23.png"><br><figcaption>官方的測試畫面</figcaption></figure><p></p><p>
+			往下卷還可以看到更多不同的資訊，因此可以用這個作爲測試看看符不符合使用
+			</p><div class="bs-callout bs-callout-info">
+				題外話，這個服務是有中文版本，意思是回傳的内容會是中文。在Demo畫面用的是英文的語系，實際的api是可以切換為中文。
+			</div></section><section><h3 id="WizKMOutline_1533302998870532">識別名人以及地名</h3><p>
+			如果需要從圖片裡面找出名人的名字或者景點的地名就可以使用這個服務。
+			</p><p>
+			可以從官方的Demo頁面測試：
+			<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision/#celebrities-landmarks">https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision/#celebrities-landmarks</a></p><p>
+			下圖的例子是用Facebook創辦人在Wiki上面的
+			<a href="https://upload.wikimedia.org/wikipedia/commons/thumb/c/c4/Mark_Zuckerberg_F8_2018_Keynote_%28cropped%29.jpg/330px-Mark_Zuckerberg_F8_2018_Keynote_%28cropped%29.jpg">相片</a>，可以看到有被識別出來：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-03-bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview/5f76597b-4336-499e-87a9-4fb47d51e457.png" border="0" alt="2018-08-03_21-08-13.png"><br><figcaption>識別Facebook創辦人的相片</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1533302998870550">OCR(圖像文字識別)</h3><p>
+			現在手機拍照很方便，有時候把一些文件或者memo内容拍照下來，這時候要把圖片變回文字就會使用到OCR的服務。
+			</p><p>
+			這個服務<em>有支援中文</em>，并且有區分繁體中文和簡體中文，因此非常的實用。
+			</p><p>
+			一樣可以從官方Demo頁面測試：<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision/#text">https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision/#text</a></p><p>
+			下圖是官方的範例圖片之一，可以看到就算是歪的也可以識別：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-03-bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview/422dc2ce-01df-4026-b92a-4eabf6420462.png" border="0" alt="chrome_2018-08-03_21-16-06.png"><br><figcaption>歪的logo圖片文字識別</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				有另外一隻服務是專門處理圖片裡面有<em>手寫文字的識別</em>。不過這個服務<em>只支援</em>英文。
+			</div><div class="bs-callout bs-callout-warning">
+				Demo頁面的語系是設定英文，因此用中文字圖片是測試不出來哦。
+			</div></section><section><h3 id="WizKMOutline_1533302998870191">圖片智能建立縮圖</h3><p>
+			如果說程式裡面需要提供切圖的服務，那麽Computer Vision的這個Service就非常的有幫助。
+			</p><p>
+			詳細可以看官方demo：<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision">https://azure.microsoft.com/zh-tw/services/cognitive-services/computer-vision</a></p></section></section><section><h2 id="WizKMOutline_1533302998870212">結語</h2><p>
+		這篇介紹了Cognitive Service裡面的Vision相關的服務。并且看了Computer Vision主要的功能。希望透過這篇能夠有個概念能夠做到什麽程度，等到以後遇到需求的時候可以再來細看。
+		</p><p>
+		以目前的HotelBot機器人來説，可以用到的服務是OCR。
+		</p><p>
+		下一篇將來看如何建立好Computer Vision需要的Key，并且先用REST API的方式呼叫測試服務。
+		</p></section>

@@ -1,0 +1,89 @@
+Title: "[chatbot + AI = 下一代操作模式][25]使用Computer Vision - 如何設定、看文件以及使用REST API測試"
+Published: 2018-08-04 21:05
+Modified: 2018-08-04 21:05
+Image: "/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/c271b3ca-67f1-47ac-98fd-e1c841aee475.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "computer-vision"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了Computer Vision的幾個服務介紹之後
+這篇來看看如何實際使用。
+從建立服務的key，如何看api文件到最後的REST Api呼叫測試"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/c271b3ca-67f1-47ac-98fd-e1c841aee475.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][25]使用Computer Vision - 如何設定、看文件以及使用REST API測試.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview">[24]圖像識別的服務 - Computer Vision概觀介紹</a>)看完了Cognitive Service 裡面和 Vision 有關的服務，以及Computer Vision的一些簡單的功能介紹了之後，在這一篇將來看看實際上怎麽使用Computer Vision。</p><p>
+		這篇將會先介紹如何建立Computer Vision需要的Key，再來用Postman呼叫OCR服務的REST API作爲測試。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533387507581992" ;="" style="font-size: 15px; line-height: 1.6;">建立Computer Vision的Key</a><br></li><li><a href="#WizKMOutline_1533387507581760" ;="" style="font-size: 15px; line-height: 1.6;">使用Computer Vision</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533387507581577" ;="" style="font-size: 15px; line-height: 1.6;">Computer Vision的REST API有什麽參數</a><br></li><li><a href="#WizKMOutline_1533387507581172" ;="" style="font-size: 15px; line-height: 1.6;">用Postman測試</a><br></li><li><a href="#WizKMOutline_1533387507581848" ;="" style="font-size: 15px; line-height: 1.6;">使用文件裡的testing console做測試</a><br></li></ul><li><a href="#WizKMOutline_1533387507581366" ;="" style="font-size: 15px; line-height: 1.6;">文件上面其他的功能</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533387507581757" ;="" style="font-size: 15px; line-height: 1.6;">不同語言的code samples</a><br></li><li><a href="#WizKMOutline_1533387507581144" ;="" style="font-size: 15px; line-height: 1.6;">取得Swagger或者WADL的reference</a><br></li></ul><li><a href="#WizKMOutline_1533387507581346" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1533387507581992">建立Computer Vision的Key</h2><p>
+		和其他的Cognitive Service一樣，要使用Computer Vision都需要有Key，而key的建立要透過從Azure上面建立出來。
+		</p><p>
+		首先進入<a href="https://portal.azure.com/">Azure Portal</a>，可以透過搜索的方式開啓建立<code>Computer Vision</code>的畫面
+		（也可以用這個<a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesComputerVision">鏈接</a>直接開啓建立Computer Vision的畫面）：
+		</p><ol><li><em>Name</em>輸入可以識別的名稱即可</li><li><em>Subscription</em>選擇這個服務要建立在那個訂閲裡面</li><li><em>Location</em>這個會影響到服務的位置以及api呼叫的網址。亞洲來説East Asia（香港）或者 Southeast Asia（新加坡）最好。</li><li><em>Pricing tier</em>選擇費用等級。測試可以用<em>F0</em>即可，完全免費</li><li><em>Resource Group</em>放在好管理的地方即可</li></ol><p>
+		最後按下<code>Create</code>即可。
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/48a6d2b9-c204-4cb4-be8d-011895ea73f1.png" border="0" alt="chrome_2018-08-04_19-42-30.png"><br><figcaption>建立一個Computer Vision的服務</figcaption></figure><p></p><p>
+		稍等一下，等到服務建立出來之後，直接打開在<em>Overview</em>畫面可以看到幾個重要的資訊：
+		</p><ol><li><em>Keys</em>這個可以取得到呼叫API會用到的Keys</li><li>在這邊可以看到要使用的API Endpoint：<code>https://southeastasia.api.cognitive.microsoft.com/vision/v1.0</code></li><li>對於API的參數以及使用方式可以參考<em>Computer Vision Api reference</em></li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/9599bcbf-71ed-46b0-a27e-357a6988befe.png" border="0" alt="chrome_2018-08-04_19-49-46.png"><br><figcaption>從Overview畫面找到幾個重要的信息</figcaption></figure><p></p><p>
+		點下<code>Keys</code>之後，可以看到兩組Key，只需要選擇其中一組即可，把這個Key記錄下來：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/0efd4515-21d9-4984-bfb6-8f2f69d96e3c.png" border="0" alt="chrome_2018-08-04_19-51-15.png"><br><figcaption>取得Key的畫面截圖</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1533387507581760">使用Computer Vision</h2><p>
+		建立出Key之後就可以使用Computer Vision了。
+		</p><p>
+		所有的Cognitive Service全部都是REST API的服務，那麽瞭解REST API支援什麽參數變得非常的重要，知道了有什麽參數之後就是做測試。
+		</p><p>
+		拆解出來就是：
+		</p><ol><li>Computer Vision的REST API有什麽參數</li><li>用Postman測試</li><li>使用文件裡的testing console做測試</li></ol><p></p><section><h3 id="WizKMOutline_1533387507581577">Computer Vision的REST API有什麽參數</h3><p>
+			還記得上面建立出來的Computer Vision在Overview畫面有個<em>Computer Vision API reference</em>，
+			這個<a href="https://westus.dev.cognitive.microsoft.com/docs/services/56f91f2d778daf23d8ec6739/operations/56f91f2e778daf14a499e1fa">鏈接</a>有最完整的API説明
+			</p><p>
+			左邊列出的是Computer Vision所有支援的服務，在這邊我們只關注OCR，因此切換到OCR的部分，整份文件有很詳細的説明，在url使用上有的參數也有介紹：
+			</p><ol><li>左邊可以切換到OCR的服務</li><li>在Request URL可以看到完整的網址，以及有接受的參數</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/7903552f-575a-494d-97cd-352c316adfc8.png" border="0" alt="chrome_2018-08-04_20-01-00.png"><br><figcaption>切換到OCR并且看有接受什麽參數</figcaption></figure><p></p><p>
+			從文件上面可以發現幾個會用到的參數（這裡列出的不是全部的參數，全部請看文件）：
+			</p><dl><dt>
+					url參數language
+				</dt><dd>
+					可以設定辨識的語言。預設是<em>unk</em>意思是由系統自己辨識語言。如果確定圖片語言，可以在這個參數指定。以中文來説有：
+					<ul><li><code>zh-Hans</code>：簡體中文</li><li><code>zh-Hant</code>：繁體中文</li></ul></dd><dt>
+					header：<code>Ocp-Apim-Subscription-Key</code></dt><dd>
+					這個用來設定使用服務的Key。
+				</dd><dt>
+					Request Body
+				</dt><dd>
+					可以直接傳入一張照片的URL，或者直接傳送圖片的Binary資料。
+				</dd></dl><p></p><p>
+			依照上面的發現，最後的Endpoint可以得出是：<code>https://southeastasia.api.cognitive.microsoft.com/vision/v1.0/ocr?language=zh-Hant</code>。
+			</p></section><section><h3 id="WizKMOutline_1533387507581172">用Postman測試</h3><p>
+			瞭解了API的用法了之後，接下來可以用一些REST Api的client做測試，這類工具裡面Postman非常的好用，因此將用Postman做測試。
+			</p><p>
+			首先是設定Endpoint以及Header的部分：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/5249b3e0-e588-4dd1-91d0-d2d92ad2dfdb.png" border="0" alt="Postman_2018-08-04_20-20-52.png"><br><figcaption>設定Endpoint以及Header的截圖</figcaption></figure><p></p><p>
+			再來是Post出去的内容，這邊將用上一篇部落格的文章首圖作爲測試：
+</p><pre><code class="language-json">{"url":"https://d33wubrfki0l68.cloudfront.net/944305e40cdc6a07a988bf3970ec07e33d3d3b01/d047f/posts/2018/08/2018-08-03-bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview/c3bab906-b2db-44db-8f76-e6cb39d255b3.jpg"}</code></pre><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/679abe88-6662-4684-b2e2-890996979590.png" border="0" alt="Postman_2018-08-04_20-22-29.png"><br><figcaption>設定post的body部分</figcaption></figure><p></p><p>
+			接下來就可以把設定的REST Api發出去，并且可以檢視最後識別的結果，下圖上半部是Api發出去之後得到的結果，下半部則是原圖。可以發現，識別的非常正確，并且圖片右小角的浮水印也有識別出來
+			（雖然識別的不完整，畢竟字比較小）
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/62c24dd8-b5b2-4d9a-bf59-95a369782e42.png" border="0" alt="chrome_2018-08-04_20-25-22.png"><br><figcaption>測試Postman呼叫圖像識別</figcaption></figure></section><section><h3 id="WizKMOutline_1533387507581848">使用文件裡的testing console做測試</h3><p>
+			如果説今天電腦裡面沒有Postman又要測試有什麽辦法呢？
+			</p><p>
+			在API文件其實有提供測試，只需要在文件裡面的<em>Open API testing console</em>打開對應的地區按鈕即可：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/6cb5f0e5-1a2a-471f-a4e9-faae49e01cb2.png" border="0" alt="chrome_2018-08-04_20-30-36.png"><br><figcaption>開啓southeastasia的測試 console</figcaption></figure><p></p><p>
+			接下來只需要輸入每個參數即可：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/75844642-6817-40aa-8b82-274a344a5c72.png" border="0" alt="chrome_2018-08-04_20-32-44.png"><br><figcaption>輸入不同參數做測試</figcaption></figure><p></p><p>
+			接下來可以在下面看到反饋内容：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/f8b3718f-a1b7-4211-9b1d-abeae630ffad.png" border="0" alt="chrome_2018-08-04_20-34-14.png"><br><figcaption>測試服務的結果</figcaption></figure><p></p><p>
+			使用文件上面的testing console用來學習api非常的方便，因此如果有些文件説明看不懂，直接測試反而比較快。
+			</p></section></section><section><h2 id="WizKMOutline_1533387507581366">文件上面其他的功能</h2><p>
+		文件上面還有兩個能夠輔助開發的功能：
+		</p><ol><li>不同語言的code samples</li><li>取得Swagger或者WADL的reference</li></ol><p></p><section><h3 id="WizKMOutline_1533387507581757">不同語言的code samples</h3><p>
+			在頁面的最下面有列出幾個常見語言的呼叫方式，方便快速整合Computer Vision到不同的語言：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/6e33533d-3153-45fb-a23a-5dc661c948ed.png" border="0" alt="chrome_2018-08-04_20-39-42.png"><br><figcaption>Code Samples内容</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1533387507581144">取得Swagger或者WADL的reference</h3><p>
+			開發API的時候長會使用像是Swagger這種服務，而api文件有提供對應的定義檔案可以使用，位置在文件的右上角：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-04-bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman/64a69266-1f11-4471-b41e-4fd14ea1f4ef.png" border="0" alt="chrome_2018-08-04_20-41-54.png"><br><figcaption>取得swagger或者WADL定義</figcaption></figure><p></p></section><div class="bs-callout bs-callout-info">
+			未來介紹的其他Cognitive Service都有一個對應的文件。因此這篇介紹的文件使用方式在其他的Cognitive Service將都適用。因此未來有些參數的取得將不會像這篇介紹的那麽詳細。
+		</div></section><section><h2 id="WizKMOutline_1533387507581346">結語</h2><p>
+		這篇介紹了如何建立出Computer Vision使用上面所需要的Key。然後看了如何找到Computer Vision服務的REST API文件。并且依照了REST API文件的介紹測試了裡面的OCR服務。
+		</p><p>
+		相信透過了這篇對於Computer Vision的使用有了更進一步的瞭解。
+		</p><p>
+		下一篇將回到HotelBot程式上面，看看如何把OCR的服務整合進入到chatbot。
+		</p></section>

@@ -1,0 +1,198 @@
+Title: "[chatbot + AI = 下一代操作模式][26]賦予chatbot OCR的能力 - 加入對發票的功能"
+Published: 2018-08-05 15:00
+Modified: 2018-08-05 15:00
+Image: "/posts/2018/08/2018-08-05-bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr/7ff54c03-d983-45cc-8880-f6d8f7dbf27b.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "computer-vision"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何建立Computer Vision的Key、看API文件以及用Postman測試之後
+接下來就是看看如何整合到程式碼裡面
+這篇來看看如何把OCR服務整合到chatbot"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-05-bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr/7ff54c03-d983-45cc-8880-f6d8f7dbf27b.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][26]賦予chatbot OCR的能力 - 加入對發票的功能.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman">[25]使用Computer Vision - 如何設定、看文件以及使用REST API測試</a>)看完了如何建立Computer Vision的Key，瞭解如何看REST Api的文件并且用Postman做服務測試。</p><p>
+		這一篇將把OCR的功能整合到chatbot裡面，看看實際開發起來是個什麽感覺。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-26">alantsai-samples/mhat-hotelbot:blog/chapter-26</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533452049886698" ;="" style="font-size: 15px; line-height: 1.6;">加入發票識別功能</a><br></li><li><a href="#WizKMOutline_1533452049886798" ;="" style="font-size: 15px; line-height: 1.6;">調整程式碼</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533452049886834" ;="" style="font-size: 15px; line-height: 1.6;">建立一個新的Dialog專門處理對發票</a><br></li><li><a href="#WizKMOutline_1533452049886908" ;="" style="font-size: 15px; line-height: 1.6;">建立一個Service把OCR服務包起來</a><br></li><li><a href="#WizKMOutline_1533452049886677" ;="" style="font-size: 15px; line-height: 1.6;">把Dialog和Service結合起來</a><br></li><li><a href="#WizKMOutline_1533452049887818" ;="" style="font-size: 15px; line-height: 1.6;">把RootLuisDialog和對發票結合</a><br></li><li><a href="#WizKMOutline_1533452049887719" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1533452049887872" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1533452049886698">加入發票識別功能</h2><p>
+		一個訂房相關的chatbot哪裏會用到OCR其實我想不太出來，目前想到兩種情景：
+		</p><ol><li>訂房完有發票或訂房確認訊息 - 可以用OCR方式把他變成電子内容給使用者提供一些服務</li><li>飯店設施有錯誤的時候的查詢 - 例如假設有借電腦的服務，如果電腦有問題可能會出現錯誤訊息，但是這個錯誤訊息對不常用電腦的人來説可能看不懂，因此可以用OCR服務搭配顯示出任可看的訊息</li></ol><p></p><p>
+		OCR只是一個技術，怎麽使用就看大家的創意了。
+		</p><p>
+		今天要加入的功能是，讓chatbot可以透過拍照發票的方式直接識別出發票號碼，然後看有沒有中獎。（好吧，其實就是一個對發票的功能，沒什麽創意Orz）。
+		</p></section><section><h2 id="WizKMOutline_1533452049886798">調整程式碼</h2><p>
+		那要加入這個功能大概會拆成以下幾個步奏：
+		</p><ol><li>建立一個新的Dialog專門處理對發票</li><li>建立一個Service把OCR服務包起來</li><li>把Dialog和Service結合起來</li><li>把RootLuisDialog和對發票結合</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1533452049886834">建立一個新的Dialog專門處理對發票</h3><p>
+			建立一個Dialog叫做<code>ReceiptRecognizerDialog</code>。這個Dialog作用很簡單，就是會呼叫OCR的服務，然後返回識別出來的發票號碼。
+			</p><pre><code class="language-csharp">[Serializable]
+public class ReceiptRecognizerDialog : IDialog&lt;string&gt;
+{
+	public Task StartAsync(IDialogContext context)
+	{
+		throw new NotImplementedException();
+	}
+}</code></pre><p>
+目前實作的部分先暫時不理他，等一下再回來處理。
+</p></section><section><h3 id="WizKMOutline_1533452049886908">建立一個Service把OCR服務包起來</h3><p>
+			還記得在上篇介紹API文件的時候有提到，在最下面有提供sample code。而C#的sample code是透過<code>HttpClient</code>直接對接REST Api取得結果。
+			</p><p>
+			不過在實際開發上還是希望透過物件的方式來呼叫服務，因此Sample Code的方式最好還是包一層比較好呼叫。
+			</p><p>
+			微軟在Computer Vision的部分有提供一個SDK，已經把REST Api包好了，因此將會使用這個SDK作爲基礎。
+			</p><p>
+			首先，先安裝nuget套件：<kbd>Install-Package Microsoft.ProjectOxford.Vision</kbd></p><div class="bs-callout bs-callout-warning">
+				題外話，以前Cognitive Service有個另外個名稱是Project Oxford（牛津計劃），後來又改名了。不過SDK名稱沒有改。其他Cognitive Service有提供SDK也將會在ProjectOxford名稱下面。
+			</div><p>
+			安裝好了之後，建立出一個<code>OCRService</code>，這個Service提供了兩個方法：
+			</p><ol><li>傳入圖片url的方式來辨別</li><li>傳入一個Stream，可以用作本地檔案上傳的時候用</li></ol><pre><code class="language-csharp">public class OCRService
+    {
+        public OCRService()
+        {
+            VisionServiceClientInstance =
+                 new VisionServiceClient
+                    (ConfigurationManager.AppSettings["ComputerVision.Key"],
+                    ConfigurationManager.AppSettings["ComputerVision.Url"]);
+        }
+
+        public VisionServiceClient VisionServiceClientInstance { get; }
+
+        public async Task<ocrresults> GetOcrResultAsync
+            (Stream imageStream, string languageCode = "unk")
+        {
+            return await VisionServiceClientInstance.RecognizeTextAsync(imageStream, languageCode);
+        }
+
+        public async Task<ocrresults> GetOcrResultAsync
+            (string imageUrl, string languageCode = "unk")
+        {
+            return await VisionServiceClientInstance.RecognizeTextAsync
+                (imageUrl, languageCode);
+        }</ocrresults></ocrresults></code></pre><p></p><div class="bs-callout bs-callout-info">
+				這邊有兩個值是從AppSetting取得，分別為：
+				<ol><li><code>ComputerVision.Key</code>：這個是取得建立服務得到的Key</li><li><code>ComputerVision.Url</code>：這個是服務的網址，例如：<code>https://southeastasia.api.cognitive.microsoft.com/vision/v1.0</code></li></ol></div></section><section><h3 id="WizKMOutline_1533452049886677">把Dialog和Service結合起來</h3><p>
+			這邊將整合兩種情況：
+			</p><ol><li>如果傳入的是一個網址</li><li>直接傳送圖片的方式</li></ol><p></p><p>
+			首先，調整Dialog裡面的内容：
+</p><pre><code class="language-csharp">public async Task StartAsync(IDialogContext context)
+{
+	await context.PostAsync
+		("請上傳發票圖片或者發票圖片的網址");
+
+	context.Wait(MessageReceivedAsync);
+}
+
+private async Task MessageReceivedAsync
+	(IDialogContext context, 
+		IAwaitable&lt;IMessageActivity&gt; result)
+{
+	var messageResult = await result;
+
+	var cvs = new OCRService();
+
+	var finalResult = string.Empty;
+
+	// 上傳圖片的處理
+	if (messageResult.Attachments
+			?.Any(a =&gt; a.ContentType.Contains("image")) 
+				?? false)
+	{
+		var attachment =
+			messageResult.Attachments.FirstOrDefault
+				(x =&gt; x.ContentType.Contains("image"));
+
+		var imageStream = await
+			messageResult.GetConnector()
+				.GetImageStream(attachment);
+
+		var ocrResult = await cvs
+			.GetOcrResultAsync(imageStream, "zh-Hant");
+
+		finalResult = ProcessImageOcrResult(context, ocrResult);
+	}
+	// 圖片網址的處理
+	else if (Uri.IsWellFormedUriString
+				(messageResult.Text, UriKind.Absolute))
+	{
+		var ocrResult = await cvs
+			.GetOcrResultAsync(messageResult.Text, "zh-Hant");
+
+		finalResult = ProcessImageOcrResult(context, ocrResult);
+	}
+
+	context.Done(finalResult);
+}</code></pre><p></p><p>
+			上面這段的程式碼有幾個重要的地方：
+			</p><dl><dt>
+					圖片取得的邏輯
+				</dt><dd>
+					有些channel的圖片直接在Attachment裡面，不過有些要做額外處理。例如Skype就需要用特殊的API才能夠取得圖片。因此，裡面有幾個方法是從Extension Helper來的，分別為：
+					<ul><li>GetConnector()</li><li>GetImageStream()</li></ul><div class="bs-callout bs-callout-info">
+						這個程式碼就不貼在部落格裏面了，詳細可以參考github上面。
+						<a href="https://github.com/alantsai-samples/mhat-hotelbot/blob/blog/chapter-26/src/MHAT.HotelBot/Helper/IActivityHelper.cs">Helper/IActivityHelper.cs</a>、
+						<a href="https://github.com/alantsai-samples/mhat-hotelbot/blob/blog/chapter-26/src/MHAT.HotelBot/Helper/IConnectorClientHelper.cs">Helper/IConnectorClientHelper.cs</a></div></dd><dt>
+					處理OCR識別的結果
+				</dt><dd><pre><code class="language-csharp">private string ProcessImageOcrResult(IDialogContext context,
+	OcrResults ocrResult)
+{
+	var result = string.Empty;
+
+	// 偷懶，發票號碼格式是：AA-12345678
+	// 因此找出第3個字母是-的就算是發票號碼
+	var foundErrorCode = ocrResult.Regions.SelectMany(x =&gt; x.Lines)
+						.SelectMany(x =&gt; x.Words)
+						.FirstOrDefault(x =&gt; x.Text.Length &gt; 3 
+							&amp;&amp; x.Text.Substring(2, 1) == "-");
+
+	if (foundErrorCode != null)
+	{
+		result = foundErrorCode.Text;
+	}
+
+	return result;
+}</code></pre><div class="bs-callout bs-callout-warning">
+	這邊偷懒了，如果真的是production程式碼，判斷哪裏屬於發票號碼需要更加嚴謹一些。
+</div></dd></dl><p></p></section><section><h3 id="WizKMOutline_1533452049887818">把RootLuisDialog和對發票結合</h3><p>
+			到目前爲止，一切都准備好了，剩下就是怎麽觸發對發票的Dialog。
+			</p><p>
+			這邊，先去luis.ai上面加入一個新的intent叫做<code>ReceiptRecognizer</code>這個將會觸發剛剛建立的Dialog：
+			</p><pre><code class="language-csharp">[LuisIntent("ReceiptRecognizer")]
+public Task ReceiptRecognizer
+	(IDialogContext context, LuisResult result)
+{
+	context.Call(new ReceiptRecognizerDialog(),
+		ReceiptRecognizerAfterAsync);
+
+	return Task.CompletedTask;
+}
+
+private async Task ReceiptRecognizerAfterAsync
+	(IDialogContext context,
+		IAwaitable&lt;string&gt; result)
+{
+	var finalResult = await result;
+
+	if(string.IsNullOrEmpty(finalResult) == false)
+	{
+		await context.PostAsync($"您的發票號碼是：{finalResult}");
+	}
+	else
+	{
+		await context.PostAsync("識別發票號碼失敗");
+	}
+
+	context.Wait(MessageReceived);
+}</code></pre></section><section><h3 id="WizKMOutline_1533452049887719">測試結果</h3><p>
+			接下來就是測試執行結果，將會使用以下這個發票做測試：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-05-bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr/440c5dea-91ce-4baf-965e-e434fd1e09e6.png" border="0" alt="test-receipt.png"><br><figcaption>測試發票來源：https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSlMVlVgbic3nVNTY23omioynJKej6jP9-N-Ccwu40dIiS3nPGK</figcaption></figure><p></p><p>
+			首先測試用圖片上傳的方式：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-05-bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr/59a85f55-8519-4550-b989-de3c4e41d030.png" border="0" alt="botframework-emulator_2018-08-05_14-35-45.png"><br><figcaption>圖片上傳的結果</figcaption></figure><p></p><p>
+			再來測試用圖片網址的方式：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-05-bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr/3aaaee67-abca-4e9a-9ac1-b5fd3439c24c.png" border="0" alt="botframework-emulator_2018-08-05_14-36-02.png"><br><figcaption>圖片網址的方式</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1533452049887872">結語</h2><p>
+		這篇介紹了如何把Computer Vision裡面的OCR服務整合到了chatbot裡面，并且模擬了一個對發票的情景把他運用了起來。
+		</p><p>
+		可是如果我今天有別的圖片識別服務想要做怎麽辦？例如說，在酒店裡面的冰箱有一些喝的，有沒有辦法用拍照的方式知道產品價錢？
+		</p><p>
+		Computer Vision做不到，但是Custom Vision可以。下一篇來介紹什麽是Custom Vision并且能夠做到什麽。
+		</p></section>

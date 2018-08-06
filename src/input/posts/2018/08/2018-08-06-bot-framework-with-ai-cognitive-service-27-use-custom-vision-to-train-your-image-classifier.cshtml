@@ -1,0 +1,81 @@
+Title: "[chatbot + AI = 下一代操作模式][27]Custom Vision - 自己的Model自己Train 建立圖片的分類模型"
+Published: 2018-08-06 23:50
+Modified: 2018-08-06 23:50
+Image: "/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/bdff832d-ff2b-49c0-8ba3-dea496a8bca6.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "custom-vision"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "Chatbot有了OCR的能力之後，雖然可以對發票了，但是在圖片處理上面的能力還是弱了點
+如果客人從冰箱拿了一瓶飲料想要知道價錢是否能夠透過拍照的方式查到？
+Computer Vision就沒辦法。
+這篇看看如何用Custom Vision達到這個目的，自己的Model自己Train。"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/bdff832d-ff2b-49c0-8ba3-dea496a8bca6.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][27]Custom Vision - 自己的Model自己Train 建立圖片的分類模型.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr">[26]賦予chatbot OCR的能力 - 加入對發票的功能</a>)介紹完了Computer Vision裡面的OCR服務整合到BotBuilder的程式了之後，來看看另外一個和Vision有關的服務，Custom Vision。</p><p>
+		在這一篇將介紹Custom Vision是一個什麽樣的服務，并且如何用Custom Vision來建立一個之後會用到的模型。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533570537136166" ;="" style="font-size: 15px; line-height: 1.6;">Custom Vision是什麽？</a><br></li><li><a href="#WizKMOutline_1533570537136241" ;="" style="font-size: 15px; line-height: 1.6;">Custom Vision是在train什麽模型？</a><br></li><li><a href="#WizKMOutline_1533570537136937" ;="" style="font-size: 15px; line-height: 1.6;">在Custom Vision建立模型</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533570537136287" ;="" style="font-size: 15px; line-height: 1.6;">找訓練資料</a><br></li><li><a href="#WizKMOutline_1533570537136704" ;="" style="font-size: 15px; line-height: 1.6;">在customvision.ai建立一個專案</a><br></li><li><a href="#WizKMOutline_1533570537136742" ;="" style="font-size: 15px; line-height: 1.6;">在專案裡面開始上傳training的圖片</a><br></li><li><a href="#WizKMOutline_1533570537137768" ;="" style="font-size: 15px; line-height: 1.6;">執行Train的動作</a><br></li><li><a href="#WizKMOutline_1533570537137485" ;="" style="font-size: 15px; line-height: 1.6;">測試</a><br></li></ul><li><a href="#WizKMOutline_1533570537137815" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1533570537136166">Custom Vision是什麽？</h2><p>
+		還記得Computer Vision在介紹的時候提到，那個服務是由微軟用了非常大量的圖片train出來的模型，用來做通用圖片辨識的服務。
+		</p><p>
+		可是，每一個使用情景不同，可能會有自己domain的圖片，這個時候Computer Vision就太Generic導致無法很好的識別這些特定領域的圖片。
+		</p><p>
+		那有沒有其他的解決方案呢？既然微軟Train出來的是Generic的模型，難道沒辦法自己提供圖片做Training嗎？
+		</p><p>
+		這個就是Custom Vision出現的原因，自己的模型自己Train，最後Train出來才符合自己的Domain使用。
+		</p></section><section><h2 id="WizKMOutline_1533570537136241">Custom Vision是在train什麽模型？</h2><p>
+		上面一直提到train自己的模型，可是這個train出來的模型目的是什麽？
+		</p><p>
+		Custom Vision有兩個目的：
+		</p><ol><li>Train出一個能夠分類（classifier）的模型</li><li>能夠從圖片找到物體的範圍 - 目前在preview，這幾篇不會介紹這個功能</li></ol><p></p><p>
+		如果沒有接觸過Machine Learning可能對於分類還是沒什麽概念，那麽換成HotelBot的情景看看：
+		</p><div class="bs-callout bs-callout-default">
+			在每一間房間裡面有冰箱，在冰箱有不同類型的飲料，有沒有辦法讓客人對想喝的飲料拍照，然後chatbot就顯示出要多少錢？
+		</div><p>
+		從上面的情景可以發現需求是，把拍照的内容<em>做分類</em>，判斷出屬於<em>那一類</em>的飲料，因此Custom Vision非常適合這個工作。
+		</p></section><section><h2 id="WizKMOutline_1533570537136937">在Custom Vision建立模型</h2><p>
+		上面瞭解了服務的用途以及概念了之後，接下來看看如何建立一個模型。
+		</p><p>
+		要建立模型總共經歷幾個步奏：
+		</p><ol><li>找訓練資料 - 每一種分類至少準備<em>5張</em>相片</li><li>在customvision.ai建立一個專案</li><li>在專案裡面開始上傳training的圖片</li><li>執行Train的動作</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1533570537136287">找訓練資料</h3><p>
+			首先是需要找素材，這邊我將對於3個類型的飲料去網路上面找一些圖片：
+			</p><ul><li>可口可樂</li><li>百事可樂</li><li>雪碧</li></ul><p></p><p>
+			Training的圖片越多越好，至少<em>5張</em>爲好，當然不夠也沒關係，只是準確度有差。
+			</p><p>
+			另外一個是在production的時候，最好有些圖片是真實拍出來會比較好，因爲有些網上圖片特徵太明顯會造成之後識別不準確。
+			</p></section><section><h3 id="WizKMOutline_1533570537136704">在customvision.ai建立一個專案</h3><p>
+			Custom Vision和LUIS非常類似，都是到某個網站建立一個專案之後才做，因此：
+			</p><p>
+			先到<a href="https://customvision.ai/" target="_blank">https://customvision.ai/</a>主頁，然後按下<code>Sign in</code>的按鈕，登入帳號了之後會看到專案的畫面：
+			</p><ol><li>如果帳號有多個Azure Subscription的話，右上角可以切換</li><li>建立新的專案選擇<code>New Project</code>，如果是調整現有的點選列出來的專案即可</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/36f282f6-9289-431e-ad8e-7073462f3c26.png" border="0" alt=""><br><figcaption>登入之後的畫面</figcaption></figure><p></p><p>
+			點下<code>New Project</code>之後，有一些欄位需要做填寫：
+			</p><ol><li><em>Name</em>：好識別即可</li><li><em>Description</em>：詳細描述，給自己看的</li><li><em>Resource Group</em>：牽扯到模型建立在那邊，有免費可以用，如果要production就要放在付費的等級比較好。可以選擇旁邊的<code>Create new</code>來建立</li><li><em>Project Types</em>：還記得之前提到這個服務有兩個作用，這邊關注classification（分類）的功能</li><li><em>Classification Types</em>：決定一張圖片能不能有<em>多個</em>標簽，以我們的例子一張圖片一個標簽，因此選2</li><li><em>Domains</em>：如果圖片屬於某個領域可以選。有括弧<code>compact</code>表示比較輕量，適合匯出到ios/android的時候選</li><li><em>Create Project</em>：沒問題之後就點下將會開始建立</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/74438d72-687a-4261-bc3c-406085d789ac.png" border="0" alt="chrome_2018-08-06_23-15-15.png"><br><figcaption>建立Project</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1533570537136742">在專案裡面開始上傳training的圖片</h3><p>
+			專案有了之後，就可以開始Train模型。
+			</p><p>
+			透過Add Image的按鈕，可以選擇要上傳的圖片，例如要設定可口可樂：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/954379d8-4aca-494b-9621-f4cd180dbb24.png" border="0" alt="chrome_2018-08-06_23-29-17.png"><br><figcaption>選擇5張可口可樂圖片</figcaption></figure><p></p><p>
+			再來要對這些圖片設定一個標簽，這邊輸入了<code>coke</code>，然後按下<code>upload</code></p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/0fc6a460-e2f8-4997-bfe0-4d74e559a63e.png" border="0" alt="chrome_2018-08-06_23-30-36.png"><br><figcaption>設定標簽</figcaption></figure><p></p><p>
+			稍等一下，上傳成功的話按鈕會變成<code>Done</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/69a7801b-c190-44a3-ac67-d85bbab3edf8.png" border="0" alt="chrome_2018-08-06_23-31-53.png"><br><figcaption>上傳成功的截圖</figcaption></figure><p></p><p>
+			按下<code>Done</code>之後，pop up就不見了，這個時候：
+			</p><ol><li>剛剛上傳的圖片會顯示出來</li><li>在左邊可以對這些圖片做篩選</li><li>透過按鈕<code>Add images</code>可以增加更多的圖片做training</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/084abe3d-ebb5-40c1-9781-02745bc93c81.png" border="0" alt="chrome_2018-08-06_23-32-33.png"><br><figcaption>上傳完的截圖</figcaption></figure><p>
+			重複把其他兩個飲料也處理了，接下來就可以準備做training了。
+			</p></section><section><h3 id="WizKMOutline_1533570537137768">執行Train的動作</h3><p>
+			接下來就按右上角的<code>Train</code>按鈕即可：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/39c274ad-c55a-42cf-8bab-a80838ba7581.png" border="0" alt="chrome_2018-08-06_23-35-53.png"><br><figcaption>按下Train的按鈕</figcaption></figure><p></p><p>
+			稍等一下，畫面會自動切換到<code>Performance</code>的部分，并且會看到關於這次train完的<em>Precision</em>和<em>Recall</em>：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/1dc416a9-fd1c-4a30-86fb-1974cc82124c.png" border="0" alt="chrome_2018-08-06_23-38-16.png"><br><figcaption>看Train的結果</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				Precision和Recall的意義在稍後篇幅會介紹，這個是Machine Learning做classifier常用的一種數字。
+			</div></section><section><h3 id="WizKMOutline_1533570537137485">測試</h3><p>
+			接下來就是測試模型的實際運行會如何，透過按下右上角的<code>Quick Test</code>，這個時候會多出一個pop up，可以用圖片上傳，或者直接給圖片網址的方式給測試。
+			這邊用了一張人把雪碧拿在手上的相片做測試：
+			</p><ol><li>首先輸入圖片的網址</li><li>按下往右的箭頭執行測試</li><li>左邊會顯示這張圖片的樣子</li><li>右下角會出現分類的概率 - 可以看到辨識出了sprite</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-06-bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier/f1bb4d76-3585-48e9-a160-253eaafd245d.png" border="0" alt="2018-08-06_23-41-57.png"><br><figcaption>測試圖片分類的準確度</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1533570537137815">結語</h2><p>
+		這篇介紹了Custom Vision這個服務的目的以及用途。并且給出了一個測試情景，透過照片告訴客人這個飲料的費用是多少。
+		</p><p>
+		依照這個情景，找了圖片，并且實際看看如何在Custom Vision裡面建立出模型并且做測試。
+		</p><p>
+		在這個過程，其實會發現操作起來和LUIS非常類似，因此有了LUIS的概念，上手應該沒什麽問題。
+		</p><p>
+		下一篇將整合到chatbot裡面，看看如何讓chatbot告訴使用者拍的飲料是多少錢。
+		</p></section>

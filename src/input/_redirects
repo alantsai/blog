@@ -1,0 +1,5 @@
+# Redirect domain aliases to primary domain
+https://alantsai.net/* https://blog.alantsai.net/:splat 301!
+
+# Optional: Redirect default Netlify subdomain to primary domain
+https://blog-pro.netlify.com/* https://blog.alantsai.net/:splat 301!

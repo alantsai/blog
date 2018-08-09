@@ -1,0 +1,270 @@
+Title: "[chatbot + AI = 下一代操作模式][28]整合Custom Vision到chatbot - 拍照就可以識別價錢"
+Published: 2018-08-08 21:00
+Modified: 2018-08-08 21:00
+Image: "/posts/2018/08/2018-08-08-bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot/13fce50b-a359-484b-8c99-6449bdff6c78.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "custom-vision"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何用Custom Vision Train自己的圖片分類器
+這篇看看如何把train好的模型整合到chatbot裡面
+透過拍照直接找到飲料價錢"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-08-bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot/13fce50b-a359-484b-8c99-6449bdff6c78.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][28]整合Custom Vision到chatbot - 拍照就可以識別價錢.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier">[27]Custom Vision - 自己的Model自己Train 建立圖片的分類模型</a>)瞭解了如何使用Custom Vision去train一個圖片的classifier模型，并且用了一些測試照片去測試模型的準確度。</p><p>
+		是時候把這個功能整合到chatbot裡面了。這一篇將來實作整合進入chatbot的功能并且實現上篇提到的情景 - 透過拍照就可以知道這個飲料是多少錢。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-28">alantsai-samples/mhat-hotelbot:blog/chapter-28</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533733949700149" ;="" style="font-size: 15px; line-height: 1.6;">取得預測模型的URL網址</a><br></li><li><a href="#WizKMOutline_1533733949701383" ;="" style="font-size: 15px; line-height: 1.6;">調整程式碼整合Custom Vision服務</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533733949701650" ;="" style="font-size: 15px; line-height: 1.6;">建立一個Custom Vision的Service</a><br></li><li><a href="#WizKMOutline_1533733949702836" ;="" style="font-size: 15px; line-height: 1.6;">建立一個處理Custom Vision的Dialog</a><br></li><li><a href="#WizKMOutline_1533733949702745" ;="" style="font-size: 15px; line-height: 1.6;">調整LUIS加入查價錢的intent以及修改dialog</a><br></li></ul><li><a href="#WizKMOutline_1533733949702736" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li><li><a href="#WizKMOutline_1533733949702254" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1533733949700149">取得預測模型的URL網址</h2><p>
+		Custom Vision和其他一樣，也是透過REST API的方式在呼叫，同OCR一樣，有兩種模式：
+		</p><ol><li>可以傳一張圖片url網址</li><li>可以傳一張圖片的binary資訊</li></ol><p></p><p>
+		首先進入到<a href="https://customvision.ai">customvision.ai</a>，然後進入測試的專案，選擇上面的<code>Peformance</code>，然後按下<code>Make Default</code>：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-08-bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot/d778d67f-f793-416c-9679-ec89e66f661c.png" border="0" alt="chrome_2018-08-07_19-21-59.png"><br><figcaption>把目前Iteration 1的設定為預設模型</figcaption></figure><div class="bs-callout bs-callout-info">
+			設定為Default會影響到等一下取得的Prediction Url，在之後篇幅會有更詳細介紹，目前先知道爲了後面程式好接，設定為Default比較方便。
+		</div>
+		設定好了之後，然後找到<code>Prediction Url</code>：
+		<figure><img class="img-responsive" src="/posts/2018/08/2018-08-08-bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot/38badf3d-e9e7-4f9e-9ae9-dbe190fd4764.png" border="0" alt="chrome_2018-08-07_19-17-52.png"><br><figcaption>Prediction API網址取得的方式</figcaption></figure><p></p><p>
+		從上面的截圖，可以看到兩個模式，傳入image url或者是image file的方式。這兩個方式的網址在輸入框裡面，把他們複製下來即可。剩下紅色字的部分都是需要設定在Header或者Body的範例内容。
+		</p><div class="bs-callout bs-callout-warning">
+		其中要注意一下，<code>Prediction-Key</code>很重要，不要讓別人知道。
+		</div><p>
+		這一步做完了之後，得到的url會類似：
+		<br />
+		https://southcentralus.api.cognitive.microsoft.com/customvision/v2.0/Prediction/
+		<br />
+		<em>{projectId}</em>/<em>{method}</em></p><ol><li><em>{projectId}</em> - 這個稍後會使用到，要記錄下來</li><li><em>{method}</em> - 兩種，如果是網址類型就是<code>url</code>，檔案則是<code>file</code>。這個之後不會用到沒有記錄沒關係</li></ol><p></p></section><section><h2 id="WizKMOutline_1533733949701383">調整程式碼整合Custom Vision服務</h2><p>
+		程式碼的部分修改和Computer Vision很類似，不過這次沒有現成的SDK可以使用，因此Service裡面需要做比較多的事情。
+		</p><p>
+		整個的調整步奏如下：
+		</p><ol><li>建立一個Custom Vision的Service</li><li>建立一個處理Custom Vision的Dialog</li><li>調整LUIS加入查價錢的intent以及修改dialog</li></ol><p></p><section><h3 id="WizKMOutline_1533733949701650">建立一個Custom Vision的Service</h3><p>
+			首先建立出一個Service叫做：<code>CustomVisionService</code>，這個class目的是把Custom Vision的REST Api包住，方便在C#呼叫。
+			</p><p>
+			首先，這個class能夠注入<em>Project Id</em>以及<em>Prediction Key</em>：
+</p><pre><code class="language-csharp">public string ProjectId { get; }
+public string PredictionKey { get; }
+
+public string PredictionBaseUrl
+{
+	get
+	{
+		return $"https://southcentralus.api.cognitive.microsoft.com/customvision/v2.0/Prediction/{ProjectId}";
+	}
+}
+
+public string PredictionImageUrl
+{
+	get
+	{
+		return $"{PredictionBaseUrl}/image";
+	}
+}
+
+public string PredictionImageUrlUrl
+{
+	get
+	{
+		return $"{PredictionBaseUrl}/url";
+	}
+}
+
+public CustomVisionService(string projectId, string predictionKey)
+{
+	ProjectId = projectId;
+	PredictionKey = predictionKey;
+}</code></pre><p></p><div class="bs-callout bs-callout-warning">
+				這邊要注意一下，網址寫死了使用south central us的REST endpoint，如果有用不同地區的key這個部分要注意。
+			</div><p>
+			接下來，在這個class裡面建立一個method叫做<code>GetTag</code>，這個方法有兩個版本：
+			</p><ol><li>接受string - 代表url類型圖片的服務</li><li>接受stream - 代表實體檔案上傳的服務</li></ol><p></p><pre><code class="language-csharp">public async Task&lt;string&gt; GetTag(string imageUrl)
+	{
+		var result = string.Empty;
+
+		var client = new HttpClient();
+
+		client.DefaultRequestHeaders
+			.Add("Prediction-Key", PredictionKey);
+
+		string url = PredictionImageUrlUrl;
+
+		HttpResponseMessage response;
+
+		using (var content = 
+			new StringContent($"{{ \"Url\": \"{imageUrl}\"}}"))
+		{
+			content.Headers.ContentType = 
+				new MediaTypeHeaderValue("application/json");
+			response = await client.PostAsync(url, content);
+			var json = await response.Content.ReadAsStringAsync();
+			result = GetMostPossibleTagName(json);
+		}
+
+		return result;
+	}
+
+public async Task&lt;string&gt; GetTag(Stream stream)
+{
+	var result = string.Empty;
+
+	var client = new HttpClient();
+
+	client.DefaultRequestHeaders
+		.Add("Prediction-Key", PredictionKey);
+
+	string url = PredictionImageUrl;
+
+	HttpResponseMessage response;
+
+	byte[] byteData = GetStreamAsByteArray(stream);
+
+	using (var content = new ByteArrayContent(byteData))
+	{
+		content.Headers.ContentType = 
+			new MediaTypeHeaderValue("application/octet-stream");
+		response = await client.PostAsync(url, content);
+		var json = await response.Content.ReadAsStringAsync();
+		result = GetMostPossibleTagName(json);
+	}
+
+	return result;
+}</code></pre><p>
+在這兩個方法裡面，有使用到兩個Helper方法：
+</p><ol><li><code>GetMostPossibleTagName</code> - 回傳的結果包含多個tag，我們只要判斷最高那個即可。這個方法處理這個事情</li><li><code>GetStreamAsByteArray</code> - 把Stream轉換成爲byte[]，方便呼叫服務</li></ol><p></p><pre><code class="language-csharp">private string GetMostPossibleTagName(string json)
+{
+	var model = JsonConvert.DeserializeObject
+		&lt;PredicationResponse&gt;(json);
+
+	return $"{model.predictions.
+		FirstOrDefault().tagName}";
+}
+
+private byte[] GetStreamAsByteArray(Stream stream)
+{
+	var ms = new MemoryStream();
+	stream.CopyTo(ms);
+	return ms.ToArray();
+}</code></pre><p>
+最後，當服務呼叫完了，回傳的是一個JSON的内容，因此有個C#的class對應這個JSON，稱之爲<code>PredicationResponse</code>：
+</p><pre><code class="language-csharp">public class PredicationResponse
+{
+	public string id { get; set; }
+	public string project { get; set; }
+	public string iteration { get; set; }
+	public DateTime created { get; set; }
+	public Prediction[] predictions { get; set; }
+}
+
+public class Prediction
+{
+	public float probability { get; set; }
+	public string tagId { get; set; }
+	public string tagName { get; set; }
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1533733949702836">建立一個處理Custom Vision的Dialog</h3><p>
+			接下來建立一個Dialog叫做<code>DrinkPriceCheckerDialog</code>，這個Dialog作用很簡單，把圖片透過<code>CustomVisionService</code>取得判斷，然後在返回物品名稱以及價錢。
+			</p><p>
+			首先是Dialog裡面的一些boilerplate的程式碼，這個Dialog需要傳入<code>CustomVisionService</code>，然後進入的時候有一段文字説明：
+			</p><pre><code class="language-csharp">public async Task StartAsync(IDialogContext context)
+{
+	await context.PostAsync
+		("請上傳飲料圖片或者圖片的網址");
+
+	context.Wait(MessageReceivedAsync);
+}</code></pre><p>
+接下來是重點的邏輯，呼叫CustomVisionService來判斷屬於什麽飲料，然後在把價錢返回去：
+</p><pre><code class="language-csharp">private async Task MessageReceivedAsync
+	(IDialogContext context, 
+		IAwaitable&lt;IMessageActivity&gt; result)
+{
+	var CustomVisionServiceInstance = 
+        	new CustomVisionService
+                    (ConfigurationManager
+		    	.AppSettings["CustomVision.ProjectId"],
+                    ConfigurationManager
+		    	.AppSettings["CustomVision.Key"]);
+
+	var messageResult = await result;
+
+	var connector = messageResult.GetConnector();
+
+	var finalResult = string.Empty;
+
+	var imageAttachment = messageResult
+		.Attachments
+		?.FirstOrDefault
+			(a =&gt; a.ContentType.Contains("image"));
+
+	if (imageAttachment != null)
+	{
+		using (var stream = await connector
+			.GetImageStream(imageAttachment))
+		{
+			finalResult = 
+				await CustomVisionServiceInstance
+					.GetTag(stream);
+		}
+	}
+	else if (Uri.IsWellFormedUriString
+		(messageResult.Text, UriKind.Absolute))
+	{
+		finalResult = 
+			await CustomVisionServiceInstance
+				.GetTag(messageResult.Text);
+	}
+
+	switch (finalResult)
+	{
+		case "coke":
+			finalResult = "可樂：20元";
+			break;
+		case "sprite":
+			finalResult = "雪碧：10元";
+			break;
+		case "pepsi":
+			finalResult = "百事可樂：50元";
+			break;
+		default:
+			finalResult = "找不到對應的飲料，請重新拍照";
+			break;
+	}
+
+	context.Done(finalResult);
+}</code></pre><div class="bs-callout bs-callout-info">
+	這邊要注意，在<code>Web.config</code>，要增加AppSettings用來設定Custom Vision的ProjectId以及Key
+</div></section><section><h3 id="WizKMOutline_1533733949702745">調整LUIS加入查價錢的intent以及修改dialog</h3><p>
+			邏輯都准備好了，接下來就是整合的部分。
+			</p><p>
+			首先，先到LUIS增加一個Intent叫做<code>CheckDrinkPrice</code>。
+			</p><p>
+			再來，調整<code>RootLuisDialog</code>加入這個intent的處理：
+			</p><pre><code class="language-csharp">[LuisIntent("CheckDrinkPrice")]
+public Task CheckDrinkPrice
+	(IDialogContext context, LuisResult result)
+{
+	context.Call(new DrinkPriceCheckerDialog(),
+		CheckDrinkPriceAfterAsync);
+
+	return Task.CompletedTask;
+}
+
+private async Task CheckDrinkPriceAfterAsync
+	(IDialogContext context
+		, IAwaitable&lt;string&gt; result)
+{
+	var finalResult = await result;
+
+	await context.PostAsync(finalResult);
+
+	context.Wait(MessageReceived);
+}</code></pre></section></section><section><h2 id="WizKMOutline_1533733949702736">測試結果</h2><p>
+		到目前爲止，整個調整就完成了，接下來就是進行測試的時候。
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-08-bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot/327ccbc7-ce6c-4ec9-b1c3-bfc42b54007b.png" border="0" alt="botframework-emulator_2018-08-08_20-54-21.png"><br><figcaption>圖片識別出雪碧</figcaption></figure><p>
+		可以看到，chatbot現在可以識別出圖片分類，并且正確的分類成爲了雪碧。
+		</p><p>
+		到這邊，這篇就結束了，但是這個其實有很多可以加强的地方，舉例來説，回傳的内容其實可以考慮之前介紹過的<em>Recipt Card</em>模式，至少會漂亮很多。
+		</p><p>
+		另外，如果這個有部署到某個channel，例如FB，其實可以真的去實地拍照測試，很好玩的哦。
+		</p></section><section><h2 id="WizKMOutline_1533733949702254">結語</h2><p>
+		這篇介紹了如何把Custom Vision上面的Model整合到chatbot裡面，這不止讓操作體驗提升，也避免了描述飲料名稱不好查的問題（例如，假設有國外客戶，可能用sprite來查，但是中國人可能是雪碧，透過圖片，所有人輸入方式一樣）。
+		</p><p>
+		所謂生兒容易，養兒難，軟件開發也一樣。接下來怎麽持續精進這個Model讓他更加準確呢？下篇來看看如何持續維護Custom Vision。
+		</p></section>

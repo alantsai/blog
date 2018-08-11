@@ -1,0 +1,97 @@
+Title: "[chatbot + AI = 下一代操作模式][30]Confusion Matrix - 用來衡量Classifier Model的方式 Precision和Recall"
+Published: 2018-08-11 22:00
+Modified: 2018-08-11 22:00
+Image: "/posts/2018/08/2018-08-11-bot-framework-with-ai-cognitive-service-30-use-confusion-matrix-calculate-recall-and-precision-to-evaluate-classifier-model/c72b0e60-7572-4b51-a63f-95f5a7819ec5.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "custom-vision", "ml-classifier"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了維護Custom Vision的方式以及透過iteration做版控以及測試Model
+但是遺留了一個問題，Model train完了之後怎麽知道是好還是壞？
+這篇將來介紹如何看Classifier Model的指標，透過介紹Confusion Matrix到計算出兩個常用的指標：Precision 和 Recall"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-11-bot-framework-with-ai-cognitive-service-30-use-confusion-matrix-calculate-recall-and-precision-to-evaluate-classifier-model/c72b0e60-7572-4b51-a63f-95f5a7819ec5.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][30]Confusion Matrix - 用來衡量Classifier Model的方式 Precision和Recall.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration">[29]維護Custon Vision Model - 使用歷史查詢記錄做訓練以及如何版控</a>)看完了如何用歷史的搜索結果來持續training Model(模型)并且透過iteration做到Model的測試訓練以及版控，不過上一篇也遺留了一個問題，怎麽看目前的Model是好還是壞？</p><p>
+		這裡面就牽扯到了一些數學概念，因此在這一篇將介紹怎麽評判一個Classifier Model是好還是壞，透過Confusion Matrix以及Precision和Recall來瞭解一個Classifier Model的情況。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533996196675382" ;="" style="font-size: 15px; line-height: 1.6;">背景介紹</a><br></li><li><a href="#WizKMOutline_1533996196675304" ;="" style="font-size: 15px; line-height: 1.6;">怎麽計算Model準確度？Confusion Matrix介紹</a><br></li><li><a href="#WizKMOutline_1533996196675172" ;="" style="font-size: 15px; line-height: 1.6;">計算準確度</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1533996196675960" ;="" style="font-size: 15px; line-height: 1.6;">Accuracy</a><br></li><li><a href="#WizKMOutline_1533996196675654" ;="" style="font-size: 15px; line-height: 1.6;">Recall</a><br></li><li><a href="#WizKMOutline_1533996196675455" ;="" style="font-size: 15px; line-height: 1.6;">Precision</a><br></li></ul><li><a href="#WizKMOutline_1533996196675624" ;="" style="font-size: 15px; line-height: 1.6;">更加的白話介紹Precision和Recall</a><br></li><li><a href="#WizKMOutline_1533996196675170" ;="" style="font-size: 15px; line-height: 1.6;">怎麽選擇Precision還是Recall</a><br></li><li><a href="#WizKMOutline_1533996196675433" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1533996196675382">背景介紹</h2><p>
+		到目前爲止所使用的<em>Custom Vision</em>服務其實在建立的是所謂的<em>Classifier Model</em>，也就是所謂的分類型的模型。
+		</p><p>
+		Classifier Model主要作用是判斷某個傳入的資料是不是屬於<em>某個分類</em>。白話一點來説，假設我有個判斷照片<em>是不是狗</em>的模型，那麽只會有可能是<em>是</em>和<em>不是</em>。
+		</p><p>
+		當然上面給的例子是一種分類而已，但是模型可能有好多種類來判別。爲了讓接下來不那麽複雜，將會只有一類的來介紹。
+		</p><p>
+		有了這個背景介紹了之後，來看看怎麽看一個Model的準確率。
+		</p></section><section><h2 id="WizKMOutline_1533996196675304">怎麽計算Model準確度？Confusion Matrix介紹</h2><p>
+		當只有一類的額情況下，用Model判斷一張圖片只有可能是<em>四種</em>結果：
+		</p><dl><dt>
+				True Positive (TP)
+			</dt><dd>
+				Model判斷圖片<em>屬於狗</em>，并且實際上這張圖片<em>是狗</em>。
+			</dd><dt>
+				True Negative (TN)
+			</dt><dd>
+				Model 判斷圖片<em>不屬於狗</em>，并且實際上這張圖片<em>不是狗</em>。
+			</dd><dt>
+				False Positive (FP)
+			</dt><dd>
+				Model 判斷圖片<em>屬於狗</em>，但是實際上這張圖片<em>不是狗</em>。
+			</dd><dt>
+				False Negative (FN)
+			</dt><dd>
+				Model判斷圖片<em>不屬於狗</em>，但是實際上這張圖片<em>是狗</em>。
+			</dd><dd></dd></dl><p></p><p>
+		這四種結果可以畫成一張表，也就是所謂的<em>Confusion Matrix</em>：
+		</p><div class="table-responsive"><table class="table"><tbody><tr><th></th><th>Model判斷是狗</th><th>Model判斷不是狗</th></tr><tr><th>實際是狗</th><td>TP</td><td>FN</td></tr><tr><th>實際不是狗</th><td>FP</td><td>TN</td></tr></tbody></table></div><p></p><p>
+		如果把數字填上去就會變成：
+		</p><div class="table-responsive"><table class="table"><tbody><tr><th></th><th>Model判斷是狗</th><th>Model判斷不是狗</th></tr><tr><th>實際是狗</th><td>5</td><td>2</td></tr><tr><th>實際不是狗</th><td>1</td><td>6</td></tr></tbody></table></div><p></p></section><section><h2 id="WizKMOutline_1533996196675172">計算準確度</h2><p>
+		既然把表建立出來了之後，接下來就看看從數學角度怎麽計算，這邊介紹3種：
+		</p><ol><li>Accuracy</li><li>Recall</li><li>Precision</li></ol><p></p><section><h3 id="WizKMOutline_1533996196675960">Accuracy</h3><p>
+			Accuracy是日常生活最長用的一種算法，也就是把對的加總和總數相除得到結果，公式來説就是：
+			</p><p><code>Accuracy = (TP+TN)/(TP+FP+TN+FN)</code></p><p>
+			以我們的例子就是：<code>(5 + 6) / (5 + 1 + 6 + 2) = 11 / 14 = 0.79</code>。
+			</p><p>
+			Accuracy貌似是很好的一個計算方式，但是實際上<em>沒有任何意義</em>。
+			</p><p>
+			想象一下，假設今天這個Model要用作於判斷病患有沒有糖尿病，如果説實際上的人有糖尿病的比例是 0.03 （隨便説的數字哦），那麽就算我的Model對於任何病例進來都判斷説<em>沒有糖尿病</em>，那麽最後的Accuracy也會有
+			<em>0.97</em></p><p>
+			因此，這個數字在Classifier Model來説一點意義也沒有，因此才有了另外兩個數字。
+			</p></section><section><h3 id="WizKMOutline_1533996196675654">Recall</h3><p>
+				Recall的的含義是，和狗相關的圖片能夠找出多少張。
+			</p><p>
+			公式是：<code>TP / (TP + FN)</code></p><p>
+			以我們的例子就是：<code>5 / (5 + 2) = 5 / 7 = 0.71</code></p></section><section><h3 id="WizKMOutline_1533996196675455">Precision</h3><p>
+				Precision的含義是：所有認爲是狗的，多少真的是狗
+			</p><p>
+			公式是：<code>TP / (TP + FP)</code></p><p>
+			以我們例子就是：<code>5 / 5 + 1 = 5 / 6 = 0.83</code></p></section><p>
+		以我們上面的例子來説，這個Model的Precision比Recall高，換句話説當這個Model認爲是狗的時候，是狗的幾率很大。
+		</p></section><section><h2 id="WizKMOutline_1533996196675624">更加的白話介紹Precision和Recall</h2><p>
+		上面的介紹可能還是有點抽象，下面是用圖片的方式介紹Precision和Recall（來源Wikipedia）
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-11-bot-framework-with-ai-cognitive-service-30-use-confusion-matrix-calculate-recall-and-precision-to-evaluate-classifier-model/15208caf-3cae-4343-a8bd-36f54cfc73f5.png" border="0" alt="Precisionrecall.svg.png"><br><figcaption>用圖片介紹Precision和Recall，原始位置：https://en.wikipedia.org/wiki/Precision_and_recall</figcaption></figure><p></p><p>
+		如果圖片還是不太明白，換一個生活例子。
+		</p><p>
+		假設你有個10年的女朋友（謎之聲：單身狗遭到暴擊），這10年期間他以不同的名義組織活動送你禮物。一切很美好直到有天他想要測試你有多愛她，因此問了你一個問題：
+		</p><p>
+		我總共送過你多少次禮物？然後都送了一些什麽？
+		</p><p>
+		這個時候你爲了更好答題（關係到你的幸福生活），說可不可以給一些提示。女朋友說我接下來列出一些禮物，你先告訴我那些事我曾經送過的。
+		</p><p>
+		這個時候你大腦的Classifier Model就開始運作啦：
+		</p><ul><li><em>Recall</em> - 你總共記得多少次有收到禮物</li><li><em>Precision</em> - 有多少次收到的禮物猜對了</li></ul><p></p></section><section><h2 id="WizKMOutline_1533996196675170">怎麽選擇Precision還是Recall</h2><p>
+		最好的情況當然是兩個都是100%最好，但是取決於今天這個Model要用來預測什麽，側重會不同。
+		</p><p>
+		假設今天要預測是某個病患有沒有癌症，這個時候Recall比Precision<em>重要</em>。因爲，誤判一個人沒有癌症但是其實有的後果嚴重太多，因此這個時候追求的可能就是Recall。
+		</p><p>
+		因此，Model要搭配應用來做Training。
+		</p></section><section><h2 id="WizKMOutline_1533996196675433">結語</h2><p>
+		這篇介紹了Confusion Matrix并且介紹了Classifier Model常用的兩個指標：Precision和Recall。
+		</p><p>
+		實際上Classifier Model還有別的指標，不過因爲Custom Vision只有顯示這兩個，因此目前只介紹了這兩個，在未來，有介紹到自己寫程式Training Classifier Model的時候在介紹其他的指標。
+		</p><p>
+		到目前爲止，對於整個Cognitive Service應該有個疑問，沒辦法離綫使用嗎？
+		</p><p>
+		Custom Vision可以，下一篇將介紹怎麽把Custom Vision的Model匯出并且被本地使用。
+		</p></section>

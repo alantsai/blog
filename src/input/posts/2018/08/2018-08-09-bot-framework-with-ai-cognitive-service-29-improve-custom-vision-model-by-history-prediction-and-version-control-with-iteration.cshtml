@@ -1,0 +1,55 @@
+Title: "[chatbot + AI = 下一代操作模式][29]維護Custon Vision Model - 使用歷史查詢記錄做訓練以及如何版控"
+Published: 2018-08-09 19:30
+Modified: 2018-08-09 19:30
+Image: "/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/87b606cc-d54f-4b04-ba10-c5c9861a2df2.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "custom-vision"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何整合Custom Vision到Chatbot了之後
+接下來就是看看怎麽維護這個Model。
+這篇透過介紹用歷史查詢圖片加入訓練集，并且介紹iteration的含義，以及如何用它做版控"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/87b606cc-d54f-4b04-ba10-c5c9861a2df2.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][29]維護Custon Vision Model - 使用歷史查詢記錄做訓練以及如何版控.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot">[28]整合Custom Vision到chatbot - 拍照就可以識別價錢</a>)把Custom Vision Training好的Model和Chatbot結合達到了拍照就可以辨識飲料價錢的功能。</p><p>
+		這一篇來看看如何透過歷史查詢的圖片持續精進Model，讓他的準確度越來越高，并且透過Iteration做版控避免更糟糕的Model不小心上綫。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1533804798852544" ;="" style="font-size: 15px; line-height: 1.6;">加入歷史查詢圖片到Training Image裡面</a><br></li><li><a href="#WizKMOutline_1533804798852964" ;="" style="font-size: 15px; line-height: 1.6;">Iteration的介紹 - 管理好Model的版本</a><br></li><li><a href="#WizKMOutline_1533804798852206" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1533804798852544">加入歷史查詢圖片到Training Image裡面</h2><p>
+		和LUIS一樣，Custom Vision會記錄那些圖片有被送過來做辨識，并且會把辨識的結果留下來。
+		</p><p>
+		因此，作爲管理者，一段時間就應該看一下這個Model在識別上面有沒有什麽問題，有的話把他調整過了。
+		</p><p>
+		首先，登入到Custom Vision裡面了之後，找到要看的專案，選擇上面最後一個tab，<code>Predictions</code>：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/859937c0-d7e1-44f3-a278-aff331ebd58d.png" border="0" alt="chrome_2018-08-09_15-02-08.png"><br><figcaption>找到Prediction的tab</figcaption></figure><p></p><p>
+		點下去了之後會看到測試時候的照片都在了這邊。這個時候把滑鼠移動到某一張圖片的時候，會顯示這張圖片在決定各個tag裡面的幾率是多少：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/4ea1b525-d9e1-4ab7-b3dc-36becc0a6a19.png" border="0" alt="chrome_2018-08-09_15-03-06.png"><br><figcaption>看圖片識別的幾率</figcaption></figure><p></p><p>
+		如果想要看大一點的圖片，可以點下去，看到的畫面類似用<code>Quick Test</code>的到的結果畫面一樣。
+		</p><p>
+		如果要把這些圖片加入training的圖片清單的話，只需要把相同的用勾勾選起來，然後選擇上面的<code>Tag images</code>來決定是哪個tag，確定了之後按下<code>save and close</code>即可：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/7a6bed1d-f499-49b6-a738-3d7a6c858c7a.png" border="0" alt="chrome_2018-08-09_15-07-08.png"><br><figcaption>圖片加入training集合裡面</figcaption></figure><p></p><p>
+		儲存完了之後，再去看<code>Training Images</code>會看到多了剛剛那兩張，這個時候記得要做Training：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/6453ff0f-7498-4ffb-9c53-866f870e0724.png" border="0" alt="chrome_2018-08-09_15-09-27.png"><br><figcaption>剛剛設定的進入了training image裡面</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1533804798852964">Iteration的介紹 - 管理好Model的版本</h2><p>
+		當在執行一次Train的時候，在<code>Peformance</code>那邊會發現多了一個Iteration 2：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/04f03a5b-f235-404b-a70b-cb40cab44aaa.png" border="0" alt="chrome_2018-08-09_16-00-42.png"><br><figcaption>多出了Iteration 2</figcaption></figure><p></p><p>
+		還記得在上一篇取得<code>Prediction Url</code>之前，我把Iteration 1變成了<em>Default</em>。這樣做的原因是會影響到產生的<code>Prediction Url</code>。
+		</p><p>
+		以Iteration 2來説，點下他的Prediction Url，會發現裡面有一段的參數是<code>?iterationId={guid}</code>。如果說沒有這個參數，那麽Default的iteration將會被使用。
+		</p><p>
+		這代表什麽意思呢？當Model在做調整的時候，結果可能好，也有可能壞。因此，Production使用的應該是<em>Default的Iteration</em>，也就是<code>Predication URL</code>沒有加入<code>iterationId</code>的版本。
+		</p><p>
+		只有當確認好了某個iteration model符合需求，這個時候在透過<code>Make Default</code>來切換成爲預設的Iteration。
+		</p><p>
+		以剛剛的例子來看，在Iteration 2只是在<em>sprite</em>類型加了兩張圖片，但是整個的Precision和Recall和Iteration 1差很多：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-09-bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration/ebf4b410-cf09-492d-8640-7a575b396c7d.png" border="0" alt="2018-08-09_16-07-14.png"><br><figcaption>左邊是Iteration 1，右邊是Iteration 2</figcaption></figure><p></p><p>
+		從截圖可以看到，不止整體的Precision和Recall掉了，在個別項目來説coke和pepsi都往下掉了。換句話説，加入了兩張圖片的training比不加入的效果還<em>來的糟</em>。換句話説，iteration 1比iteration 2好多了。
+		</p><p>
+		這個時候就不應該把iteration 2改成default。
+		</p></section><section><h2 id="WizKMOutline_1533804798852206">結語</h2><p>
+		這篇對於如何使用歷史的查詢來持續Training Model以及透過Iteration的概念達到版控的效果做了一些介紹。
+		</p><p>
+		不過還留了一個問題，怎麽樣才知道目前的Iteration Model是好還是壞？這邊就牽扯到了兩個數字：<em>Precision</em>以及<em>Recall</em>。
+		</p><p>
+		這兩個數字是classifier model用來衡量好不好的數字，牽涉比較多，因此在下一篇將介紹這兩個數字的含義以及怎麽看。
+		</p></section>

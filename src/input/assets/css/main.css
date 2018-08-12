@@ -44,15 +44,15 @@ code{
         color: #c7254e;
       }
 
-table {
+article table {
 		border-collapse: collapse;
 	}
 
-	table, td, th {
+	article table, article td, article th {
 		border: 1px solid black;
 	}
 
-	th {
+	article th {
 		background-color: green;
 		color: white;
 	}

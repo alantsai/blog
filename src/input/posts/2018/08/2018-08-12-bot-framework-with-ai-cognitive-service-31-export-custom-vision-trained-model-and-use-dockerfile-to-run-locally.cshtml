@@ -1,0 +1,72 @@
+Title: "[chatbot + AI = 下一代操作模式][31]Custom Vision Train好的Model匯出離線和給app使用"
+Published: 2018-08-12 22:30
+Modified: 2018-08-12 22:30
+Image: "/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/ff134250-874a-4e3c-8e69-afd57fbcb827.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "custom-vision", "ml-classifier", "docker"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何使用Confusion Matrix計算出Precision和Recall來衡量Classifier Model的好壞
+這篇則來看看如何把Model匯出，讓離線可以使用。這篇先介紹用Dockerfile跑匯出的Tensorflow Model，讓local也可以使用"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/ff134250-874a-4e3c-8e69-afd57fbcb827.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][31]Custom Vision Train好的Model匯出離線和給app使用.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-30-use-confusion-matrix-calculate-recall-and-precision-to-evaluate-classifier-model">[30]Confusion Matrix - 用來衡量Classifier Model的方式 Precision和Recall</a>)介紹了Confusion Matrix并且如何使用Precision和Recall這兩個指標來衡量一個Classifier Model的好壞。</p><p>
+		這一篇又回到了Custom Vision。在Custom Vision Train好的Model是否能夠拿來離線和或者別的應用例如app裡面使用呢？
+		</p><p>
+		Custom Vision有提供匯出Model的功能，這篇將對這個部分介紹。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534085309605331" ;="" style="font-size: 15px; line-height: 1.6;">如何匯出Model？</a><br></li><li><a href="#WizKMOutline_1534085309606193" ;="" style="font-size: 15px; line-height: 1.6;">匯出格式的選擇</a><br></li><li><a href="#WizKMOutline_1534085309606709" ;="" style="font-size: 15px; line-height: 1.6;">使用Docker File版本</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534085309606801" ;="" style="font-size: 15px; line-height: 1.6;">建立Docker Image</a><br></li><li><a href="#WizKMOutline_1534085309606905" ;="" style="font-size: 15px; line-height: 1.6;">執行測試</a><br></li></ul><li><a href="#WizKMOutline_1534085309606134" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1534085309605331">如何匯出Model？</h2><p>
+		首先，進入到<a href="https://customvision.ai">customvision.ai</a>要匯出的Project裡面，然後切換到<em>Performance</em>這個tab。
+		</p><p>
+		可以看到有一個<code>Export</code>的按鈕：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/e0f9501e-89e6-46f8-88e0-c1fbf33f4caa.png" border="0" alt="chrome_2018-08-12_21-06-09.png"><br><figcaption>匯出Model的截圖</figcaption></figure><p></p><p>
+		不過可以看到目前按鈕是灰色的無法按下，滑鼠移動過去有説明原因。
+		</p><p>
+		還記得在一開始建立Project的時候，有詢問一個問題，也就是目前這個Training要使用那個<em>Domain</em>。在選項裏面有幾個是由括弧<em>Compact</em>。只有屬於<em>Compact</em>的<em>才能夠被匯出</em>。
+		</p><p>
+		還記得之前建立的時候，選擇的是<em>General</em>，也因爲這樣所以無法匯出。
+		</p><p>
+		因此要調整一下，透過右上角的齒輪icon進入設定畫面，然後調整Domains為<em>General (compact)</em>：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/eb4eac72-3ee7-409c-be68-5ad6574486f4.png" border="0" alt="chrome_2018-08-12_21-16-17.png"><br><figcaption>調整Domain模式</figcaption></figure><p></p><p>
+		調整好了之後，需要重新train一次，因此按下<code>Train</code>。
+		</p><p>
+		這個時候在回到<code>Performance</code>下面，多出了一個Iteration 3，這個版本可以看到Domain換成了<em>General (compact)</em>并且<code>Export</code>可以按了：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/cd07c882-c9c8-4cfd-8161-382fc1f848b3.png" border="0" alt="chrome_2018-08-12_21-20-49.png"><br><figcaption>可以匯出Model了</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1534085309606193">匯出格式的選擇</h2><p>
+		點下<code>Export</code>會一個畫面pop up出來，裡面有不同的格式可以選擇，總共有：
+		</p><ol><li><em>coreML</em>：iOS 上面可以用的Model</li><li><em>TensorFlow</em>： android 上面可以使用的Model</li><li><em>ONNX</em>：微軟和Facebook想要推廣的一種開放的格式 - 詳細下篇介紹</li><li><em>Docker File</em>：這個可以搭配 Azure IoT Edge，Azure Function和Azure ML使用</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/cad758b9-6eb7-488e-bb7c-11508749f164.png" border="0" alt="chrome_2018-08-12_21-25-58.png"><br><figcaption>匯出可以選擇的畫面</figcaption></figure><p>
+		依照不同的使用目的，選擇匯出不同的格式。
+		</p><p>
+		ONNX這個是微軟和Facebook在推動的一種格式，下一篇介紹。
+		</p><p>
+		這邊介紹Docker File版本。
+		</p></section><section><h2 id="WizKMOutline_1534085309606709">使用Docker File版本</h2><p>
+		Docker File版本從本質上面來說不是一種格式，因爲這個Docker File的裡面其實跑的是TensorFlow的Model。
+		</p><p>
+		不過Docker File的好處是要在Local跑很方便并且可以很容易整合到Azure IoT Edge（這個很有意思，未來有機會在開另外一個系列介紹）和Azure ML裡面。
+		</p><p>
+		這邊分兩個步奏來做：
+		</p><ol><li>建立Docker Image</li><li>執行測試</li></ol><p></p><section><h3 id="WizKMOutline_1534085309606801">建立Docker Image</h3><p>
+		要使用很容易，點下Docker file版本，可以選擇要用Windows還是Linux的Image，選擇好了之後第一次點<code>Export</code>會有個進度條在跑，跑完了要<em>再點一次</em><code>Export</code>才會能夠下載一個zip檔案：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/51d6c432-5454-44d5-be2a-0b478ff899ba.png" border="0" alt="chrome_2018-08-12_21-29-12.png"><br><figcaption>選擇Docker File版本</figcaption></figure><p></p><p>
+		這邊我將使用Linux的Image版本，把下載下來的zip解壓縮出來之後長的是這樣：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/869ffc0a-b2f5-40a4-b5d9-88f75267d644.png" border="0" alt="explorer_2018-08-12_21-50-34.png"><br><figcaption>解壓縮出來的zip内容</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+			接下來的操作是在使用Docker，如果電腦沒有docker可以去官方下載：<a href="https://www.docker.com/products/docker-desktop">https://www.docker.com/products/docker-desktop</a>。如果是在Windows，記得目前的模式要符合
+			下載下來的版本，我使用的是Linux因此確認在Linux Container模式。
+		</div><div class="bs-callout bs-callout-warning">
+			如果使用的是Linux版本，這裡有個bug，需要去修改<code>DockerFile</code>，預設第一行是<code>FROM python</code>，改成<code>FROM python:3.6</code>，要不然Image會build不起來。
+		</div><p>
+		開啓powershell，然後移動到那個資料夾下面然後輸入指令：<kbd>docker build -t customvision-hotelbot .</kbd></p><p>
+		稍等一會安裝好了之後，在輸入指令：<kbd>docker image ls</kbd>，會看到剛剛建立出來的image：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/e745189b-ab57-483d-a1bf-0175666364cb.png" border="0" alt="powershell_2018-08-12_22-22-50.png"><br><figcaption>確認image建制成功</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1534085309606905">執行測試</h3><p>
+			接下來就是把這個image run起來，使用指令：<kbd>docker run -p 127.0.0.1:80:80 -d --rm customvision-hotelbot</kbd></p><p>
+			這時候到瀏覽器輸入<code>localhost</code>，會看到：<code>CustomVision.ai model host harness</code></p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/4e5e757f-dc98-4bad-8d36-99083c587a3c.png" border="0" alt="chrome_2018-08-12_22-27-55.png"><br><figcaption>docker image run起來</figcaption></figure><p></p><p>
+			這個時候可以使用Postman：
+			</p><ol><li>選擇<code>POST</code>，然後網址輸入<code>localhost/url</code></li><li>切換到<code>Body</code></li><li>選擇<code>raw</code>，然後内容格式是<code>application/json</code></li><li>輸入内容:<code>{"url":"https://tse3.mm.bing.net/th?id=OIP.HQGKG0hVIp6A9g9XK16ldAHaJy&amp;pid=Api"}</code> - 這邊格式和Computer Vision的OCR一樣，可以自己換圖片網址</li><li>送出之後，可以檢查返回結果，可以看到識別出是<em>sprite</em> = 判斷正確</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-12-bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally/39fd3e85-8878-409a-80b4-c67ef9c28001.png" border="0" alt="Postman_2018-08-12_22-33-06.png"><br><figcaption>測試結果</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				這個服務還有支援用本地的圖片或者直接傳入binary的方式來傳送圖片，詳細可以參考<code>ReadMe.txt</code>這個檔案。
+			</div></section></section><section><h2 id="WizKMOutline_1534085309606134">結語</h2><p>
+		這一篇介紹了如何把Custom Vision Train好的Model匯出來，然後使用Docker File版本建立出一個Tensorflow的api服務可以離線使用。
+		</p><p>
+		匯出這個功能非常的方便，因爲就算不懂程式或者不懂任何Machine Learning的知識，但是可以透過Custom Vision直覺的UI操作方式Train好一個Classifier Model然後用匯出
+		的方式讓不同的程序可以使用這個Model。
+		</p><p>
+		在選擇匯出的時候有出現一個ONNX的格式，這個格式有點特別，因爲是微軟和Facebook聯合在推動的一種Model的Open格式。
+		</p><p>
+		因此，下一篇將對這個ONNX做一些介紹，并且看看如何用Window ML來run這個Model。
+		</p></section>

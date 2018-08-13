@@ -1,0 +1,48 @@
+Title: "[chatbot + AI = 下一代操作模式][32]Cognitive Service語音服務相關介紹"
+Published: 2018-08-13 19:30
+Modified: 2018-08-13 19:30
+Image: "/posts/2018/08/2018-08-13-bot-framework-with-ai-cognitive-service-32-overview-speech-service-provided-in-cognitive-service/4a3526f0-019c-4b67-a18b-685cb01a9ff6.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "speech-service"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇介紹完了如何把Custom Vision的Model匯出local使用之後
+這篇切換到另外一種自然的輸入方式，也就是透過說(語音)的方式來下指令
+這篇看看Cognitive Service在這方面提供了那些服務"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-13-bot-framework-with-ai-cognitive-service-32-overview-speech-service-provided-in-cognitive-service/4a3526f0-019c-4b67-a18b-685cb01a9ff6.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][32]Cognitive Service語音服務相關介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally">[31]Custom Vision Train好的Model匯出離線和給app使用</a>)介紹完了把Custom Vision的Model匯出并且用Docker File版本讓他本地執行之後，在Cognitive Service裡面的圖片相關就介紹到一個段落。</p><p>
+		在接下來的篇幅將來介紹另外一種常見的輸入方式，也就是透過<em>語音</em>的方式。任何科幻電影的指令輸入模式都是語音，例如《鋼鐵人》裡面的助理系統Jarvis，想象一下如果可以用説的就讓電腦做事有多方便。
+		</p><p>
+		這邊就來看看Cognitive Service裡面對於語音這塊處理有什麽幫助。
+		</p><div class="bs-callout bs-callout-info">
+			上一篇最後提到要介紹ONNX和如何在程式裡面使用ONNX。不過因爲在Windows要使用ONNX需要Windows 10 17110以上，剛好手上這臺電腦不是，又暫時無法更新，因此未來在補上這部分的介紹。
+		</div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534160737104861" ;="" style="font-size: 15px; line-height: 1.6;">Cognitive Service在語音上面提供了什麽服務？</a><br></li><li><a href="#WizKMOutline_1534160737105989" ;="" style="font-size: 15px; line-height: 1.6;">測試語音服務</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534160737105918" ;="" style="font-size: 15px; line-height: 1.6;">測試語音轉文字</a><br></li><li><a href="#WizKMOutline_1534160737105588" ;="" style="font-size: 15px; line-height: 1.6;">測試定制化服務功能</a><br></li></ul><li><a href="#WizKMOutline_1534160737105382" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1534160737104861">Cognitive Service在語音上面提供了什麽服務？</h2><p>
+		Cognitive Service在語音這塊有幾個主要服務：
+		</p><ol><li><em>Speech Service</em> - <a target="_blank" href="https://docs.microsoft.com/en-us/azure/cognitive-services/speech-service/">官方文件</a>、<a target="_blank" href="https://azure.microsoft.com/zh-tw/services/cognitive-services/speech-to-text/">服務首頁</a></li><li><em>Translator Speech Api</em> - <a target="_blank" href="https://docs.microsoft.com/en-us/azure/cognitive-services/translator-speech/">官方文件</a></li><li><em>Custom Speech Service</em> - <a target="_blank" href="https://docs.microsoft.com/zh-tw/azure/cognitive-services/Custom-Speech-Service/cognitive-services-custom-speech-home">官方文件</a>、<a target="_blank" href="https://azure.microsoft.com/zh-tw/services/cognitive-services/speech-to-text/#custom-speech">服務首頁</a></li><li><em>Speaker Recognition</em> - <a target="_blank" href="https://docs.microsoft.com/zh-tw/azure/cognitive-services/speaker-recognition/home">官方文件</a>、<a target="_blank" href="https://azure.microsoft.com/zh-tw/services/cognitive-services/speaker-recognition/">服務首頁</a></li></ol><p>
+		語音轉文字+翻譯相關的服務是Cognitive Service裡面個人覺得最亂的一個服務。感覺微軟有要統一變成一個服務，但是還在進行中，因此比較混論。
+		</p><p>
+		這裡面<em>Speech Service</em>和<em>Translator Speech Api</em>提供差不多的服務：
+		</p><ul><li>語音轉文字</li><li>文字轉語音</li><li>語音轉文字+翻譯</li></ul><p></p><p>
+		理論上<em>Speech Service</em>是一個整合所有語音相關服務的統一api，因此兩邊的engine應該應該，但是實際使用起來，個人經驗是<em>Translator Speech Api</em>比較準確。所以，雖然<em>Speech Service</em>看起來是未來的走向，
+		并且SDK比較完整，但是接下來的demo程式會使用<em>Translator Speech Api</em></p><p><em>Custom Speech Service</em>是一個很有意思的服務，允許透過訓練的方式建立出一個比較符合使用者説話方式的Model達到識別率非常高。白話一點來説，假設今天要識別的是一些講話有口音的使用者，用預設的服務可能識別率不高，但是
+		透過使用這個服務，可以自己訓練符合口音的Model達到識別率提高。
+		</p><p><em>Speaker Recognition</em>這個服務可以用來識別語音裡面是那個人在説話。
+		</p></section><section><h2 id="WizKMOutline_1534160737105989">測試語音服務</h2><p>
+		可以直接到服務介紹的頁面測試一些服務功能，這邊介紹兩個：
+		</p><ol><li>測試語音轉文字</li><li>測試定制化服務功能</li></ol><p></p><section><h3 id="WizKMOutline_1534160737105918">測試語音轉文字</h3><p>
+		在官網的部分有一些demo可以玩玩看，語音轉文字就是一個不錯的測試。
+		</p><p>
+		可以到：<a target="_blank" href="https://azure.microsoft.com/zh-tw/services/cognitive-services/speech-to-text/">https://azure.microsoft.com/zh-tw/services/cognitive-services/speech-to-text/</a>，然後：
+		</p><ol><li>可以先切換語言 - 這邊換成了 <code>Chinese (cn)</code></li><li>如果您想要錄自己的聲音可以用<code>開始錄製</code></li><li>也可以直接點某個範例</li><li>識別出來的文字會在輸入框裡面出現</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-13-bot-framework-with-ai-cognitive-service-32-overview-speech-service-provided-in-cognitive-service/41e64955-f559-48e3-b12b-3159478a2922.png" border="0" alt="chrome_2018-08-13_18-35-46.png"><br><figcaption>測試語音轉文字的服務</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1534160737105588">測試定制化服務功能</h3><p>
+		在測試頁面下面一點有一個定制化功能可以測試，從這邊可以看到，左邊是用一般服務識別的結果，以及右邊有經過定制化訓練的Model識別結果。左邊識別率已經很高了，但是還是有些錯誤。右邊則準確很多：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-13-bot-framework-with-ai-cognitive-service-32-overview-speech-service-provided-in-cognitive-service/e2094055-40db-4d96-9eb6-057e9f67a567.png" border="0" alt="chrome_2018-08-13_18-42-31.png"><br><figcaption>測試定制化服務功能</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1534160737105382">結語</h2><p>
+		這篇非常快速的介紹了Cognitive Service裡面和語音處理有關的服務，并且使用服務首頁的範例看了一下使用的結果。相信這篇看完對於有什麽武器可以使用就有了基本的概念。
+		</p><p>
+		在chatbot裡面可以整合的服務會是：
+		</p><ol><li>語音轉文字 - 用説的下指令</li><li>語音轉文字 + 翻譯 - 說中文轉成英文 - 方便不會英文的人在國外也能夠使用</li></ol><p></p><p>
+		因此，下一篇先用Console的方式瞭解如何在非chatbot情況下如何使用語音服務。
+		</p></section>

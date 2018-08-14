@@ -1,0 +1,68 @@
+Title: "[chatbot + AI = 下一代操作模式][33]C#使用Translator Speech API服務達到語音轉文字加翻譯"
+Published: 2018-08-14 23:30
+Modified: 2018-08-14 23:30
+Image: "/posts/2018/08/2018-08-14-bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation/83039f8e-e91c-4952-9c01-7727490125ee.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "speech-service"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇介紹完了Cognitive Service裡面和語音有關的服務了之後
+這篇就實際來看看實作，用C#的Console程式呼叫Translator Speech Api呼叫测试"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-14-bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation/83039f8e-e91c-4952-9c01-7727490125ee.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][33]C#使用Translator Speech API服務達到語音轉文字加翻譯.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-32-overview-speech-service-provided-in-cognitive-service">[32]Cognitive Service語音服務相關介紹</a>)介紹了Cognitive Service裡面對於語音相關的服務介紹，在接下來將會關注在語音轉文字加翻譯的服務上面。</p><p>
+		上篇提到有兩個服務在做這件事情，分別為Speech Service以及Translator Speech API。個人使用經驗是Translator Speech API比較準確，因此在這篇將環繞在如何在C#使用Translator Speech API。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a target="_blank" href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-33">alantsai-samples/mhat-hotelbot:blog/chapter-33</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534262647465543" ;="" style="font-size: 15px; line-height: 1.6;">使用Translator Speech API</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534262647465552" ;="" style="font-size: 15px; line-height: 1.6;">從Azure建立Key</a><br></li><li><a href="#WizKMOutline_1534262647465376" ;="" style="font-size: 15px; line-height: 1.6;">從文件瞭解API參數</a><br></li><li><a href="#WizKMOutline_1534262647465802" ;="" style="font-size: 15px; line-height: 1.6;">建立一個C# Console整合功能</a><br></li></ul><li><a href="#WizKMOutline_1534262647465991" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li><li><a href="#WizKMOutline_1534262647465342" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1534262647465543">使用Translator Speech API</h2><p>
+		Translator Speech API的文件在這邊：<a href="https://docs.microsoft.com/en-us/azure/cognitive-services/translator-speech/">文件位置</a>，基本上可以從上面找到不同語言的Quickstarts，
+		稍後的C# Console程式也是基於這個Quickstart的内容。
+		</p><p>
+		要使用Translator Speech Api基本上需要：
+		</p><ol><li>從Azure建立Key</li><li>從文件瞭解API參數</li><li>建立一個C# Console整合功能</li></ol><p></p><section><h3 id="WizKMOutline_1534262647465552">從Azure建立Key</h3><p>
+			和其他的Cognitive Service服務一樣，要使用服務要先在Azure建立出一個key。如果測試用，只需要Free版本即可。
+			</p><p>
+			首先進入到Azure的<a href="https://portal.azure.com/">portal</a>找到<code>Translator Speech</code>的服務按下Create，也可以用這個
+			<a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesSpeechTranslation">鏈接</a>直接開啓建立畫面：
+			</p><ol><li><em>Name</em> - 輸入可以識別的名稱就好</li><li><em>Pricing Tier</em> - 測試用Free即可，有10小時可以用。其他等級以及費用可以在右邊展開的畫面看到</li><li><em>Resource Group</em> - 選擇要放在那個Resource Group</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-14-bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation/b31db40e-05c4-41a8-b8a0-4312bed5be21.png" border="0" alt="chrome_2018-08-14_18-08-33.png"><br><figcaption>建立Translator Speech</figcaption></figure><p></p><p>
+			沒問題了之後，按下<code>Create</code>，然後稍等一下服務建立出來之後在點進去。
+			</p><p>
+			看到一個常見的畫面，點選<code>Keys</code>，記錄好其中一組即可：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-14-bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation/cb37afc2-9036-4083-8da4-9dc6469bd0b7.png" border="0" alt="chrome_2018-08-14_22-07-40.png"><br><figcaption>取得Key值</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+				這邊和其他Cognitive Service不同的是，下面的Api Endpoint和Api Reference其實都是錯的内容。
+			</div></section><section><h3 id="WizKMOutline_1534262647465376">從文件瞭解API參數</h3><p>
+			有了key之後，就可以使用Translator Speech API，但是怎麽呼叫這個API呢？
+			</p><p>
+			Translator Speech Api是一個WebSocket的服務，API的文件在<a href="https://docs.microsoft.com/en-us/azure/cognitive-services/translator-speech/reference" target="_blank">這裡</a>，在裡面有幾個重要的參數：
+			</p><dl><dt>
+					from
+				</dt><dd>
+					輸入的來源語言
+				</dd><dt>
+					to
+				</dt><dd>
+					文字要被翻譯的語言
+				</dd><dt>
+					format
+				</dt><dd>
+					語音的格式，有支援<code>audio/wav</code>和<code>audio/mp3</code>。預設是wav。wav檔案要求<code>16 bit, single channel PCM with a sampling rate of 24kHz or 16kHz</code></dd></dl><p></p><p>
+			當然，這邊列的只有幾個比較重要的參數，完整的參數還是要看文件裡面。
+			</p></section><section><h3 id="WizKMOutline_1534262647465802">建立一個C# Console整合功能</h3><p>
+			整個程式碼有點長，因此這邊不會show code的部分，不過整個console程式拆解下來大概有：
+			</p><ol><li><em>TranslateSpeech</em>：這個方法在設定呼叫url的參數以及實際觸發送語音檔案以及從Translator Speech Api得到結果的部分</li><li><em>Send</em>：定義把要辨識的聲音檔案發送出去的方法</li><li><em>Receive</em>：定義從Translator Speech Api取得辨識結果的方法</li></ol><p></p><p>
+			要呼叫使用console之前需要修改<code>static string key = "";</code>，把從Azure取得的key放到這個variable裡面。
+			</p><p>
+			測試的語音檔則是<code>speak.wav</code>，這個語音内容是：<code>What's the wather like？</code></p><p>
+			剩下的應該還滿直覺容易懂，完整的程式碼請看：
+			<a href="https://github.com/alantsai-samples/mhat-hotelbot/blob/master/src/MHAT.TranslatorSpeechQuickStart/Program.cs#L19">mhat-hotelbot/src/MHAT.TranslatorSpeechQuickStart/Program.cs</a></p></section></section><section><h2 id="WizKMOutline_1534262647465991">測試結果</h2><p>
+		接下來就把整個C# Console run起來，看到的結果如下圖：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-14-bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation/0ba1c952-81f5-4f07-9093-97ede0152905.png" border="0" alt="cmd_2018-08-14_23-36-33.png"><br><figcaption>語音文字識別成功并且翻譯成爲繁體中文</figcaption></figure><p></p><p>
+		從截圖可以發現：
+		</p><ol><li>語音轉文字成功</li><li>轉出的文字被翻譯成爲繁體中文</li></ol><p></p><div class="bs-callout bs-callout-info">
+			這個api其實有支援直接把翻譯的文字變成語音，所以其實可以達到即使語音翻譯。
+		</div></section><section><h2 id="WizKMOutline_1534262647465342">結語</h2><p>
+		這篇介紹了如何用程式碼的方式來呼叫Translator Speech Api。做出了一個C#的Console程式，并且可以看出識別的很成功。
+		</p><p>
+		在下一篇將把這個服務整合到chatbot裡面。
+		</p></section>

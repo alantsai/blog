@@ -1,0 +1,119 @@
+Title: "[chatbot + AI = 下一代操作模式][34]賦予Chatbot用語音下指令以及翻譯的功能"
+Published: 2018-08-16 23:10
+Modified: 2018-08-16 23:10
+Image: "/posts/2018/08/2018-08-16-bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language/1aea1117-f82b-47ef-97fc-866df779573f.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "speech-service", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上篇看完了如何在C# Console用Translator Speech Api
+這篇來看看如何整合到Chatbot裡面來使用
+透過這篇將瞭解到語音下指令給chatbot不在是科幻電影的場景"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-16-bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language/1aea1117-f82b-47ef-97fc-866df779573f.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][34]賦予Chatbot用語音下指令以及翻譯的功能.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation">[33]C#使用Translator Speech API服務達到語音轉文字加翻譯</a>)瞭解了如何用C# Console使用Translator Speech Api的服務達到語音轉文字加翻譯。那麽要整合到Chatbot就更加沒有問題了。</p><p>
+		這一篇將介紹如何把Translator Speech Api整合到Chatbot裡面，語音能夠轉文字就能夠達到用<em>說</em>來叫Chatbot做事，并且提供一些多國語言的使用情景，例如不會說中文的客戶，可以透過chatbot達到及時語音翻譯。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-34">alantsai-samples/mhat-hotelbot:blog/chapter-34</a></div></section>
+	<section>
+		<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534432173654127" ;="" style="font-size: 15px; line-height: 1.6;">Translator Speech Api整合到Chatbot</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534432173654662" ;="" style="font-size: 15px; line-height: 1.6;">建立Translator Speech Api的Service</a><br></li><li><a href="#WizKMOutline_1534432173655862" ;="" style="font-size: 15px; line-height: 1.6;">建立Dialog處理語音邏輯</a><br></li><li><a href="#WizKMOutline_1534432173655694" ;="" style="font-size: 15px; line-height: 1.6;">整合到RootLuisDialog</a><br></li><li><a href="#WizKMOutline_1534432173655688" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1534432173655951" ;="" style="font-size: 15px; line-height: 1.6;">下一步調整</a><br></li><li><a href="#WizKMOutline_1534432173655880" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more-->
+	<section><h2 id="WizKMOutline_1534432173654127">Translator Speech Api整合到Chatbot</h2><p>
+		要整合到Chatbot和其他幾個有點類似，大概會經歷過幾個步奏：
+		</p><ol><li>建立Translator Speech Api的Service</li><li>建立Dialog處理語音邏輯</li><li>整合到<code>RootLuisDialog</code></li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1534432173654662">建立Translator Speech Api的Service</h3><p>
+			這個Service代表著物件導向版本的TranslatorSpeechApi，方便呼叫服務。
+			</p><p>
+			整個邏輯和上一篇的Console裡面看到的邏輯差不多，這邊比較特別只是建立這個物件的時候需要注入服務的Key。
+			</p><p>
+			另外一個是建立出一個Model叫做：<code>ResponseModel</code>，用來接Translator Speech Api的結果。
+			</p><p>
+			詳細的程式碼就不發在部落格上面了，詳細請看
+			：<a href="https://github.com/alantsai-samples/mhat-hotelbot/blob/blog/chapter-34/src/MHAT.HotelBot/Services/TranslatorSpeechService.cs">mhat-hotelbot/src/MHAT.HotelBot/Services/TranslatorSpeechService.cs</a></p></section><section><h3 id="WizKMOutline_1534432173655862">建立Dialog處理語音邏輯</h3><p>
+			接下來要建立一個Dialog叫做<code>SpeechTranslationDialog</code>，這個Dialog的主要目的是把BotBuilder得到的内容做處理，然後呼叫<code>TranslatorSpeechService</code>做語音轉文字和翻譯的處理。
+			</p><p>
+			這邊要注意一下，一般來説模擬器可以直接發語音做測試，但是可能是我電腦問題，兩個版本的模擬器都無法使用語音，因此我用了一個自定的格式，這個内容格式是：<code>media@@{語音檔案路徑}</code>。
+			</p><p>
+			因此，這邊的Dialog會用這個格式做處理，整個的邏輯如下：
+</p><pre><code class="language-csharp">[Serializable]
+public class SpeechTranslationDialog : IDialog&lt;List&lt;ResponseModel&gt;&gt;
+{
+	public async Task StartAsync(IDialogContext context)
+	{
+		await context.PostAsync("請輸入：media@@RecordMediaPath");
+
+		context.Wait(MessageReceivedAsync);
+	}
+
+	private async Task MessageReceivedAsync
+	   (IDialogContext context, 
+		IAwaitable&lt;IMessageActivity&gt; inResult)
+	{
+		var activity =  context.Activity as IMessageActivity;
+
+		var textSplit = activity.Text.Split('@@');
+
+		var mediaUrl = textSplit.Last();
+
+		var tranlsatorService =
+			new TranslatorSpeechService
+				(ConfigurationManager
+					.AppSettings["TranslatorSpeechApiKey"]);
+
+		var result = await tranlsatorService
+			.TranslateSpeech(mediaUrl);
+
+		context.Done(result);
+	}
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1534432173655694">整合到RootLuisDialog</h3><p>
+			接下來就是要把整個組合在一起了。
+			</p><p>
+			首先在<a href="https://www.luis.ai">luis.ai</a>的網站加入一個intent叫做<code>SpeechRecognizer</code>，裡面有個utterance叫做<code>語音</code>，記得要train以及publish模型：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-16-bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language/f76a45ec-0b14-49b0-9c32-329a66e551d6.png" border="0" alt="chrome_2018-08-16_22-46-30.png"><br><figcaption>luis模型訓練</figcaption></figure><p></p><p>
+			接下來就是調整<code>RootLuisDialog</code>呼叫語音的dialog：
+</p><pre><code class="language-csharp">[LuisIntent("SpeechRecognizer")]
+public Task SpeechRecognizer
+	(IDialogContext context, LuisResult result)
+{
+	context.Call(new SpeechTranslationDialog(),
+		SpeechRecognizerAfterAsync);
+
+	return Task.CompletedTask;
+}
+
+private async Task SpeechRecognizerAfterAsync
+	(IDialogContext context, IAwaitable&lt;List&lt;ResponseModel&gt;&gt; result)
+{
+	var finalResult = await result;
+
+	await context.PostAsync($"識別：{finalResult.First().recognition}");
+	await context.PostAsync($"翻譯：{finalResult.First().translation}");
+
+	context.Wait(MessageReceived);
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1534432173655688">測試結果</h3><p>
+			接下來就是做測試的時候了，透過模擬器測試整個功能：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-16-bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language/8ee666f9-97b2-487b-bd08-6ccf1f2a93ce.png" border="0" alt="botframework-emulator_2018-08-16_22-24-19.png"><br><figcaption>測試功能</figcaption></figure><p></p><p>
+			上圖使用的範例語音檔案就是上一篇的範例程式碼裡面用到的<code>speak.wav</code>檔案。
+			</p><p>
+			可以看到識別出文字并且翻譯和上一篇的console程式結果一致。
+			</p></section></section><section><h2 id="WizKMOutline_1534432173655951">下一步調整</h2><p>
+		到這邊爲止也就是今天的全部内容，不過其實這邊的程式碼還有很多進步的空間，或者説有更多可以整合的地方，這邊列出來給大家未來使用上面做參考：
+		</p><ol><li>既然語音可以識別出文字了，那是否可以用語音的方式下指令，然後先透過語音轉文字，再用文字到luis判斷出intent然後在執行指令</li><li>Translator Speech Api有限制語音格式，因此，應該要檢查好格式，必要時轉檔的邏輯整合進去</li></ol><p></p></section><section><h2 id="WizKMOutline_1534432173655880">結語</h2><p>
+		這篇介紹了如何把Translator Speech Api整合進入了chatbot裡面。透過這個範例，可以瞭解如何實際整合運用，并且在最後面給出了一些未來要上production需要考慮到的地方。
+		</p><p>
+		到了這篇，這個系列就快要進入了尾聲，這系列把常見的<em>自然輸入</em>方式都介紹了一輪：
+		</p><dl><dt>
+				文字
+			</dt><dd>
+				透過LUIS來找到intent
+			</dd><dt>
+				圖像
+			</dt><dd>
+				用了圖像識別以及OCR的服務讓拍照的方式查找飲料費用以及發票識別。
+			</dd><dt>
+				語音
+			</dt><dd>
+				可以把語音轉成文字，達到語音下達指令的方式。以及語音直接從一個語言翻譯到另外一個語言提供更多元的功能。
+			</dd></dl><p></p><p>
+		Cognitive Service還有很多其他的服務，有些服務甚至是多個服務組合或者某個服務加强在產生出來的。在接下來的篇章將對其中幾個做介紹。
+		</p><p>
+		在下一篇將介紹其中一個，QnA Maker，方便做知識庫類型的服務。
+		</p></section>

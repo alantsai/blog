@@ -1,0 +1,89 @@
+Title: "[chatbot + AI = 下一代操作模式][35]使用QnA Maker打造問答知識類型資料集服務"
+Published: 2018-08-18 20:10
+Modified: 2018-08-18 20:10
+Image: "/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/29f8c9b4-794e-42fc-bae1-cb21bb59815d.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "qna-maker"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇介紹完了Translator Speech Api之後，Cognitive Service裡面的基本服務就介紹完了。
+接下來介紹一些Cognitive Service裡面比較特殊的服務，以及服務總結和微軟在AI這塊的其他藍圖
+這邊先從建立QA（問答）式知識庫類型資料的服務QnA Maker介紹起"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/29f8c9b4-794e-42fc-bae1-cb21bb59815d.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][35]使用QnA Maker打造問答知識類型資料集服務.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language">[34]賦予Chatbot用語音下指令以及翻譯的功能</a>)介紹完了Translator Speech Api之後，基本上這個系列想要介紹的Cognitive Service基本服務都介紹完了，這些服務包含了<em>文字</em>、<em>圖片</em>以及<em>語音</em>的智能處理。</p><p>
+		在這系列接下來的部分將在介紹幾個Cognitive Service的進階服務、以及管理和維護這些Cognitive Service工具以及微軟在AI這方面還提供什麽樣的未來藍圖。
+		</p><p>
+		這篇先介紹知識庫類型的服務<em>QnA Maker</em>，看看這個服務能夠做什麽。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534594349491722" ;="" style="font-size: 15px; line-height: 1.6;">QnA Maker是一個什麽服務？</a><br></li><li><a href="#WizKMOutline_1534594349491523" ;="" style="font-size: 15px; line-height: 1.6;">QnA Maker的結構</a><br></li><li><a href="#WizKMOutline_1534594349491535" ;="" style="font-size: 15px; line-height: 1.6;">建立QnA Maker的服務</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534594349491777" ;="" style="font-size: 15px; line-height: 1.6;">在Azure建立出QnA Maker的服務</a><br></li><li><a href="#WizKMOutline_1534594349491767" ;="" style="font-size: 15px; line-height: 1.6;">在QnA Maker Portal建立出一個Knowledge</a><br></li></ul><li><a href="#WizKMOutline_1534594349491427" ;="" style="font-size: 15px; line-height: 1.6;">使用Knowledge Base</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534594349491451" ;="" style="font-size: 15px; line-height: 1.6;">維護Knowledge Base</a><br></li><li><a href="#WizKMOutline_1534594349492386" ;="" style="font-size: 15px; line-height: 1.6;">測試Knowledge Base</a><br></li><li><a href="#WizKMOutline_1534594349492144" ;="" style="font-size: 15px; line-height: 1.6;">用REST Api實際測試</a><br></li></ul><li><a href="#WizKMOutline_1534594349492863" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1534594349491722">QnA Maker是一個什麽服務？</h2><p>
+		不管是什麽類型的網站，一般都會有類似FAQ的東西，或者類似知識庫的資料。對於使用者來説，最困難的是如何快速找到這些問題的答案。
+		</p><p>
+		QnA Maker就是這麽一個服務，可以透過提供網址或者是檔案的方式自動截取出一問一答的結構，并且也可以在web界面直接修改，下圖是整個服務的基本概念：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/974ab78a-fccc-45dc-bd40-257ea7f07bc0.png" border="0" alt="overview.png"><br><figcaption>介紹QnAMaker的作用，原圖來源：https://docs.microsoft.com/en-us/azure/cognitive-services/QnAMaker/overview/overview</figcaption></figure><p>
+		可能上面的描述還是有點無感，舉個簡單例子，Office 365有個QA的畫面，想象左邊問答方式找到答案（可以看到還可以模糊比對）對比右邊要自己用肉眼看，那個更容易使用呢？
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/bc08105d-c8a0-4d6e-a02b-32c387fad2b5.png" border="0" alt="2018-08-18_20-22-10.png"><br><figcaption>QnA Maker vs 網頁式的QA，網頁連接：https://products.office.com/zh-tw/microsoft-office-for-home-and-school-faq</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1534594349491523">QnA Maker的結構</h2><p>
+		QnA Maker和其他Cognitive Service有點不一樣，其他的Cognitive Service基本上都是有一個建立好的Model或者自己建立一個Model，然後透過建立出一個Key來呼叫使用。
+		</p><p>
+		不過QnA Maker不是這麽一個東西，QnA Maker反而比較像是一個融合了多個Azure服務所建立出來的<em>Solution</em>，這個Solution主要目的就是把Knowledge類型的資料變成一個可以透過一問一答方式呈現的服務。
+		</p><p>
+		QnA Maker使用了幾個Azure服務：
+		</p><ol><li>Azure Search - 用來儲存資料的空間</li><li>App Service - API存在的地方 - 程式要呼叫QnA Maker的地方</li><li>Application Insight - 分析用戶呼叫的方式</li><li>維護QnA Maker的Portal - 節省需要自己撰寫維護界面</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/7b159c61-884c-4bc6-a8d8-64eb74984c8e.png" border="0" alt="architecture.png"><br><figcaption>整體使用到服務的架構圖</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1534594349491535">建立QnA Maker的服務</h2><p>
+		要使用QnA Maker需要有兩個前置條件：
+		</p><ol><li>登入到QnA Maker的Portal</li><li>Azure的subscription</li></ol><p></p><p>
+		要登入到QnA Maker的Portal還蠻簡單，只需要到<a href="https://www.qnamaker.ai">qnakmaker.ai</a>，然後用微軟帳號登入即可。
+		</p><p>
+		要建立一個QnA Maker的服務要經歷過幾個動作：
+		</p><ol><li>在Azure建立出QnA Maker的服務</li><li>在QnA Maker Portal建立出一個Knowledge</li></ol><p></p><p>
+		登入到QnA Maker的Portal之後，按下上面的<code>Create a knowledge base</code>，這邊列出一步一步要做的事情：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/798a7db4-1e8f-477c-a577-5130f5ea0b44.png" border="0" alt="chrome_2018-08-18_19-02-09.png"><br><figcaption>進入到建立knowledge base的流程</figcaption></figure><p></p><section><h3 id="WizKMOutline_1534594349491777">在Azure建立出QnA Maker的服務</h3><p>
+			在QnA Maker Portal裡面的<em>Step 1</em>，有個<code>Create a QnA Service</code>，這個按鈕會自動帶到Azure Portal建立QnA Maker的畫面，
+			也可以使用<a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesQnAMaker">這個鏈接</a>會自動進入到Azure建立QnA Maker的畫面。
+			</p><p>
+			建立畫面的欄位説明如下：
+			</p><ol><li>Name - 好識別的名稱即可</li><li>Management Pricing Tier - 這邊是QnA Maker Portal相關的規格。測試可以用免費的F0就好</li><li>Resource Group - 放在好管理的即可</li><li>Search Pricing Tier - 還記得QnA Maker會用到Azure Search，這個是哪個服務的規格。會牽扯到可以儲存的容量。測試用免費的即可</li><li>Search Location - Azure Search放的位置</li><li>App Name - 會建立出一個App Service，因此這個名稱會影響到呼叫的api host</li><li>Website Location - App Service的位置</li><li>App Insight - 這個用來分析使用者呼叫搜索的内容</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/3039e677-be32-486e-ab0a-39f44f2a0776.png" border="0" alt="2018-08-17_21-18-45.png"><br><figcaption>建立出QnA Maker</figcaption></figure><p></p><p>
+			沒問題之後，按下<code>Create</code>，稍等一會，服務就會建立出來。總共會有5個服務建立出來：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/fba632d7-ffe8-4d3a-84a0-55fc94186590.png" border="0" alt="chrome_2018-08-18_17-45-06.png"><br><figcaption>建立出來的服務</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+				預設建立出來的App Service屬於S1等級，如果說只是要測試想省錢的話，記得把App Service Plan調整為免費等級的F1即可。
+			</div></section><section><h3 id="WizKMOutline_1534594349491767">在QnA Maker Portal建立出一個Knowledge</h3><p>
+			進入QnA Maker的Portal之後，點<code>Create a Knownledge base</code>(也可以直接使用<a href="https://www.qnamaker.ai/Create">這個連接</a>進入)
+			</p><p>
+			接下來會是一步一步的設定
+			</p><dl><dt>
+					STEP 1 Create a QnA service in Microsoft Azure.
+				</dt><dd>
+					這步在剛剛已經做完了。
+				</dd><dt>
+				STEP 2 Connect your QnA service to your KB.
+				</dt><dd>
+					這邊選擇剛剛建立出來的服務即可
+					<figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/8bc7b6a7-45a2-4ce1-9e83-53c1c22e15d9.png" border="0" alt="chrome_2018-08-18_17-45-49.png"><br><figcaption>第2步</figcaption></figure></dd><dt>
+					STEP 3 Name your KB.
+				</dt><dd>
+					這邊給一個好識別的名字即可
+					<figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/7923ff1b-4f8e-4861-9a34-3ff82510b938.png" border="0" alt="chrome_2018-08-18_17-46-14.png"><br><figcaption>第3步</figcaption></figure></dd><dt>
+					STEP 4 Populate your KB.
+				</dt><dd>
+					QnA Maker的好處是除了手動key以外，也可以丟網頁連接或者檔案讓他自己截取。不過這個部分晚點介紹，目前先留空。
+					<figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/ac8426ba-f274-4c70-ab87-218b7b9a226f.png" border="0" alt="chrome_2018-08-18_17-46-40.png"><br><figcaption>第4步</figcaption></figure></dd><dt>
+					STEP 5 Create your KB
+				</dt><dd>
+					上面都設定完了之後，就可以監理処Knowledge base，按下Create即可。
+					<figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/528437be-7736-43dd-85ac-e0643f13343b.png" border="0" alt="chrome_2018-08-18_17-46-50.png"><br><figcaption>第5步</figcaption></figure></dd></dl><p>
+			按下Create之後，需要等一些時間，建立完成會自動切換到維護剛剛建立的Knowledge base。
+			</p></section></section><section><h2 id="WizKMOutline_1534594349491427">使用Knowledge Base</h2><p>
+			Knowledge Base建立出來之後，就需要瞭解如何使用，大概會經過幾個步奏：
+			</p><ol><li>維護Knowledge Base</li><li>測試Knowledge Base</li><li>用REST Api實際測試</li></ol><p></p><section><h3 id="WizKMOutline_1534594349491451">維護Knowledge Base</h3><p>
+			一個Knowledge是<em>多個問題搭配一個答案</em>。要建立一個knowledge可以透過：
+			</p><ol><li>按下<code>Add QnA Pair</code></li><li>輸入問題</li><li>輸入答案</li><li>按下<code>Save and Train</code></li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/237e8d08-f062-4d02-81d5-ef8ebae10b87.png" border="0" alt="chrome_2018-08-18_17-49-16.png"><br><figcaption>維護Knowledge Base</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1534594349492386">測試Knowledge Base</h3><p>
+			要測試目前的Knowledge Base很簡單：
+			</p><ol><li>透過右上角的<code>Test</code>按鈕</li><li>可以直接輸入要測試的語句</li><li>可以看到返回的結果，可以按下<code>inspect</code>有更加詳細的訊息</li><li>可以在這邊加入不同的問題</li><li>如果測試得到的回答是錯的，那麽可以在這邊加入</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/ac164661-70cb-4cbb-9879-9b61d3f270eb.png" border="0" alt="chrome_2018-08-18_17-57-17.png"><br><figcaption>測試Knowledge Base</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1534594349492144">用REST Api實際測試</h3><p>
+			如果Knowledge Base測試好了，那麽就可以把他發佈出來。
+			</p><p>
+			要發佈可以：
+			</p><ol><li>右上角的<code>Publish</code>選項</li><li>然後按下<code>Publish</code>的按鈕</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/46d45ef6-bfc0-4297-9d4e-c2416aec228b.png" border="0" alt="chrome_2018-08-18_18-02-31.png"><br><figcaption>發佈Knowledge base</figcaption></figure><p></p><p>
+			發佈完成了之後，會得到這個Service的一些相關資訊，有幾個部分要注意一下，這個在把QnA Maker和chatbot整合會使用到：
+			</p><ol><li>Knowledge Id - 這個代表這個knowledge的guid</li><li>Host - 這個是App Service的網址，服務會打到這個地方取得結果</li><li>Auth Key - 這個是認證用的Key</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/b6d6a09e-b289-4e8d-becd-d3ecfff703d3.png" border="0" alt="2018-08-18_18-07-27.png"><br><figcaption>服務相關的資訊</figcaption></figure><p></p><p>
+			最後用Postman測試這個服務：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-18-bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index/bbfe42fb-93e6-4625-95f4-dde2cbe3af6d.png" border="0" alt="Postman_2018-08-18_20-03-47.png"><br><figcaption>用Postman測試QnA Maker</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1534594349492863">結語</h2><p>
+		這篇介紹了QnA Maker這個專門用來建立知識庫類型的服務。在這篇瞭解了如何建立并且測試建立出來的knowledge base。最後發佈之後又用Postman以Rest Api的方式呼叫做測試。
+		</p><p>
+		下一篇將看看如何把QnA Maker整合到chatbot裡面。
+		</p></section>

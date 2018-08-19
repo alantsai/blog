@@ -1,0 +1,141 @@
+Title: "[chatbot + AI = 下一代操作模式][36]Chatbot整合QnAMaker - 使用對話查找知識集"
+Published: 2018-08-19 22:10
+Modified: 2018-08-19 22:10
+Image: "/posts/2018/08/2018-08-19-bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot/833d0d69-8690-44db-95a0-e20e3eb73975.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "qna-maker", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇介紹完了QnA Maker的功能之後，接下來就是要看如何整合到Chatbot裡面
+這篇看看如何在chatbot整合QnA Maker的功能，讓知識可以透過對答的方式被查找到"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-19-bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot/833d0d69-8690-44db-95a0-e20e3eb73975.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][36]Chatbot整合QnAMaker - 使用對話查找知識集.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index">[35]使用QnA Maker打造問答知識類型資料集服務</a>)介紹了QnA Maker的主要目的，以及如何使用之後，下一個問題就是要怎麽把QnA Maker整合到程式裡面。</p><p>
+		在這一篇將介紹如何把QnA Maker的服務整合到Chatbot裡面。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-36">alantsai-samples/mhat-hotelbot:blog/chapter-36</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534688251337223" ;="" style="font-size: 15px; line-height: 1.6;">整合QnA Maker到Chatbot</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534688251337511" ;="" style="font-size: 15px; line-height: 1.6;">安裝有QnAMaker的Dialog套件</a><br></li><li><a href="#WizKMOutline_1534688251337157" ;="" style="font-size: 15px; line-height: 1.6;">增加BasicQnAMakerDialog</a><br></li><li><a href="#WizKMOutline_1534688251338227" ;="" style="font-size: 15px; line-height: 1.6;">調整RootLuisDialog</a><br></li><li><a href="#WizKMOutline_1534688251338314" ;="" style="font-size: 15px; line-height: 1.6;">調整web.config</a><br></li><li><a href="#WizKMOutline_1534688251338640" ;="" style="font-size: 15px; line-height: 1.6;">測試</a><br></li></ul><li><a href="#WizKMOutline_1534688251338689" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more-->
+	<section><h2 id="WizKMOutline_1534688251337223">整合QnA Maker到Chatbot</h2><p>
+		BotBuilder裡面有提供QnA Maker的Dialog，因此要整合到Chatbot裡面會比較容易一些。不過，提供的QnAMakerDialog還需要做一些微調，因此還是會建立一個Dialog做這些相關的微調。
+		</p><p>
+		整個需要調整的部分如下：
+		</p><ol><li>安裝有QnAMaker的Dialog套件</li><li>增加BasicQnAMakerDialog</li><li>調整RootLuisDialog</li><li>調整web.config</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1534688251337511">安裝有QnAMaker的Dialog套件</h3><p>
+			預設，包含<code>QnAMakerDialog</code>的package并沒有安裝進來，因此第一件事情是要安裝套件<code>Microsoft.Bot.Builder.CognitiveServices</code>。
+			</p><p>
+			可以在Package Manager Console裡面輸入：<kbd>Install-Package Microsoft.Bot.Builder.CognitiveServices</kbd></p></section><section><h3 id="WizKMOutline_1534688251337157">增加BasicQnAMakerDialog</h3><p>
+			套件安裝好了之後，要建立一個class，名稱爲<code>BasicQnAMakerDialog</code>，這個class主要目的是微調内建的<code>QnAMakerDialog</code>。
+			</p><p>
+			首先，建立了兩個繼承<code>QnAMakerDialog</code>的Dialog，這個的主要目的是爲了區分<em>Preview</em>和<em>GA</em>版本的兩個Dialog：
+</p><pre><code class="language-csharp">public static string GetNoFoundText()
+{
+	var message = "没找到您问题的答案。";
+
+	var key = "DefaultNoFoundText";
+
+	if (ConfigurationManager.AppSettings[key] != null
+		&amp;&amp; string.IsNullOrEmpty
+			(ConfigurationManager.AppSettings[key]) == false)
+	{
+		message = ConfigurationManager.AppSettings[key].ToString();
+	}
+
+	return message;
+}
+
+// Dialog for QnAMaker Preview service
+[Serializable]
+public class BasicQnAMakerPreviewDialog : QnAMakerDialog
+{
+	// Go to https://qnamaker.ai and feed data, train &amp; publish your QnA Knowledgebase.
+	// Parameters to QnAMakerService are:
+	// Required: subscriptionKey, knowledgebaseId, 
+	// Optional: defaultMessage, scoreThreshold[Range 0.0 – 1.0]
+	public BasicQnAMakerPreviewDialog() : base(new QnAMakerService
+		(new QnAMakerAttribute(ConfigurationManager.AppSettings["QnAAuthKey"],
+			ConfigurationManager.AppSettings["QnAKnowledgebaseId"], 
+			BasicQnAMakerDialog.GetNoFoundText(), 0.5)))
+	{ }
+}
+
+// Dialog for QnAMaker GA service
+[Serializable]
+public class BasicQnAMakerDialogGA : QnAMakerDialog
+{
+	// Go to https://qnamaker.ai and feed data, train &amp; publish your QnA Knowledgebase.
+	// Parameters to QnAMakerService are:
+	// Required: qnaAuthKey, knowledgebaseId, endpointHostName
+	// Optional: defaultMessage, scoreThreshold[Range 0.0 – 1.0]
+	public BasicQnAMakerDialogGA() : base(new QnAMakerService
+		(new QnAMakerAttribute(ConfigurationManager.AppSettings["QnAAuthKey"], 
+			ConfigurationManager.AppSettings["QnAKnowledgebaseId"], 
+			BasicQnAMakerDialog.GetNoFoundText(), 0.5, 1, 
+			ConfigurationManager.AppSettings["QnAEndpointHostName"])))
+	{ }
+
+}</code></pre>
+在上面的程式碼裡面還有一個方法<code>GetNoFoundText</code>，主要用來顯示沒找到QnA的情況下要顯示的字。這個預設值可以透過AppSetting：<code>DefaultNoFoundText</code>來做設定。
+			<p></p><p>
+			建立好了這兩個Dialog了之後，接下來就是觸發這兩個Dialog的部分：
+</p><pre><code class="language-csharp">public async Task StartAsync(IDialogContext context)
+{
+	await context.PostAsync("請輸入您的問題");
+
+	context.Wait(MessageReceviedAsync);
+}
+
+private async Task MessageReceviedAsync
+	(IDialogContext context, IAwaitable&lt;object&gt; result)
+{
+	var message = context.Activity;
+
+	var qnaKBId = ConfigurationManager
+		.AppSettings["QnAKnowledgebaseId"];
+	var endpointHostName = ConfigurationManager
+		.AppSettings["QnAEndpointHostName"];
+
+	if (!string.IsNullOrEmpty(qnaKBId))
+	{
+		if (string.IsNullOrEmpty(endpointHostName))
+			await context.Forward(new BasicQnAMakerPreviewDialog(),
+				AfterAnswerAsync, message, CancellationToken.None);
+		else
+			await context.Forward(new BasicQnAMakerDialogGA(),
+				AfterAnswerAsync, message, CancellationToken.None);
+	}
+	else
+	{
+		await context.PostAsync("請設定好QnA Maker的knowledge id以及key");
+	}
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1534688251338227">調整RootLuisDialog</h3><p>
+			接下來就可以在<a href="https://www.luis.ai">luis.ai</a>加入一個新的intent叫做<code>QnA</code>，然後加入一個utterance叫做<code>我有問題</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-19-bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot/39811505-04d6-4d9d-aa50-78720d64e912.png" border="0" alt="chrome_2018-08-19_21-51-14.png"><br><figcaption>LUIS設定畫面</figcaption></figure><p></p><p>
+			這邊設定好了之後，回去改code：<code>RootLuisDialog</code>，怎加對應的處理：
+</p><pre><code class="language-csharp">[LuisIntent("QnA")]
+public Task QnA
+   (IDialogContext context, LuisResult result)
+{
+	context.Call(new BasicQnAMakerDialog(),
+		(ctx, res) =&gt;
+		{
+			ctx.Wait(MessageReceived);
+
+			return Task.CompletedTask;
+		});
+
+	return Task.CompletedTask;
+}</code></pre><p></p></section><section><h3 id="WizKMOutline_1534688251338314">調整web.config</h3><p>
+			到目前爲止基本上code都修改好了，不過code裡面有埋了一些設定需要加入在<code>web.config</code>的<code>AppSetting</code>裡面：
+</p><pre><code class="language-xml">&lt;add key="QnAKnowledgebaseId" value="&lt;Knowledge Id&gt;" /&gt;
+&lt;add key="QnAEndpointHostName" value="&lt;Host&gt;" /&gt;
+&lt;add key="QnAAuthKey" value="&lt;Auth Key&gt;" /&gt;</code></pre><p></p><p>
+			這三個值還記得在上一篇publish了之後可以取得，這邊要注意，<code>Host</code>是整個網址（例如：<code>https://mhathotelbotqna.azurewebsites.net/qnamaker</code>）
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-19-bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot/2453fba6-37c7-4032-96fc-2c39cce2b2b7.png" border="0" alt="b6d6a09e-b289-4e8d-becd-d3ecfff703d3.png"><br><figcaption>上圖是publish得到三個值得截圖</figcaption></figure></section><section><h3 id="WizKMOutline_1534688251338640">測試</h3><p>
+			最後，用Bot Emulator來對功能進行測試：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-19-bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot/36d1075c-3f67-4105-81e2-fe1552dcd882.png" border="0" alt="botframework-emulator_2018-08-19_22-01-46.png"><br><figcaption>測試功能</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1534688251338689">結語</h2><p>
+		這篇介紹了如何把QnA Maker的服務和Chatbot做了結合，可以用問答的方式查找知識庫的内容。
+		</p><p>
+		到目前爲止雖然已經可以使用QnA Maker了，不過在維護QnA Maker知識都靠一個一個key太慢了，如果已經有現成的檔案或者現成的網頁可不可以直接截取出來呢？再來，靠一個人維護太累，可不可以多個人同時維護一個Knowledge base呢？
+		</p><p>
+		這些將在下一篇做介紹。
+		</p></section>

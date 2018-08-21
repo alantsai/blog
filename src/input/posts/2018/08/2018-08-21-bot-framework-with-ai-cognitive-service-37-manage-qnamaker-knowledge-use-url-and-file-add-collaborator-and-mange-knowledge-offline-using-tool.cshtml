@@ -1,0 +1,53 @@
+Title: "[chatbot + AI = 下一代操作模式][37]維護QnA Maker的知識庫 - 設定url或者檔案為來源、多人維護以及離綫定義知識庫"
+Published: 2018-08-21 18:10
+Modified: 2018-08-21 18:10
+Image: "/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/226376f3-a5fa-4370-968f-25547a95b819.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "qna-maker", "bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇看完了如何整合QnA Maker到Chatbot裡面，到目前爲止對於QnA Maker的使用基本上沒什麽問題了。
+不過，QnA Maker有沒有用取決於Knowledge Base設定的如何
+這篇來看看如何透過url和檔案方式設定Knowledge Base、怎麽多人維護Knowledge Base以及怎麽透過工具在離綫狀態準備好Knowledge Base的内容"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/226376f3-a5fa-4370-968f-25547a95b819.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][37]維護QnA Maker的知識庫 - 設定url或者檔案為來源、多人維護以及離綫定義知識庫.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot">[36]Chatbot整合QnAMaker - 使用對話查找知識集</a>)介紹完了如何把QnA Maker整合到BotBuilder裡面，讓使用者可以透過問答的方式去搜索設定好的Knowledge。</p><p>
+		這篇要來介紹維護Knowledge Base這件事。如何透過設定截取網頁内容或者截取檔案内容來設定Knowledge、怎麽多個人維護和怎麽Offline 透過LUDown這個工具來Offline備份以及設定。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534845858781112" ;="" style="font-size: 15px; line-height: 1.6;">如何設定用截取網站或者檔案方式設定Knowledge Base</a><br></li><li><a href="#WizKMOutline_1534845858782366" ;="" style="font-size: 15px; line-height: 1.6;">如何讓多人維護同一個Knowledge base</a><br></li><li><a href="#WizKMOutline_1534845858782976" ;="" style="font-size: 15px; line-height: 1.6;">Offline設定Knowledge Base的工具</a><br></li><li><a href="#WizKMOutline_1534845858782268" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1534845858781112">如何設定用截取網站或者檔案方式設定Knowledge Base</h2><p>
+		還記得在一開始建立Knowledge Base的時候，在<em>Step 4</em>的時候有詢問設定網址或者檔案的方式來輸入Knowledge内容。那個時候我們沒有理他，直接跳過了。
+		</p><p>
+		這個功能其實非常方便，想象一下，一般來說會有一個官網，如果Chatbot裡面的知識庫和網頁某一頁内容是一樣的，那麽沒有這個功能的話需要使用者自己<em>記得</em>當有更新的時候，<em>兩邊都要更新</em>。
+		</p><p>
+		有了這個功能之後，内容有更新的時候，只需要更新網頁版本的内容，而QnA Maker只需要在referesh一下，是不是變得很方便呢？
+		</p><p>
+		要設定這個功能很簡單：
+		</p><ol><li>先點選上面的【Settings】切換到設定的頁面</li><li>往下面找，可以看到【Manage Knowledge Base】，這邊可以輸入網址，或者上傳檔案。這邊將用Office 365的FAQ頁面做模擬
+				（<a href="https://products.office.com/zh-tw/microsoft-office-for-home-and-school-faq">https://products.office.com/zh-tw/microsoft-office-for-home-and-school-faq</a></li><li>確定沒有問題之後，可以選擇右上角的【Save and Train】</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/a9ddc04b-4649-488b-a0de-5ee416f7c6a9.png" border="0" alt="chrome_2018-08-18_20-18-39.png"><br><figcaption>設定url的畫面</figcaption></figure><p></p><p>
+		稍等一下，轉完了之後在切回到【Edit】，會看到Knowledge Base多出了好多條記錄。這邊有個不錯的地方是，來源不同，會用類似頁簽的方式區分出那些屬於手動key的那些是屬於url的：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/2c4e3d10-149e-448e-9e70-221b582771da.png" border="0" alt="chrome_2018-08-21_17-23-26.png"><br><figcaption>檢查設定完url的knowledge base</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+			關於url截取的網頁格式或者是檔案上傳的格式，可以參考：<a href="https://docs.microsoft.com/en-us/azure/cognitive-services/qnamaker/concepts/data-sources-supported">文件：資料來源</a></div></section><section><h2 id="WizKMOutline_1534845858782366">如何讓多人維護同一個Knowledge base</h2><p>
+		一般來説，靠一個人來維護Knowledge base不太現實，那麽如何讓多人可以共同維護一個Knowledge base呢？
+		</p><p>
+		在QnA Maker和其他Cognitive Service不同，他是透過使用Azure的<em>Role Base Access Control （RBAC）</em>設定到QnA Maker的服務上面。
+		</p><dl><dt>
+				進入QnA Maker的Azure服務，選擇<code>Access Control (IAM)</code></dt><dd><figure><img class="img-responsive" src="/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/29f2d75e-3174-4d0d-ab0a-ea2510a79e3f.png" border="0" alt="chrome_2018-08-21_17-34-12.png"><br><figcaption>找到QnA Maker Service進入到Access Control</figcaption></figure></dd><dt>
+				選擇加入一個人，Role可以是<code>Owner</code>或者<code>Contributor</code></dt><dd><figure><img class="img-responsive" src="/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/e8351aa6-bbbf-42b7-8b5d-ff36e64f64ef.png" border="0" alt="chrome_2018-08-21_17-37-52.png"><br><figcaption>加入某個人到QnA Maker裡面為Contributor</figcaption></figure></dd></dl><p>
+		上面步驟設定完了之後，用那個帳號登入到<a href="https://www.qnamaker.ai">qnamker.ai</a>，就可以看到這個Service的<em>所有</em>Knowledge Base。
+		</p><div class="bs-callout bs-callout-warning">
+			這邊注意一下，這裡只能夠控制到QnA Maker服務的層級，換句話説，如果要控制到Knowledge Base的層級是<em>做不到</em>。如果要控制Knowledge Base，那麽最好兩個為<em>不同</em>的QnA Maker才可以做到。
+		</div></section><section><h2 id="WizKMOutline_1534845858782976">Offline設定Knowledge Base的工具</h2><p>
+	還記得在之前的篇幅（<a href="/posts/2018/08//bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro">[23]LUIS管理工具 - luis-api和LUDown介紹</a>）介紹了<code>luis-api</code>以及<code>LUDown</code>這兩個工具嗎？</p><p>
+		這兩個工具一個是用在透過command line的方式對LUIS的Project進行操作，另外一個則是用類似Markdown語法寫出LUIS的Model内容，然後透過工具轉換成LUIS看得懂的JSON Model，達到版本控制模型容易。
+		</p><p>
+		在QnA Maker也有同樣的工具，分別爲：
+		</p><ol><li>Nodejs 套件 <code>qnamaker</code> - <a href="https://github.com/Microsoft/botbuilder-tools/tree/master/QnAMaker">官方文件</a></li><li>Node js 套件 <code>LUDown</code> - 沒錯，和LUIS用的那個是同一個工具，只不過呼叫的<em>參數以及格式略有不同</em>而已 - 
+				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/create-qna-json.md">QnA 的使用方式</a></li></ol><p></p><p>
+		這邊就不再詳細介紹這兩個工具了，有興趣可以看LUIS那篇的介紹，基本上qna maker和他的概念完全一樣，差異只在於呼叫的參數而已。
+		</p></section><section><h2 id="WizKMOutline_1534845858782268">結語</h2><p>
+		這篇介紹了如何更好的維護QnA Maker的Knowledge Base。從介紹透過url或者檔案上傳的方式來設定Knowledge 内容，到如何加入其他人作爲維護的管理者，最後則是如何透過工具讓在沒聯網的時候可以先設計好Knowledge base内容，也讓
+		版控這件事情變得簡單。
+		</p><p>
+		在結束QnA Maker之前，還有一個功能想要介紹，那就是如何知道使用者都<em>問了些什麽？</em>只有知道了使用者問了什麽，才可以分析到底目前的Knowledge Base知識量夠不夠，有沒有需要調整等等。
+		</p><p>
+		其他的Cognitive Service這個部分都是整合到了對應的Portal裡面，可是QnA Maker不是這樣，QnA Maker透過的是Application Insight。
+		</p><p>
+		下一篇將簡單的介紹Application Insight，并且如何在Application Insight看到使用者都在問什麽問題。
+		</p></section>

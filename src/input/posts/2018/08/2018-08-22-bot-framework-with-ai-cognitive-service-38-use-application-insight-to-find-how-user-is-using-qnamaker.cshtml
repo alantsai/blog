@@ -1,0 +1,75 @@
+Title: "[chatbot + AI = 下一代操作模式][38]用Application Insight看使用者都在QnA Maker查什麽"
+Published: 2018-08-22 21:10
+Modified: 2018-08-22 21:10
+Image: "/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/09a55eec-848e-4613-899f-dc88f3a3a960.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "qna-maker", "application-insight"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇看完了如何更好的維護QnA Maker了之後，
+可是就算knowledge維護的再好如果不符合使用者查詢的内容的話，那麽也沒有意義。
+這篇就來看看如何使用application insight來查找出使用者是怎麽查詢QnA Maker"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/09a55eec-848e-4613-899f-dc88f3a3a960.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][38]用Application Insight看使用者都在QnA Maker查什麽.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool">[37]維護QnA Maker的知識庫 - 設定url或者檔案為來源、多人維護以及離綫定義知識庫</a>)介紹完了如何更容易的去維護Knowledge Base了之後，這篇來看另外一個問題：就算再怎麽維護Knowledge Base，如果裡面内容不符合使用者的查詢，那麽一點意義<em>都沒有</em>。</p><p>
+		因此瞭解到使用者怎麽詢問這些Knowledge Base非常的重要。
+		</p><p>
+		在這一篇將來看看如何透過Application Insight看看使用者都在搜索什麽問題。
+		</p></section>
+		<section>
+<div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534943113601116" ;="" style="font-size: 15px; line-height: 1.6;">Application Insight是什麽？</a><br></li><li><a href="#WizKMOutline_1534943113601201" ;="" style="font-size: 15px; line-height: 1.6;">怎麽在QnA Maker埋入Application Insight？</a><br></li><li><a href="#WizKMOutline_1534943113601914" ;="" style="font-size: 15px; line-height: 1.6;">如何使用Application Insight看使用者情況？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1534943113601727" ;="" style="font-size: 15px; line-height: 1.6;">使用者查找的問題以及得到的答案</a><br></li><li><a href="#WizKMOutline_1534943113601109" ;="" style="font-size: 15px; line-height: 1.6;">使用者查找的問題量</a><br></li></ul><li><a href="#WizKMOutline_1534943113601585" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1534943113601116">Application Insight是什麽？</h2><p>
+		Application Insight屬於微軟的<code>Application Performance Manageme (APM)</code>的服務。簡單一點來説就是一個可以埋在程式碼裡面，然後因此可以看到一些程式運行情況的服務。
+		</p><p>
+		QnA Maker和其他Cognitive Service有點不同，他是一個用很多服務整合出來的一個Solution，因此在記錄使用者查詢情況的記錄是存在了Application Insight裡面。
+		</p></section><section><h2 id="WizKMOutline_1534943113601201">怎麽在QnA Maker埋入Application Insight？</h2><p>
+		還記得在一開始建立QnA Maker的時候，有詢問是否要建立Application Insight。
+		</p><p>
+		如果在那個時候沒有選擇要，那麽就需要<em>手動建立一個Application Insight</em>然後在QnA Maker的Web App設定<code>Application Settings</code>：
+		</p><ol><li>加入<code>UserAppInsightsAppId</code></li><li>加入<code>UserAppInsightsKey</code></li><li>加入<code>UserAppInsightsName</code></li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/d86166a0-4f29-405e-9113-0147b2a35d24.png" border="0" alt="ApplicationFrameHost_2018-08-22_20-25-41.png"><br><figcaption>需要增加的Application Settings</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1534943113601914">如何使用Application Insight看使用者情況？</h2><p>
+		當QnA Maker有埋入Application Insight之後，過一段時間，就可以開始用來做查詢了。
+		</p><p>
+		要先進入到Application Insight的<code>Log Analytics</code>的功能裡面，可以透過，點下Application Insight之後，上面的<code>Analytics</code>的按鈕：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/9fa0d13f-0c0a-4e09-aebf-ac39568f86dd.png" border="0" alt="ApplicationFrameHost_2018-08-22_20-29-22.png"><br><figcaption>按下Analytics來做詳細操作</figcaption></figure><p></p><p>
+		接下倆會開啓一個類似SQL工具SSMS那種類似畫面出現，這就是<code>Log Analytics</code>的畫面。在上面可以輸入一些query，執行之後在下面可以看到結果：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/e1f80dfc-0416-47fd-9d83-32585e2ed257.png" border="0" alt="ApplicationFrameHost_2018-08-22_20-32-21.png"><br><figcaption>上面輸入query，下面看到執行結果</figcaption></figure><p></p><p>
+		這篇將介紹兩個query：
+		</p><ol><li>使用者查找的問題以及得到的答案</li><li>使用者查找的問題量</li></ol><p></p><section><h3 id="WizKMOutline_1534943113601727">使用者查找的問題以及得到的答案</h3><p>
+			這邊寫的query類似SQL的概念，而且光看内容就大概知道在做什麽。
+			</p><p>
+			完整的query如下：
+</p><pre><code class="language-sql">requests
+| where url endswith "generateAnswer"
+| project timestamp, id, name, resultCode, duration
+| parse name with *"/knowledgebases/"KbId"/generateAnswer"
+| join kind= inner (
+traces | extend id = operation_ParentId
+) on id
+| extend question = tostring(customDimensions['Question'])
+| extend answer = tostring(customDimensions['Answer'])
+| project KbId, timestamp, resultCode, duration, question, answer</code></pre><p></p><p>
+			整個操作如下：
+			</p><ol><li>首先注意一下查詢的時間範圍，預設是24小時，如果你這個只是測試的服務很有可能找不到。這邊設定為7天</li><li>輸入剛剛得到的Query</li><li>按下<code>Run</code></li><li>在下面可以看到結果</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/9283ca15-50d9-48cb-93d6-9ca40548b023.png" border="0" alt="ApplicationFrameHost_2018-08-22_20-42-30.png"><br><figcaption>測試查找使用者詢問的問題以及得到的答案</figcaption></figure><p></p><p>
+			從上面可以看到7天内總共有4個問題有被詢問。這個時候可以分析：
+			</p><ol><li>使用者都在問什麽問題</li><li>得到的答案對不對</li></ol><p></p><p>
+			當然，這裡面還有很多資訊可以挖，就看各人運用啦。
+			</p></section><section><h3 id="WizKMOutline_1534943113601109">使用者查找的問題量</h3><p>
+			這個的用途可以做一個比較，例如大家都是在查那些Knowledge Base。
+			</p><p>
+			完整的Query如下：
+</p><pre><code class="language-sql">requests
+    | where url endswith "generateAnswer" and name startswith "POST"
+    | parse name with *"/knowledgebases/"KbId"/generateAnswer" 
+    | summarize ChatCount=count() by bin(timestamp, 1d), KbId</code></pre><p></p><p>
+			整個的執行結果如下：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-22-bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker/211b2456-b39c-4ac9-b461-2fc5a2b8d7e8.png" border="0" alt="ApplicationFrameHost_2018-08-22_20-51-14.png"><br><figcaption>以圖表方式呈現結果</figcaption></figure><p></p><p>
+			從上圖可以看到，兩個Knowledge Base，各有2筆，然後時間相隔了一天。這個資料和上面看到的單項吻合。
+			</p></section></section><section><h2 id="WizKMOutline_1534943113601585">結語</h2><p>
+		這篇介紹了Application Insight這個APM服務，并且看看如何整合到QnA Maker裡面。
+		</p><p>
+		再來介紹了兩個query看如何從Application Insight撈資料出來。
+		</p><p>
+		到這邊，QnA Maker也到了一個尾聲，還有很多細節可以看，不過相信透過這幾篇的介紹，再去看Azure文件應該就沒什麽問題啦。
+		</p><p>
+		下一篇來介紹一下Cognitive Service的另外一個組合服務，<em>Video Indexer</em>。
+		</p></section>

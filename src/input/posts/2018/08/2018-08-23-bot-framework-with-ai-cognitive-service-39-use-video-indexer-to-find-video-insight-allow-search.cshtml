@@ -1,0 +1,94 @@
+Title: "[chatbot + AI = 下一代操作模式][39]Video Indexer - 讓影片可以被搜索和分析出影片的重點"
+Published: 2018-08-23 19:50
+Modified: 2018-08-23 19:50
+Image: "/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/b184b3dc-9a2c-4bf8-8dc7-50c04ffa06b5.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇看完了整合Azure服務做出來的知識類型的solution QnA Maker之後
+這篇來看看另外一個整合Cognitive Service做出來的一個影片處理solution VideoIndexer
+看看整合起來威力有多大"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/b184b3dc-9a2c-4bf8-8dc7-50c04ffa06b5.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][39]Video Indexer - 讓影片可以被搜索和分析出影片的重點.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker">[38]用Application Insight看使用者都在QnA Maker查什麽</a>)介紹完了QnA Maker之後，接下來來看看另外一個也很有意思的服務 <em>Video Indexer</em>。</p><p>
+		這個服務和QnA Maker一樣，他是一個用<em>很多服務</em>整合出來的Solution。和QnA Maker整合的都是Azure服務不同的是，Video Indexer整合的都是Cognitive Service的服務爲主。
+		</p><p>
+		這篇來看一下Video Indexer是什麽，并且看看能夠做到什麽。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1535023932693576" ;="" style="font-size: 15px; line-height: 1.6;">Video Indexer是什麽？</a><br></li><li><a href="#WizKMOutline_1535023932694949" ;="" style="font-size: 15px; line-height: 1.6;">Video Indexer的功能</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1535023932694441" ;="" style="font-size: 15px; line-height: 1.6;">影片關鍵字以及speaker識別的資訊</a><br></li><li><a href="#WizKMOutline_1535023932694469" ;="" style="font-size: 15px; line-height: 1.6;">字幕以及影片圖片OCR的功能</a><br></li><li><a href="#WizKMOutline_1535023932694734" ;="" style="font-size: 15px; line-height: 1.6;">字幕翻譯的功能</a><br></li><li><a href="#WizKMOutline_1535023932694573" ;="" style="font-size: 15px; line-height: 1.6;">搜索影片功能</a><br></li></ul><li><a href="#WizKMOutline_1535023932694634" ;="" style="font-size: 15px; line-height: 1.6;">使用Video Indexer建立自己的影片</a><br></li><li><a href="#WizKMOutline_1535023932694417" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1535023932693576">Video Indexer是什麽？</h2><p>
+		在現在影片（Video）盛行的時代，不管是會議的錄影也好，還是教學影片也好，在使用上遇到最大的問題就是如果未來我需要<em>搜索</em>或者我需要快速找到影片的<em>某一段</em>怎麽做？
+		</p><p>
+		在這個系列介紹了很多的Cognitive Service，而影片其實就是很多的圖片曡在一起，那麽可不可以用目前學到的Cognitive Service把這個影片做些處理呢？
+		</p><p>
+		例如：
+		</p><ol><li>影片裡面的OCR識別</li><li>語音轉文字 - 自動做出字幕</li><li>文字翻譯 - 自動翻譯出不同語言的字幕</li><li>直接取得影片的關鍵字</li><li>識別出是誰在説話</li></ol><p></p><p>
+		Video Indexer就是這麽一個服務，微軟把這些服務整合了起來，讓使用者<em>只需要上傳影片</em>，那麽就可以<em>取得</em>剛剛上面提到的幾個功能以及更多。
+		</p><p>
+		下圖是官方列出的一些功能項：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/4994b601-1123-429e-bbb6-b5a30ff47987.png" border="0" alt="chrome_2018-08-23_14-23-58.png"><br><figcaption>Audio以及Video提供的功能。來源：https://vi.microsoft.com/en-us/</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1535023932694949">Video Indexer的功能</h2><p>
+		要使用Video Indexer非常的簡單，只需要到官網的登入畫面：<a href="https://www.videoindexer.ai/account/login?action=signup">videoindexer.ai</a>，然後用其中一種登入方式即可：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/4d72adf3-898e-496f-be98-30b593078367.png" border="0" alt="chrome_2018-08-23_11-24-26.png"><br><figcaption>有支援的登入帳號</figcaption></figure><p></p><p>
+		登入了之後，可以先來看看一個已經有處理過的影片：
+		</p><ol><li>選擇 <code>Sample Video</code></li><li>選擇 <code>Build Keynote 2018</code>這個影片</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/3629639b-ae11-4466-a1d1-0303e4895c37.png" border="0" alt="ApplicationFrameHost_2018-08-23_14-29-02.png"><br><figcaption>選擇 Build Keynote 2018</figcaption></figure><p></p><p>
+		透過這個影片來看看：
+		</p><ol><li>影片關鍵字以及speaker識別的資訊</li><li>字幕以及影片圖片OCR的功能</li><li>字幕翻譯的功能</li><li>搜索影片功能</li></ol><p></p><section><h3 id="WizKMOutline_1535023932694441">影片關鍵字以及speaker識別的資訊</h3><p>
+		剛剛那個影片按下了之後：
+		</p><ol><li>左邊是播放的影片</li><li>右邊是相關資訊 - 可以看到有識別出講者是Satya</li><li>往下卷還有更多資訊，例如keyword取得</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/6001dafd-a856-466c-b6b0-64ebca9bbcd0.png" border="0" alt="ApplicationFrameHost_2018-08-23_14-31-05.png"><br><figcaption>基本的界面</figcaption></figure><p></p><p>
+		這些Keyword其實可以點，點下去會直接到對應的影片位置。然後透過看keyword也可以對整個影片有個基本的overview。
+		</p><p>
+		在往下卷還有一些別的資訊，不過接下來看<em>Transcript</em>。
+		</p></section><section><h3 id="WizKMOutline_1535023932694469">字幕以及影片圖片OCR的功能</h3><p>
+		切換到Transcript之後，可以看到每一段的字幕，并且影片裡面的<em>圖片也有被OCR出來</em>：
+		</p><ol><li>每一段字幕可以點，點下去直接進入到影片那段</li><li>可以看到左邊影片有出現介紹講著的名稱以及頭銜</li><li>在右邊的OCR有識別出來</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/af5d0ce9-d3d6-4c94-9b8c-28171e140e0a.png" border="0" alt="ApplicationFrameHost_2018-08-23_14-34-53.png"><br><figcaption>看Transcript的功能</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1535023932694734">字幕翻譯的功能</h3><p>
+			既然已經有字幕了，那是否能夠自動把他翻譯成爲不同的語言呢？
+			</p><p>
+			可以透過右上角的下拉來選擇語言：
+			</p><ol><li>從下拉切換成爲 Chinese (Tridinational)</li><li>可以看到内容被翻譯成爲繁體中文</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/504203b4-50db-4910-912e-c19c74f0cd54.png" border="0" alt="ApplicationFrameHost_2018-08-23_14-38-58.png"><br><figcaption>翻譯字幕</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1535023932694573">搜索影片功能</h3><p>
+			既然有了字幕，那麽可不可以快速找到某些片段的影片呢？
+			</p><p>
+			假設想看看這段影片提到了多少次Microsoft：
+			</p><ol><li>在右上角的輸入框輸入影片名稱</li><li>下面會列出被搜索到的部分</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/18a66a90-b4f0-4765-84bc-7df3ee15b11e.png" border="0" alt="ApplicationFrameHost_2018-08-23_15-34-21.png"><br><figcaption>搜索Microsoft</figcaption></figure><p></p><p>
+			可以想象一下，如果今天這個錄影是會議記錄，如果要找到很自己有關的片段，或者找到某一個你記得有講過的東西，直接輸入你的名字或者關鍵字就好了，<em>是不是很方便</em>，讓影片變得和電子書一樣，自己電子的知識庫。
+			</p></section><p>
+		從上面看到的功能裡面，可以發現很多之前介紹過的Cognitive Service服務的影子。把這些服務組合起來變成一個Solution就是Video Indexer很有意思的地方。
+		</p></section><section><h2 id="WizKMOutline_1535023932694634">使用Video Indexer建立自己的影片</h2><p>
+		上面的sample影片因爲不是我們建立的，因此是沒有辦法做修改，也沒有辦法分享出去。
+		</p><p>
+		那麽如果要自己建立影片呢？
+		</p><p>
+		這邊看一下怎麽建立自己的影片。
+		</p><p>
+		首先，透過右上角的上箭頭去做upload：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/46357fda-7240-4ffa-8b49-4bed20f60ff6.png" border="0" alt="ApplicationFrameHost_2018-08-23_13-29-40.png"><br><figcaption>右上角的上箭頭找到上傳按鈕</figcaption></figure><p></p><p>
+		再來，可以選擇要<em>從電腦上傳</em>，還是直接給一個<em>影片網址</em>。
+		</p><p>
+		這邊使用影片網址，然後使用這個影片：<a href="https://topcs.blob.core.windows.net/public/Overview-of-the-Microsoft-AI-School_high.mp4">Overview of the Microsoft AI School</a></p><ol><li>輸入影片的url</li><li>輸入影片的標題</li><li>其他看影片有沒有調整，不然就按下<code>Upload</code></li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/cb87ed2b-8d74-463b-8ef7-a116b651ef0b.png" border="0" alt="ApplicationFrameHost_2018-08-23_13-31-25.png"><br><figcaption>準備上傳影片</figcaption></figure><p></p><p>
+		按下了之後，會直接進入到首頁，并且影片正在處理中。
+		</p><p>
+		好了之後，就可以點下去做播放，然後整個畫面和剛剛看的那個sample就一樣了。
+		</p><p>
+		可以調整預設截取的内容，譬如設定Speaker的名稱等等，可以透過點下Edit進入修改畫面：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/be73de51-e284-47fc-975f-5373b27fbd73.png" border="0" alt="ApplicationFrameHost_2018-08-23_16-30-07.png"><br><figcaption>進入edit畫面的按鈕</figcaption></figure><p></p><p>
+		詳細的修改功能就不介紹了，應該還滿直覺，不過假設這些都調整好了，但是沒辦法分享給別人有點錦衣夜行的感覺，要把影片分享給別人，只需要調整影片的Privacy設定。
+		</p><p>
+		首先進入到Edit畫面，然後透過Privacy修改做設定：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-23-bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search/1addae46-c986-4fe9-a4ab-8b9960754a93.png" border="0" alt="ApplicationFrameHost_2018-08-23_16-36-40.png"><br><figcaption>設定Privacy為Public</figcaption></figure>
+		接下來只要有網址的人都可以看到影片了。
+		<p></p><div class="bs-callout bs-callout-info">
+			Video Indexer也可以用Embed的方式，不過就留給各位去做測試啦。
+		</div></section><section><h2 id="WizKMOutline_1535023932694417">結語</h2><p>
+		這篇介紹了Video Indexer這個服務。這個服務非常的有意思，除了用途之外，背後的想法是最有意思的地方：
+		Cognitive Service有很多服務，怎麽把他們包起來使用，然後用來做什麽完全取決於想象力。這也是軟件開發有趣的地方，Sky is the limit。
+		</p><p>
+		這個服務就介紹到了這邊，當然如果要整合到Chatbot也是可以，不過這邊就留給大家去自由發揮啦。
+		</p><p>
+		Cognitive Service相關的服務就介紹到了這裡，還有很多有意思的服務，在未來有機會在介紹。
+		</p>
+		<p>
+		在接下來的篇幅將介紹微軟還有提供什麽工具可以使用，然後接下來有興趣可以在往那邊看。
+		</p> 
+		<p>
+		下一篇介紹一下工具的部分，怎麽不離開地表最强的IDE的情況下管理你的Cognitive Service。
+		</p></section>

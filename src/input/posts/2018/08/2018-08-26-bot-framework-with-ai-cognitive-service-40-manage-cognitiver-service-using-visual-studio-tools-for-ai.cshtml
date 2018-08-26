@@ -1,0 +1,84 @@
+Title: "[chatbot + AI = 下一代操作模式][40]Visual Studio Tools for AI - 用VS管理Cognitive Service的服務"
+Published: 2018-08-26 21:50
+Modified: 2018-08-26 21:50
+Image: "/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/861cf345-2ed9-4764-9a81-32ba66b6007b.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "visual studio", "ai"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "在上一篇看完了Cognitive Service的整合服務Video Indexer。
+這篇來看看可以在Visual Studio直接管理Cognitive Service的好用工具
+Microsoft Visual Studio Tools for AI
+看看這個工具能夠幫助什麽"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/861cf345-2ed9-4764-9a81-32ba66b6007b.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][40]Visual Studio Tools for AI - 用VS管理Cognitive Service的服務.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-39-use-video-indexer-to-find-video-insight-allow-search">[39]Video Indexer - 讓影片可以被搜索和分析出影片的重點</a>)介紹完了Cognitive Service的整合服務Video Indexer了之後，這篇來介紹微軟怎麽讓開發著使用Cognitive Service便的更加的容易。</p><p>
+		看看管理Cognitive Service的好工具：<em>Microsoft Visual Studio Tools for AI</em>能夠做到什麽。
+		</p><div class="bs-callout bs-callout-info">
+			接下來Visual Studio有時會縮寫成文<em>VS</em>。
+		</div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1535293037548298" ;="" style="font-size: 15px; line-height: 1.6;">Microsoft Visual Studio Tools for AI是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1535293037548676" ;="" style="font-size: 15px; line-height: 1.6;">安裝Microsoft Visual Studio Tools for AI</a></li><li><a href="#WizKMOutline_1535293037549761" ;="" style="font-size: 15px; line-height: 1.6;">建立Cognitive Service的服務</a><br></li><li><a href="#WizKMOutline_1535293037549887" ;="" style="font-size: 15px; line-height: 1.6;">管理Cognitive Service的Key</a><br></li><li><a href="#WizKMOutline_1535293037549288" ;="" style="font-size: 15px; line-height: 1.6;">用範本建立Cognitive Service的專案</a><br></li><li><a href="#WizKMOutline_1535293037549693" ;="" style="font-size: 15px; line-height: 1.6;">Custom Vision Training圖片的更容易方式</a><br></li></ul><li><a href="#WizKMOutline_1535293037549754" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1535293037549630" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1535293037548298">Microsoft Visual Studio Tools for AI是什麽？</h2><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/2aaa8570-cd40-42dc-a53e-a60c9bc89e3f.png" border="0" alt=""><br><figcaption>Microsoft Visual Studio Tools for AI 的 logo</figcaption></figure><p><em>Microsoft Visual Studio Tools for AI</em>是地表上最强的IDE：Visual Studio的一個免費的插件。這個插件的功能非常的强大，是微軟幫助開發者在開發AI相關的一個好用的工具。
+		</p><p>
+		在這篇裡面，將介紹這個工具裡面和Cognitive Service有關的部分，分別爲：
+		</p><ol><li>安裝Microsoft Visual Studio Tools for AI</li><li>建立Cognitive Service的服務</li><li>管理Cognitive Service的Key</li><li>用範本建立Cognitive Service的專案</li><li>Custom Vision Training圖片的更容易方式</li></ol><p></p><section><h3 id="WizKMOutline_1535293037548676">安裝Microsoft Visual Studio Tools for AI</h3><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1535293037549683">Microsoft Visual Studio Tools for AI 檔案</h4><ol><li><em>下載頁面</em>：<a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.vstoolsai-vs2017">VS 2017</a>、
+					<a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.vstoolsai-vs2015">VS 2015</a></li><li><em>文章撰寫時的版本</em>：<code>0.5.0.747136</code></li><li><em>整個工具的文件</em>：<a href="https://github.com/Microsoft/vs-tools-for-ai">英文</a>、<a href="https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/zh-hans/README.md">簡體中文</a></li><li><em>工具cognitiver service相關的文件</em>：<a href="https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/cognitive-services.md">英文</a></li><li><em>檔案大小</em>：約8MB左右</li></ol></div><p>
+		要使用這個工具有幾個注意事項：
+		</p><ol><li>只支持 Visual Studio 2017 和 2015 Community 以上的版本</li><li>只支持 64位元的OS</li><li>建議OS是Windows 10 - 這個部分主要針對這個工具的其他功能，這篇用到的功能應該沒差</li></ol><p></p><p>
+		從上面的下載頁面下載vsix檔案了之後，點兩下執行，記得把<em>所有Visual Studio關閉</em>，然後選擇安裝的VS版本：
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/853ad677-047e-4002-a4bb-cd84a221e68b.png" border="0" alt="VSIXInstaller_2018-08-26_20-21-46.png"><br><figcaption>範例電腦只裝在VS 2017上面</figcaption></figure><p></p><p>
+		稍等一會安裝好了之後，把VS重新啓動之後，會有個AI的Start Page出現，這個可以不用理他，只需要透過<em>AI Tools</em>開啓工具：
+		</p><ol><li>從Tool bar選擇AI Tools</li><li>會開啓Server Explorer，裡面多出一個<em>AI Tools</em>節點，這邊我們只注意Azure Cognitive Service的部分</li></ol><p></p><p>
+		到這步完成了之後，安裝和準備工作就好了。
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/8471a8ad-979b-4adc-b013-c5099d43ca4f.png" border="0" alt="devenv_2018-08-26_20-36-40.png"><br><figcaption>開啓AI Tools</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1535293037549761">建立Cognitive Service的服務</h3><p>
+			在AI Tools展開Azure Cognitive Service，然後選擇要建立服務所在的Subscription，點下右鍵選擇：<code>Create New Cognitive Service...</code></p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/8f6c3ac3-a806-4c88-ada4-9074a871db52.png" border="0" alt="devenv_2018-08-26_21-06-40.png"><br><figcaption>建立Cognitive Service</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				這邊可以看到，之前在Azure Portal上面建立出來的Cognitive Service都列在了Subscription下面。
+			</div><p>
+			在彈出來的畫面裡面可以選擇不同的Cognitive Service服務，并且這邊可以設定Service的名稱以及設定Resource Group以及Pricing。
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/8b1f3571-a3fa-4c8e-a0bf-55eacb05bd29.png" border="0" alt="devenv_2018-08-26_21-08-32.png"><br><figcaption>建立Cognitive Service服務的pop up</figcaption></figure><p></p><p>
+			下面的gif動畫是來自於官方的文件，介紹建立服務：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/27520a4a-6b9b-4285-ae94-21a58861b773.gif" border="0" alt="create-service.gif"><br><figcaption>建立cognitive service的動畫</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1535293037549887">管理Cognitive Service的Key</h3><p>
+			使用Cognitive Service最麻煩的就是取得服務的Key。透過這個套件非常的方便。
+			</p><p>
+			所有Subscription下面的Cognitive Service將會被列出來，只需要透過點<kbd>右鍵</kbd>選擇<em>Subscription Keys</em>將會彈出服務的Key：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/78dcca44-3f3e-4ca3-b6ae-6ce4aaff02f7.png" border="0" alt="devenv_2018-08-26_21-18-38.png"><br><figcaption>取得對應服務的key</figcaption></figure><p></p><p>
+			在彈出的畫面也可以選擇regenerate key，因此透過這個工具管理key很方便。
+			</p></section><section><h3 id="WizKMOutline_1535293037549288">用範本建立Cognitive Service的專案</h3><p>
+			這個套件有包含一些Cognitive Service的開始專案，因此想要嘗試某一個服務但是又沒有寫過的時候可以用這些startup template作爲開始。
+			</p><p>
+			以建立一個Computer Vision的專案來嘗試，首先在VS進入新增專案的畫面，會看到有個類別是<em>AI Tools</em>，裡面的<em>Cognitive Service</em>就是我們要找的：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/ce519ee2-1fb8-4703-bf4c-0ad4892e499d.png" border="0" alt="devenv_2018-08-26_21-22-20.png"><br><figcaption>建立出Cognitive Service的Startup專案</figcaption></figure><p></p><p>
+			建立出來了之後，會看到有兩個參數需要修改：
+			</p><ol><li>subscriptionkey</li><li>endpointUrl</li></ol><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/36e0924b-4335-4a80-93d9-d169ab7d5409.png" border="0" alt="devenv_2018-08-26_21-30-45.png"><br><figcaption>建立出來的檔案</figcaption></figure><p></p><p>
+			剩下就是run起來然後看效果了。
+			</p><p>
+			基本上大部分的範本都是如此使用。
+			</p><div class="bs-callout bs-callout-info">
+				如果說已經透過第一步建立好了Cognitive Service，那麽可以直接透過那個Cognitive Service建立出專案，
+				這種好處是建立出來的專案會<em>自動塞入</em>subscriptionKey以及endpointUrl，避免還要自己處理。
+				<figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/db535e79-97e6-44d4-b653-d2d9ec44b82b.png" border="0" alt=""><br><figcaption>透過Cognitive Service建立專案</figcaption></figure></div></section><section><h3 id="WizKMOutline_1535293037549693">Custom Vision Training圖片的更容易方式</h3><p>
+			還記得之前介紹Custom Vision的時候，透過portal畫面建立自己的圖片分類器的Model（<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier">[27]Custom Vision - 自己的Model自己Train 建立圖片的分類模型</a>）。</p><p>
+			實際上整個的Training可以變得更程式化，完全可以透過自己寫API方式呼叫Training和匯出模型，讓整個可以自動化。這個範例微軟已經有提供了。
+			</p><p>
+			完整的範例程式碼可以從Github專案：<a href="https://github.com/Microsoft/Cognitive-CustomVision-Windows">Microsoft/Cognitive-CustomVision-Windows</a>看到。
+			</p><p>
+			Visual Studio Tools For AI把建立這個專案整合進去了，因此可以透過對Custom Vision點<kbd>右鍵</kbd>，選擇<em>Create New Application</em>來達到，這種方式的好處是subscriptionKey都會自動整合進去：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/873fdcab-a8f4-4685-932e-ac28749e4a87.png" border="0" alt="devenv_2018-08-26_21-50-44.png"><br><figcaption>建立出Custom Vision training的console程式碼</figcaption></figure><p></p><p>
+			整個詳細的操作可以參考下面這個從官方文件來的gif檔案：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-26-bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai/a7c97201-59e9-4a0c-b3d1-ec5c4bc61773.gif" border="0" alt="custom-vision.gif"><br><figcaption>用Console程式training Custom Vision</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1535293037549754">結語</h2><p>
+		這篇介紹了Microsoft Visual Studio Tools for AI這套Visual Studio的套件。這個工具其實非常的强大，裡面包含了一些做Deep Learning相關的功能。這篇主要只看了Cognitive Service相關的服務。
+		</p><p>
+		透過這個工具，可以讓開發者可以不用離開最熟悉的工具就能夠管理Cognitive Service，并且如果需要測試功能的時候，透過這種方式建立範例專案速度也非常的快，甚至連subscriptionKey都會自動塞入。
+		</p><p>
+		Cognitive Service管理的工具介紹完了，下一篇介紹開發Chatbot時候做POC或者UI的時候可以用到的好工具。
+		</p></section><section><h2 id="WizKMOutline_1535293037549630">參考資料</h2><dl><dt>
+				Microsoft Visual Studio Tools for AI
+			</dt><dd>
+				工具的Landing頁面：<a href="https://visualstudio.microsoft.com/zh-hant/downloads/ai-tools-vs/">https://visualstudio.microsoft.com/zh-hant/downloads/ai-tools-vs/</a></dd><dt>
+				工具下載的Marketplace連接
+			</dt><dd><a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.vstoolsai-vs2017">VS 2017</a>、<a href="https://marketplace.visualstudio.com/items?itemName=ms-toolsai.vstoolsai-vs2015">VS 2015</a></dd><dt>
+				官方文件介紹Cognitive Service相關的功能
+			</dt><dd><a href="https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/cognitive-services.md">https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/cognitive-services.md</a></dd><dt>
+				官方文件首頁
+			</dt><dd><a href="https://github.com/Microsoft/vs-tools-for-ai">英文</a>、<a href="https://github.com/Microsoft/vs-tools-for-ai/blob/master/docs/zh-hans/README.md">簡體中文</a></dd></dl></section>

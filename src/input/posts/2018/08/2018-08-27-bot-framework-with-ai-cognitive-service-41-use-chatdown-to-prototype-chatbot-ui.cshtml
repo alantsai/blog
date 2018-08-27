@@ -1,0 +1,80 @@
+Title: "[chatbot + AI = 下一代操作模式][41]使用Chatdown做Chatbot的UI Prototyping"
+Published: 2018-08-27 22:00
+Modified: 2018-08-27 22:00
+Image: "/posts/2018/08/2018-08-27-bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui/614e5e95-f673-4b9a-a5ef-88798ecf168e.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」","bot framework", "chatbot"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "在上一篇看完了管理以及使用Cognitive Service的好工具Microsoft Visual Studio Tools for AI
+這篇來看看開發Chatbot可以用到的工具Chatdown
+透過Chatdown建立出Chatbot的UI Prototyping"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-27-bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui/614e5e95-f673-4b9a-a5ef-88798ecf168e.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][41]使用Chatdown做Chatbot的UI Prototyping.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai">[40]Visual Studio Tools for AI - 用VS管理Cognitive Service的服務</a>)介紹完了管理Cognitive Service的好工具<em>Visual Studio Tools for AI</em>，這篇來看看另外一個協助開發Chatbot的工具<em>Chatdown</em>。</p><p>
+		來看看這個工具能夠提供什麽功能，并且如何協助Chatbot的開發。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1535379111492944" ;="" style="font-size: 15px; line-height: 1.6;">Chatdown是什麽？</a><br></li><li><a href="#WizKMOutline_1535379111492610" ;="" style="font-size: 15px; line-height: 1.6;">開始使用Chatdown</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1535379111492308" ;="" style="font-size: 15px; line-height: 1.6;">安裝Chatdown</a><br></li><li><a href="#WizKMOutline_1535379111493844" ;="" style="font-size: 15px; line-height: 1.6;">建立一個範例chat檔案</a><br></li><li><a href="#WizKMOutline_1535379111493543" ;="" style="font-size: 15px; line-height: 1.6;">把範例chat檔案轉換為transcript檔案</a><br></li><li><a href="#WizKMOutline_1535379111493268" ;="" style="font-size: 15px; line-height: 1.6;">用emulator看效果</a><br></li></ul><li><a href="#WizKMOutline_1535379111493592" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li><li><a href="#WizKMOutline_1535379111493614" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1535379111492944">Chatdown是什麽？</h2><p>
+		不管開發什麽類型的軟體，一般來説多多少少都要做一些UI Prototyping以協助和客戶溝通需求。
+		</p><p>
+		這些Prototyping的用途有用來確認UI是否正確，也有用來看使用流程是否符合需求，那到了Chatbot的開發，如何做這些Prototyping呢？
+		</p><p>
+		眼尖的朋友應該有發現，在V4版本的Bot Framework Emulator有提供一個功能是<code>Save Transcript as....</code>，能夠把對話過程儲存成爲<em>.transcript</em>的檔案，并且可以用Open Transcript的方式重新打開
+		看到之前的對話流程。
+		</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-27-bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui/49a0bb42-909b-4fc3-b680-2e445f20e8a9.png" border="0" alt=""><br><figcaption>Save Transcript as....的功能位置</figcaption></figure><p></p><p>
+		所以是不是能夠手動編輯這個Transcript檔案就可以用Bot Emulator作爲Chatbot開發的Prototype？
+		</p><p>
+		可是transcript檔案編輯起來可不容易，有沒有什麽編輯起來容易又能夠專程transcript的工具？
+		</p><p>
+		這個工具就是Chatdown，透過定義一個交談式的檔案（.chat檔），然後透過<code>chatdown</code>這個npm的程式就能夠轉成transcript檔案。
+		</p></section><section><h2 id="WizKMOutline_1535379111492610">開始使用Chatdown</h2><p>
+		上面瞭解了Chatdown是什麽了之後，接下來就看看怎麽使用這個工具：
+		</p><ol><li>安裝Chatdown</li><li>建立一個範例chat檔案</li><li>把範例chat檔案轉換為transcript檔案</li><li>用emulator看效果</li></ol><p></p><section><h3 id="WizKMOutline_1535379111492308">安裝Chatdown</h3><p><em>chatdown</em>是node js寫的一個工具，因此可以透過npm來安裝：<kbd>npm i -g chatdown</kbd>。
+			</p><div class="bs-callout bs-callout-warning">
+				這邊注意一下，nodejs要8.5以上版本。
+			</div><p>
+			安裝好了之後，直接輸入<kbd>chatdown</kbd>可以看到幫助訊息：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-27-bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui/0a87f2d4-91d6-4162-b95a-15c96285fe55.png" border="0" alt="powershell_2018-08-27_21-30-36.png"><br><figcaption>測試chatdown安裝成功</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1535379111493844">建立一個範例chat檔案</h3><p>
+			再來建立一個chat檔案，可以用任何的編輯器（例如notepad）建立一個檔案，結尾是.chat (這個沒有硬性規定，只是習慣)，然後可以輸入以下内容：
+</p><pre><code class="language-markdown">user=Joe
+bot=LulaBot
+
+bot: Hi!
+user: yo!
+bot:Greetings!
+What would you like to do?
+* update - You can update your account
+* List - You can list your data
+* help - you can get help
+
+user: I need the bot framework logo.
+
+bot:
+Here you go.
+[Attachment=https://docs.microsoft.com/en-us/bot-framework/media/how-it-works/architecture-resize.png]
+[Attachment=https://www.kayee.nl/wp-content/uploads/2017/05/bot-framework-logo-session.png]
+[AttachmentLayout=carousel]</code></pre><p></p><p>
+			透過直接看上面的内容，會發現其實不需要懂格式也大概知道整個流程是什麽。不過接下來就看看在Emulator看起來是什麽樣子。
+			</p></section><section><h3 id="WizKMOutline_1535379111493543">把範例chat檔案轉換為transcript檔案</h3><p>
+			接下來直接呼叫：<kbd>chatdown sample.chat &gt; sample.transcript</kbd></p><p>
+			執行完了之後，在資料夾的下面會多出一個<em>sample.transcript</em>的檔案。
+			</p></section><section><h3 id="WizKMOutline_1535379111493268">用emulator看效果</h3><p>
+			接下來用emulator看看效果。
+			</p><p>
+			開啓V4版本的emulator，然後開啓<em>File -&gt; Open Transcript File....</em>選擇剛剛產生的sample.transcript檔案。
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-27-bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui/e8ad1bf1-970c-4561-bc65-ca52fe31a480.png" border="0" alt="Bot Framework Emulator_2018-08-27_21-51-12.png"><br><figcaption>開啓transcript的按鈕</figcaption></figure><p></p><p>
+			開啓了之後，就可以看到好像是真的對話一樣的結果。這邊不止有文字類型，還有圖片類型的carousel，這個可以切換圖片：
+			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-27-bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui/024040fb-9eb3-47d2-b566-ae326ce2872d.png" border="0" alt="Bot Framework Emulator_2018-08-27_21-53-11.png"><br><figcaption>看到模擬結果</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1535379111493592">參考資料</h2><p>
+		這個工具還是滿直覺，并且裡面接受一些複雜的格式例如HeroCard，AdaptiveCard等等。這些我就不一一介紹，可以去參考官方的文件，看一下馬上就會了。
+		</p><dl><dt>
+				chatdown的工具首頁以及文件
+			</dt><dd><a href="https://github.com/Microsoft/botbuilder-tools/tree/master/packages/Chatdown">https://github.com/Microsoft/botbuilder-tools/tree/master/packages/Chatdown</a></dd><dt>
+				官方的範例chat檔案 - 這裡面有其他的複雜格式，例如adaptive card
+			</dt><dd><a href="https://github.com/Microsoft/botbuilder-tools/tree/master/packages/Chatdown/Examples">https://github.com/Microsoft/botbuilder-tools/tree/master/packages/Chatdown/Examples</a></dd></dl></section><section><h2 id="WizKMOutline_1535379111493614">結語</h2><p>
+		這篇介紹了chatdown的這個工具，這個工具可以用來做Chatbot開發的Prototyping用。透過做Prototyping不止在和客戶溝通的時候更加容易理解意思，并且整個的操作流程會有一個更加清晰地畫面，
+		讓工程師只需要專注在做，而不是<em>“猜測”</em>整個的操作流程。
+		</p><p>
+		這個系列要到了一個終點了，所謂結束才是剛剛要開始，下一篇將來Review一下在開篇介紹的Bot Builder的開發lifecycle，并且看看每一個步奏微軟都提供了什麽并且這個系列都介紹了什麽。
+		</p></section>

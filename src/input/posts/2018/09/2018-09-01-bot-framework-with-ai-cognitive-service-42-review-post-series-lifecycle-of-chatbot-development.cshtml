@@ -1,0 +1,82 @@
+Title: "[chatbot + AI = 下一代操作模式][42]回顧整個系列 - 開發Chatbot的整個生命周期"
+Published: 2018-09-01 20:30
+Modified: 2018-09-01 20:30
+Image: "/posts/2018/09/2018-09-01-bot-framework-with-ai-cognitive-service-42-review-post-series-lifecycle-of-chatbot-development/bc204a9c-760e-4616-86de-4b2f3854cb08.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」","bot framework", "chatbot", "cognitive service", "ai", "azure", "custom-vision", "qna-maker", "computer-vision", "speech-service"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇看完了這個系列的最後一篇工具介紹文，用chatdown做chatbot的prototype
+這篇來回顧整個系列，看一下在整個Chatbot的開發過程所需要的知識這個系列都介紹了多少"
+---
+<figure><img class="img-responsive" src="/posts/2018/09/2018-09-01-bot-framework-with-ai-cognitive-service-42-review-post-series-lifecycle-of-chatbot-development/bc204a9c-760e-4616-86de-4b2f3854cb08.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][42]回顧 - 開發Chatbot的整個生命周期.jpg"><br><figcaption>圖片來源：https:/pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure><section><p>
+		在上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui">[41]使用Chatdown做Chatbot的UI Prototyping</a><span style="font-size: 15px; line-height: 1.6;">)，介紹完了可以用來做Prototyping的UI工具Chatdown之後，這個系列想要介紹的東西都介紹完了。</span></p><p>
+		這篇想要整個重新在review一次整個開發chatbot的開發流程（lifecycle），并且看看再每一個環節這個系列都介紹了什麽可以使用。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1535803532296784" ;="" style="font-size: 15px; line-height: 1.6;">Chatbot的開發流程</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1535803532296282" ;="" style="font-size: 15px; line-height: 1.6;">Plan 階段</a><br></li><li><a href="#WizKMOutline_1535803532296892" ;="" style="font-size: 15px; line-height: 1.6;">Build 階段</a><br></li><li><a href="#WizKMOutline_1535803532296836" ;="" style="font-size: 15px; line-height: 1.6;">Test 階段</a><br></li><li><a href="#WizKMOutline_1535803532296967" ;="" style="font-size: 15px; line-height: 1.6;">Publish 階段</a><br></li><li><a href="#WizKMOutline_1535803532296455" ;="" style="font-size: 15px; line-height: 1.6;">Connect 階段</a><br></li><li><a href="#WizKMOutline_1535803532296441" ;="" style="font-size: 15px; line-height: 1.6;">Evaluate 階段</a><br></li></ul><li><a href="#WizKMOutline_1535803532296939" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div><section></section><!--more--><section><h2 id="WizKMOutline_1535803532296784">Chatbot的開發流程</h2><p>
+		還記得下面這張圖嗎？這張圖在(02 bbb)的時候有介紹過，這個其實不只是針對chatbot，而是軟件開發基本上都會經歷過的流程：
+		</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-01-bot-framework-with-ai-cognitive-service-42-review-post-series-lifecycle-of-chatbot-development/7ab21ed8-a513-45f3-badb-e610ff7280cb.png" border="0" alt="93487305-17b0-4c95-9c25-30e3960b4df4.png"><br><figcaption>圖片原始來源，以及一些參考資訊可以看： https:/docs.microsoft.com/en-us/azure/bot-service/bot-service-overview-introduction</figcaption></figure><p></p><p>
+		現在這個系列介紹到了尾聲，可以看的出來那些篇幅屬於那個環節嗎？
+		</p><section><h3 id="WizKMOutline_1535803532296282">Plan 階段</h3><p>
+			好的開始是成功的一半，因此Plan的完不完整，瞭不瞭解需求以及問題，打算怎麽開發，整合那些服務都是在plan階段要做的事情。
+			</p><p>
+			有些在Plan階段可以思考的問題：
+			</p><ol><li>找到<em>end user</em>是誰，他們的<em>問題</em>是什麽，chatbot能夠怎麽<em>解決</em>他們的問題</li><li>定義chatbot是怎麽和end user<em>溝通</em> - 例如透過文字、卡片式、語音還是客製方式？</li><li>整個<em>交談過程</em>是怎麽個方式執行：一來一回、引導式、上下文對應式</li><li>使用什麽語言開發 - 偏工程面需要考量，要用什麽語言開發，甚至用什麽框架開發</li></ol><p></p><p>
+        上面的問題完全會影響之後在開發的時候的開發方式，因此Plan階段好好想，可以少走很多冤枉路。
+			</p><p>
+			微軟在Plan這個階段提供了一些工具幫助Planning變得更加簡單，其中最重要的是Chatdown + Bot Emulator來做Prototyping。透過這個工具，能夠定義出：
+			</p><ol><li>Chatbot流程怎麽走</li><li>對話用什麽方式 - 文字、卡片式還是一些特殊的卡片</li><li>交談模式是什麽</li></ol><p></p><p>
+			當SA和用戶透過這個確認好需求之後，工程師照著做舊肯定沒有問題，詳細可以參考：&nbsp;<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui" style="font-size: 15px; line-height: 1.6;">[41]使用Chatdown做Chatbot的UI Prototyping</a><span style="font-size: 15px; line-height: 1.6;">&nbsp; &nbsp;</span></p><div class="bs-callout bs-callout-warning">
+				這個系列不focus太多在Plan，而在後面的階段。但是實際上和任何軟體開發一樣，Plan做不好，基本上整個Project都會gg。因此，建議多花點時間在這個上面。
+			</div></section><section><h3 id="WizKMOutline_1535803532296892">Build 階段</h3><p>
+			Build階段就是實際開始往下去開發啦，在這個部分不止Chatbot本身的開發，還包含其他服務的串接例如Cognitive Service。
+			</p><p>
+			在整個系列主要Focus的都是Build階段的部分：
+			</p><dl><dt>
+					Bot Builder基本概念
+				</dt><dd><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-1-introduction-what-is-caap-why-learn-bot-framework-and-cognitives-service">[01]開篇 - CaaP是什麽，爲什麽應該學</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture">[02]微軟的Bot Framework是什麽？</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">[03]建立第一個chatbot - EchoBot</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-4-bot-builder-architecture">[04]瞭解BotBuilder的組成</a><br></li></ol></dd><dt>
+					IDialog、卡片式、FormFlow的使用方式
+				</dt><dd><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state">[05]深入IDialogContext - 處理上下文、對外的聯係和state</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-6-rich-output-style-different-card-style-and-adaptive-card">[06]不只能輸出文字 - 看看各種内建卡片模式以及可自定的Adaptive Card</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot">[07]使用FormFlow讓Chatbot搜集表單資訊更容易</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience">[08]如何微調FormFlow讓使用上更流暢</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc">[09]使用IDialog來實現SoC</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-10-refactor-all-using-idialog-and-show-built-in-idialog">[10]用IDialog全部重構 - 階段性總結</a><br></li></ol></dd><dt>
+					整合語言識別LUIS
+				</dt><dd><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-17-text-semantic-recognition-service-luis-concept-intro">[17]語義識別服務 - LUIS概念介紹</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise">[18]在LUIS建立app - 概念變成實作</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot">[19]把LUIS和BotBuilder整合</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-20-define-entities-in-luis">[20]LUIS深入使用 - 定義Entities來截取參數</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder">[21]LUIS深入使用 - 如何在BotBuilder使用entities</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key">[22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key</a></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro">[23]LUIS管理工具 - luis-api和LUDown介紹</a><br></li></ol></dd><dt>
+					整合Computer Vision做到OCR
+				</dt><dd><ol><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-24-cognitive-service-vision-intro-computer-vision-overview">[24]圖像識別的服務 - Computer Vision概觀介紹</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman">[25]使用Computer Vision - 如何設定、看文件以及使用REST API測試</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-26-allow-chatbot-to-recognize-receipt-number-using-ocr">[26]賦予chatbot OCR的能力 - 加入對發票的功能</a><br></li></ol></dd><dt>
+					使用Custom Vision自己建立image classifier的Model
+				</dt><dd><ol><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier">[27]Custom Vision - 自己的Model自己Train 建立圖片的分類模型</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-28-integrate-custom-vision-into-chatbot">[28]整合Custom Vision到chatbot - 拍照就可以識別價錢</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-29-improve-custom-vision-model-by-history-prediction-and-version-control-with-iteration">[29]維護Custon Vision Model - 使用歷史查詢記錄做訓練以及如何版控</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-30-use-confusion-matrix-calculate-recall-and-precision-to-evaluate-classifier-model">[30]Confusion Matrix - 用來衡量Classifier Model的方式 Precision和Recall</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-31-export-custom-vision-trained-model-and-use-dockerfile-to-run-locally">[31]Custom Vision Train好的Model匯出離線和給app使用</a><br></li></ol></dd><dt>
+					使用Translator Speech API做語音轉文字
+				</dt><dd><ol><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-32-overview-speech-service-provided-in-cognitive-service">[32]Cognitive Service語音服務相關介紹</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-33-use-translator-speech-to-turn-speech-into-text-with-translation">[33]C#使用Translator Speech API服務達到語音轉文字加翻譯</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language">[34]賦予Chatbot用語音下指令以及翻譯的功能</a></li></ol></dd><dt>
+					使用QnA Maker建立知識庫
+				</dt><dd><ol><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-35-intro-to-QnAMaker-create-qa-knwoledge-index">[35]使用QnA Maker打造問答知識類型資料集服務</a></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot">[36]Chatbot整合QnAMaker - 使用對話查找知識集</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool">[37]維護QnA Maker的知識庫 - 設定url或者檔案為來源、多人維護以及離綫定義知識庫</a><br></li></ol></dd><dt>
+					維護Cognitive Service的小工具
+				</dt><dd><ol><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro">[23]LUIS管理工具 - luis-api和LUDown介紹</a></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-40-manage-cognitiver-service-using-visual-studio-tools-for-ai">[40]Visual Studio Tools for AI - 用VS管理Cognitive Service的服務</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-41-use-chatdown-to-prototype-chatbot-ui">[41]使用Chatdown做Chatbot的UI Prototyping</a><br></li></ol></dd></dl></section><section><h3 id="WizKMOutline_1535803532296836">Test 階段</h3><p>
+			開發過程當然需要不斷的測試功能避免開發出來的東西不如預期。
+			</p><div class="bs-callout bs-callout-warning">
+				廣義來説，Test應該包含多個層面，除了功能/UI的測試之外（這個系列只有看的地方），還應該包含細部的程式碼測試像是Unit Test和最後的整合測試。
+			</div><p>
+			這邊主要的測試工具還是Bot Emulator測試執行結果：
+			</p><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">[03]建立第一個chatbot - EchoBot</a></li></ol><p></p></section><section><h3 id="WizKMOutline_1535803532296967">Publish 階段</h3><p>
+			開發好了，測試也完成了，這個時候就是要發佈上去給大家做測試了。
+			</p><p>
+			使用Bot Framework有至少兩個服務需要發佈：
+			</p><ol><li>Bot Channel Registration - 注冊Bot的地方，管理Connect 階段的部分</li><li>Bot程式碼的hosting位置</li></ol><p></p><p>
+			發佈Bot程式碼host<em>在Azure</em>上面有兩個做法：
+			</p><ol><li>Web App</li><li>Azure Function - 這個沒有介紹有興趣可以看看屬於Azure的Serverless服務</li></ol><p>
+			一些和publish有關的文章：
+			</p><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-11-publish-chatbot-to-azure-app-service-prepare-for-release">[11]準備上綫 - chatbot發佈到Azure App Service</a></li></ol></section><section><h3 id="WizKMOutline_1535803532296455">Connect 階段</h3><p>
+			Bot Framework的好處之一是寫一次，多個平臺可以使用。這個就是透過Bot Channel Registration來控制。
+			</p><p>
+			這系列介紹了兩個Channel，FB以及Direct Line。有了Direct Line其實任何平臺都可以接的上：
+			</p><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-12-create-and-configure-bot-channel-registration">[12]準備上綫 - 用Bot Channel Registration注冊chatbot</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-13-register-web-control-channel">[13]上綫 - 開啓web control channel</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-14-register-chatbot-with-facebook-messenger">[14]上綫 - 把facebook粉絲頁和chatbot接上</a><br></li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program">[15]上綫 - 透過Direct Line把chatbot和任意程式做連接</a><br></li></ol><p>
+			因此，像是微信、Line這些不再内建Channel裡面要提供和内建Channel例如FB的一致體驗也是沒有問題。
+			</p></section><section><h3 id="WizKMOutline_1535803532296441">Evaluate 階段</h3><p>
+			上線了之後，最重要的一點是持續的追蹤以及精進。因爲End User使用的方式，可能和當初<em>預期的不同</em>。
+			</p><p>
+			這個時候，把程式碼做調整，或者把Cognitive Service做調整就變得非常的重要。
+			</p><p>
+			和Evaluate有關這個系列介紹了：
+			</p><ol><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key">[22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-30-use-confusion-matrix-calculate-recall-and-precision-to-evaluate-classifier-model">[30]Confusion Matrix - 用來衡量Classifier Model的方式 Precision和Recall</a><br></li><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-38-use-application-insight-to-find-how-user-is-using-qnamaker">[38]用Application Insight看使用者都在QnA Maker查什麽</a><br></li></ol></section></section><section><h2 id="WizKMOutline_1535803532296939">結語</h2><p>
+		這篇可以看作是這個系列的一個總綱，透過這個可以看到要完成開發一個Chatbot并且持續精進沒有想象中的困難，但是也沒有想象中的簡單。
+		</p><p>
+		Chatbot和任意的程式開發一樣，要快速開發出來可以，但是要做的很好需要花很多功夫在計劃以及設計上面。
+		</p><p>
+		這篇除了做個總結之外，另外一個目的是想點出每一個階段其實還有很多可以在看的地方。在這個系列不會在介紹這些，不過未來的部落格文章還是有可能會介紹，因此別忘記持續關注幾個有關的tag哦
+		</p><ol><li><a href="/tags/chatbot">chatbot</a></li><li><a href="/tags/cognitive-service">cognitive-service</a></li><li><a href="/tags/ai">ai</a></li></ol><p></p><p>
+		這篇看完了過去，下一篇想看看未來，也就是下一步怎麽走？如果對AI以及Chatbot開發想更深入應該看哪方面。
+		</p></section></section>

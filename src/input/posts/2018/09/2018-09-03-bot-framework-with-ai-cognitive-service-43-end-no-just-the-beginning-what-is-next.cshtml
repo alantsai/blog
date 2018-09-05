@@ -1,0 +1,95 @@
+Title: "[chatbot + AI = 下一代操作模式][43]结束？一切正要開始 - 下一步是什麽"
+Published: 2018-09-03 23:30
+Modified: 2018-09-03 23:30
+Image: "/posts/2018/09/2018-09-03-bot-framework-with-ai-cognitive-service-43-end-no-just-the-beginning-what-is-next/eedf5866-bc42-432b-bb09-0bba1e2e12ae.jpg"
+Tags: ["「chatbot + AI = 下一代操作模式」","bot framework", "chatbot", "cognitive service", "ai", "azure"]
+Series: ["「chatbot + AI = 下一代操作模式」"]
+PostDescription: "上一篇看完了歷史，這篇就來看未來。
+做爲這個系列的終章提供的是接下來可以去看的方向
+這邊列出了幾個可以繼續鑽研下去的地方：包含Bot Builder V4、ML.Net等等AI相關的服務
+科技類型的知識就是如此，結束的只是基礎，下一階段還有好多東西可以學"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-03-bot-framework-with-ai-cognitive-service-43-end-no-just-the-beginning-what-is-next/eedf5866-bc42-432b-bb09-0bba1e2e12ae.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][43]结束？一切正要開始 - 下一步是什麽.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/bot-framework-with-ai-cognitive-service-42-review-post-series-lifecycle-of-chatbot-development">[42]回顧整個系列 - 開發Chatbot的整個生命周期</a>)把整個系列文章review完了之後，算是把整個系列寫下了一個句點。</p><p>
+		不過，下一步是什麽？依照關注的方向點不同可以往不同的地方鑽研。這篇將介紹接下來可以看的不同方向。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1535989180209306" ;="" style="font-size: 15px; line-height: 1.6;">Microsoft Conversational AI</a><br></li><li><a href="#WizKMOutline_1535989180210487" ;="" style="font-size: 15px; line-height: 1.6;">AI</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1535989180210201" ;="" style="font-size: 15px; line-height: 1.6;">Cognitive Service</a><br></li><li><a href="#WizKMOutline_1535989180210158" ;="" style="font-size: 15px; line-height: 1.6;">Azure Machine Learning Studio</a><br></li><li><a href="#WizKMOutline_1535989180210144" ;="" style="font-size: 15px; line-height: 1.6;">ML.Net</a><br></li></ul><li><a href="#WizKMOutline_1535989180210932" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1535989180209306">Microsoft Conversational AI</h2><p>
+		在這個系列裡面還沒有談過一個詞，也就是<em>Microsoft Conversational AI</em>。
+		</p><p><em>Conversational AI</em>其實指的是下一代的UI/UX模式，用更通俗一點的説法就是Chatbot。
+		</p><p>
+		搞懂了<em>Conversational AI</em>，那麽<em>Microsoft Conversational AI</em>就不難理解了，也就是Bot Framework。
+		</p><p>
+		如果說你在這個系列對於Chatbot這塊最感興趣的話，那麽建議可以看Bot Builder v4。
+		</p><p>
+		雖然説Bot Builder v4還在Preview，不過v4是從v3開發者那邊得到的feedback之後<em>rewrite（重寫）</em>過的版本。相較於V3，V4有幾個特點：
+		</p><ol><li>V4支援更多語言：Javascript、.Net、Python、Java</li><li>V4使用.Net Core v2.0 - .Net Core代表chatbot可以host在非Windows的OS下面，并且2.0屬於比較可以使用的版本</li><li>基本概念和V3一樣 - 雖然是重寫但是大部分的概念和V3差不多，因此學習起來不應該有太多障礙</li></ol><p></p><p>
+		一些參考的資源：
+		</p><dl><dt>
+				V4的Source Code
+			</dt><dd><a href="https://github.com/Microsoft/botbuilder-dotnet">https://github.com/Microsoft/botbuilder-dotnet</a></dd><dt>
+				V4的官方文件
+			</dt><dd><a href="https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0">https://docs.microsoft.com/en-us/azure/bot-service/?view=azure-bot-service-4.0</a></dd><dt>
+				V4的Sample - Contoso Cafe
+			</dt><dd><a href="https://github.com/Microsoft/BotFramework-Samples/tree/contosocafe-v4-dotnet/docs-samples/V4/dotnet/ContosoCafe">https://github.com/Microsoft/BotFramework-Samples/tree/contosocafe-v4-dotnet/docs-samples/V4/dotnet/ContosoCafe</a></dd><dt>
+				關注我的部落格<code>bot framework</code>標簽
+			</dt><dd>
+				之後可能會開一個V4相關的系列（還不確定 - 有興趣可以給我留言），可以關注這個標簽就會看到最新的文章<a href="https://blog.alantsai.net/tags/bot-framework">https://blog.alantsai.net/tags/bot-framework</a></dd></dl></section><section><h2 id="WizKMOutline_1535989180210487">AI</h2><p>
+		這個系列的另外一塊就是AI，如果説對AI這個部分有興趣的話，那麽可以看看微軟在AI這個部分的佈局<em>Microsoft AI Platform</em>：
+		</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-03-bot-framework-with-ai-cognitive-service-43-end-no-just-the-beginning-what-is-next/9801d123-34d0-4302-b401-22c3ae5cc062.png" border="0" alt="POWERPNT_2018-09-03_22-44-55.png"><br><figcaption>AI Service in Azure</figcaption></figure><p></p><p>
+		上面的圖提到的三個是在Azure上面和AI有關的部分：
+		</p><ol><li>Cognitive Service - 已經建立好的可以直接使用的AI Model</li><li>Conversational AI - Chatbot</li><li>Azure Machine Learning Studio - 自己建立Model</li></ol><p></p><p>
+		除了在Azure上面的服務之外，還有別的模組，例如<em>ML.Net</em>就是一個用來建立自己Model的Framework。
+		</p><p>
+		下面分別在深入一點點介紹一下除了Conversational AI的其他部分。
+		</p><section><h3 id="WizKMOutline_1535989180210201">Cognitive Service</h3><p>
+			Cognitive Service是微軟已經建立好AI Model的一個API服務。因此，可以完全不懂任何AI相關的知識就可以賦予程式AI的能力。而且最特別的是，有些服務還可以有限度的自己Train - 換句話説可以符合自己的Problem Domain。
+			</p><p>
+			在這個系列介紹了不少的Cognitive Service的服務，但是其實還有好多個來不及介紹。實際上本來我想要延長這個系列把剩下幾個也很有意思的Cognitive Service也介紹完，
+			不過後來想一想，這些還是拆開做介紹，因爲Cognitive Service不一定要<em>綁死</em>在Chatbot。今天Python要使用也可以使用，因爲他就只是<em>REST Api</em>而已。
+			</p><p>
+			一些參考資源：
+			</p><dl><dt>
+					官方介紹
+				</dt><dd>
+					官方永遠是最新資料的來源，因此有任何問題看官方介紹：<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/">https://azure.microsoft.com/zh-tw/services/cognitive-services/</a></dd><dt>
+					Cognitive Service Lab
+				</dt><dd>
+					這個有點像是Cognitive Service的超級preview - 讓你可以看看微軟都在嘗試建立一些什麽新的Cognitive Service服務：<a href="https://labs.cognitive.microsoft.com/">https://labs.cognitive.microsoft.com/</a></dd><dt>
+					關注我的部落格<code>cognitive service</code>標簽
+				</dt><dd>
+					未來會有更多文章介紹Cognitive Service的服務，記得關注這個標簽即可：<a href="https://labs.cognitive.microsoft.com/">https://labs.cognitive.microsoft.com/</a></dd></dl></section><section><h3 id="WizKMOutline_1535989180210158">Azure Machine Learning Studio</h3><p>
+			還記得之前有一個沒完成的系列<a href="https://blog.alantsai.net/tags/%E3%80%8Cdata-science-%E5%88%B0%E5%BA%95%E6%98%AF%E4%BB%80%E9%BA%BC%E5%BE%9E%E4%B8%80%E5%80%8B%E5%AE%8C%E5%85%A8%E5%A4%96%E8%A1%8C%E8%A7%92%E5%BA%A6%E4%BE%86%E7%9C%8B%E3%80%8D">「data science 到底是什麼從一個完全外行角度來看」</a>介紹的是如何自己建立AI Model。
+			</p><p>
+			那個系列要介紹的是建立AI Model所需要的一些基本知識，并且如何把這些知識轉換成AI Model。
+			</p><p>
+			可是，如果今天你知道這些知識，但是<em>不會寫code</em>怎麽辦？在學習R或Python可能花太多時間/精力。
+			</p><p>
+			這個時候就可以使用Azure Machine Learning Studio。
+			</p><p>
+			可以把Azure Machine Learning Studio理解爲用GUI方式定義出整個AI的Model建立流程而不需要懂如何寫code（當然，還是需要知道Data Science那些知識）
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-03-bot-framework-with-ai-cognitive-service-43-end-no-just-the-beginning-what-is-next/f892ea51-b327-4795-9184-8baf3ce3bbaf.png" border="0" alt="chrome_2018-09-03_23-17-51.png"><br><figcaption>一個簡單模型的定義</figcaption></figure><div class="bs-callout bs-callout-info">
+				題外話，Azure Machine Learning = Azure Machine Learning Studio。
+			</div><p>
+			參考資料：
+			</p><dl><dt>
+					官方介紹
+				</dt><dd><a href="https://azure.microsoft.com/zh-tw/services/machine-learning-studio/">https://azure.microsoft.com/zh-tw/services/machine-learning-studio/</a></dd><dt>
+					文件
+				</dt><dd><a href="https://docs.microsoft.com/zh-tw/azure/machine-learning/studio/">https://docs.microsoft.com/zh-tw/azure/machine-learning/studio/</a></dd></dl></section><section><h3 id="WizKMOutline_1535989180210144">ML.Net</h3><p>
+			傳統來説，如果要建立AI的Model需要透過像是R或者Python這些語言才能夠做到。
+			</p><p>
+			不過近年來微軟在這個部分也有做出大力的投資，像是和Facebook一起推行的AI Model open格式<code>ONNX</code>，以及用.Net Core建立Model的Framework<code>ML.Net</code>。
+			</p><p>
+			簡單的說，透過ML.Net就可以用.Net Core建立出AI的Model，讓開發AI Model變得更加的容易。
+			</p><dl><dt>
+					官方介紹
+				</dt><dd><a href="https://www.microsoft.com/net/learn/apps/machine-learning-and-ai/ml-dotnet">https://www.microsoft.com/net/learn/apps/machine-learning-and-ai/ml-dotnet</a></dd><dt>
+					文件
+				</dt><dd><a href="https://docs.microsoft.com/zh-tw/dotnet/machine-learning/">https://docs.microsoft.com/zh-tw/dotnet/machine-learning/</a></dd></dl></section></section><section><h2 id="WizKMOutline_1535989180210932">結語</h2><p>
+		作爲這個系列的最後一篇，介紹了接下來可以看的地方，以及一些參考的資料。
+		</p><p>
+		AI是未來已經是一個顯學的東西，因此花時間在這個上面肯定不會有錯。
+		</p><p>
+		這個系列結束之後，接下來可能介紹兩個部分：
+		</p><ol><li>Cognitive Service把其他幾個沒提到的服務介紹完</li><li>ML.Net - 這個其實是很有趣的Framework，雖然還在很early的preview，但是蠻好玩</li></ol><p></p><p>
+		各位，下篇再見。
+		</p></section>

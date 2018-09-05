@@ -1,0 +1,64 @@
+Title: "[Cognitive Service之Face Api][01]人臉識別的AI服務 - Face API能夠做什麽？"
+Published: 2018-09-04 22:30
+Modified: 2018-09-04 22:30
+Image: "/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/7c097362-eeea-42b2-9ec8-4d5ffb03a92c.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "這個系列要介紹Cognitive Service裡面的Face Api服務
+這個服務主要用來做圖片裡面的人臉識別
+聽起來是不是還有點抽象？人臉識別指的是什麽？
+這篇來看看Face Api能夠做到什麽"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/7c097362-eeea-42b2-9ec8-4d5ffb03a92c.jpg" border="0" alt="[Cognitive Service之Face Api]人臉識別的AI服務 - Face API能夠做什麽？.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		Face Api是微軟的Cognitive Service(認知服務)Vision(視覺)裡面的一個服務。
+		</p><p>
+		最主要的目的是用來處理和<em>人臉識別</em>有關的AI功能。
+		</p><p>
+		這篇從Overview的角度來看看Face API能夠做什麽，然後這個系列會介紹什麽。
+		</p></section><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1536159365709471" kmcontenthide="1">相關文章：</h4><ul><li><a href="/tags/cognitive-service">cognitive service有關的文章</a></li></ul></div>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1536159490499474" ;="" style="font-size: 15px; line-height: 1.6;">Face API提供什麽服務？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1536159490499681" ;="" style="font-size: 15px; line-height: 1.6;">Face Detection</a><br></li><li><a href="#WizKMOutline_1536159490499516" ;="" style="font-size: 15px; line-height: 1.6;">Face Verification</a><br></li><li><a href="#WizKMOutline_1536159490499479" ;="" style="font-size: 15px; line-height: 1.6;">Find similar faces</a><br></li><li><a href="#WizKMOutline_1536159490499656" ;="" style="font-size: 15px; line-height: 1.6;">Face Grouping</a><br></li><li><a href="#WizKMOutline_1536159490499536" ;="" style="font-size: 15px; line-height: 1.6;">Face Identification</a><br></li></ul><li><a href="#WizKMOutline_1536159490499634" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1536159490499730" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1536159490499474">Face API提供什麽服務？</h2><p>
+			Face Api有兩大類的服務：
+			</p><ol><li><em>Face Detection</em> - 用來識別圖片裡面的人臉的位置以及人臉的一些相關信息例如年紀、性別等</li><li><em>Face Recognition</em> - 這一類的服務有4種不同的服務
+					<ol><li><em>Face Verification</em> - 用來驗證兩個圖片的人臉是不是同一個人</li><li><em>Find similar faces</em> - 從一堆圖片裡面找出和這個圖片人臉有關的圖片</li><li><em>Face Grouping</em> - 把一堆圖片的人臉做分類</li><li><em>Face Identification</em> - 判別圖片的人臉是誰</li></ol></li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/283d3c4b-41af-4ae2-a2df-8cf7d4123305.png" border="0" alt="XMind_2018-09-05_22-25-42.png"><br><figcaption>整個Face Api的服務</figcaption></figure><p>
+		因此，整體來説Face Api有5個服務接下來看看這些服務使用起來大概是什麽感覺。
+		</p><div class="bs-callout bs-callout-warning">
+			Face Api其實還有一些別的服務，例如建立PersonGroup以及Person等，不過這些不屬於直接使用的服務因此沒有算。
+		</div><section><h3 id="WizKMOutline_1536159490499681">Face Detection</h3><p>
+			這個服務能夠識別圖片裡面的人臉不同的訊息包含：
+			</p><ol><li>人臉在圖片的位置 - 甚至可以到臉部各個位置</li><li>人臉的年齡</li><li>人臉的性別</li><li>人臉的表情</li></ol><p></p><p>
+			下圖就是一個人臉識別性別以及年紀的用途：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/7f52e81c-6bc7-4bf0-abd2-5655e13577c8.png" border="0" alt="chrome_2018-09-05_22-26-08.png"><br><figcaption>看得到人臉的性別以及年齡</figcaption></figure><p></p><p>
+			這個可以在官方介紹的網頁做測試：<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/face/">https://azure.microsoft.com/zh-tw/services/cognitive-services/face/</a></p></section><section><h3 id="WizKMOutline_1536159490499516">Face Verification</h3><p>
+			這個服務能夠比對兩張圖片裡面的人臉是不是同一個人。
+			</p><div class="bs-callout bs-callout-info">
+				也可以比對建立好的Person model，看看圖片是不是和某個Person是同一個人。
+			</div><figure><img class="img-responsive" src="/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/1685e8ab-53c1-4760-a38c-0efc6c261474.png" border="0" alt="chrome_2018-09-05_22-29-40.png"><br><figcaption>例如這兩張圖片的人臉不屬於同一個人</figcaption></figure><p>
+			這個其實可以用來做一些安控相關的應用，例如符合某個人才可以開門。
+			</p><p>
+			這個也可以在官方介紹的網頁做測試：<a href="https://azure.microsoft.com/zh-tw/services/cognitive-services/face/">https://azure.microsoft.com/zh-tw/services/cognitive-services/face/</a></p></section><section><h3 id="WizKMOutline_1536159490499479">Find similar faces</h3><p>
+			可以想象一下，如果在一堆相片裡面要找出和某一張圖片裡面的人臉有關的全部都找到，這個時候就可以使用這個服務。
+			</p><p>
+			這個服務有兩種模式，一個是對face，一個是對person。
+			</p><p>
+			下面這張圖，如果是對person，那麽只會出現(a)和(b)，對face就如下圖：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/dc6998c8-6151-46bc-8333-69b935787cbc.png" border="0" alt="chrome_2018-09-05_22-34-42.png"><br><figcaption>找類似人臉的圖片</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1536159490499656">Face Grouping</h3><p>
+			可以把一堆圖片透過這個服務直接把相關的人臉圖片歸在一起。
+			</p><div class="bs-callout bs-callout-info">
+				使用到的情景比較少 - 可能在整理圖片就很有用途。
+			</div></section><section><h3 id="WizKMOutline_1536159490499536">Face Identification</h3><p>
+			Face Api允許建立Person模型，因此可以透過training的方式訓練出Person模型。
+			</p><p>
+			這個時候拿出任何一張圖片，可以透過這個service識別出圖片裡面的人臉是誰。
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-04-cognitive-service-face-api-01-what-is-it-and-what-can-it-do/7fda933b-54ac-4c91-86e4-73fca876e0bc.png" border="0" alt="chrome_2018-09-05_22-43-03.png"><br><figcaption>person會在personGroup裡面，然後任意圖片就可以找找可能是裡面的誰</figcaption></figure></section></section><section><h2 id="WizKMOutline_1536159490499634">結語</h2><p>
+		這篇快速介紹了Face Api這個人臉識別的服務。這個服務裡面有5個不同人臉識別有關的服務。
+		</p><p>
+		接下來這個系列將環繞介紹這5個服務在實際裡面如何使用。
+		</p><p>
+		下一篇先從Detect的部分開始介紹起。看看Detect的API怎麽呼叫，并且有什麽參數可以傳入取得不同的資訊。
+		</p></section><section><h2 id="WizKMOutline_1536159490499730">參考資料</h2><dl><dt>
+					官方Face API的Overview
+				</dt><dd><a href="https://docs.microsoft.com/en-us/azure/cognitive-services/face/overview">https://docs.microsoft.com/en-us/azure/cognitive-services/face/overview</a></dd></dl></section>

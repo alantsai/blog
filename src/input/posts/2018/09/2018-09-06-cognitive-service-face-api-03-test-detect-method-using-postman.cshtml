@@ -1,0 +1,69 @@
+Title: "[Cognitive Service之Face Api][03]人臉識別的AI服務 - 用Postman測試Detect服務能做什麽"
+Published: 2018-09-06 23:30
+Modified: 2018-09-06 23:30
+Image: "/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/c9fb7196-6906-4d29-a18a-42942cd9ae78.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇看完了要用Face Api所需要的准備了之後
+這一篇就來實際測試一下，用postman測試一下Detect能夠做到什麽程度"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/c9fb7196-6906-4d29-a18a-42942cd9ae78.jpg" border="0" alt="[Cognitive Service之Face Api][03]人臉識別的AI服務 - 用Postman測試Detect服務能做什麽.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-02-how-to-prepare-for-using-face-api">[02]人臉識別的AI服務 - 要使用Face Api的準備</a>)介紹完了要使用Face Api所需要準備的東西之後。</p><p>
+		這篇來實際看看Face Api裡面的Detect服務能夠做到什麽。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1536250156874551" ;="" style="font-size: 15px; line-height: 1.6;">準備好測試Detect服務的環境</a><br></li><li><a href="#WizKMOutline_1536250156874409" ;="" style="font-size: 15px; line-height: 1.6;">測試Detect功能</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1536250156874334" ;="" style="font-size: 15px; line-height: 1.6;">不修改預設參數的情況下</a><br></li><li><a href="#WizKMOutline_1536250156874391" ;="" style="font-size: 15px; line-height: 1.6;">打開returnFaceLandmark</a><br></li><li><a href="#WizKMOutline_1536250156874566" ;="" style="font-size: 15px; line-height: 1.6;">打開returnFaceAttributes</a><br></li></ul><li><a href="#WizKMOutline_1536250156874146" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1536250156874802" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1536250156874551">準備好測試Detect服務的環境</h2><p>
+		Face Api就是一個REST Api的服務，因此可以用一個REST Api的Client就好，例如Postman。
+		</p><p>
+		然後另外一個是要找到要測試的圖片網址。這邊使用一張官方的範例圖片：<a href="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/detection1.jpg">鏈接</a></p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/821e5018-eaf1-4ade-882d-1a8c4400e128.png" border="0" alt="chrome_2018-09-06_23-21-15.png"><br><figcaption>範例圖片</figcaption></figure><p></p><p>
+		最後，當然要記得上一篇所建立出來的face api key。
+		</p></section><section><h2 id="WizKMOutline_1536250156874409">測試Detect功能</h2><p>
+		要測試之前要先瞭解怎麽呼叫這個API：
+		</p><dl><dt>
+				Url的部分
+			</dt><dd><p>
+				完整的url是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0/detect</code></p><p>
+				這邊要注意的是當初建立的face api服務的地址在哪裏。以我的例子是<code>eastasia</code>，因此我的完整url是：
+				</p><p><code>https://eastasia.api.cognitive.microsoft.com/face/v1.0/detect</code></p></dd><dt>
+				Url的Query String參數
+			</dt><dd>
+				總共有以下幾個參數：
+				<ol><li><em>returnFaceId</em>：預設是<em>true</em>。如果是true的話會取得圖片裡面人物的時候會取得Face id。</li><li><em>returnFaceLandmarks</em>：預設是<em>false</em>。這個如果是<code>true</code>會得到臉部位置的資訊。</li><li><em>returnFaceAttributes</em>：這個欄位是一個string，透過csv的格式能夠取得人臉的不同訊息。</li></ol></dd><dt>
+				Header
+			</dt><dd>
+				兩個參數要傳入：
+				<ol><li><em>Content-Type</em>：可以傳圖片的binary或者是一個url的方式。因此取決於傳入的格式，這邊設定對應的值</li><li><em>Ocp-Apim-Subscription-Key</em>：輸入上一篇取得的face api key</li></ol></dd><dt>
+				Body
+			</dt><dd>
+				可以傳入圖片的url，或者實際的圖片binary。
+			</dd></dl><p>
+		接下來測試幾個方式：
+		</p><ol><li>不修改預設參數的情況下</li><li>打開<code>returnFaceLandmark</code></li><li>打開<code>returnFaceAttributes</code></li></ol><p></p><section><h3 id="WizKMOutline_1536250156874334">不修改預設參數的情況下</h3><p>
+			在預設沒有任何參數的情況下，可以看到有找到圖片的人臉位置的方塊的四個角的位置：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/dede0080-d20f-4c79-a565-5a5aec29c04e.png" border="0" alt="Postman_2018-09-06_23-38-16.png"><br><figcaption>看取得的結果</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1536250156874391">打開<code>returnFaceLandmark</code></h3><p>
+			這個時候加上一個query string：<code>returnFaceLandmark</code>然後設定為<code>true</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/a647e8ed-8633-45e9-871d-d60d2477f6a6.png" border="0" alt="Postman_2018-09-06_23-40-30.png"><br><figcaption>landmark的作用</figcaption></figure><p></p><p>
+			這個時候可以看到人臉的不同地方都被列出來。
+			</p><p>
+			這個服務總共有27個臉部位置可以被找到位置：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/3d69c053-2a2a-4e0f-815c-67c1f5462140.png" border="0" alt="chrome_2018-09-06_23-44-25.png"><br><figcaption>人臉的那27個點是什麽</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1536250156874566">打開<code>returnFaceAttributes</code></h3><p>
+			這個時候再來看另外一個參數，這個參數接受的是csv的字串值。
+			</p><p>
+			嘗試使用：<code>age,gender,smile</code>得到的結果是：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-06-cognitive-service-face-api-03-test-detect-method-using-postman/ac5290c6-7701-4bce-9ebf-1728ca230384.png" border="0" alt="Postman_2018-09-06_23-48-13.png"><br><figcaption>嘗試使用face attribute</figcaption></figure><p></p><p>
+			可以看到識別出了：
+			</p><ul><li>是否笑臉 - 1 表示是笑臉</li><li>性別是什麽 - 女性</li><li>年齡幾歲 - 24</li></ul><p></p><div class="bs-callout bs-callout-info">
+				還有別的Attribute可以使用，例如有沒有帶眼鏡。這個其實可以搭配例如一定要把眼鏡拿下來才能做下一步。詳細可以看api reference。
+			</div></section></section><section><h2 id="WizKMOutline_1536250156874146">結語</h2><p>
+		這篇介紹了實際使用Postman來測試Face Api的Detect服務。包含了可以傳入的參數，以及每一個效果看起來是什麽。
+		</p><p>
+		瞭解了整個服務的功能之後，接下來就是要嘗試用程式裡面呼叫這個服務。
+		</p><p>
+		在下一篇，將使用C#的Console來試試整合是什麽感覺。
+		</p></section><section><h2 id="WizKMOutline_1536250156874802">參考資料</h2><dl><dt>
+					官方介紹Detect的文件
+				</dt><dd><a href="https://docs.microsoft.com/en-us/azure/cognitive-services/Face/face-api-how-to-topics/howtodetectfacesinimage">How to Detect Faces in Image</a></dd><dt>
+					Face Api的Detect Api Reference
+				</dt><dd><a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236">Detect Face Api</a></dd></dl></section>

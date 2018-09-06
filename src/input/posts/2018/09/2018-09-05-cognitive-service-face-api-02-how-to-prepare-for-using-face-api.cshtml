@@ -1,0 +1,57 @@
+Title: "[Cognitive Service之Face Api][02]人臉識別的AI服務 - 要使用Face Api的準備"
+Published: 2018-09-05 21:30
+Modified: 2018-09-05 21:30
+Image: "/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/315116e5-c885-421b-abab-54470f9c7709.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇看完了Face Api能夠做到什麽了之後
+接下來的問題就是，要使用的話需要先准備什麽？
+這篇來看看要使用Face Api要准備什麽"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/315116e5-c885-421b-abab-54470f9c7709.jpg" border="0" alt="[Cognitive Service之Face Api][02]人臉識別的AI服務 - 要使用Face Api的準備.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-01-what-is-it-and-what-can-it-do">[01]人臉識別的AI服務 - Face API能夠做什麽？</a>)介紹了什麽是Face Api，以及Face Api能夠做到什麽事情。</p><p>
+		接下來就是要看看實際上如何使用Face Api。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1536242047222541" ;="" style="font-size: 15px; line-height: 1.6;">使用Face Api的準備工作</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1536242047223640" ;="" style="font-size: 15px; line-height: 1.6;">申請一組key</a><br></li><li><a href="#WizKMOutline_1536242047223458" ;="" style="font-size: 15px; line-height: 1.6;">瞭解這個Rest Api提供什麽服務</a><br></li></ul><li><a href="#WizKMOutline_1536242047223191" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1536242047222541">使用Face Api的準備工作</h2><p>
+		同任何REST Api服務一樣，如果要使用某一個API需要做/瞭解兩個事情：
+		</p><ol><li>申請一組Key</li><li>瞭解這個Rest Api提供什麽服務</li></ol><p></p><section><h3 id="WizKMOutline_1536242047223640">申請一組key</h3><p>
+			任何的REST Api提供好的服務，多多少少都會收費這樣才能保持服務的良好發展，因此使用服務的時候都需要先建立好一組可以用來驗證是誰使用這個服務的key。
+			</p><p>
+			Face Api也不例外，和別的Cognitive Service一樣，很佛心的也有提供<em>免費</em>的版本可以使用，不過前提是需要有一個Azure的訂閲（可以使用試用的訂閲或者Dev Essential的免費Azure）。
+			</p><p>
+			如果說沒有Azure的訂閲可以使用試用的key（<a href="https://azure.microsoft.com/zh-tw/try/cognitive-services/?api=face-api">鏈接</a>），試用版本的限制如下：
+			</p><ol><li>總共只能夠發出30,000次交易</li><li>每分鐘只能夠發出20筆交易</li><li>有使用期天數限制 - 我記得是7天，不過詳細還是要看官網</li></ol><p></p><div class="bs-callout bs-callout-info">
+				其實1和2的限制和Free版本限制一樣。
+			</div><p>
+			接下來介紹的是如何透過Azure建立一個免費的Key：
+			</p><dl><dt>
+					找到建立Face Api的選項
+				</dt><dd>
+					可以透過這個<a href="https://portal.azure.com/#create/Microsoft.CognitiveServicesFace">鏈接</a>，或者在Azure裡面<code>Create Resource</code>，搜索<code>Face Api</code>找到。
+				</dd><dt>
+					建立Face Api
+				</dt><dd><ol><li>Name：隨便輸入好識別的即可</li><li>Subscription：輸入要使用的訂閲</li><li>Location：輸入服務的地址</li><li>Pricing Tier：輸入服務的等級，F0和S0的差異除了多久可以呼叫次數之外，另外一個是可以儲存Face資訊</li><li>Resource Group：把這個服務key放在那裏</li><li>確認好按下<code>Create</code>即可</li></ol><figure><img class="img-responsive" src="/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/40180994-b631-4d31-a61a-b6413126e41e.png" border="0" alt="chrome_2018-09-06_18-30-42.png"><br><figcaption>建立一個Face Api的key</figcaption></figure></dd><dt>
+					取得Key
+				</dt><dd><p>
+					當Face Api的服務建立出來之後，就可以透過旁邊的<code>keys</code>選項取得api key
+					</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/72232e7b-f394-46e4-8051-97bb8cc2e75c.png" border="0" alt="chrome_2018-09-06_18-36-00.png"><br><figcaption>找到key的選項</figcaption></figure><p>
+					這個時候就可以看到兩組key，這兩組key任何一組都可以，點下旁邊複製icon將會把key複製到剪貼簿：
+					</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/adb2fe30-684e-48d5-9389-4c441faa4238.png" border="0" alt="chrome_2018-09-06_18-38-47.png"><br><figcaption>複製Face Api key</figcaption></figure><p></p></dd></dl><p>
+			記得這個key要保留好，不要讓別人知道，因爲有key的人呼叫Face Api將會算你服務的使用量。
+			</p></section><section><h3 id="WizKMOutline_1536242047223458">瞭解這個Rest Api提供什麽服務</h3><p>
+			取得了key之後，另外一個就是要知道這個服務怎麽呼叫。
+			</p><p>
+			可以透過Face Api服務在Overview畫面的<code>Face Api Reference</code></p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/f387c015-748b-4f45-aff2-1ad14d3f28f2.png" border="0" alt=""><br><figcaption>找到Face Api Reference的鏈接</figcaption></figure><p></p><p>
+			也可以透過這個<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395236">鏈接</a>開啓API的Reference。
+			</p><p>
+			這個API Reference的文件和其他的Cognitive Service的API Reference文件時一樣的概念，這邊就不再多介紹，詳細可以看另外一篇：
+			</p><ul><li><a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-25-computer-vision-create-read-api-reference-and-test-using-postman#WizKMOutline_1533387507581848">[chatbot + AI = 下一代操作模式][25]使用Computer Vision - 如何設定、看文件以及使用REST API測試</a></li></ul><p></p><p>
+			不過從有支援的服務名稱可以大概看得出來對應的到上一篇提到的5個服務：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-05-cognitive-service-face-api-02-how-to-prepare-for-using-face-api/00d156c7-9702-42b7-91f3-189da4fbc175.png" border="0" alt="chrome_2018-09-06_21-43-20.png"><br><figcaption>Face Api的Reference文件</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1536242047223191">結語</h2><p>
+		有了key和reference的文件之後，接下來就可以開始嘗試試試看使用起來是什麽感覺。
+		</p><p>
+		因此，在下一篇將來介紹第一個服務，<code>Detect</code>，看看Detect能夠做到什麽并且提供什麽資訊。
+		</p></section>

@@ -1,0 +1,77 @@
+Title: "[Cognitive Service之Face Api][04]人臉識別的AI服務 - 整合Face Api的Detect功能到C#程式裡面"
+Published: 2018-09-08 23:20
+Modified: 2018-09-08 23:20
+Image: "/posts/2018/09/2018-09-08-cognitive-service-face-api-04-use-face-api-detect-service-in-csharp-net/217410d6-00f3-45c7-9f94-5c420f207fc2.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇透過postman直接打到Face Api的Detect服務并且瞭解了能夠提供什麽人臉信息之後
+這一篇就來看看如何在C# .NET透過SDK呼叫Face Api的Detect服務"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-08-cognitive-service-face-api-04-use-face-api-detect-service-in-csharp-net/217410d6-00f3-45c7-9f94-5c420f207fc2.jpg" border="0" alt="[Cognitive Service之Face Api][04]人臉識別的AI服務 - 整合Face Api的Detect功能到C#程式裡面.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-03-test-detect-method-using-postman">[03]人臉識別的AI服務 - 用Postman測試Detect服務能做什麽</a>)透過使用Postman的方式瞭解了Face Api裡面的Detect服務的所有功能之後，接下來就是要看看如何在程式裡面使用Detect服務。</p><p>
+		這篇將使用C#搭配.NET SDK來看看在程式裡面呼叫Detect有多麽的簡單。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-cognitive-service-face-api/tree/blog/chapter-04">alantsai-samples/mhat-cognitive-service-face-api:blog/chapter-04</a></div></section><!--more-->
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1536419380367514" ;="" style="font-size: 15px; line-height: 1.6;">使用Face Api的Detect服務</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1536419380367755" ;="" style="font-size: 15px; line-height: 1.6;">建立一個Console專案并且加入SDK套件</a><br></li><li><a href="#WizKMOutline_1536419380367281" ;="" style="font-size: 15px; line-height: 1.6;">準備需要的參數以及建立出FaceServiceClient</a><br></li><li><a href="#WizKMOutline_1536419380367705" ;="" style="font-size: 15px; line-height: 1.6;">呼叫Detect以及傳入returnFaceAttributes</a><br></li><li><a href="#WizKMOutline_1536419380368893" ;="" style="font-size: 15px; line-height: 1.6;">輸出得到的結果</a><br></li><li><a href="#WizKMOutline_1536419380368355" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1536419380368617" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<section><h2 id="WizKMOutline_1536419380367514">使用Face Api的Detect服務</h2><p>
+		上篇透過Postman直接打了Face Api的Detect服務，因此只要任何程式語言能夠發出http request都可以呼叫使用，當然在.Net的世界裡面也可以透過使用<code>HttpClient</code>來做這個呼叫。
+		</p><p>
+		不過在習慣物件的世界裡面，當然希望是透過强行別(strong type)的方式來呼叫這些服務，微軟有提供一個Project Oxford的計劃，把一些Cognitive Service的服務包成物件導向方便呼叫，接下來
+		看看怎麽使用這個SDK來做開發：
+		</p><ol><li>建立一個Console專案并且加入SDK套件</li><li>準備需要的參數以及建立出<code>FaceServiceClient</code></li><li>呼叫<code>Detect</code>以及傳入<code>returnFaceAttributes</code></li><li>輸出得到的結果</li><li>測試</li></ol><section><h3 id="WizKMOutline_1536419380367755">建立一個Console專案并且加入SDK套件</h3><p>
+			首先建立一個C#的Console專案。
+			</p><p>
+			當專案建立起來了之後，安裝套件<code>Microsoft.ProjectOxford.Face</code>。可以透過GUI的界面也可以透過Package Management Console輸入<kbd>Install-Package Microsoft.ProjectOxford.Face</kbd></p><div class="bs-callout bs-callout-info">
+				這篇文章在撰寫的時候，Microsoft.ProjectOxford.Face的版本是<em>1.4</em></div></section><section><h3 id="WizKMOutline_1536419380367281">準備需要的參數以及建立出FaceServiceClient</h3><p>
+			剛剛裝好的SDK包含了一個class叫做<code>FaceServiceClient</code>，這個class充當了和Face Api溝通的橋梁，因此要使用任何服務都是透過這個class。
+			</p><p>
+			還記得上篇用Postman測試的時候有兩個參數是需要的：
+			</p><ol><li>subscriptionKey - 建立服務的時候得到的key</li><li>api網址 - 因爲key會對應到location，因此api網址也和location不同而不同</li></ol><p></p><p>
+			因此，需要先準備好這些内容：
+			</p><pre><code class="language-csharp">static void Main(string[] args)
+{
+	var subscriptionKey = "";
+	var enpointUrl = "https://eastasia.api.cognitive.microsoft.com/face/v1.0";
+	var client = new FaceServiceClient(subscriptionKey, enpointUrl);
+}</code></pre></section><section><h3 id="WizKMOutline_1536419380367705">呼叫<code>Detect</code>以及傳入<code>returnFaceAttributes</code></h3><p>
+			接下來就是呼叫Detect服務來識別圖片裡面的人物，這邊要做幾個處理：
+			</p><ol><li>準備好要識別的圖片網址</li><li>準備好要傳入的<code>returnFaceAttributes</code></li><li>呼叫Detect服務</li></ol><p>
+			綜合上面提到的幾個調整，程式碼增加了：
+			</p><pre><code class="language-csharp">.....
+
+var imageUrl = "https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/detection1.jpg";
+
+var faceAttr = new[] { FaceAttributeType.Age, 
+	FaceAttributeType.Gender, FaceAttributeType.Emotion };
+	
+var faces = await client.DetectAsync(imageUrl, returnFaceAttributes: faceAttr);
+</code></pre><div class="bs-callout bs-callout-warning">
+	這邊使用到了async以及await，因此<code>main</code>這個method的signature要調整為<code>static async Task Main(string[] args)</code>。由於async main是C# 7.1加入的keyword，如果Visual Studio
+	build有出現錯誤，記得對Project點右鍵，選擇Property，然後選擇Build -&gt; Advance，然後Language Version選擇C# 7.1以上即可：
+	<figure><img class="img-responsive" src="/posts/2018/09/2018-09-08-cognitive-service-face-api-04-use-face-api-detect-service-in-csharp-net/d0b872fb-404b-42d3-bff8-b60e64cfb4e2.png" border="0" alt="devenv_2018-09-08_22-49-26.png"><br><figcaption>設定使用C# 7.1以上做build</figcaption></figure></div></section><section><h3 id="WizKMOutline_1536419380368893">輸出得到的結果</h3><p>
+			最後把識別出來的圖片人物識別内容輸出到console，因此在加上：
+			</p><pre><code class="language-csharp">Console.WriteLine($"這張圖片有以下幾個人臉被識別出來：");
+
+foreach (var item in faces)
+{
+	Console.WriteLine($"\t 人物：{item.FaceId} \t " +
+		$"開心程度：{item.FaceAttributes.Emotion.Happiness} " +
+		$"\t 年齡：{item.FaceAttributes.Age} " +
+		$"\t 性別：{item.FaceAttributes.Age}");
+}
+
+Console.ReadLine();</code></pre></section><section><h3 id="WizKMOutline_1536419380368355">測試結果</h3><p>
+			接下來就是直接呼叫看看執行起來是什麽結果。
+			</p><div class="bs-callout bs-callout-warning">
+				這邊注意一下，記得要輸入<code>subscriptKey</code>，如果說申請的key location不是<code>eastasia</code>，記得也要做調整。
+			</div><figure><img class="img-responsive" src="/posts/2018/09/2018-09-08-cognitive-service-face-api-04-use-face-api-detect-service-in-csharp-net/c20a0734-a4dc-43cc-9ba0-d80624555f39.png" border="0" alt="cmd_2018-09-08_22-54-40.png"><br><figcaption>測試結果的截圖</figcaption></figure></section></section><section><h2 id="WizKMOutline_1536419380368617">結語</h2><p>
+		這篇看了如何用C#使用Face Api的SDK來達到快速整合Face Api到任何程式裡面。
+		</p><p>
+		透過SDK可以使用强行別以及符合C#開發的方式去呼叫，讓整個開發速度大大提升。
+		</p><p>
+		在看Face Api的另外一個服務之前，還想要demo一下Detect得到的一些資訊可以怎麽使用。例如説直接把人臉識別出來的部分直接在圖片裡面框起來，然後顯示一些人臉信息。
+		</p><p>
+		由於這個牽扯到了GUI的關係，console不好呈現這個概念，因此下一篇將使用Python來呼叫Face Api，然後看看怎麽把其他的Detect信息多多利用。
+		</p></section>

@@ -1,0 +1,126 @@
+Title: "[Cognitive Service之Face Api][05]人臉識別的AI服務 - 使用Python框出圖像裡面人臉的部分"
+Published: 2018-09-17 22:20
+Modified: 2018-09-17 22:20
+Image: "/posts/2018/09/2018-09-17-cognitive-service-face-api-05-use-face-api-detect-service-in-python-using-azure-notebook/21186823-81e6-4fac-b497-888b6c1463ab.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api", "python", "tool"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇看完了如何用C#呼叫Face Api的Detect服務之後，能夠看到圖像人臉有識別出來，但是由於是console沒辦法直接把信息寫在圖片裡面。
+這篇看看用另外一個語言Python，呼叫起Face Api的Detect然後把圖像的人臉框起來是什麽感覺。"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-17-cognitive-service-face-api-05-use-face-api-detect-service-in-python-using-azure-notebook/21186823-81e6-4fac-b497-888b6c1463ab.jpg" border="0" alt="[Cognitive Service之Face Api][05]人臉識別的AI服務 - 使用Python框出圖像裡面人臉的部分.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-04-use-face-api-detect-service-in-csharp-net">[04]人臉識別的AI服務 - 整合Face Api的Detect功能到C#程式裡面</a>)看完了如何用C#呼叫Face Api取得圖像裡面人臉的資訊并且印在console上面之後，這篇連看看另外一個使用情景。</p><p>
+		Python是一個最近很火紅（或者説一直以來都很火紅）的一個語言，可不可以用Python呼叫Face Api？
+		</p><p>
+		這篇來看看如何用Python把圖像裡面屬於人臉的部分框起來。
+		</p>
+		<div class="bs-callout bs-callout-default">
+			<p>
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-cognitive-service-face-api/tree/blog/chapter-05">alantsai-samples/mhat-cognitive-service-face-api:blog/chapter-05</a>
+			</p> 
+			<p>
+			也可以透過檢查Azure Notebook來看到原始碼：<a href="https://notebooks.azure.com/alantsai/libraries/blog-sample-cs-face-api/html/chapter05-face-api-detect.ipynb">https://notebooks.azure.com/alantsai/libraries/blog-sample-cs-face-api/html/chapter05-face-api-detect.ipynb</a>
+			</p> 
+		</div>
+	</section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1537190653950426" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽選擇Python？</a><br></li><li><a href="#WizKMOutline_1537190653950433" ;="" style="font-size: 15px; line-height: 1.6;">環境準備</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1537190653950929" ;="" style="font-size: 15px; line-height: 1.6;">在你本機電腦開發</a><br></li><li><a href="#WizKMOutline_1537190653950563" ;="" style="font-size: 15px; line-height: 1.6;">使用Jupyter Notebook類型的服務例如Azure Notebook</a><br></li></ul><li><a href="#WizKMOutline_1537190653951884" ;="" style="font-size: 15px; line-height: 1.6;">用Python呼叫Face Api</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1537190653951596" ;="" style="font-size: 15px; line-height: 1.6;">安裝SDK</a><br></li><li><a href="#WizKMOutline_1537190653951609" ;="" style="font-size: 15px; line-height: 1.6;">設定好呼叫服務的環境</a><br></li><li><a href="#WizKMOutline_1537190653951370" ;="" style="font-size: 15px; line-height: 1.6;">呈現圖片Detect得到的結果</a><br></li><li><a href="#WizKMOutline_1537190653951935" ;="" style="font-size: 15px; line-height: 1.6;">把圖片呈現出來</a><br></li><li><a href="#WizKMOutline_1537190653951419" ;="" style="font-size: 15px; line-height: 1.6;">把圖片裡面人臉的部分框起來</a><br></li><li><a href="#WizKMOutline_1537190653951277" ;="" style="font-size: 15px; line-height: 1.6;">顯示圖片人物識別出來的信息</a><br></li></ul><li><a href="#WizKMOutline_1537190653951996" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1537190653950426">爲什麽選擇Python？</h2><p>
+		Face Api其實只是REST Api的服務，因此不限制只有微軟相關的產品可以使用，而是所有<em>可以發出http request的語言</em>都可以使用。因此，換個語言呼叫看看感覺應該也是不錯的體驗。
+		</p><p>
+		Face Api屬於一個比較開發者Friendly的服務，因爲他提供了6個語言的SDK。雖然説沒有SDK也可以用，不過有人幫忙把呼叫API的部分包好還是可以省掉不少的功。
+		</p><p>
+		這次使用的Python也有在提供SDK的語言之内，因此呼叫Face Api變得非常簡單。
+		</p><p>
+		使用Python的另外一個原因是因爲太火了，如果對於Data Science（AI）有興趣，那麽多多少少會碰到Python或者R。R比較偏統計類型的語言，因此局限性比較明確，而Python則什麽都可以用，因此熟悉Python也是很有幫助。
+		</p><div class="bs-callout bs-callout-info">
+			小弟我也是Python苦手，所以太深入的我也不會。這邊只是介紹一下Python開發的周邊，讓未來介紹到Data Science（希望有一天）的時候不會這麽陌生。
+		</div></section><section><h2 id="WizKMOutline_1537190653950433">環境準備</h2><p>
+		要開發一個語言，首先需要準備好開發環境。這邊有兩個選擇：
+		</p><ol><li>在你本機電腦開發</li><li>使用Jupyter Notebook類型的服務例如Azure Notebook</li></ol><p></p><div class="bs-callout bs-callout-info"><p>
+			在往下之前，先説明一下，Python有兩個版本：2.x以及3.x。原則上來説盡量使用3.x除非使用的套件沒有支援。
+			</p><p>
+			然後在寫這篇的時候最新版本是3.7，但是有些套件不支援，例如tensorflow，因此建議裝3.6就好。
+			</p></div><h3 id="WizKMOutline_1537190653950929">在你本機電腦開發</h3><p>
+		基本上只需要安裝Python就可以開始開發了。最快的安裝方式就是透過<em>chocolatey</em>：
+		</p><p><kbd>choco install python --version 3.6.6</kbd></p><p>
+		然後基本上接下來就是需要一個編輯器協助撰寫python程式碼。可以使用任何編輯器，從最陽春的notepad，到Visual Studio Code都可以，看個人習慣。
+		</p><h3 id="WizKMOutline_1537190653950563">使用Jupyter Notebook類型的服務例如Azure Notebook</h3><p>
+		個人建議Python苦手可以先用這種類型的服務，例如Azure Notebook（<a href="https://notebooks.azure.com">鏈接</a>）。
+		</p><p>
+		原因是只需要有一個瀏覽器，就可以開始開發Python - 因此可以focus在程式部分就好，最棒的是Azure Notebook是<em>免費</em>。
+		</p><p>
+		要使用很簡單，基本上：
+		</p><ol><li>登入/建立帳號</li><li>建立一個Library（就是類似Project的概念）</li><li>直接建立一個notebook，選擇使用 <code>Python 3.6 Notebook</code></li><li>開始撰寫</li></ol><p></p></section><section><h2 id="WizKMOutline_1537190653951884">用Python呼叫Face Api</h2><p>
+		環境準備好了之後，接下來就是實際來看看怎麽呼叫：
+		</p><div class="bs-callout bs-callout-info">
+			以下的指令是在Azure Notebook（Jupyter）可以直接使用的，如果是純Python script要調整一下。
+		</div><p></p><ol><li>安裝SDK</li><li>設定好呼叫服務的環境</li><li>呈現圖片Detect得到的結果</li><li>把圖片呈現出來</li><li>把圖片裡面人臉的部分框起來</li><li>顯示圖片人物識別出來的信息</li></ol><p></p><section><h3 id="WizKMOutline_1537190653951596">安裝SDK</h3><p>
+			這邊需要：
+			</p><ol><li>Face Api的sdk - 讓呼叫起來比較容易。</li><li>pillow - 這個是python裡面要修改圖片非常方便的一個套件。</li></ol><p></p><pre><code class="language-python">!pip install cognitive_face
+!pip install pillow</code></pre></section><section><h3 id="WizKMOutline_1537190653951609">設定好呼叫服務的環境</h3><p>
+			主要設定：
+			</p><ol><li>用到的api endpoint</li><li>使用到的api key</li><li>測試的圖片</li><li>其他要偵測的attribute</li></ol><p></p><pre><code class="language-python">faceURI = "https://eastasia.api.cognitive.microsoft.com/face/v1.0/"
+faceKey = ""
+
+img_url = 'https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/detection1.jpg'
+
+attributes = ('age,gender')
+
+import cognitive_face as CF
+
+# Set URI and Key
+CF.BaseUrl.set(faceURI)
+CF.Key.set(faceKey)</code></pre></section><section><h3 id="WizKMOutline_1537190653951370">呈現圖片Detect得到的結果</h3><p>
+			接下來是呼叫Detect并且把Detect的值顯示出來：
+			</p><pre><code class="language-python">result = CF.face.detect(img_url, False, False, attributes)
+print (result)</code></pre><figure><img class="img-responsive" src="/posts/2018/09/2018-09-17-cognitive-service-face-api-05-use-face-api-detect-service-in-python-using-azure-notebook/5c27743e-1ec0-4676-b5e8-4a742bb77a00.png" border="0" alt="chrome_2018-09-17_21-12-48.png"><br><figcaption>得到的結果</figcaption></figure></section><section><h3 id="WizKMOutline_1537190653951935">把圖片呈現出來</h3><pre><code class="language-python">%matplotlib inline
+import requests
+from io import BytesIO
+from matplotlib.pyplot import imshow
+from PIL import Image, ImageDraw, ImageFont
+
+# Get the image
+response = requests.get(img_url)
+img = Image.open(BytesIO(response.content))
+
+imshow(img)</code></pre></section><section><h3 id="WizKMOutline_1537190653951419">把圖片裡面人臉的部分框起來</h3><pre><code class="language-python">lineWidth = 8
+color="red"
+
+if result is not None:
+    draw = ImageDraw.Draw(img) 
+    for currFace in result:
+        faceRectangle = currFace['faceRectangle']
+        left = faceRectangle['left']
+        top = faceRectangle['top']
+        width = faceRectangle['width']
+        height = faceRectangle['height']
+        draw.line([(left,top),(left+width,top)],fill=color, width=lineWidth)
+        draw.line([(left+width,top),(left+width,top+height)],fill=color , width=lineWidth)
+        draw.line([(left+width,top+height),(left, top+height)],fill=color , width=lineWidth)
+        draw.line([(left,top+height),(left, top)],fill=color , width=lineWidth)
+
+# show the image
+imshow(img)</code></pre><figure><img class="img-responsive" src="/posts/2018/09/2018-09-17-cognitive-service-face-api-05-use-face-api-detect-service-in-python-using-azure-notebook/300628d1-8ad8-41f6-b627-e5e1d2eaa059.png" border="0" alt="chrome_2018-09-17_21-12-28.png"><br><figcaption>框起來的畫面</figcaption></figure></section><section><h3 id="WizKMOutline_1537190653951277">顯示圖片人物識別出來的信息</h3><pre><code class="language-python">!curl https://raw.githubusercontent.com/openscenegraph/OpenSceneGraph-Data/master/fonts/arial.ttf -o arial.ttf
+    
+font = ImageFont.truetype("arial.ttf", 45)
+
+if result is not None:
+    draw = ImageDraw.Draw(img) 
+    for currFace in result:
+        faceRectangle = currFace['faceRectangle']
+        left = faceRectangle['left']
+        top = faceRectangle['top']
+        width = faceRectangle['width']
+        height = faceRectangle['height']
+        draw.text([left, height + 150], 'Age:' + str(currFace['faceAttributes']['age']), font=font, fill=(0,0,255))
+        
+# show the image
+imshow(img)</code></pre><figure><img class="img-responsive" src="/posts/2018/09/2018-09-17-cognitive-service-face-api-05-use-face-api-detect-service-in-python-using-azure-notebook/c579b545-b6d1-4082-9169-f30b7af896fa.png" border="0" alt="chrome_2018-09-17_21-12-36.png"><br><figcaption>顯示包含識別出的年齡</figcaption></figure></section></section><section><h2 id="WizKMOutline_1537190653951996">結語</h2><p>
+		這篇非常快速的介紹了Azure Notebook這個好用的Jupyter Notebook的服務，透過這種方式不止能夠快速測試Python，并且最後可以做成一個類似文件的東西。
+		</p><p>
+		雖然説Python版本也是使用sdk的方式來和Face Api溝通，但是可以看得出來只需要搞懂api的功能，其實什麽語言都可以把他整合進去。
+		</p><p>
+		下一篇來看看Face Api的另外一個服務，Face Verification。來看看這個服務怎麽呼叫，并且能夠做到什么。
+		</p></section>

@@ -1,0 +1,72 @@
+Title: "[Cognitive Service之Face Api][06]人臉識別的AI服務 - 使用Verify確認兩張圖片的人臉是否為同一人"
+Published: 2018-09-19 07:20
+Modified: 2018-09-19 07:20
+Image: "/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/1b807369-0e36-40b3-b964-fc78f7d9db6a.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇看了如何在Python裡面呼叫Face Api的Detect服務，然後透過取得的資訊直接在圖片上面做注記
+Detect服務就介紹完了，剩下全是看想象力看如何把這些信息搭配起來呈現。
+這篇來看看另外一個Face Api的服務，比對看看兩個人臉是不是同一個人"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/1b807369-0e36-40b3-b964-fc78f7d9db6a.jpg" border="0" alt="[Cognitive Service之Face Api][06]人臉識別的AI服務 - 使用Verify確認兩張圖片的人臉是否為同一人.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-05-use-face-api-detect-service-in-python-using-azure-notebook">[05]人臉識別的AI服務 - 使用Python框出圖像裡面人臉的部分</a>)看完了如何在Python裡面呼叫Face Api裡面的Detect服務，并且把圖片裡面的人臉部分用紅色框起來，然後把年紀用藍色列在了頭像下面，基本上識別相關的服務就介紹到這邊。
+		剩下的應用就是看想象力了。</p><p>
+		能夠識別圖片裡面的人臉只是服務的一部分，另外一個常用情景是，能不能識別人臉是不是屬於同一個人？這種類型的應用非常的多，例如環安裡面當是同一個人門要開啓就可以使用到這個服務。
+		</p><p>
+		這篇來看看如何使用<em>Verify</em>這個服務，看看如何呼叫，并且回傳的内容是什麽。
+		</p></section>
+		<section>
+			<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1537314067556548" ;="" style="font-size: 15px; line-height: 1.6;">如何使用Verify</a><br></li><li><a href="#WizKMOutline_1537314067558943" ;="" style="font-size: 15px; line-height: 1.6;">使用Postman測試Verify</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1537314067558159" ;="" style="font-size: 15px; line-height: 1.6;">用Detect呼叫圖片1取得Face ID</a><br></li><li><a href="#WizKMOutline_1537314067558250" ;="" style="font-size: 15px; line-height: 1.6;">用Detect呼叫圖片2取得Face ID</a><br></li><li><a href="#WizKMOutline_1537314067558252" ;="" style="font-size: 15px; line-height: 1.6;">兩張圖片人物做比對</a><br></li><li><a href="#WizKMOutline_1537314067558577" ;="" style="font-size: 15px; line-height: 1.6;">用Detect呼叫圖片3取得Face Id</a><br></li><li><a href="#WizKMOutline_1537314067558397" ;="" style="font-size: 15px; line-height: 1.6;">把圖片2和圖片3的人物做比對</a><br></li></ul><li><a href="#WizKMOutline_1537314067558577" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1537314067556548">如何使用Verify</h2><p>
+		要使用之前肯定要先瞭解怎麽呼叫以及使用。因此首先去看看官方的api文件：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a">Verify</a>。
+		</p><dl><dt>
+				Url的部分
+			</dt><dd><p>
+				完整的url是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0/verify</code></p><p>
+				這邊要注意的是當初建立的face api服務的地址在哪裏。以我的例子是<code>eastasia</code>，因此我的完整url是：
+				</p><p><code>https://eastasia.api.cognitive.microsoft.com/face/v1.0/verify</code></p></dd><dt>
+				Header
+			</dt><dd>
+				兩個參數要傳入：
+				<ol><li><em>Content-Type</em>：傳入的格式是<code>application/json</code>，由於格式只有一種，因此這個是一個選填欄位。</li><li><em>Ocp-Apim-Subscription-Key</em>：輸入取得的face api key</li></ol></dd><dt>
+				Body
+			</dt><dd>
+				有兩種模式：
+				<ol><li>傳入兩個參數：<code>faceId1</code>和<code>faceId2</code> - 來看兩個是不是同一個人</li><li>判斷某個臉(faceId)是否和某個Person(personId)一樣 - 這個我們後面會提到，目前先有個印象就好</li></ol></dd></dl><p>
+		有了使用的概念之後，接下來就是用Postman測試看看。
+		</p></section><section><h2 id="WizKMOutline_1537314067558943">使用Postman測試Verify</h2><p>
+			從上面的API reference瞭解會發現，整個的使用需要透過<code>faceId</code>，這個值我們可以透過在呼叫<code>Detect</code>的時候取得。因此，整個操作起來會先從Detect開始。
+			</p><p>
+			因此，整個的測試流程如下：
+			</p><ol><li>用Detect呼叫圖片1取得Face ID</li><li>用Detect呼叫圖片2取得Face ID</li><li>兩張圖片人物做比對</li><li>用Detect呼叫圖片3取得Face Id</li><li>把圖片2和圖片3的人物做比對</li></ol><p></p><section><h3 id="WizKMOutline_1537314067558159">用Detect呼叫圖片1取得Face ID</h3><p>
+			圖片1的測試網址如下：
+			<a href="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family3-Lady/Family3-Lady1.jpg">https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family3-Lady/Family3-Lady1.jpg</a></p><figure><img class="img-responsive" src="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family3-Lady/Family3-Lady1.jpg"><figcaption>圖片1内容</figcaption></figure><p>
+			使用Postman搭配Detect能夠取得Face ID：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/6fae6e08-a019-43f6-8e3c-9410c697734f.png" border="0" alt="Postman_2018-09-19_07-07-41.png"><br><figcaption>圖片1呼叫Detect</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1537314067558250">用Detect呼叫圖片2取得Face ID</h3><p>
+			圖片2的測試網址如下：
+			<a href="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family2-Lady/Family2-Lady1.jpg">https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family2-Lady/Family2-Lady1.jpg</a></p><figure><img class="img-responsive" src="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family2-Lady/Family2-Lady1.jpg"><figcaption>圖片2内容</figcaption></figure><p>
+			使用Postman搭配Detect能夠取得Face ID：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/f51ba0c5-495b-443b-9705-f8b1cdbaf7ad.png" border="0" alt="Postman_2018-09-19_07-11-27.png"><br><figcaption>圖片2呼叫Detect</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1537314067558252">兩張圖片人物做比對</h3><p>
+			有了兩張圖片的FaceId之後，就可以用verify的方法做比對：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/33edeb60-16ec-4c2c-bc6a-05a9aa4ddafb.png" border="0" alt="Postman_2018-09-18_18-42-56.png"><br><figcaption>比對圖片1和圖片2的結果</figcaption></figure><p></p><p>
+			可以看到圖片1和圖片2本身不是同一個人，在比對的時候相似度只有0.25左右。
+			</p></section><section><h3 id="WizKMOutline_1537314067558577">用Detect呼叫圖片3取得Face Id</h3><p>
+			這個時候用和圖片2的同一個人不同的相片來做比較。
+			</p><p>
+			圖片3的測試網址如下：<a href="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family2-Lady/Family2-Lady2.jpg">https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family2-Lady/Family2-Lady2.jpg</a></p><figure><img class="img-responsive" src="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family2-Lady/Family2-Lady2.jpg"><figcaption>圖片3内容</figcaption></figure><p>
+			呼叫完了Detect取得FaceId：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/92b80e52-4222-482e-974b-4f63dd0f820d.png" border="0" alt=""><br><figcaption>取得圖片3的FaceId</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1537314067558397">把圖片2和圖片3的人物做比對</h3><p>
+			有了圖片3的faceId之後，可以用來和圖片2的faceId做比較：
+			</p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-19-cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person/2ec2f83a-80a2-4b16-92ff-352b4de50859.png" border="0" alt="Postman_2018-09-18_18-43-41.png"><br><figcaption>呼叫verify驗證是否同一個人</figcaption></figure><p></p><p>
+			可以看到，系統認爲圖片2和圖片3的人物是同一個人，信心度能夠到達0.90。
+			</p></section></section><section><h2 id="WizKMOutline_1537314067558577">結語</h2><p>
+		這篇介紹了Face Api裡面的Verify服務。透過Verify，可以比對兩張圖片裡面人物的faceId看看兩個是不是同一個人。
+		</p><p>
+		由於要取得faceId，因此是先從圖片透過<code>Detect</code>取得了faceId之後，才會用這個faceId做比較。
+		</p><p>
+		透過verify也看到了一個新的概念叫做personId，這個在後面的部分會再有更加深入的介紹。
+		</p><p>
+		瞭解了API的呼叫方式之後，下一篇將來看看如何整合到程式裡面。
+		</p></section>

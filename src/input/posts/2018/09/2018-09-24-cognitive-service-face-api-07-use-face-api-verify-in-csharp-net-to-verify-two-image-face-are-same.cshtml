@@ -1,0 +1,58 @@
+Title: "[Cognitive Service之Face Api][07]人臉識別的AI服務 - C#整合Verify驗證兩張圖片的人是否同個人"
+Published: 2018-09-24 07:20
+Modified: 2018-09-24 07:20
+Image: "/posts/2018/09/2018-09-24-cognitive-service-face-api-07-use-face-api-verify-in-csharp-net-to-verify-two-image-face-are-same/ad717d98-e0e7-4083-94b3-407c0ea217ce.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇看完了怎們透過純api方式使用verify服務之後
+這篇來看看整合到.Net C#裡面是什麽感覺 - 會發現和api用起來沒什麽差別"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/09/2018-09-24-cognitive-service-face-api-07-use-face-api-verify-in-csharp-net-to-verify-two-image-face-are-same/ad717d98-e0e7-4083-94b3-407c0ea217ce.jpg" border="0" alt="[Cognitive Service之Face Api][07]人臉識別的AI服務 - C#整合Verify驗證兩張圖片的人是否同個人.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person">[06]人臉識別的AI服務 - 使用Verify確認兩張圖片的人臉是否為同一人</a>)介紹了如何使用<code>verify</code>這個功能來驗證兩個人臉（faceId）是否為同一人。</p><p>
+		這篇將來看看再C#裡面如何呼叫<code>verify</code>這個方法。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-cognitive-service-face-api/tree/blog/chapter-07">alantsai-samples/mhat-cognitive-service-face-api:blog/chapter-07</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1537763687946136" ;="" style="font-size: 15px; line-height: 1.6;">程式碼調整</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1537763687947250" ;="" style="font-size: 15px; line-height: 1.6;">增加新的一組detect用來取得另外一張圖片的信息</a><br></li><li><a href="#WizKMOutline_1537763687947472" ;="" style="font-size: 15px; line-height: 1.6;">呼叫verify把第一張和第二張的圖片人臉做比對</a><br></li><li><a href="#WizKMOutline_1537763687947716" ;="" style="font-size: 15px; line-height: 1.6;">把結果印到console</a><br></li></ul><li><a href="#WizKMOutline_1537763687947145" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1537763687946136">程式碼調整</h2><p>
+		這邊將延續之前在介紹<code>detect</code>的時候所建立出來的sample 專案繼續往下調整。
+		</p><p>
+		目前的程式碼會：
+		</p><ol><li>透過detect瞭解圖片裡面的人臉</li><li>把人臉Id、開心程度、年齡以及性別印在console上面</li></ol><p></p><p>
+		延續目前的程式碼繼續往下：
+			</p><ol><li>增加新的一組detect用來取得另外一張圖片的信息</li><li>呼叫verify把第一張和第二張的圖片人臉做比對</li><li>把結果印到console</li></ol><p></p><section><h3 id="WizKMOutline_1537763687947250">增加新的一組detect用來取得另外一張圖片的信息</h3><p>
+			雖然説複製貼上很邪惡，但是在這個sample就別計較太多啦。
+			</p><p>
+			從原始的<code>detect</code>複製一份出來，這邊也保留了把<code>detect</code>内容輸出到console。
+			</p><pre><code class="language-csharp">var imageUrl2 = "https://raw.githubusercontent.com/Microsoft/" +
+	"Cognitive-Face-Windows/master/Data/" +
+	"PersonGroup/Family2-Lady/Family2-Lady2.jpg";
+
+var faces2 = await client.DetectAsync(imageUrl2, returnFaceAttributes: faceAttr);
+
+Console.WriteLine($"這張圖片2有以下幾個人臉被識別出來：");
+
+foreach (var item in faces2)
+{
+	Console.WriteLine($"\t 人物：{item.FaceId} " +
+		$"\t 開心程度：{item.FaceAttributes.Emotion.Happiness} " +
+		$"\t 年齡：{item.FaceAttributes.Age} " +
+		$"\t 性別：{item.FaceAttributes.Gender}");
+}</code></pre></section><section><h3 id="WizKMOutline_1537763687947472">呼叫verify把第一張和第二張的圖片人臉做比對</h3><p>
+			從<code>detect</code>取得了兩張圖片的face id之後，接下來就是要把這兩個face id做比較：
+			</p><pre><code class="language-csharp">var verifyResult = await client.VerifyAsync(faces.First().FaceId, faces2.First().FaceId);</code></pre></section><section><h3 id="WizKMOutline_1537763687947716">把結果印到console</h3><p>
+			最後把比對的結果印在console上面：
+			</p><pre><code class="language-csharp">Console.WriteLine($"2張圖片的第一個人臉識別結果為：{Environment.NewLine} " +
+	$"\n 是否同一人：{verifyResult.IsIdentical} {Environment.NewLine} " +
+	$"\n 信心指數：{verifyResult.Confidence}");</code></pre><p>
+			實際執行出來，可以看到：
+			</p><ol><li>顯示是否為同一人</li><li>并且這個的信心度有多高</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/09/2018-09-24-cognitive-service-face-api-07-use-face-api-verify-in-csharp-net-to-verify-two-image-face-are-same/15911b54-10e1-4376-bfce-90b8cb50bbb2.png" border="0" alt="cmd_2018-09-21_17-08-09.png"><br><figcaption>最後執行的結果</figcaption></figure></section></section><section><h2 id="WizKMOutline_1537763687947145">結語</h2><p>
+		這篇介紹的是如何透過sdk的方式呼叫<code>verify</code>的這個功能來驗證兩張人臉是不是同一個人。
+		</p><p>
+		在撰寫的過程會發現，sdk包的很好，只要瞭解了底層的REST Api呼叫方式，使用起來不會有什麽太大問題。因此，暫時不會用python撰寫呼叫<code>verify</code>（至少這個階段不會）
+		</p><p>
+		在上篇介紹<code>verify</code>的時候有提到，還有另外一種比對方式，透過face id(人臉)和person id(某個人)做比對看看是不是同一個人，這個時候問題就來了，person(人)是一個什麽概念呢？
+		</p><p>
+		在下一篇，將介紹在face api裡面person是什麽概念，并且要建立一個person需要經過那些步奏，這個概念將在介紹<code>verify</code>的另外一個應用以及後面的<code>identify</code>將會使用到。
+		</p></section>

@@ -1,0 +1,205 @@
+Title: "[Cognitive Service之Face Api][08]人臉識別的AI服務 - 建立自己人物的臉Model - 瞭解PersonGroup、Person以及Face的概念"
+Published: 2018-10-03 21:20
+Modified: 2018-10-03 21:20
+Image: "/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/74d6204c-db01-4132-8ee3-55a80c20ac56.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "在上一篇介紹完了如何把兩張圖片裡面的兩個人臉比對是否為同一個人
+但是難道沒辦法有個人的資料庫然後直接拿人臉和他比較嗎？
+這篇看看personGroup、person以及face的關係，以及如何建立自己的PersonGroup Model"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/74d6204c-db01-4132-8ee3-55a80c20ac56.jpg" border="0" alt="[Cognitive Service之Face Api][08]人臉識別的AI服務 - 建立自己人物的臉Model - 瞭解PersonGroup、Person以及Face的概念.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/09/cognitive-service-face-api-07-use-face-api-verify-in-csharp-net-to-verify-two-image-face-are-same">[07]人臉識別的AI服務 - C#整合Verify驗證兩張圖片的人是否同個人</a>)介紹完了Face Api裡面的Verify功能，在介紹這個Api的時候遇到了其中一個呼叫方式的參數叫做<code>personGroupId</code>。</p><p>
+		這個Person Group Id只得是什麽呢？如何建立呢？
+		</p><p>
+		這邊來看一下在Face Api裡面的Person Group、Person以及Face的概念，以及如何呼叫API來建立這些概念。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1538574783693397" ;="" style="font-size: 15px; line-height: 1.6;">Face API裡面自建Model的概念</a><br></li><li><a href="#WizKMOutline_1538574783695563" ;="" style="font-size: 15px; line-height: 1.6;">訓練自己的人臉Model</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1538574783695909" ;="" style="font-size: 15px; line-height: 1.6;">1. 建立Person Group</a><br></li><li><a href="#WizKMOutline_1538574783695105" ;="" style="font-size: 15px; line-height: 1.6;">2. 建立Person</a><br></li><li><a href="#WizKMOutline_1538574783695153" ;="" style="font-size: 15px; line-height: 1.6;">3. 把人臉加入到Person</a><br></li><li><a href="#WizKMOutline_1538574783695497" ;="" style="font-size: 15px; line-height: 1.6;">4. 訓練Person Group建立出Model</a><br></li></ul><li><a href="#WizKMOutline_1538574783695267" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1538574783693397">Face API裡面自建Model的概念</h2><p>
+		到目前爲止所介紹的Face API的方法都是識別出圖片裡面的<em>臉（Face）</em>，但是沒有<em>人（Person）</em>的概念。
+		</p><p>
+		換個方式說，如果今天給一張圖片，是否能夠識別出這個圖片的臉是屬於誰？或者這個圖片裡面的臉是否和某個人是同一個人？
+		</p><p>
+		其實Face Api有辦法做到，但是有個前提條件，那就是要建立自己的人物Model。
+		</p><p>
+		這個很好理解，畢竟人物是每個application不同，因此只有符合你的domain才需要建立，但是怎麽建立呢？
+		</p><p>
+		要建立之前需要理解三個概念：
+		</p><dl><dt>
+				Face - 臉
+			</dt><dd><p>
+			到目前爲止有介紹的Face Api的服務所得到的Face Id都是代表這張臉的一個unique id。
+			</p><p>
+			而這個Face Id所代表的就是一張臉。
+			</p></dd><dt>
+				Person - 人
+			</dt><dd><p>
+				Person顧名思義就是代表一個人，而一個人可以有<em>很多張不同時期或活動臉</em>，例如年輕的時候，出去玩的時候等等。
+				</p><p>
+				因此，Person和Face是屬於<em>1對多</em>的關係。
+				</p></dd><dt>
+				PersonGroup - 一組人
+			</dt><dd><p>
+				Person Group代表一組有關係的人，或者換句話説這組人物的Model。
+				</p><p>
+				因此，PersonGroup和Person的關係是屬於：<em>1對多</em>。
+				</p></dd></dl><p></p><p>
+		上面文字描述可能還有點模糊，但是看下圖應該能夠直接理解整個的關係：
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/b99cc43a-bba4-4bd1-b12b-2fe929fee04b.png" border="0" alt="chrome_2018-10-03_18-00-38.png"><br><figcaption>Face Api Model的關係圖，原始來源：https://docs.microsoft.com/en-us/azure/cognitive-services/face/face-api-how-to-topics/howtoidentifyfacesinimage</figcaption></figure><p></p><p>
+		圖片裡面，總共有：
+		</p><ol><li>1個PersonGroup叫做MyFriends</li><li>3個Person</li><li>每個Person 3個Face</li></ol><p></p><p>
+		最後這個Model訓練出來的就是一個<code>MyFriends</code>的模型，可以用來預測圖片裡面的人臉屬於誰。
+		</p></section><section><h2 id="WizKMOutline_1538574783695563">訓練自己的人臉Model</h2><p>
+		上面瞭解了概念之後接下來就是實際看看如何實際建立自己的Model。
+		</p><p>
+		整個的操作會是：
+		</p><ol><li>建立Person Group</li><li>建立Person</li><li>把人臉加入到Person</li><li>訓練Person Group建立出Model</li></ol><p></p><section><h3 id="WizKMOutline_1538574783695909">1. 建立Person Group</h3><p>
+			首先是要瞭解怎麽呼叫API，因此可以參考文件：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395244">PersonGroup Create</a></p><p>
+			這個方法的URI是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0<br />/persongroups/{personGroupId}</code></p><p>
+			這個是一個<code>Put</code>的方法然後接受參數如下：
+			</p><dl><dt>
+					personGroupId
+				</dt><dd>
+					代表這個Person Group的唯一值，最長不超過64子元，然後只接受英數字和'-'以及'_'
+				</dd></dl><p></p><p>
+			在Header的部分：
+			</p><dl><dt>
+					Content-Type
+				</dt><dd>
+					可以設定也可以不設定，基本上就是<code>application/json</code></dd><dt>
+					Ocp-Apim-Subscription-Key
+				</dt><dd>
+					Face Api的subscription key
+				</dd></dl><p></p><p>
+			最後在Body的部分：
+			</p><dl><dt>
+					name
+				</dt><dd>
+					這個PersonGroup的名稱，不超過128長度即可。
+				</dd><dt>
+					userData 
+				</dt><dd>
+					非必填欄位，最多不超過16KB大小的内容。任何文字類型都可以放在這邊。
+				</dd></dl><p></p><p>
+			瞭解了整個API之後，就可以透過Postman來測試：
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/5181651b-fba5-4d8a-afba-d8298d10b938.png" border="0" alt="Postman_2018-10-03_18-30-49.png"><br><figcaption>建立出PersonGroup</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1538574783695105">2. 建立Person</h3><p>
+			有了Group之後就是來建立一個Person。
+			</p><p>
+			詳細api可以參考：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523c">PersonGroup Person Create</a></p><p>
+			方法的URI是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0<br />/persongroups/{personGroupId}/persons</code></p><p>
+			這是一個<code>POST</code>的方法，然後接受的參數是：
+			</p><dl><dt>
+					personGroupId
+				</dt><dd>
+					這邊輸入的是Person要被存在那個Group的PersonGroupId
+				</dd></dl><p></p><p>
+			在Header的部分：
+			</p><dl><dt>
+					Content-Type
+				</dt><dd>
+					可以設定也可以不設定，基本上就是<code>application/json</code></dd><dt>
+					Ocp-Apim-Subscription-Key
+				</dt><dd>
+					Face Api的subscription key
+				</dd></dl><p></p><p>
+			最後在Body的部分：
+			</p><dl><dt>
+					name
+				</dt><dd>
+					這個Person的名稱，不超過128長度即可。
+				</dd><dt>
+					userData 
+				</dt><dd>
+					非必填欄位，最多不超過16KB大小的内容。任何文字類型都可以放在這邊。
+				</dd></dl><p></p><p>
+			實際用Postman執行，返回一個<code>personId</code>，以我的例子是：<code>c2e08f72-1ff2-45c4-861e-b31d5f18e0a3</code>:
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/9d93c5f4-4862-45b1-815c-deb759793acd.png" border="0" alt="Postman_2018-10-03_18-38-54.png"><br><figcaption>執行完Create Person</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1538574783695153">3. 把人臉加入到Person</h3><p>
+			有了PersonId之後，接下來就是要把和這個人相關的人臉都加入進去。
+			</p><div class="bs-callout bs-callout-info">
+				需要注意，每一個加入的臉都是一直存在的，因此是需要收費的哦。
+			</div><p>
+			這個時候用到的API就是<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b">PersonGroup Person Add Faces</a></p><div class="bs-callout bs-callout-warning">
+				使用這個服務需要注意
+				<ul><li>1個人只能夠有248張臉</li><li>圖片最大6MB，只接受格式：JPEG、PNG、BMP以及GIF（第一張）</li><li>圖片的人臉要在範圍（36x36 - 4096x4096像素）裡面</li></ul></div><p>
+			詳細api可以參考：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523b">PersonGroup Person Add Face</a></p><p>
+			方法的URI是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0<br />/persongroups/{personGroupId}/persons/{personId}/persistedFaces[?userData][&amp;targetFace]</code></p><p>
+			這是一個<code>POST</code>的方法，然後接受的參數是：
+			</p><dl><dt>
+					personGroupId
+				</dt><dd>
+					這邊輸入的是Person要被存在那個Group的PersonGroupId
+				</dd><dt>
+					personId
+				</dt><dd>
+					把這個臉加入到那個人裡面
+				</dd><dt>
+					userData
+				</dt><dd>
+					非必填欄位，最多不超過16KB大小的内容。任何文字類型都可以放在這邊。
+				</dd><dt>
+					targetFace
+				</dt><dd><p>
+					用來表示圖片裡面人臉的位置。以<code>"targetFace=left,top,width,height"</code>的方式
+					</p><p>
+					如果圖片有多個臉，那麽要必填，不然的話非必填欄位。
+					</p></dd></dl><p></p><p>
+			在Header的部分：
+			</p><dl><dt>
+					Content-Type
+				</dt><dd>
+					如果是<code>application/json</code>，那麽body就是輸入圖片的網址，不然就是<code>application/octet-stream</code>，那麽body就是圖片的binary。
+				</dd><dt>
+					Ocp-Apim-Subscription-Key
+				</dt><dd>
+					Face Api的subscription key
+				</dd></dl><p></p><p>
+			最後在Body的部分：
+			看Content-type，這邊的範例用的是application/json。
+			</p><p>
+			瞭解了api之後，就是實際來測試看看的時候：
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/a02262cb-0dcb-4211-bb3d-cf229e403871.png" border="0" alt="Postman_2018-10-03_18-59-54.png"><br><figcaption>透過postman執行person addface</figcaption></figure><p>
+			加入了之後會得到一個儲存下來的Face Id：<code>e80e5b1b-d5ef-46c5-aa93-bc52f1bb7dba</code></p></section><section><h3 id="WizKMOutline_1538574783695497">4. 訓練Person Group建立出Model</h3><p>
+			等到Person建立完成，臉也都加入完了之後，既可以把Model建立出來了，這個時候就需要呼叫Train的API。
+			</p><p>
+			詳細api可以參考：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395249">PersonGroup Train</a></p><p>
+			方法的URI是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0<br />/persongroups/{personGroupId}/train</code></p><p>
+			這是一個<code>POST</code>的方法，然後接受的參數是：
+			</p><dl><dt>
+					personGroupId
+				</dt><dd>
+					這邊輸入的是Person要被存在那個Group的PersonGroupId
+				</dd></dl><p></p><p>
+			在Header的部分：
+			</p><dl><dt>
+					Ocp-Apim-Subscription-Key
+				</dt><dd>
+					Face Api的subscription key
+				</dd></dl><p></p><p>
+			執行下去之後這個PersonGroup將會開始做Training。不過，執行完了返回<em>不代表</em>Train完成了。
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/b0d7b638-60d1-45e7-98fa-09a64feb60a3.png" border="0" alt="Postman_2018-10-03_21-38-02.png"><br><figcaption>執行Train得到的結果</figcaption></figure><p>
+			要知道是否Train完了要透過另外一個方法：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395247">PersonGroup Get Training Status</a></p><p>
+			方法的URI是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0<br />/persongroups/{personGroupId}/training</code></p><p>
+			這是一個<code>GET</code>的方法，然後接受的參數是：
+			</p><dl><dt>
+					personGroupId
+				</dt><dd>
+					這邊輸入的是Person要被存在那個Group的PersonGroupId
+				</dd></dl><p></p><p>
+			在Header的部分：
+			</p><dl><dt>
+					Ocp-Apim-Subscription-Key
+				</dt><dd>
+					Face Api的subscription key
+				</dd></dl><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-03-cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model/e536986a-57f8-4562-812d-b036c264958e.png" border="0" alt="Postman_2018-10-03_21-38-17.png"><br><figcaption>執行完get training status，可以看到狀態是success</figcaption></figure></section>
+		以上就是建立Person Model的方式，如果説要建立的Person很大量，那麽可以使用<code>LargePersonGroup</code>這組api，基本使用概念一樣。
+	</section><section><h2 id="WizKMOutline_1538574783695267">結語</h2><p>
+		這篇介紹了Face Api裡面Person Group、Person以及Face的關係以及概念。
+		</p><p>
+		透過建立這些東西，可以Train出一個符合自己情景的人物臉Model，那麽接下來就是要看看如何使用這個Model。
+		</p><p>
+		不過在更進一步使用這些Model之前，想想如果每次建立Model都透過Postman這樣不是很累嗎？難道沒有什麽工具讓這個變得更加簡單？
+		</p><p>
+		下一篇來介紹方便建立這些的GUI工具。
+		</p></section>

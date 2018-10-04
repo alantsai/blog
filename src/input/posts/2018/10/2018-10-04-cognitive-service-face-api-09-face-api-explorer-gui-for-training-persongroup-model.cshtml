@@ -1,0 +1,65 @@
+Title: "[Cognitive Service之Face Api][09]人臉識別的AI服務 -  Face Api Explorer -  GUI工具來建立Person Group Model"
+Published: 2018-10-04 21:20
+Modified: 2018-10-04 21:20
+Image: "/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/c188c40c-16e6-4d4b-aa20-286c65d30583.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "在上一篇瞭解了如何建立PersonGroup的Model
+不過都透過api來建立有點麻煩，更別説如果person的face上錯了要調整就更加不容易
+難道沒有更好的方式嗎？
+這篇介紹一個open source的工具，Face Api Explorer，看看如何使用讓建立變得非常容易"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/c188c40c-16e6-4d4b-aa20-286c65d30583.jpg" border="0" alt="[Cognitive Service之Face Api][09]人臉識別的AI服務 -  Face Api Explorer -  GUI工具來建立Person Group Model.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>在上一篇(<a href="/posts/2018/10/cognitive-service-face-api-08-understand-persongroup-person-and-face-to-create-person-model">[08]人臉識別的AI服務 - 建立自己人物的臉Model - 瞭解PersonGroup、Person以及Face的概念</a>)介紹了PersonGroup、Person以及Face之間的關聯，并且透過用直接呼叫API的方式建立出了一個<code>myFriends</code>的Model，下一步就是要看如何使用這個Model。</p><p>
+		不過在進入如何使用這個Model之前，肯定是要先把Model Training好用起來才好用。但是要透過Postman一個一個建立Person以及加入Face有點不方便，尤其是看不出來目前那些person有哪些face
+		（上篇沒有介紹取得的API，但是是可以取得建立的信息，但是畢竟都是文字看起來還是不容易看）
+		</p><p>
+		難道沒有GUI的界面嗎？這邊就來介紹一個大大所建立的Open Source專案，Face API Explorer。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1538660691597364" ;="" style="font-size: 15px; line-height: 1.6;">Face Api Explorer是什麽？</a><br></li><li><a href="#WizKMOutline_1538660691597406" ;="" style="font-size: 15px; line-height: 1.6;">Face Api Explorer執行環境是什麽？</a><br></li><li><a href="#WizKMOutline_1538660691597445" ;="" style="font-size: 15px; line-height: 1.6;">把Face Api Explorer跑起來</a><br></li><li><a href="#WizKMOutline_1538660691597731" ;="" style="font-size: 15px; line-height: 1.6;">如何使用Face Api Explorer</a><br></li><li><a href="#WizKMOutline_1538660691597447" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1538660691597364">Face Api Explorer是什麽？</h2><p>
+		這個是一個Open Source的專案，用Angular Js撰寫而成，是Face Api的一個GUI界面。
+		</p><p>
+		透過使用這個工具能夠讓不懂Face Api的人建立出自己的PersonGroup Model。
+		</p></section><section><h2 id="WizKMOutline_1538660691597406">Face Api Explorer執行環境是什麽？</h2><p>
+		要使用這個工具，電腦需要先安裝好<em>nodejs</em>。
+		</p><p>
+		可以透過直接到官網：<a href="https://nodejs.org/en/download/">nodejs.org</a> 
+		(直接下載連接：<a href="https://nodejs.org/dist/v8.12.0/node-v8.12.0-x64.msi">Winx X64</a>、<a href="https://nodejs.org/dist/v8.12.0/node-v8.12.0-x86.msi">Win x86</a>)
+		下載安裝檔案。
+		</p><p>
+		如果有安裝Chocolatey的話，可以直接透過指令來安裝：<kbd>choco install nodejs-lts</kbd></p><p>
+		安裝好了之後，環境就準備好了。
+		</p></section><section><h2 id="WizKMOutline_1538660691597445">把Face Api Explorer跑起來</h2><p>
+		環境准備好了之後就是要把Face Api Explorer跑起來。
+		</p><dl><dt>
+				把程式下載下來
+			</dt><dd>
+				可以透過git的方式把程式抓下來：<kbd>git clone https://github.com/smichelotti/ps-face-api-explorer.git</kbd>
+			</dd><dt>
+				把第三方套件抓抓下來
+			</dt><dd><p>
+				在clone下來的資料夾執行：<kbd>npm install</kbd>把第三方套件都抓下來
+				</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/e48b3884-7542-4ded-8305-411207124dfb.png" border="0" alt="powershell_2018-10-04_11-51-52.png"><br><figcaption>執行npm install</figcaption></figure></dd><dt>
+				修改 \src\app\services\face-api-metadata.service.ts
+			</dt><dd><p>
+				在執行起來之前，需要輸入兩個參數到<code>\src\app\services\face-api-service.service.ts</code>：
+				</p><ol><li>baseUrl：在檔案的上面，主要輸入你的endpoint。</li><li>Ocp-Apim-Subscription-Key：在檔案的最下面，輸入face api subscription key</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/b32d7cdf-0a8f-47f6-a413-928e6882363f.png" border="0" alt="Code_2018-10-04_20-55-04.png"></figure><figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/b98e063c-9b3d-424f-8805-0f3b6db8eb5a.png" border="0" alt="Code_2018-10-04_20-55-29.png"><br><figcaption>修改地方的截圖</figcaption></figure></dd><dt>
+				執行ng server
+			</dt><dd>
+				再來就是要把網站run起來，透過cli輸入<kbd>ng server</kbd>即可，在截圖可以看到，只要<code>http://localhost:4200</code>即可使用：
+				<figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/e245ec10-484a-49eb-a4a9-5ebb6e3c9f21.png" border="0" alt="powershell_2018-10-04_20-59-35.png"><br><figcaption>啓動ng server</figcaption></figure></dd><dt>
+				測試網站
+			</dt><dd>
+				在瀏覽器輸入：<a href="http://localhost:4200/">http://localhost:4200/</a>：
+				<figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/22a04e75-9651-4710-8563-1a1173d2b479.png" border="0" alt="chrome_2018-10-04_21-30-40.png"><br><figcaption>Face Api Explorer的首頁</figcaption></figure></dd></dl></section><section><h2 id="WizKMOutline_1538660691597731">如何使用Face Api Explorer</h2><p>
+		基本上功能還蠻好理解的，尤其是上一篇介紹完了整個PersonGroup的情況下，整個操作大概如下：
+		</p><ol><li>選擇<em>Configure</em></li><li>可以建立PersonGroup，下來可以選擇之前建立好的</li><li>左邊會列出所有的person，點這個person</li><li>可以看到所有和這個人有被加入過的臉</li><li>如果要加新的臉，可以按下<code>Add New Face</code>然後可以輸入圖片的網址</li><li>做好了之後可以按下<code>Train Model</code>來訓練Model</li><li>可以用<code>Check Training Status</code>來看訓練情況</li></ol><figure><img class="img-responsive" src="/posts/2018/10/2018-10-04-cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model/0548cef6-9946-4432-92e6-22212f0d80f7.png" border="0" alt="chrome_2018-10-04_21-35-05.png"><br><figcaption>Face Api Explorer和PersonGroup相關的功能</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1538660691597447">結語</h2><p>
+		透過GUI來訓練PersonGroup的Model是不是很方便呢？相較於透過直接call api的方式在操作上面便利非常多。
+		</p><p>
+		有了這個工具建立PersonGroup相信更容易，那麽就可以來看看怎麽使用建立出來的PersonGroup Model。
+		</p><p>
+		下一篇來看看，之前介紹的Verify，用用看另外一個版本，判斷某個人臉是否屬於某個Person。
+		</p></section>

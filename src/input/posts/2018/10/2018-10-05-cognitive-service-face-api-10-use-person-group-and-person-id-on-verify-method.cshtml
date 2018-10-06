@@ -1,0 +1,64 @@
+Title: "[Cognitive Service之Face Api][10]人臉識別的AI服務 -  Verify 驗證臉是不是屬於某個Person"
+Published: 2018-10-05 21:20
+Modified: 2018-10-05 21:20
+Image: "/posts/2018/10/2018-10-05-cognitive-service-face-api-10-use-person-group-and-person-id-on-verify-method/2ca39501-9f98-4e59-a1fd-bb283ae7786a.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上一篇介紹完了Face API Explorer這個web的Face Api GUI工具
+相信在train persongroup應該非常的簡單
+train完了當然要看看如何使用，先回到之前介紹過的verify
+看看如何比對某個臉和某個人是否為同一人"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-05-cognitive-service-face-api-10-use-person-group-and-person-id-on-verify-method/2ca39501-9f98-4e59-a1fd-bb283ae7786a.jpg" border="0" alt="[Cognitive Service之Face Api][10]人臉識別的AI服務 -  Verify 驗證臉是不是屬於某個Person.jpg"><br><figcaption>背景圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model">[09]人臉識別的AI服務 -  Face Api Explorer -  GUI工具來建立Person Group Model</a>)介紹完了Face Api Explorer這個工具之後，相信在建立PersonGroup Model就易如反掌啦。</p><p>
+		建立好了Model，下一步當然是看如何使用這個Model。
+		</p><p>
+		總共有兩個方法：
+		</p><ol><li>Verify - 比對臉是否屬於某個人</li><li>Identify - 看看臉可能是屬於那個人</li></ol><p></p><p><code>Verify</code>之前介紹過(<a href="/posts/2018/09/cognitive-service-face-api-06-use-face-api-verify-to-see-if-two-face-are-same-person">[06]人臉識別的AI服務 - 使用Verify確認兩張圖片的人臉是否為同一人</a>)，不過那個時候是兩張臉比較，這篇介紹一下如果拿人比較如何使用。</p>
+	
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1538723012443392" ;="" style="font-size: 15px; line-height: 1.6;">Verify用personId的方式</a><br></li><li><a href="#WizKMOutline_1538723012443613" ;="" style="font-size: 15px; line-height: 1.6;">測試Verify的功能</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1538723012443454" ;="" style="font-size: 15px; line-height: 1.6;">先用Detect取得某張相片裡面的人臉id (face id)</a><br></li><li><a href="#WizKMOutline_1538723012443275" ;="" style="font-size: 15px; line-height: 1.6;">呼叫Verify驗證取得的人臉Id是否和某個person一樣</a><br></li></ul><li><a href="#WizKMOutline_1538723012443349" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+	</section><section><h2 id="WizKMOutline_1538723012443392">Verify用personId的方式</h2><p>
+		要使用之前肯定要先瞭解怎麽呼叫以及使用。因此首先去看看官方的api文件：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f3039523a">Verify</a>。
+		</p><dl><dt>
+				Url的部分
+			</dt><dd><p>
+				完整的url是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0/verify</code></p><p>
+				這邊要注意的是當初建立的face api服務的地址在哪裏。以我的例子是<code>eastasia</code>，因此我的完整url是：
+				</p><p><code>https://eastasia.api.cognitive.microsoft.com/face/v1.0/verify</code></p></dd><dt>
+				Header
+			</dt><dd>
+				兩個參數要傳入：
+				<ol><li><em>Content-Type</em>：傳入的格式是<code>application/json</code>，由於格式只有一種，因此這個是一個選填欄位。</li><li><em>Ocp-Apim-Subscription-Key</em>：輸入取得的face api key</li></ol></dd><dt>
+				Body
+			</dt><dd>
+				有兩種模式：
+				<ol><li>傳入兩個參數：<code>faceId1</code>和<code>faceId2</code> - 來看兩個是不是同一個人 - 這個之前介紹過了，因此不再使用</li><li>
+						判斷某個臉(faceId)是否和某個Person(personId)一樣 - 總共有以下幾個參數：
+						<ol><li><code>faceId</code>：要被比對的face id</li><li><code>personGroupId</code>：那個person所在的personGroupId</li><li><code>largePersonGroupId</code>：如果説personGroup人很多使用的是largePersonGroup的API，因此這個和上面那個（personGroupId）是2則1</li><li><code>personId</code>：要比對的人的id</li></ol></li></ol></dd></dl><p>
+		有了使用的概念之後，接下來就是用Postman測試看看。
+		</p></section><section><h2 id="WizKMOutline_1538723012443613">測試Verify的功能</h2><p>
+		瞭解了api之後，接下來就是實際給他跑跑看啦，整個流程會是：
+		</p><ol><li>先用<code>Detect</code>取得某張相片裡面的人臉id (face id)</li><li>呼叫<code>Verify</code>驗證取得的人臉Id是否和某個person一樣</li></ol><p></p><section><h3 id="WizKMOutline_1538723012443454">先用<code>Detect</code>取得某張相片裡面的人臉id (face id)</h3><p>
+			這邊使用的是圖片：
+			<a href="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family3-Man/Family3-Man2.jpg">https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/PersonGroup/Family3-Man/Family3-Man2.jpg</a></p><p>
+			透過Detect取得Face Id：
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-05-cognitive-service-face-api-10-use-person-group-and-person-id-on-verify-method/7fba3bff-7d5d-48de-9f90-a8a1f0c47cbc.png" border="0" alt="Postman_2018-10-05_14-49-34.png"><br><figcaption>用postman呼叫detect取得圖片的face id</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1538723012443275">呼叫<code>Verify</code>驗證取得的人臉Id是否和某個person一樣</h3><p>
+			有了Face Id之後，就能夠和上篇建立出來的PersonGroup Model裡面的Person比對是否為同一個人。
+			</p><p>
+			輸入的Body如下：
+</p><pre><code class="language-json">{
+	"faceId":"095ecf77-5790-4740-9e63-b3264d4569ca",
+	"personGroupId":"1",
+	"personId":"8ebfd98b-124d-4d06-aabf-400a2d0c14ec"
+}</code></pre><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-05-cognitive-service-face-api-10-use-person-group-and-person-id-on-verify-method/143177b0-64fc-4a36-bebf-7f5f6f1931fc.png" border="0" alt="Postman_2018-10-05_14-54-17.png"><br><figcaption>執行完verify得到的結果</figcaption></figure><p>
+			從結果來看，可以發現判斷不是同一個人。
+			</p></section></section><section><h2 id="WizKMOutline_1538723012443349">結語</h2><p>
+		這篇介紹了<code>verify</code>和person比對的使用方式。這個在某些情景下面可以用來使用，例如有個系統人臉辨識目前鏡頭的人是否是他們所聲稱的那個人。
+		</p><p>
+		有了臉和人比對是否為同一個人之後，另外一個角度來看問題是，一張圖片裡面那些臉<em>屬於那個人</em>。
+		</p><p>
+		這將留給下篇來介紹，face api裡面的<code>identify</code>服務。
+		</p></section>

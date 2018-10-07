@@ -1,0 +1,70 @@
+Title: "[Cognitive Service之Face Api][11]人臉識別的AI服務 -  Identify 找出圖片的臉是誰"
+Published: 2018-10-06 21:20
+Modified: 2018-10-06 21:20
+Image: "/posts/2018/10/2018-10-06-cognitive-service-face-api-11-use-identify-to-find-who-this-face-belong-to/558681f1-3c31-47e0-952b-eca2905e40d5.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "在上一篇看完了verify搭配persongGroup找到某張臉是否為某個人
+這篇來看看另外一個角度，也就是某張臉屬於這個personGroup裡面那個人
+透過使用identify方法，能夠快速辨別這個臉是誰"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-06-cognitive-service-face-api-11-use-identify-to-find-who-this-face-belong-to/558681f1-3c31-47e0-952b-eca2905e40d5.jpg" border="0" alt="[Cognitive Service之Face Api][11]人臉識別的AI服務 -  Identify 找出圖片的臉是誰.jpg"><br><figcaption>背景圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/cognitive-service-face-api-10-use-person-group-and-person-id-on-verify-method">[10]人臉識別的AI服務 -  Verify 驗證臉是不是屬於某個Person</a>)介紹了PersonGroup train出來的Model的其中一個用途，也就是用來確認某個臉和某個person是否為同一人。</p><p>
+		這一篇來看看另外一個用途：<code>identify</code>，也就是直接從臉找到是誰。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1538874762168107" ;="" style="font-size: 15px; line-height: 1.6;">如何使用Identify</a><br></li><li><a href="#WizKMOutline_1538874762168255" ;="" style="font-size: 15px; line-height: 1.6;">測試Identify功能</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1538874762168258" ;="" style="font-size: 15px; line-height: 1.6;">先透過Detect取得圖片裡面的Face Id</a><br></li><li><a href="#WizKMOutline_1538874762168900" ;="" style="font-size: 15px; line-height: 1.6;">透過Identify辨認這個Face Id是誰</a><br></li></ul><li><a href="#WizKMOutline_1538874762168879" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1538874762168107">如何使用Identify</h2><p>
+		和其他方法一樣，先要瞭解api所有的參數才有辦法去嘗試使用，首先去看看官方的api文件：<a href="https://westus.dev.cognitive.microsoft.com/docs/services/563879b61984550e40cbbe8d/operations/563879b61984550f30395239">Identify</a>。
+		</p><dl><dt>
+				Url的部分
+			</dt><dd><p>
+				完整的url是：<code>https://[location].api.cognitive.microsoft.com/face/v1.0/identify</code></p><p>
+				這邊要注意的是當初建立的face api服務的地址在哪裏。以我的例子是<code>eastasia</code>，因此我的完整url是：
+				</p><p><code>https://eastasia.api.cognitive.microsoft.com/face/v1.0/verify</code></p></dd><dt>
+				Header
+			</dt><dd>
+				兩個參數要傳入：
+				<ol><li><em>Content-Type</em>：傳入的格式是<code>application/json</code>，由於格式只有一種，因此這個是一個選填欄位。</li><li><em>Ocp-Apim-Subscription-Key</em>：輸入取得的face api key</li></ol></dd><dt>
+				Body
+			</dt><dd>
+				總共有以下幾個參數：
+				<ol><li><code>faceIds</code>：這是一個<em>string Array</em>列出要被識別出屬於那個person的face id 清單</li><li><code>personGroupId</code>：定義faceIds裡面要從那個PersonGroup找person</li><li><code>largePersonGroupId</code>：這個和上面的<code>personGroupId</code>屬於二擇一，取決於當初建立的Model是哪個</li><li><code>maxNumOfCandidatesReturned</code>：在識別的時候，會依照信心度給出所有可能符合的person，這個可以控制總共要返回多少個可能符合的person。數值是1~100，預設是10</li><li><code>confidenceThreshold </code>：這個是當信心度多少以上才要屬於可能符合的person。數值是0~1之間</li></ol></dd></dl><p></p><p>
+		瞭解了怎麽呼叫的方式之後，接下來就是要實際看看如何呼叫Identify。
+		</p></section><section><h2 id="WizKMOutline_1538874762168255">測試Identify功能</h2><p>
+		從上面瞭解了如何使用之後，接下來要透過用postman來實際試試看：
+		</p><ol><li>先透過Detect取得圖片裡面的Face Id</li><li>透過Identify辨認這個Face Id是誰</li></ol><p></p><section><h3 id="WizKMOutline_1538874762168258">先透過Detect取得圖片裡面的Face Id</h3><p>
+			首先透過detect圖片來取得要被測試的Face Id，這邊將使用圖片：
+			<a href="https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/identification1.jpg">https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/identification1.jpg</a></p><p>
+			執行完可以看到得到的Face Id是：<code>8b749bb9-6c2c-4538-8c58-23dd8cb8bc14</code></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-06-cognitive-service-face-api-11-use-identify-to-find-who-this-face-belong-to/a3bfb150-d517-44d6-ab56-db343817d7c9.png" border="0" alt=""><br><figcaption>用Detect取得的圖片face id</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1538874762168900">透過Identify辨認這個Face Id是誰</h3><p>
+			有了Face id之後就可以嘗試和建立出來的Model去找，這個臉和那個人是同一個。
+			</p><p>
+			使用上面瞭解到Identify所需要的參數，組成request的body：
+			</p><pre><code class="language-json">{
+	"faceIds":["8b749bb9-6c2c-4538-8c58-23dd8cb8bc14"],
+	"personGroupId":"1"
+}</code></pre><p>
+最後得到的結果如下圖：
+</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-06-cognitive-service-face-api-11-use-identify-to-find-who-this-face-belong-to/8665c7b3-2b8b-4665-bc98-a2147500e5d0.png" border="0" alt=""><br><figcaption>執行完Identify得到的結果</figcaption></figure><p></p><pre><code class="language-json">[
+    {
+        "faceId": "8b749bb9-6c2c-4538-8c58-23dd8cb8bc14",
+	"candidates": [
+            {
+                "personId": "c2e08f72-1ff2-45c4-861e-b31d5f18e0a3",
+                "confidence": 0.76658
+            }
+        ]
+    }
+]</code></pre><p>
+			可以看到每一個傳入Facei Id都會列出多個可能的人(<em>candidates</em>)，每一個可能的人都有一個Model判斷出來的信心度（或者準確度），以這邊例子為<code>0.77</code>。
+			</p><p>
+			有了這個資訊之後就能夠做不同類型的程式，例如可以做一個個人的人物識別管理工具。像我對人臉非常不敏感，除非講過幾次話，不然有時候我都認不出來誰是誰。這個時候如果每次都有記錄下來，當人來的時候
+			直接用這個找出最有可能，人際關係就不會尷尬啦。
+			</p></section></section><section><h2 id="WizKMOutline_1538874762168879">結語</h2><p>
+		Face Api剩下的服務裡面還有兩個，
+		</p><ol><li>Grouping - 把一堆臉似相似臉的分在一組</li><li>Find Similar - 找到和某個臉相似的臉</li></ol><p></p><p>
+		這兩個服務在這邊就不再做API詳細介紹了，基本上依照之前介紹服務的方式看一下API基本上就有使用概念了。
+		</p><p>
+		在下一篇，將在看Face Explorer工具的其他功能，并且可以以此作爲把Face Api整合到你的Application的一些idea激蕩。
+		</p></section>

@@ -68,3 +68,8 @@ body{
 .post-heading .tags{
     margin-top: 0px;
 }
+
+/*洗掉clean blog的設定*/
+footer{
+    padding: 0px;
+}

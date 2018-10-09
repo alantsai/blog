@@ -56,3 +56,9 @@ article table {
 		background-color: green;
 		color: white;
 	}
+
+.section-block {
+	background-color: #f9f9f9;
+	padding: 5px 20px;
+	margin-top: 10px;
+}

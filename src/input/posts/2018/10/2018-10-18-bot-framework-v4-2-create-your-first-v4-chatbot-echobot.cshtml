@@ -1,0 +1,68 @@
+Title: "[Bot Framework V4][02]建立第一個V4 Chatbot - EchoBot"
+Published: 2018-10-18 22:01
+Modified: 2018-10-18 22:01
+Image: "/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/bb5271b7-6456-405c-8a0c-d55a506f073a.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "上篇看完了V4版本的開篇了之後
+這篇就來實際看看怎麽建立一個V4的Hello World Chatbot - EchoBot
+看看怎麽準備好工具然後建立出來"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/bb5271b7-6456-405c-8a0c-d55a506f073a.jpg" border="0" alt="[Bot Framework V4][02]建立第一個V4 Chatbot - EchoBot.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/10/bot-framework-v4-1-introduction">[01]開篇</a>)快速的介紹了這個系列的目的以及内容。</p><p>
+		這篇就來實際看一下建立一個V4的Hello World Bot，EchoBot，看看如何建立并且怎麽透過Emulator做測試。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbotv4/tree/blog/chapter-02">alantsai-samples/mhat-hotelbotv4:blog/chapter-02</a></div><div class="bs-callout bs-callout-info">
+			這篇的參考資料可以看：
+			<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">[chatbot + AI = 下一代操作模式][03]建立第一個chatbot - EchoBot</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1539871339436274" ;="" style="font-size: 15px; line-height: 1.6;">情景介紹</a><br></li><li><a href="#WizKMOutline_1539871339436505" ;="" style="font-size: 15px; line-height: 1.6;">準備開發環境</a><br></li><li><a href="#WizKMOutline_1539871339436189" ;="" style="font-size: 15px; line-height: 1.6;">建立第一個Chatbot</a><br></li><li><a href="#WizKMOutline_1539871339436923" ;="" style="font-size: 15px; line-height: 1.6;">用Emulator測試Chatbot</a><br></li><li><a href="#WizKMOutline_1539871339436137" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1539871339436400" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1539871339436274">情景介紹</h2><p>
+		有一個最終想要解決的問題會讓整個學習過程更加的有感，因此這邊先定一個情景。
+		</p><p>
+		和V3介紹的時候一樣，V4也會使用一個一樣的情景，也就是為一個訂房網站做一個訂房用的Chatbot，看一下Chatbot的加入是否會讓操作起來變得更加容易。
+		</p></section><section><h2 id="WizKMOutline_1539871339436505">準備開發環境</h2><p>
+		要接下去需要準備好幾個工具：
+		</p><dl><dt>
+				Visual Studio
+			</dt><dd>
+				Visual Studio其實不是必要，因爲V4版本是.NET Core，所以任何Editor例如Visual Studio Code開發也可以。不過，接下來的範例用的都是VS 2017。如果需要離綫安裝可以參考之前寫過的另外一篇：
+				<a href="https://blog.alantsai.net/posts/2017/03/visualstudio2017-offline-install">[Visual Studio 2017]建立離線安裝(Offline Install)包</a></dd><dt>
+				Bot Framework的Project Template
+			</dt><dd>
+				最新可以從這個<a href="https://botbuilder.myget.org/feed/aitemplates/package/vsix/BotBuilderV4.fbe0fc50-a6f1-4500-82a2-189314b7bea2">傳送門</a>找到，下載下來是一個VSIX檔案，在VS沒有開啓的情況下
+				安裝就是
+			</dd><dt>
+				Bot Framework Emulator
+			</dt><dd>
+				這個Bot模擬器主要用來在地端做測試，讓debug更加的容易：<a href="https://github.com/Microsoft/BotFramework-Emulator/releases">傳送門</a>。有V3和V4版本可以選，建議選擇<em>V4版本</em>。
+			</dd></dl><p>
+		上面的工具都准備好了之後，就可以來建立第一個Chatbot，EchoBot。
+		</p></section><section><h2 id="WizKMOutline_1539871339436189">建立第一個Chatbot</h2><p>
+		首先把Visual Studio打開，然後選擇建立新專案找到：<code>Visual C# -&gt; Bot Framework -&gt; Multi-project -&gt; Bot Builder Echo Bot V4</code></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/eeac1a57-9063-4e67-a44c-6f440e1bfcc4.png" border="0" alt="devenv_2018-10-18_21-28-03.png"><br><figcaption>建立出一個V4的Echo Bot</figcaption></figure><div class="bs-callout bs-callout-info">
+			我這個Template的版本是4.0.6.26，因此有點小bug，要透過上面提的方式建立EchoBot，後面版本看到的可能會不同。
+		</div><p>
+		建立出來了之後，直接執行（可以用<kbd>Ctrl+F5</kbd>），那麽瀏覽器會自動開啓看到一個歡迎介紹頁：
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/5210a95e-929f-477d-b522-f7c2be5741ad.png" border="0" alt="chrome_2018-10-18_21-36-30.png"><br><figcaption>chatbot的歡迎頁</figcaption></figure><div class="bs-callout bs-callout-info">
+			題外話，看過V3在看V4 - V4質感好很多，然後還很貼心的提供Emulator的下載地址以及一些開發的參考資料
+		</div><p>
+		EchoBot建立好了，那麽怎麽測試呢？這個時候就要用Bot Framework Emulator。
+		</p></section><section><h2 id="WizKMOutline_1539871339436923">用Emulator測試Chatbot</h2><p>
+		直接把Emulator執行起來，然後選擇：<code>File -&gt; Open Bot</code></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/2b4b3a18-f2f6-4979-a47d-16b0a228ba1d.png" border="0" alt="Bot Framework Emulator_2018-10-18_21-41-02.png"><br><figcaption>開啓Bot的截圖</figcaption></figure><p></p><p>
+		再來找到剛剛建立EchoBot的路徑，然後找到<code>BotConfiguration.bot</code>，這個時候會自動開啓一個和Chatbot對話的框
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/caccbebb-11fa-41f5-a7a7-b4496285c659.png" border="0" alt="Bot Framework Emulator_2018-10-18_21-43-40.png"><br><figcaption>開啓Chatbot</figcaption></figure><p></p><p>
+		這個時候，輸入任何内容，chatbot將會回您一樣的東西，并且Turn會+1
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-18-bot-framework-v4-2-create-your-first-v4-chatbot-echobot/d3de73f5-4ddd-42b5-bc70-cce04cd06613.png" border="0" alt="Bot Framework Emulator_2018-10-18_21-45-22.png"><br><figcaption>測試Chatbot的截圖</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+			如果對於Emulator其他功能像是Inspector，或者save transcribe as或者是V3版本的介紹，請參考之前另外一個介紹：
+			<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">[chatbot + AI = 下一代操作模式][03]建立第一個chatbot - EchoBot</a></div></section><section><h2 id="WizKMOutline_1539871339436137">結語</h2><p>
+		這篇介紹了如何準備好開發環境以及建立出一個EchoBot出來并且使用了Emulator對這個Chatbot進行測試。
+		</p><p>
+		雖然建立出來了但是這個運作機制是什麽？整個概念以及流程是什麽？這些問題是很模糊的。
+		</p><p>
+		因此，下一篇將在拉回到高角度，來看看整個Bot Framework的信息流以及怎麽串在一起。
+		</p></section><section><h2 id="WizKMOutline_1539871339436400">參考資料</h2><dl><dt>
+				[chatbot + AI = 下一代操作模式][03]建立第一個chatbot - EchoBot
+			</dt><dd>
+				V3版本介紹EchoBot的部分，裡面有更多介紹了Emulator的功能以及V3版本Emulator的用法。
+				<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">傳送門</a></dd></dl></section>

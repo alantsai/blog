@@ -1,0 +1,43 @@
+Title: "[Cognitive Service之Face Api][12]人臉識別的AI服務 -  用Face API Explorer看看Identify的應用"
+Published: 2018-10-11 20:00
+Modified: 2018-10-11 20:00
+Image: "/posts/2018/10/2018-10-11-cognitive-service-face-api-12-demonstrate-identify-usage-using-face-api-explorer/6147f56e-4588-4ee2-ba7d-42923761eac4.jpg"
+Tags: ["「Cognitive Service之Face Api」","cognitive service", "ai", "azure", "face-api"]
+Series: ["「Cognitive Service之Face Api」"]
+PostDescription: "上篇看完了用底層API呼叫Identify的方式之後
+這篇來看看用Face API explorer這個GUI使用起來是什麽感覺"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-11-cognitive-service-face-api-12-demonstrate-identify-usage-using-face-api-explorer/6147f56e-4588-4ee2-ba7d-42923761eac4.jpg" border="0" alt="[Cognitive Service之Face Api][12]人臉識別的AI服務 -  用Face API Explorer看看Identify的應用.jpg"><br><figcaption>背景圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/10/cognitive-service-face-api-11-use-identify-to-find-who-this-face-belong-to">[11]人臉識別的AI服務 - Identify 找出圖片的臉是誰</a>)介紹完了如何透過Identify的方式找出圖片裡面的臉是屬於那個人之後，這個系列要介紹Face API的服務就差不多告一個段落。</p><p>
+		介紹純API的呼叫是看看最底層的用法，當整合到Application裡面，用途就多了。
+		</p><p>
+		這一篇將用Face API Explorer這個工具，看看在裡面是如何整合Identify的功能。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1539252488768331" ;="" style="font-size: 15px; line-height: 1.6;">啓動Face API Explorer</a><br></li><li><a href="#WizKMOutline_1539252488768252" ;="" style="font-size: 15px; line-height: 1.6;">使用Identify功能</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1539252488768930" ;="" style="font-size: 15px; line-height: 1.6;">輸入要識別的圖片網址</a><br></li><li><a href="#WizKMOutline_1539252488768863" ;="" style="font-size: 15px; line-height: 1.6;">使用Detect找出圖片裡面的臉</a><br></li><li><a href="#WizKMOutline_1539252488769899" ;="" style="font-size: 15px; line-height: 1.6;">使用Identify識別出是誰</a><br></li></ul><li><a href="#WizKMOutline_1539252488769946" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1539252488768331">啓動Face API Explorer</h2><p>
+		在介紹Face API Explorer怎麽呈現使用Identify之前，第一步當然是要把他啓動起來。
+		</p><p>
+		如果有在之前那篇（<a href="/posts/2018/10/cognitive-service-face-api-09-face-api-explorer-gui-for-training-persongroup-model">[09]人臉識別的AI服務 -  Face Api Explorer -  GUI工具來建立Person Group Model</a>）下載過了，那麽啓動很簡單，直接：</p><ol><li>透過Command Line直接在那個資料夾執行<code>ng server</code></li><li>開啓瀏覽器，瀏覽到<a href="http://localhost:4200/">http://localhost:4200/</a>即可</li></ol><p></p><p>
+		Face API Explorer啓動了之後，接下來就可以來試試看怎麽使用Identify的功能。
+		</p></section><section><h2 id="WizKMOutline_1539252488768252">使用Identify功能</h2><p>
+		要使用Identify步奏如下：
+		</p><ol><li>輸入要識別的圖片網址</li><li>使用Detect找出圖片裡面的臉</li><li>使用Identify識別出是誰</li></ol><p></p><section><h3 id="WizKMOutline_1539252488768930">輸入要識別的圖片網址</h3><p>
+			先透過點上面Menu的<code>Face Analysis -&gt; Detection/Identification</code>，然後選擇使用的<code>Person Group</code>，然後把網址貼在<code>Image Url</code>裡面。
+			</p><p>
+			這邊用的圖片網址是：<code>https://raw.githubusercontent.com/Microsoft/Cognitive-Face-Windows/master/Data/identification1.jpg</code></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-11-cognitive-service-face-api-12-demonstrate-identify-usage-using-face-api-explorer/affb59e7-362c-4681-a1e2-3ada5199562c.png" border="0" alt="2018-10-11_16-11-40.png"><br><figcaption>可以看到圖片網址貼進去之後可以看到圖片内容在下面</figcaption></figure></section><section><h3 id="WizKMOutline_1539252488768863">使用Detect找出圖片裡面的臉</h3><p>
+			還記得上篇提到API呼叫的時候，需要傳入的是要被識別的<code>faceIds</code>，換句話説，要先取得Face Id才有辦法做Identify。
+			</p><p>
+			因此：
+			</p><ol><li>先點擊<code>Detect</code></li><li>被識別的臉用黃框包起來，可以按下左鍵點一下</li><li>可以看到detect得到的json api結果</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-11-cognitive-service-face-api-12-demonstrate-identify-usage-using-face-api-explorer/22c3b57b-8dd5-4cb7-a7a3-886b3a2436f1.png" border="0" alt="2018-10-11_16-14-35.png"><br><figcaption>透過Detect找到臉，并且點一下看到得到的JSON</figcaption></figure></section><section><h3 id="WizKMOutline_1539252488769899">使用Identify識別出是誰</h3><p>
+			最後就是測試Identify：
+			</p><ol><li>按下<code>Identify</code>的按鈕</li><li>有被識別出的變成<em>綠色</em>框框，點一下</li><li>上面顯示的是Detect得到的JSON</li><li>橘色highlight顯示的是識別出來的人名</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-11-cognitive-service-face-api-12-demonstrate-identify-usage-using-face-api-explorer/5782ba81-91f0-45c9-bd42-e0a2fc11894c.png" border="0" alt="chrome_2018-10-11_16-18-18.png"><br><figcaption>透過Identify找出這張圖片的人臉是誰</figcaption></figure></section></section><section><h2 id="WizKMOutline_1539252488769946">結語</h2><p>
+		這篇介紹了Face API Explorer這個工具裡面和Identify有關的使用方式。透過這個工具，希望能夠啓發Identify不同的用途。
+		</p><p>
+		舉例來説，假設自己不太容易記住人的臉，那麽透過這種日常性的train之後，可以用這種方式找出某張臉是誰。
+		</p><p>
+		另外一種應用例如透過人臉辨識來開門或者一些客製化服務。當人走到門口的時候，自動識別出這個人是誰，并且提供一些針對性的服務（例如飯店業可以記住上次這個人訂房的喜好），可以大大提升整個使用者體驗。
+		</p><p>
+		在下一篇將是這個系列的尾聲，快速的總結一下這個系列介紹了什麽，并且在未來如何持續精進下去。
+		</p></section>

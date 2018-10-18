@@ -1,0 +1,46 @@
+Title: "[Bot Framework V4][01]開篇"
+Published: 2018-10-17 21:01
+Modified: 2018-10-17 21:01
+Image: "/posts/2018/10/2018-10-17-bot-framework-v4-1-introduction/5b1b59dc-2b26-479e-beb1-8d6c7c8e9a51.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot", "net-core"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "CaaP是下一個時代的操作模式，簡單的說就是chatbot + AI服務。
+在微軟來説，也就是bot framework + Cognitive Service。
+爲什麽會是下一個時代呢？這篇來看看爲什麽CaaP很重要，并且爲什麽應該花一點時間來學習"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-17-bot-framework-v4-1-introduction/5b1b59dc-2b26-479e-beb1-8d6c7c8e9a51.jpg" border="0" alt="[Bot Framework V4][01]開篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		還記得沒多久之前介紹的另外一個系列(<a href="/tags/%E3%80%8Cchatbot-+-ai-=-%E4%B8%8B%E4%B8%80%E4%BB%A3%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F%E3%80%8D">「chatbot + AI = 下一代操作模式」</a>)，那個時候介紹了新一代的操作模式俗稱的Chatbot，以及看Chatbot結合Cognitive Service這種AI API所帶來的另外一種使用者體驗。
+		</p><p>
+		那時候因爲V4還在Preview，所以介紹了使用Bot Framework V3(準確一點說是BotBuilder V3)。
+		</p><p>
+		而V4在9月底的時候正式發佈GA了(進入Stable)，因此有了這個系列的開始，來看看V4改變了什麽。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1539856506210167" ;="" style="font-size: 15px; line-height: 1.6;">這個系列要介紹什麽？</a><br></li><li><a href="#WizKMOutline_1539856506211865" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽要學？</a><br></li><li><a href="#WizKMOutline_1539856506211559" ;="" style="font-size: 15px; line-height: 1.6;">V3 和 V4 差多少？</a><br></li><li><a href="#WizKMOutline_1539856506211665" ;="" style="font-size: 15px; line-height: 1.6;">這個系列需要準備什麽工具/知識？</a><br></li><li><a href="#WizKMOutline_1539856506211647" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1539856506211629" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1539856506210167">這個系列要介紹什麽？</h2><p>
+		相信看過另外一個系列對於整個Chatbot以及Cognitive Service有了整體概念，因此在這個系列裡面我會盡量的不重複説過的内容。
+		</p><p>
+		這個系列將會Focus在V4版本上面，并且看看同樣在V3的東西到了V4寫法會變成什麽樣子。
+		</p><p>
+		除了把之前的Cognitive Service服務從V3改成V4之外，這個系列還會加入一些別的Cognitive Service服務，像是Face API，并且會在更進一步介紹微軟在AI這個方面的另外一個針對開發者建立Model的框架
+		<em>Machine Learning .NET</em>，并且看看如何從使用的角度，把裡面train好的Model放到Chatbot裡面使用。
+		</p></section><section><h2 id="WizKMOutline_1539856506211865">爲什麽要學？</h2><p>
+		詳細可以參考我另外一個系列的第一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-1-introduction-what-is-caap-why-learn-bot-framework-and-cognitives-service">[chatbot + AI = 下一代操作模式][01]開篇 - CaaP是什麽，爲什麽應該學</a>)，這邊想要補充的是，我後來才知道Chatbot這種操作模式還有一個名稱叫做<em>Conversational AI</em>。</p><p>
+		換句話説透過交談的方式，搭配AI讓工作無形之中就完成了，很像科幻電影裡面的那種人工智能助理。
+		</p><p>
+		因此，不管會不會用到，瞭解下一代的UI的開發框架應該是一個不錯的時間投資。
+		</p></section><section><h2 id="WizKMOutline_1539856506211559">V3 和 V4 差多少？</h2><p>
+		基本上<em>完全不一樣</em>。
+		</p><p>
+		V4其實是聼取了大家使用V3的經驗整個打掉重練的一個框架，最底層使用的是Asp .NET Core 2.0 (換句話説，Bot的部分可以跨平臺），因此如果有Asp .NET Core的經驗的話，會感覺很舒服。
+		</p><p>
+		不過如果沒有使用過Asp .NET Core也不用擔心，這個系列會介紹一些概念，然後最主要還是focus在Bot Builder的部分上面。
+		</p></section><section><h2 id="WizKMOutline_1539856506211665">這個系列需要準備什麽工具/知識？</h2><p>
+		基本上和V3需要的知識/工具差不多：
+		</p><ol><li>C# - 最基本的C#一定要懂，再來懂 async，和瞭解 Asp .NET Core會讓理解更加容易，但是不會問題也不會太大（至少從理解程式的角度來説）</li><li>Visual Studio - 整個系列用的是VS 2017，然後記得<em>要安裝.NET Core</em>(最少2.0，如果要用2.0以上可以自己調整)。如果想要離綫安裝，可以參考我之前寫過的一篇
+				<a href="/posts/2017/03/visualstudio2017-offline-install">[Visual Studio 2017]建立離線安裝(Offline Install)包</a></li></ol></section><section><h2 id="WizKMOutline_1539856506211647">結語</h2><p>
+		作爲開篇來説基本上都是一些概觀介紹，沒有什麽實際的内容在。
+		</p><p>
+		下一篇就不一樣了，直接進入建立Chatbot的Hello World，建立一個Echobot。
+		</p></section><section><h2 id="WizKMOutline_1539856506211629">參考資料</h2><ol><li><a href="/tags/%E3%80%8Cchatbot-+-ai-=-%E4%B8%8B%E4%B8%80%E4%BB%A3%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F%E3%80%8D">「chatbot + AI = 下一代操作模式」</a>： 介紹Bot Framework V3和Cognitive Service搭配，如果沒看過可以先做參考</li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-1-introduction-what-is-caap-why-learn-bot-framework-and-cognitives-service">[chatbot + AI = 下一代操作模式][01]開篇 - CaaP是什麽，爲什麽應該學</a>：介紹爲什麽應該花時間瞭解Chatbot</li><li><a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture">[chatbot + AI = 下一代操作模式][02]微軟的Bot Framework是什麽？</a>：介紹Bot Framework的組成，在V4裡面這個部分也是一樣的概念</li></ol></section>

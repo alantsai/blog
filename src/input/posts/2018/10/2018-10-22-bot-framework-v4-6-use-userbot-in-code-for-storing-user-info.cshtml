@@ -1,0 +1,176 @@
+Title: "[Bot Framework V4][06]使用BotState儲存使用者的相關信息"
+Published: 2018-10-22 21:01
+Modified: 2018-10-22 21:01
+Image: "/posts/2018/10/2018-10-22-bot-framework-v4-6-use-userbot-in-code-for-storing-user-info/ceebd578-d0fd-4910-830c-b51bad990e04.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "瞭解了BotState的概念之後，就需要實際看看如何如何使用在程式碼裡面
+這篇將以取得使用者的姓名為目的，看看如何透過BotState達到可以儲存的效果，讓bot可以變得更貼近使用者"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-22-bot-framework-v4-6-use-userbot-in-code-for-storing-user-info/ceebd578-d0fd-4910-830c-b51bad990e04.jpg" border="0" alt="[Bot Framework V4][06]使用BotState儲存使用者的相關信息.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		上一篇(<a href="/posts/2018/10/bot-framework-v4-5-how-to-manage-state">[05]搞懂Bot的State Management - 怎麽儲存信息</a>)看完了一堆理論了之後，相信對於整個V4的BotState有個比較清楚的概念 - 爲什麽要用Accessor，整體的串接以及需要哪些原件。</p><p>
+		這一篇將在加深這個部分的印象，如果Bot能夠記得使用者的姓名將會給一個不同的使用者體驗。
+		</p><p>
+		看看怎麽在<code>UserState</code>裡面儲存内容。
+		</p>
+		<div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbotv4/tree/blog/chapter-06">alantsai-samples/mhat-hotelbotv4:blog/chapter-06</a></div>
+	</section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1540214464504176" ;="" style="font-size: 15px; line-height: 1.6;">整個功能的流程</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1540214464505251" ;="" style="font-size: 15px; line-height: 1.6;">建立一個POCO用來代表儲存使用者的信息</a><br></li><li><a href="#WizKMOutline_1540214464505522" ;="" style="font-size: 15px; line-height: 1.6;">增加Accessor</a><br></li><li><a href="#WizKMOutline_1540214464505995" ;="" style="font-size: 15px; line-height: 1.6;">網站啓動的時候注冊UserState用到的storage</a><br></li><li><a href="#WizKMOutline_1540214464505345" ;="" style="font-size: 15px; line-height: 1.6;">調整信息處理的程式碼</a><br></li><li><a href="#WizKMOutline_1540214464506356" ;="" style="font-size: 15px; line-height: 1.6;">測試</a><br></li></ul><li><a href="#WizKMOutline_1540214464506346" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1540214464504176">整個功能的流程</h2><p>
+		要開始寫Code之前要知道整個流程是如何才有辦法撰寫，這邊用文字簡單描述一下：
+		</p><ol><li>當使用者剛進來的時候，會先判斷是否知道它的姓名</li><li>如果不知道的話，就會詢問他的姓名</li><li>如果知道的話，就直接保留之前的echo功能，回傳姓名+得到的信息内容</li></ol><p></p><p>
+		大概知道流程是什麽了之後，接下來就是實際的撰寫，大概會分幾個階段：
+		</p><ol><li>建立一個POCO用來代表儲存使用者的信息</li><li>增加Accessor - 用來存取這個設定</li><li>網站啓動的時候注冊UserState用到的storage</li><li>調整信息處理的程式碼</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1540214464505251">建立一個POCO用來代表儲存使用者的信息</h3><p>
+			首先第一步是需要儲存信息的POCO - 有了這個POCO在整個程式撰寫才能夠使用强行別。
+			</p><p>
+			因此，首先加一個<code>Model</code>的資料夾 - 這個資料夾能夠把POCO都放在裡面比較好區隔。
+			</p><p>
+			然後建立一個POCO叫做<code>UserInfo.cs</code>的class。
+			</p><pre><code class="language-csharp">public class UserInfo
+{
+	public string Name { get; set; }
+}</code></pre></section><section><h3 id="WizKMOutline_1540214464505522">增加Accessor</h3><p>
+			有了Model之後，就要建立一個可以在BotState存取的Accessor。這邊將沿用EchoBot裡面的<code>EchoBotAccessors.cs</code>去做修改。
+			</p><p>
+			首先，要有<code>UserState</code>的物件。還記得如果是User相關信息要儲存在<code>UserState</code>，因此先調整Constructor加入<code>UserState</code>的注入：
+			</p><pre><code class="language-csharp">public UserState UserState { get; }
+
+public EchoBotAccessors(ConversationState conversationState,
+ UserState userState)
+{
+	ConversationState = conversationState ??
+		throw new ArgumentNullException(nameof(conversationState));
+		
+	UserState = userState ??
+		throw new ArgumentNullException(nameof(userState));
+}</code></pre><p>
+		再來記得Accessors需要一個字串用來作爲實際儲存的時候區別的key，因此建立一個代表要儲存的字串，以及實際的Accessor：
+		</p><pre><code class="language-csharp">public static string UserInfoName { get; } = 
+	$"{nameof(EchoBotAccessors)}.UserInfoName";
+
+public IStatePropertyAccessor&lt;UserInfo&gt; UserInfo { get; set; }</code></pre><p>
+		到這邊Accessor就准備好了。
+		</p></section><section><h3 id="WizKMOutline_1540214464505995">網站啓動的時候注冊UserState用到的storage</h3><p>
+			Accessor准備好了，但是實際上沒有設定<code>UserState</code>因此執行起來會有問題。
+			</p><p>
+			這個時候就要回去<code>Startup.cs</code>來注冊這些信息進去。
+			</p><p>
+			首先是用<code>MemoryStorage</code>把<code>UserState</code>建立出實例，并且注冊進去：
+
+</p><pre><code class="language-chsarp">services.AddBot&lt;EchoWithCounterBot&gt;(options =&gt;
+{
+	....
+
+	IStorage dataStore = new MemoryStorage();
+
+	var userState = new UserState(dataStore);
+	options.State.Add(userState);
+});</code></pre><p></p><p>
+			再來是注冊<code>EchoBotAccessors</code>為Singleton的時候，要調整new的參數：
+			</p><pre><code class="language-csharp">services.AddSingleton&lt;EchoBotAccessors&gt;(sp =&gt;
+{
+	...
+	var userState = options.State.OfType&lt;UserState&gt;().FirstOrDefault();
+
+	var accessors = new EchoBotAccessors(conversationState, userState)
+	{
+		...
+		UserInfo = userState.CreateProperty&lt;UserInfo&gt;(EchoBotAccessors.UserInfoName)
+	};
+
+	return accessors;
+});</code></pre><p>
+		到這邊，UserState的建立以及Accessor也都準備好了，接下來就是實際code的部分了。
+		</p></section><section><h3 id="WizKMOutline_1540214464505345">調整信息處理的程式碼</h3><p>
+			首先，在信息來的時候，看看有沒有姓名，如果有的話依照之前的邏輯（加上姓名作爲輸出的一部分），沒有的話詢問他的尊姓大名：
+			</p><pre><code class="language-csharp">public async Task OnTurnAsync(ITurnContext turnContext,
+	CancellationToken cancellationToken = default(CancellationToken))
+{
+	if (turnContext.Activity.Type == ActivityTypes.Message)
+	{
+		var state = await _accessors.CounterState
+		.GetAsync(turnContext, () =&gt; new CounterState());
+
+		var userInfo = await _accessors.UserInfo
+		.GetAsync(turnContext, () =&gt; new Model.UserInfo());
+
+		if (string.IsNullOrEmpty(userInfo.Name))
+		{
+			await turnContext.SendActivityAsync("請問尊姓大名？");
+		}
+		else
+		{
+			// Bump the turn count for this conversation.
+			state.TurnCount++;
+
+			// Set the property using the accessor.
+			await _accessors.CounterState.SetAsync(turnContext, state);
+
+			// Save the new turn count into the conversation state.
+			await _accessors.ConversationState.SaveChangesAsync(turnContext);
+
+			// Echo back to the user whatever they typed.
+			var responseMessage = $"Name: {userInfo.Name} Turn {state.TurnCount}: You sent '{turnContext.Activity.Text}'\n";
+			await turnContext.SendActivityAsync(responseMessage);
+		}
+	}
+	....
+}</code></pre><p>
+		這個時候會遇到一個問題，<em>怎麽知道使用者的回答是對應到詢問姓名這個部分？</em>，換句話説，怎麽知道目前使用者發出的信息是告訴bot他的姓名？
+		</p><p>
+		這也是<code>ConversationState</code>和<code>UserState</code>的差別，<code>ConversationState</code>可以用來儲存這種和信息有關的狀態欄位。
+		</p><p>
+		這邊偷懶一下，直接使用<code>CounterState.cs</code>作爲儲存的POCO，直接增加一個property：
+</p><pre><code class="language-csharp">public class CounterState
+{
+	...
+	public string CurrentConversationFlow { get; set; } = "askName";
+}</code></pre><p></p><p>
+		有了這個Property之後，調整一下剛剛的if判斷：
+		</p><pre><code class="language-csharp">if (string.IsNullOrEmpty(userInfo.Name) 
+		&amp;&amp; state.CurrentConversationFlow == "askName")
+{
+	state.CurrentConversationFlow = "getName";
+
+	await _accessors.CounterState.SetAsync(turnContext, state);
+	await _accessors.ConversationState.SaveChangesAsync(turnContext);
+
+	await turnContext.SendActivityAsync("請問尊姓大名？");
+}
+else if(state.CurrentConversationFlow == "getName")
+{
+	userInfo.Name = turnContext.Activity.Text;
+	state.CurrentConversationFlow = "done";
+
+	await _accessors.UserInfo.SetAsync(turnContext, userInfo);
+	await _accessors.UserState.SaveChangesAsync(turnContext);
+
+	await _accessors.CounterState.SetAsync(turnContext, state);
+	await _accessors.ConversationState.SaveChangesAsync(turnContext);
+
+	await turnContext.SendActivityAsync($"{userInfo.Name} 您好");
+}
+else
+{
+......
+}</code></pre><p>
+		到這邊就修改完了，最後就是測試啦。
+		</p></section><section><h3 id="WizKMOutline_1540214464506356">測試</h3><p>
+			透過<kbd>Ctrl+F5</kbd> run起來了之後，在透過Emulator就可以看到以下結果啦：
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-22-bot-framework-v4-6-use-userbot-in-code-for-storing-user-info/91e4d267-feea-4cea-b0da-ffe8bb0bb772.png" border="0" alt="Bot Framework Emulator_2018-10-22_20-03-37.png"><br><figcaption>測試結果</figcaption></figure><p>
+			可以看到整個流程符合一開始的要求。
+			</p></section></section><section><h2 id="WizKMOutline_1540214464506346">結語</h2><p>
+		這篇介紹了實際建立一個<code>UserState</code>用來儲存目前使用者的信息。
+		</p><p>
+		透過上一篇的理論搭配這一篇的實作，相信對於<code>BotState</code>的使用非常清楚了。
+		</p><p>
+		透過目前的知識其實就已經可以開始開發一個好的Chatbot，不過等等，透過conversation state然後if else來控制信息流程好像不太耶。不管從維護的角度還是撰寫的角度。
+		</p><p>
+		難道沒有更好控制流程的方式嗎？
+		</p><p>
+		下一篇來看看V4裡面另外一個重要的原件，看看怎麽讓流程控制變得簡單。
+		</p></section>

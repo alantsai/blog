@@ -1,0 +1,99 @@
+Title: "[Bot Framework V4][03]搞懂關鍵字以及信息的處理流程"
+Published: 2018-10-19 07:01
+Modified: 2018-10-19 07:01
+Image: "/posts/2018/10/2018-10-19-bot-framework-v4-3-know-keywords-and-how-activity-is-processed/9fb16360-7db6-4d7f-9549-3a8f29dff024.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "建立除了EchoBot之後，雖然run起來沒什麽問題，但是底層到底怎麽運作？
+這篇將介紹V4裡面幾個重要的關鍵字，以及整體的處理流程是如何
+瞭解這些在看文件就不會有問題啦"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-19-bot-framework-v4-3-know-keywords-and-how-activity-is-processed/9fb16360-7db6-4d7f-9549-3a8f29dff024.jpg" border="0" alt="[Bot Framework V4][03]搞懂關鍵字以及信息的處理流程.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-2-create-your-first-v4-chatbot-echobot">[02]建立第一個V4 Chatbot - EchoBot</a>)看了如何建立出一個Hello World等級的Chatbot：EchoBot并且使用了Bot Emulator對他做了測試，看起來也沒什麽問題。</p><p>
+		那麽下一個問題就來了，Bot Framework到底是怎麽組成的？整個信息的流是怎麽動起來？
+		</p><p>
+		這篇將來介紹Bot Framework裡面用到的一些關鍵字，以及整個是如何搭起來，未來不管是在看文件還是深入研究才不會搞得糊里糊塗。
+		</p><div class="bs-callout bs-callout-info">
+			整個Bot Framework的組成和V3沒有什麽不同，因此對Bot Framework，Bot Builder搞不清楚的可以參考之前V3的介紹：<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture">[chatbot + AI = 下一代操作模式][02]微軟的Bot Framework是什麽？</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1539943584739965" ;="" style="font-size: 15px; line-height: 1.6;">Activity是什麽？</a><br></li><li><a href="#WizKMOutline_1539943584739845" ;="" style="font-size: 15px; line-height: 1.6;">處理一個信息的流程</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1539943584739852" ;="" style="font-size: 15px; line-height: 1.6;">Turn 以及 turn context的概念</a><br></li><li><a href="#WizKMOutline_1539943584739738" ;="" style="font-size: 15px; line-height: 1.6;">Middleware</a><br></li><li><a href="#WizKMOutline_1539943584739584" ;="" style="font-size: 15px; line-height: 1.6;">Bot</a><br></li><li><a href="#WizKMOutline_1539943584739437" ;="" style="font-size: 15px; line-height: 1.6;">Response Event Handler</a><br></li><li><a href="#WizKMOutline_1539943584739301" ;="" style="font-size: 15px; line-height: 1.6;">Adapter</a><br></li></ul><li><a href="#WizKMOutline_1539943584739836" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1539943584739965">Activity是什麽？</h2><p>
+		還記得這張圖嗎？
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-19-bot-framework-v4-3-know-keywords-and-how-activity-is-processed/bb359efe-2cce-4fbe-92ab-36f8204e1f0a.png" border="0" alt=""><br><figcaption>整個Bot Framework的結構</figcaption></figure><p></p><p>
+		當一個信息傳過來到Bot的時候，這個信息稱爲一個<em>Activity</em>。
+		</p><p>
+		注意，這邊提的是<strong>信息</strong>而不是<strong>訊息</strong>，換句話説，傳過來的不一定都是有内容（例如文字、圖片和語音這種人發出來的訊息），而是可能是狀態類型例如某個人剛加入了聊天（有了這個通知bot可以發出
+		相關對應内容讓這個人更好和bot溝通）。
+		</p><p>
+		因此，Activity有幾個重要的部分：
+		</p><dl><dt>
+				ActivityTypes
+			</dt><dd>
+				什麽類型的信息，V4支援的類型還蠻多，這邊不一個一個介紹，大部分看名稱應該多多少少知道是什麽：
+				<figure><img class="img-responsive" src="/posts/2018/10/2018-10-19-bot-framework-v4-3-know-keywords-and-how-activity-is-processed/0ab895e2-c5ef-4de7-8db6-d4b627586a89.png" border="0" alt="devenv_2018-10-19_16-37-59.png"><br><figcaption>所有的ActivityTypes</figcaption></figure></dd><dt>
+				實際的訊息
+			</dt><dd>
+				如果ActivityTypes屬於<code>message</code>，那麽傳過來有可能是文字、圖片或者語音，因此從Activity裡面取得這些訊息在做對應處理是Chatbot的很大一塊邏輯
+			</dd><dt>
+				其他和這個Activity有關的周邊信息
+			</dt><dd>
+				有很多metadata，例如這個信息是誰傳送過來，透過什麽Channel（不同Channel回復方式可能不同）等等。
+			</dd></dl><p></p><p>
+		有了Activity的概念之後來看這個：
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-19-bot-framework-v4-3-know-keywords-and-how-activity-is-processed/3f40ef7d-f0e5-4b04-a53b-a2cb17f6f164.png" border="0" alt="bot-builder-activity.png"><br><figcaption>剛加入的信息流。來源：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0&amp;tabs=cs</figcaption></figure><p></p><p>
+		這邊可以發現到：
+		</p><ol><li>總共出現了兩種Activity Types：conversational update以及message</li><li>信息透過POST方式傳遞，然後一個200的status code表示收到</li></ol><p></p><p>
+		這個就是信息在bot是怎麽傳遞。
+		</p></section><section><h2 id="WizKMOutline_1539943584739845">處理一個信息的流程</h2><p>
+		上面看完了高的角度，接下來往下鑽，看看一個信息是怎麽被處理完成。
+		</p><p>
+		這邊將介紹：
+		</p><ol><li>Turn以及turn context</li><li>Middleware</li><li>Bot</li><li>Response Event Handler</li><li>Adapter</li></ol><p></p><section><h3 id="WizKMOutline_1539943584739852">Turn 以及 turn context的概念</h3><p>
+		Activity是代表一個信息，那麽Turn就代表<em>處理這個信息的所有process</em>。
+		</p><p>
+		簡單一點來説，從Activity進來，會經過好多關卡，到最後Bot回復一個信息回去，這個完整處理流程就是一個Turn。
+		</p><p>
+		這邊提到了關卡，換句話説會過好多層，那麽這些不同層是不是需要一個共通可以溝通的物件代表了整個處理Activity的情況？
+		</p><p>
+		這個就是所謂的<em>turn context</em>。Activity會被轉換成爲turn context方便不同關卡之間的處理以及溝通。
+		</p></section><section><h3 id="WizKMOutline_1539943584739738">Middleware</h3><p>
+			Middleware和一般聽到的Middleware作用是一樣的，主要可以用來做一些Cross Cutting Concern。
+			</p><p>
+			因此如果有些通用類型的處理要做，就可以用Middleware來達成 - Middleware也是上面提到的過好多關卡的關卡部分。
+			</p></section><section><h3 id="WizKMOutline_1539943584739584">Bot</h3><p>
+			Bot是最後一站，Bot決定對這個信息要做出什麽樣的反應。
+			</p><p>
+			因此，處理的邏輯都是寫在這邊。
+			</p></section><section><h3 id="WizKMOutline_1539943584739437">Response Event Handler</h3><p>
+			當Bot處理完，要把信息發送回到Channel之前，除了會經過Middleware之外，在turn context有response event handler可以注冊。
+			</p><p>
+			有注冊就會在對應response發生的時候觸發。
+			</p></section><section><h3 id="WizKMOutline_1539943584739301">Adapter</h3><p>
+			要把時間點拉前面一些，還記得之前提到信息是Activity，而爲了處理這個Activity有一個共通的物件建立出來，也就是turn context。
+			</p><p>
+			那麽，是誰把turn context建立起來并且開始啓動關卡呢？這就是Adapter。
+			</p></section><p>
+		把上面的概念畫成一個sequence diagram就會像下面這樣：
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-19-bot-framework-v4-3-know-keywords-and-how-activity-is-processed/522101a3-e9cf-4b82-8768-ac3954290077.png" border="0" alt="bot-builder-activity-processing-stack.png"><br><figcaption>一個Activity的處理流程，來源：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0&amp;tabs=cs</figcaption></figure>
+		在這個圖裏面唯一沒有介紹到的就是<em>Web Server Integration</em>。在C#來説這個指的是Asp .NET的部分。
+		<p></p></section><section><h2 id="WizKMOutline_1539943584739836">結語</h2><p>
+		這篇介紹了整個V4版本的核心原件以及整個信息處理的流程。
+		</p><p>
+		瞭解這些關鍵字不止在看code的時候能夠更加瞭解，在看文件的時候也才不會糊里糊塗。
+		</p><p>
+		透過這篇，也會發現和V3有很大的不同，更別説還有一些概念例如Dialog還沒介紹到（和V3有不同的意思）
+		</p><p>
+		都是理論有點無聊，下一篇(<a href="/posts/2018/10/bot-framework-v4-4-see-how-echobot-is-constructed">[04]瞭解EchoBot的程式碼結構</a>)將拆解EchoBot，實際來看看整合怎麽和這篇對應。
+		</p></section>
+		<section>
+			<h2>參考資料</h2> 
+			<dl>
+				<dt>
+					官方介紹這個部分：Understanding how bots work
+				</dt>
+				<dd>
+					<a href="https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-basics?view=azure-bot-service-4.0&tabs=cs">傳送門</a>
+				</dd>
+			</dl>
+		</section>

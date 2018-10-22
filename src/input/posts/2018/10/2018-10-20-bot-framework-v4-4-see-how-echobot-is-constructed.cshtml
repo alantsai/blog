@@ -1,0 +1,70 @@
+Title: "[Bot Framework V4][04]瞭解EchoBot的程式碼結構"
+Published: 2018-10-20 21:01
+Modified: 2018-10-20 21:01
+Image: "/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/aa57b3ef-71d0-43fb-9e3c-8543fbd0b543.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "瞭解完了V4裡面關鍵字以及整個Chatbot信息的處理流程
+有了這個知識之後，這一篇將來實際拆解EchoBot裡面的程式，看看怎麽把V4學到的關鍵字和實際的程式碼對應"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/aa57b3ef-71d0-43fb-9e3c-8543fbd0b543.jpg" border="0" alt="[Bot Framework V4][04]瞭解EchoBot的程式碼結構.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-3-know-keywords-and-how-activity-is-processed">[03]搞懂關鍵字以及信息的處理流程</a>)瞭解了整個V4版本的關鍵字以及信息是怎麽流動。</p><p>
+		這篇來看看實際code的結構 - 使用之前建立出來的EchoBot，看一下整體的結構。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1540044759791345" ;="" style="font-size: 15px; line-height: 1.6;">程式碼的結構</a><br></li><li><a href="#WizKMOutline_1540044759791322" ;="" style="font-size: 15px; line-height: 1.6;">Startup.cs</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1540044759791776" ;="" style="font-size: 15px; line-height: 1.6;">Configure</a><br></li><li><a href="#WizKMOutline_1540044759792808" ;="" style="font-size: 15px; line-height: 1.6;">ConfigureServices</a><br></li></ul><li><a href="#WizKMOutline_1540044759792810" ;="" style="font-size: 15px; line-height: 1.6;">CounterState.cs</a><br></li><li><a href="#WizKMOutline_1540044759792901" ;="" style="font-size: 15px; line-height: 1.6;">EchoBotAccessors.cs</a><br></li><li><a href="#WizKMOutline_1540044759792705" ;="" style="font-size: 15px; line-height: 1.6;">EchoWithCounterBot.cs</a><br></li><li><a href="#WizKMOutline_1540044759792660" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1540044759791345">程式碼的結構</h2><p>
+		首先，來看一下整個EchoBot有的檔案：
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/b0f34491-3b75-45be-b226-e301c304d460.png" border="0" alt="devenv_2018-10-20_17-18-41.png"><br><figcaption>EchoBot的資料夾組成</figcaption></figure><p></p><p>
+		從這個結構可以看出，是一個很典型的Asp .NET Core的結構，拆解出來可以分幾個部分：
+		</p><ol><li><code>Startup.cs</code> - 網站啓動的時候執行的部分</li><li><code>EchoBotAccessors</code>和<code>CounterState</code> - 還記得每一個對話，Turn的數字會加一。這兩個class有何記錄這個信息有關的地方</li><li><code>EchoWithCounterBot</code> - 信息最末端，Bot的部分，也是實際邏輯的部分</li></ol><p></p><p>
+		有了幾個部分的概念之後，來實際看一下裡面的内容。
+		</p></section><section><h2 id="WizKMOutline_1540044759791322">Startup.cs</h2><p>
+			這個Class的東西會在Bot (網站)啓動的時候被執行，因此是這邊有了某些設定，Asp .NET Core才會把他當作Bot來處理。
+			</p><p>
+			這邊又分了兩個大的方法：
+			</p><ol><li>Configure</li><li>ConfigureServices</li></ol><p></p><section><h3 id="WizKMOutline_1540044759791776">Configure</h3><p>
+				這邊重要的是呼叫了<code>IApplicationBuilder.UseBotFramework()</code></p><p>
+				呼叫了這一行，將會把對應等一下提到的bot相關設定注冊進去。
+				</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/e3e9c1d8-38ec-475e-941f-ce7c6d1d6355.png" border="0" alt="devenv_2018-10-20_21-04-51.png"><br><figcaption>IApplicationBuilder的程式碼片段</figcaption></figure></section><section><h3 id="WizKMOutline_1540044759792808">ConfigureServices</h3><p>
+				在這個方法裡面有兩個部分：
+				</p><ol><li>AddBot - 這邊設定Bot的部分</li><li>AddSingleton - 這個注冊State Accessor的部分為一個Singleton</li></ol><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/6535da71-ae50-45ef-a7a0-cafd5c143d2d.png" border="0" alt="devenv_2018-10-20_21-09-25.png"><br><figcaption>總覽的部分</figcaption></figure><dl><dt>
+						AddBot
+					</dt><dd>
+						這邊總共設定了3個事情：
+						<ol><li>透過<code>BotConfiguration.bot</code>的内容來設定framework裡面的config</li><li>透過<code>OnTurnError</code>設定當Bot有出錯的時候要發生什麽事情</li><li>信息一定要存在某個地方才有上下文，類似網頁的Session要存那邊，預設存在Memory裡面</li></ol><p>
+						這邊就不展開程式碼的部分 - 不過整體來説就是做了這3個事情。
+						</p></dd><dt>
+						AddSingleton
+					</dt><dd><p>
+						還記得在EchoBot的時候每一輪bot都會直接回復他收到的内容并且Turn都會加1。第幾輪的信息就是透過Accessors來呼叫。
+					</p><p>
+						因此透過Asp .NET Core的Dependency Injection把這個物件注冊成爲Singleton，這樣每個地方都可以透過注入的方式取得這個物件。
+						</p></dd></dl></section><p>
+			EchoBot很單純，所以沒有使用其他Middleware，如果有需要就可以在這邊做設定，或者其他會用到的物件也是這邊可以放到注入的容器裏面。
+			</p></section><section><h2 id="WizKMOutline_1540044759792810">CounterState.cs</h2><p>
+			還記得EchoBot裡面記錄的第幾輪的信息嗎？在這邊<code>CounterState</code>這個Class就代表想要被記錄的信息的POCO。
+			</p><p>
+			整個Class很見到，就一個Property記錄<code>TurnCount</code>。
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/b1f28f78-7d81-4cbf-9ba9-635f188e302c.png" border="0" alt="devenv_2018-10-20_21-40-24.png"><br><figcaption>CounterState的内容</figcaption></figure></section><section><h2 id="WizKMOutline_1540044759792901">EchoBotAccessors.cs</h2><p>
+			有了要被記錄保留信息的POCO之後，接下來就需要一個代表儲存以及取得的Class，這個也就是Accessors。
+			</p><p>
+			透過Accessors能夠把底層實際讀取和儲存的邏輯（例如是存在Memory，還是一些可以永久儲存的地方例如Azure Storage）抽離，達到降低Dependency。
+			</p><p><code>EchoBotAccessors</code>就是這個bot程式裡面的Accessors。
+			</p></section><section><h2 id="WizKMOutline_1540044759792705">EchoWithCounterBot.cs</h2><p>
+			這邊就是流裡面的最後的部分，也就是上篇提到的Bot的部分，換句話説，也就是實際做處理的邏輯的部分。
+			</p><p>
+			任何要做Bot就要實作<code>IBot</code>，這個Interface有個方法叫做<code>OnTurnAsync</code>需要implement。
+			</p><p>
+			在這個Bot的實作是：
+			</p><ul><li>如果信息類型不是Message，那麽直接把信息類型回復回去</li><li>如果信息類型是Message，那麽把Turn加1，然後把得到的内容在回傳回去</li></ul><p></p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-20-bot-framework-v4-4-see-how-echobot-is-constructed/a687bab1-4449-4345-b246-39a815134f98.png" border="0" alt="devenv_2018-10-20_21-57-00.png"><br><figcaption>Bot内容</figcaption></figure></section><section><h2 id="WizKMOutline_1540044759792660">結語</h2><p>
+			這篇把整個EchoBot的程式碼拆解并且把不同的部分做了一些介紹。
+			</p><p>
+			希望透過這篇能夠對於整個Bot的程式有點概念，有了一些概念之後接下來就可以開始做開發了。
+			</p><p>
+			第一步當然是需要知道使用者的姓名好幫他做訂房的手續，那麽問題就來了，怎麽儲存這個信息呢？
+			</p><p>
+			下一篇(<a href="/posts/2018/10/bot-framework-v4-5-how-to-manage-state">[05]搞懂Bot的State Management - 怎麽儲存信息</a>)將會介紹Bot Sate - 怎麽在Chatbot裡面儲存信息。
+			</p></section>

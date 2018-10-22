@@ -1,0 +1,143 @@
+Title: "[Bot Framework V4][05]搞懂Bot的State Management - 怎麽儲存信息"
+Published: 2018-10-21 16:01
+Modified: 2018-10-21 16:01
+Image: "/posts/2018/10/2018-10-21-bot-framework-v4-5-how-to-manage-state/7346d0a4-5460-46d7-b7f0-4c9ba33fb260.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "瞭解完了整個EchoBot的骨架以及整體搭配起來的感覺之後
+接下來就是要進入細節看看幾個重要的點怎麽做
+這篇先從State Management開始，看看V4裡面的一些概念然後對應到EchoBot的程式碼上面"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-21-bot-framework-v4-5-how-to-manage-state/7346d0a4-5460-46d7-b7f0-4c9ba33fb260.jpg" border="0" alt="[Bot Framework V4][05]搞懂Bot的State Management - 怎麽儲存信息.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-4-see-how-echobot-is-constructed">[04]瞭解EchoBot的程式碼結構</a>)看了整個EchoBot的骨架之後，相信對於整個Chatbot的撰寫有了一些基本的概念了。</p><p>
+		接下來要做的就是進入細部看細節。看看每一個環節實際怎麽撰寫。
+		</p><p>
+		先從State開始，如果説Bot沒辦法記得使用者的習慣以及設定，那麽整個使用體驗會很差。舉例來説，如果沒有state，那麽每一次都要問使用者的姓名，就太笨了。
+		</p><p>
+		這篇來看看V4裡面的Bot State Management。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1540109442002838" ;="" style="font-size: 15px; line-height: 1.6;">V4裡面的BotState</a><br></li><li><a href="#WizKMOutline_1540109442003695" ;="" style="font-size: 15px; line-height: 1.6;">BotState實際底層儲存的位置</a><br></li><li><a href="#WizKMOutline_1540109442003913" ;="" style="font-size: 15px; line-height: 1.6;">BotState的整個流程</a><br></li><li><a href="#WizKMOutline_1540109442003673" ;="" style="font-size: 15px; line-height: 1.6;">Accessor的好處</a><br></li><li><a href="#WizKMOutline_1540109442003673" ;="" style="font-size: 15px; line-height: 1.6;">理論對應到實踐</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1540109442003864" ;="" style="font-size: 15px; line-height: 1.6;">EchoBotAccessors.cs</a><br></li><li><a href="#WizKMOutline_1540109442003381" ;="" style="font-size: 15px; line-height: 1.6;">Startup.cs</a><br></li><li><a href="#WizKMOutline_1540109442003738" ;="" style="font-size: 15px; line-height: 1.6;">EchoWithCounterBot.cs</a><br></li></ul><li><a href="#WizKMOutline_1540109442003945" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1540109442002838">V4裡面的BotState</h2><p>
+		還記得上一篇有介紹一個Accessor的概念，這個東西是整個SDK裡面State最基本核心。
+		</p><p>
+		Accessor就是一個abstract，把實際儲存的方式和呼叫抽離。
+		</p><p>
+		要實作一個Accessor需要實作<code>IStatePropertyAccessor </code>這個interface定義了一定要實作Get、Set還有Delete方法。要new這個Accessor的時候要傳入一個字串用來做儲存内容的區別。
+		</p><p><code>BotState</code>是SDK提供的一個實作過的Accessor，這是一個abstract class，換句話説，如果有要自己刻Accessor可以用這個為Base在來寫。
+		</p><p>
+		在V4 SDK提供了兩個繼承<code>BotState</code>的Accessor，分別叫做：
+		</p><ol><li>UserState</li><li>ConversationState</li></ol><p></p><p>
+		這兩個State的最大差異在於資料儲存的<em>時效</em>。
+		</p><p><code>UserState</code>主要用來儲存和某個User有關的信息，例如，preference設定，姓名這些類型的資料。
+		</p><p><code>ConversationState</code>主要用來儲存這一個Conversation的信息，例如，可以用來儲存流程資訊，或者目前這個Conversation的問題問到了那裏。
+		</p><div class="bs-callout bs-callout-info">
+			在EchoBot裡面，目前回話在第幾個Turn儲存的位置是ConversationState，合理因爲這個信息是這個Conversation才有的内容。
+		</div><div class="bs-callout bs-callout-warning">
+			這邊注意一下，使用V4的BotState去儲存一些preference或者user相關的信息很好，但是一些商業邏輯的資料還是自己直接儲存（例如存到Sql Server之類），而不是依賴BotState比較好。
+		</div><div class="bs-callout bs-callout-info">
+			BotState除了開發者自己呼叫以外，SDK本身也會呼叫用來記錄一些信息。	
+		</div></section><section><h2 id="WizKMOutline_1540109442003695">BotState實際底層儲存的位置</h2><p>
+		上面提到了<code>BotState</code>是一個abstract，可是實際上資料會要儲存到某一個地方，那那些地方可以儲存呢？
+		</p><p>
+		只要有實作<code>IStorage</code>的interface都可以作爲BotState的實際的儲存位置，在SDK裡面有支援3個地方：
+		</p><ol><li>Memory - 儲存在記憶體裡面 - 開發時候測試用</li><li>Azure Blob - 儲存在Azure上的storage</li><li>Azure CosmosDB - Azure上面的NoSQL儲存空間</li></ol><p></p><p>
+		如果需要儲存在別的地方，可以看一下有沒有第三方寫好的其他Storage位置。
+		</p></section><section><h2 id="WizKMOutline_1540109442003913">BotState的整個流程</h2><p>
+		上面是整個BotState的概念，那麽如果看整個的呼叫流程是怎麽樣呢？
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-21-bot-framework-v4-5-how-to-manage-state/de90ad05-1184-4c6b-853d-b8cfe81be2ab.png" border="0" alt="bot-builder-dialog-state.png"><br><figcaption>整個BotState的Sequence Diagram，圖片來源：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-dialog-state?view=azure-bot-service-4.0</figcaption></figure><div class="bs-callout bs-callout-info">
+			這邊可以先暫時忽略<code>DialogSet + DialogContext</code> - 可以想象成這個是SDK呼叫BotState的部分。
+		</div><p>
+		透過這個Sequence Diagram應該對整個流程有個更清楚的概念了，在實際對應回code之前，還有一個部分想要説一下，那就是用Accessor的好處。
+		</p></section><section><h2 id="WizKMOutline_1540109442003673">Accessor的好處</h2><p>
+		Accessor除了提供一個和實體storage隔離的abstract層之外，還有提供了一些好處：
+		</p><ol><li>資料是Lazy Loaded - 換句話説當第一次實際用到資料的時候才會load進來</li><li>有個共用cache - 換句話説讀進來了之後下次在讀速度就更快了，并且有機制知道資料有沒有被修改需要更新cache</li><li>資料一起寫入 - 當呼叫儲存的時候，資料是一批進去</li></ol><p></p></section><section><h2 id="WizKMOutline_1540109442003673">理論對應到實踐</h2><p>
+		上面介紹完了BotState之後，在回來看看EchoBot裡面這個部分有關的程式碼。
+		</p><div class="bs-callout bs-callout-warning">
+			以下程式碼和原本比有刪減一些内容，只保留和BotState有關的重點。
+		</div><section><h3 id="WizKMOutline_1540109442003864">EchoBotAccessors.cs</h3><p>
+		首先，第一個部分是<code>EchoBotAccessors.cs</code>，這邊定義了會用到的Accessor以及他的Property（字串）對應名稱：
+		</p><pre><code class="language-csharp">public class EchoBotAccessors
+{
+	...
+	/// &lt;summary&gt;
+	/// Gets the &lt;see cref="IStatePropertyAccessor{T}"/&gt; name used for the &lt;see cref="CounterState"/&gt; accessor.
+	/// &lt;/summary&gt;
+	/// &lt;remarks&gt;Accessors require a unique name.&lt;/remarks&gt;
+	/// &lt;value&gt;The accessor name for the counter accessor.&lt;/value&gt;
+	public static string CounterStateName { get; } = $"{nameof(EchoBotAccessors)}.CounterState";
+
+	/// &lt;summary&gt;
+	/// Gets or sets the &lt;see cref="IStatePropertyAccessor{T}"/&gt; for CounterState.
+	/// &lt;/summary&gt;
+	/// &lt;value&gt;
+	/// The accessor stores the turn count for the conversation.
+	/// &lt;/value&gt;
+	public IStatePropertyAccessor&lt;CounterState&gt; CounterState { get; set; }
+
+	...
+}</code></pre><p>
+		這個部分對應到了這篇一開始提到的Accessor的概念，接下來這個怎麽被整合到Framework裡面呢？
+		</p></section><section><h3 id="WizKMOutline_1540109442003381">Startup.cs</h3><p>
+		切換到<code>Startup.cs</code>，這邊在<code>ConfigureServices</code>方法裡面做了兩件事情：
+		</p><dl><dt>
+				設定ConversationState的Storage為Memory
+			</dt><dd><pre><code class="language-csharp">services.AddBot&lt;EchoWithCounterBot&gt;(options =&gt;
+{
+	....
+	IStorage dataStore = new MemoryStorage();
+
+	var conversationState = new ConversationState(dataStore);
+
+	options.State.Add(conversationState);
+	....
+});</code></pre></dd><dt>
+				設定Accessor為Singleton
+			</dt><dd><pre><code class="language-csharp">services.AddSingleton&lt;EchoBotAccessors&gt;(sp =&gt;
+{
+	var options = sp.GetRequiredService
+		&lt;IOptions&lt;BotFrameworkOptions&gt;&gt;().Value;
+
+	var conversationState = options.State.
+		OfType&lt;ConversationState&gt;().FirstOrDefault();
+
+	var accessors = new EchoBotAccessors(conversationState)
+	{
+		CounterState = conversationState.
+			CreateProperty&lt;CounterState&gt;(
+				EchoBotAccessors.CounterStateName),
+	};
+
+	return accessors;
+});</code></pre></dd></dl><p></p><p>
+		設定好了之後，在Bot裡面怎麽實際使用呢？
+		</p></section><section><h3 id="WizKMOutline_1540109442003738">EchoWithCounterBot.cs</h3><p>
+			這個時候切換到實際的Bot程式碼：<code>EchoWithCounterBot.cs</code></p><p>
+			在<code>OnTurnAsync</code>裡面：
+			</p><pre><code class="language-csharp">.....
+if (turnContext.Activity.Type == ActivityTypes.Message)
+{
+	// 取得bot state
+	var state = await _accessors.CounterState.
+		GetAsync(turnContext, () =&gt; new CounterState());
+
+	// 把第幾輪的數字加一
+	state.TurnCount++;
+
+	// 把值存回去
+	await _accessors.CounterState.SetAsync(turnContext, state);
+
+	// 實際寫到Storage裡面
+	await _accessors.ConversationState.SaveChangesAsync(turnContext);
+
+	.....
+}
+....</code></pre></section></section><section><h2 id="WizKMOutline_1540109442003945">結語</h2><p>
+		這篇從BotState的角度更詳細介紹了V4裡面對State Management的處理方式，并且重新看了EchoBot裡面相關的程式碼。
+		</p><p>
+		相信看完了這篇對於怎麽寫BotState應該很清楚了。
+		</p><p>
+		下一篇將實際來撰寫，將透過ConversationState控制信息的流程，然後UserState儲存使用者的姓名。
+		</p></section>

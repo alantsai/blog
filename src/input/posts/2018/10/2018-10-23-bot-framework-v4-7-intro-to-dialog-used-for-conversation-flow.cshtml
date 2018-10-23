@@ -1,0 +1,85 @@
+Title: "[Bot Framework V4][07]Dialog - 控制流程的元件介紹"
+Published: 2018-10-23 21:01
+Modified: 2018-10-23 21:01
+Image: "/posts/2018/10/2018-10-23-bot-framework-v4-7-intro-to-dialog-used-for-conversation-flow/42bf72a1-f5c7-4c6e-9d12-26eff95cf5e5.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "上篇看完了Bot State，透過bot state裡面的conversation state雖然可以控制交談的流程，但是有點繁瑣
+需要寫一堆if else，難道沒有更好的做法嗎？
+這篇來看看SDK裡面的Dialog，看看Dialog的概念怎麽解決這個問題"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-23-bot-framework-v4-7-intro-to-dialog-used-for-conversation-flow/42bf72a1-f5c7-4c6e-9d12-26eff95cf5e5.jpg" border="0" alt="[Bot Framework V4][07]Dialog - 控制流程的元件介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-6-use-userbot-in-code-for-storing-user-info">[06]使用BotState儲存使用者的相關信息</a>)透過<code>ConversationState</code>記錄狀態的方式，來控制整個對話流程，然後透過把使用者信息儲存在<code>UserState</code>達到可以記錄每個使用者的個人信息。</p><p>
+		開發當然可以透過這個方式繼續做下去，但是一個問題就冒出來，簡單的流程用這種方式當然沒問題，但是當流程很複雜怎麽辦？是不是變成需要自己建立一個機制能夠知道目前在整個流程的那個部分？
+		</p><p>
+		這個問題肯定Framework有考量到，那這個機制是什麽？作爲開發者怎麽使用呢？
+		</p><p>
+		這篇將介紹V4裡面的機制，<code>Dialog</code>。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1540302079407742" ;="" style="line-height: 1.6;">Dialog是什麽？</a><br></li><li><a href="#WizKMOutline_1540302079407104" ;="" style="line-height: 1.6;">DialogSet是什麽？</a><br></li><li><a href="#WizKMOutline_1540302079407808" ;="" style="line-height: 1.6;">DialogContext是什麽？</a><br></li><li><a href="#WizKMOutline_1540302079407835" ;="" style="line-height: 1.6;">一個Dialog有什麽主要方法？</a><br></li><li><a href="#WizKMOutline_1540302079407205" ;="" style="line-height: 1.6;">内建的Dialog有什麽？</a><br></li><li><a href="#WizKMOutline_1540302079407326" ;="" style="line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1540302079407836" ;="" style="line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1540302079407742">Dialog是什麽？</h2><p>
+		Dialog可以想象成程式裡面的<code>Method</code>，它接受一個<code>Activity</code>，然後提供一個輸出。因此，Dialog提供了每一個部分的最小單位。
+		</p><div class="bs-callout bs-callout-warning">
+			V3也有Dialog的概念，但是和V4相比兩個是不同的概念。
+		</div></section><section><h2 id="WizKMOutline_1540302079407104">DialogSet是什麽？</h2><p>
+		Dialog代表一個最小邏輯單位，DialogSet則是Dialog的集合。
+		</p><p>
+		在實際執行的時候，Dialog是透過一個Stack的方式來被執行，在Stack最上面的Dialog被稱之爲<code>ActiveDialog</code>。
+		</p><p>
+		DialogSet就是集合多個Dialog一起，可以讓Bot程式呼叫啓動。
+		</p><div class="bs-callout bs-callout-info">
+			由於DialogSet會有這些Stack資訊，因此在new它的時候是需要有State Accessor才有辦法記錄這些信息。
+		</div></section><section><h2 id="WizKMOutline_1540302079407808">DialogContext是什麽？</h2><p>
+		有了DialogSet，總要有一個東西管理接下來那個Dialog會被呼叫，以及幫忙從一個Dialog到另外一個Dialog之間傳遞消息，這個就是<code>DialogContext</code>的工作。
+		</p></section><section><h2 id="WizKMOutline_1540302079407835">一個Dialog有什麽主要方法？</h2><p>
+		一個Dialog基本上會實作三個方法：
+		</p><dl><dt>
+				BeginDialog
+			</dt><dd><p>
+				這個方法執行的内容通常都是初始化相關的部分。可以是從<code>DialogContext</code>取得相關值，或者準備好取值的問題。
+				</p><p>
+				舉例來説，如果有個Dialog要取得使用者姓名，那麽詢問：<code>您的尊姓大名？</code>這段的邏輯就會放在<code>BeginDialog</code></p></dd><dt>
+				ContinueDialog
+			</dt><dd><p>
+				這個方法的内容則是實際的邏輯處理。
+				</p><p>
+				同樣以上面那個例子來説，要取得使用者姓名，那麽這個部分就是問完了<code>您的尊姓大名？</code>之後使用者回復的結果處理。
+				</p></dd><dt>
+				ResumeDialog
+			</dt><dd>
+				這邊一般用來支援Dialog階層關係，小孩的Dialog在結束的時候會呼叫爸爸Dialog的<code>ResumeDialog</code>。
+			</dd></dl><p></p></section><section><h2 id="WizKMOutline_1540302079407205">内建的Dialog有什麽？</h2><p>
+		SDK本身提供了3個繼承下來的Dialog：
+		</p><dl><dt>
+			Prompt類型
+		</dt><dd>
+			這種Dialog主要是爲了從使用者那邊取得某種類型的輸入内容。例如是文字類型，就是<code>TextPrompt</code>，如果是數字類型就是<code>NumberPrompt</code>，如果是日期類型
+			就是<code>DateTimePrompt</code>。
+		</dd><dt>
+				Waterfall
+			</dt><dd><p>
+				一個Dialog是針對一件事情，如果有一系列問題要詢問呢？
+				</p><p>
+				例如要知道使用者的：姓名、電話、地址等，這個時候就是用<code>waterfall</code>。每一個動作叫做一個<code>step</code>，然後每一個step的<em>輸出</em>會作爲
+					<em>下一個</em>step的<em>輸入</em>。
+				</p><p>
+				以flow方式來説的話，就是類似：
+				</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-23-bot-framework-v4-7-intro-to-dialog-used-for-conversation-flow/2ff47947-cbe3-4f02-aea0-afb02e8cc239.png" border="0" alt="bot-builder-dialog-concept.png"><br><figcaption>waterfall概念。圖片來源：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-dialog?view=azure-bot-service-4.0</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+					waterfall + Prompt = 有點類似V3版本裡面的<code>FormFlow</code> - 有興趣可以從這篇瞭解V3的FormFlow：(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-7-user-FormFlow-to-create-form-input-chatbot">[chatbot + AI = 下一代操作模式][07]使用FormFlow讓Chatbot搜集表單資訊更容易</a>)</div></dd><dt>
+				Component
+			</dt><dd><p>
+				如果説有一組Dialog是通用邏輯，例如徐聞使用者信息，可能很多bot都會使用到，那麽每一次都用waterfall寫一次嗎？
+				</p><p>
+				可以透過使用<code>Component</code>封裝，最後這個是可以變成像一個模組，不同的Bot可以使用。
+				</p></dd></dl><p>
+		如果暫時不考慮reuse這個事情的話(<code>Component Dialog</code>)的話，那麽用的最多是<code>prompt</code>和<code>waterfall</code>，這兩個的hierarchy是：
+		</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-23-bot-framework-v4-7-intro-to-dialog-used-for-conversation-flow/d2d7d1e2-367e-46a5-b563-71c9a2257d94.png" border="0" alt="bot-builder-dialog-classes.png"><br><figcaption>dialog之間的階層關係。圖片來源：https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-dialog?view=azure-bot-service-4.0</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1540302079407326">結語</h2><p>
+		這篇介紹了<code>Dialog</code>這個概念 - 透過Dialog的使用能夠讓控制Bot的交談流程變得更加簡單。
+		</p><p>
+		有了概念之後，接下來就是看看怎麽實際使用，下一篇將從取得使用者信息的Dialog開始，看看怎麽讓取得使用者姓名變得更加簡單。
+		</p></section><section><h2 id="WizKMOutline_1540302079407836">參考資料</h2><dl><dt>
+				官方介紹 - Dialog Library
+			</dt><dd><a href="https://docs.microsoft.com/en-us/azure/bot-service/bot-builder-concept-dialog?view=azure-bot-service-4.0">傳送門</a></dd></dl></section>

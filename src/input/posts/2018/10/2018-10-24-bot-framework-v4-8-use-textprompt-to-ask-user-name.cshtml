@@ -1,0 +1,135 @@
+Title: "[Bot Framework V4][08]改用TextPrompt詢問使用者姓名"
+Published: 2018-10-24 21:01
+Modified: 2018-10-24 21:01
+Image: "/posts/2018/10/2018-10-24-bot-framework-v4-8-use-textprompt-to-ask-user-name/a8745d79-3d4d-4dfc-a079-33c327f0ab43.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "學了一堆Dialog的理論，當然要來看看使用起來是什麽感覺
+這篇將修改之前自己手動控制的流程方式改成用TextPrompt
+看看Dialog是不是真的這麽好用"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-24-bot-framework-v4-8-use-textprompt-to-ask-user-name/a8745d79-3d4d-4dfc-a079-33c327f0ab43.jpg" border="0" alt="[Bot Framework V4][08]改用TextPrompt詢問使用者姓名.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-7-intro-to-dialog-used-for-conversation-flow">[07]Dialog - 控制流程的元件介紹</a>)介紹了Dialog的原件之後，接下來就是要實際使用看看是什麽感覺。</p><p>
+		這篇先用最基本的<code>TextPrompt</code>，看看如何簡化詢問姓名的邏輯。
+		</p><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbotv4/tree/blog/chapter-08">alantsai-samples/mhat-hotelbotv4:blog/chapter-08</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1540388664069281" ;="" style="line-height: 1.6;">修改方式</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1540388664069847" ;="" style="line-height: 1.6;">安裝Dialog的package套件</a><br></li><li><a href="#WizKMOutline_1540388664069526" ;="" style="line-height: 1.6;">建立出一個DialogState的Accessor</a><br></li><li><a href="#WizKMOutline_1540388664069825" ;="" style="line-height: 1.6;">調整Startup初始化Accessor</a><br></li><li><a href="#WizKMOutline_1540388664069669" ;="" style="line-height: 1.6;">建立出DialogSet以及TextPrompt</a><br></li><li><a href="#WizKMOutline_1540388664069532" ;="" style="line-height: 1.6;">測試</a><br></li></ul><li><a href="#WizKMOutline_1540388664069877" ;="" style="line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1540388664069281">修改方式</h2><p>
+		還記得之前上一篇提到了關於Dialog會被放在在<code>DialogSet</code>裡面，然後由Bot執行啓動。
+		</p><p><code>DialogSet</code>會需要State Accessor用來記錄執行過程的一些信息。
+		</p><p>
+		有了這些概念之後，接下來的調整就是：
+		</p><ol><li>安裝Dialog的package套件</li><li>建立出一個<code>DialogState</code>的Accessor</li><li>調整<code>Startup</code>初始化Accessor</li><li>建立出<code>DialogSet</code>以及<code>TextPrompt</code></li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1540388664069847">安裝Dialog的package套件</h3><p>
+			Dialog是一個額外的套件，因此要使用需要額外安裝套件，可以透過Package Management Console執行：
+			<kbd>Install-Package Microsoft.Bot.Builder.Dialogs </kbd></p><p>
+			安裝了之後，要使用的地方需要加入<code>using Microsoft.Bot.Builder.Dialogs;</code></p></section><section><h3 id="WizKMOutline_1540388664069526">建立出一個DialogState的Accessor</h3><p>
+			打開<code>EchoBotAccessors.cs</code>并且增加：
+
+</p><pre><code class="language-csharp">public class EchoBotAccessors
+{
+	...
+	public static string DialogStateName { get; } = 
+		$"{nameof(EchoBotAccessors)}.DialogState";
+		
+	public IStatePropertyAccessor&lt;DialogState&gt; DialogState { get; set; }
+	...
+}</code></pre><p></p><p>
+			再來就是要new這個Accessor啦。
+			</p></section><section><h3 id="WizKMOutline_1540388664069825">調整Startup初始化Accessor</h3><p>
+			再來切換到<code>Startup.cs</code>，這個時候在設定<code>EchoBotAccessor</code>的時候，要增加一段：
+			</p><pre><code class="language-csharp">services.AddSingleton&lt;EchoBotAccessors&gt;(sp =&gt;
+{
+	var accessors = new EchoBotAccessors
+		(conversationState, userState)
+	{
+		....
+		DialogState = conversationState.CreateProperty&lt;DialogState&gt;
+			(EchoBotAccessors.DialogStateName)
+	};
+
+	return accessors;
+}</code></pre><p>
+		這樣Accessor的部分就準備好了。
+		</p></section><section><h3 id="WizKMOutline_1540388664069669">建立出DialogSet以及TextPrompt</h3><p>
+			再來打開<code>EchoWithCounterBot.cs</code>，準備修改邏輯。
+			</p><p>
+			首先是Constructor的部分：
+			</p><pre><code class="language-csharp">public class EchoWithCounterBot : IBot
+{
+	...
+	private readonly DialogSet _dialogs;
+	
+	public EchoWithCounterBot(EchoBotAccessors accessors,
+		ILoggerFactory loggerFactory)
+	{
+		....
+		_dialogs = new DialogSet(_accessors.DialogState);
+		_dialogs.Add(new TextPrompt("askName"));
+	}
+}</code></pre><p>
+		這邊建立出一個<code>DialogSet</code>，并且在這個DialogSet增加了一個<code>TextPrompt</code>叫做<code>askName</code>。
+		</p><p>
+		再來調整<code>OnTurnAsync</code>的邏輯：
+		</p><pre><code class="language-csharp">public async Task OnTurnAsync(ITurnContext turnContext, CancellationToken cancellationToken = default(CancellationToken))
+{
+	if (turnContext.Activity.Type == ActivityTypes.Message)
+	{
+		var state = await _accessors.CounterState.GetAsync
+			(turnContext, () =&gt; new CounterState());
+
+		var userInfo = await _accessors.UserInfo.GetAsync
+			(turnContext, () =&gt; new Model.UserInfo());
+
+		var dialogContext = await _dialogs.CreateContextAsync
+			(turnContext, cancellationToken);
+		var dialogResult = await dialogContext.ContinueDialogAsync
+			(cancellationToken);
+
+		if (string.IsNullOrEmpty(userInfo.Name) 
+				&amp;&amp; dialogResult.Status == DialogTurnStatus.Empty)
+		{
+			await dialogContext.PromptAsync(
+					"askName",
+					new PromptOptions
+						{ Prompt = MessageFactory.Text("請問尊姓大名？") },
+					cancellationToken);
+
+		}
+		else if(dialogResult.Status == DialogTurnStatus.Complete)
+		{
+			if (dialogResult.Result != null)
+			{
+				userInfo.Name = dialogResult.Result.ToString();
+
+				await _accessors.UserInfo.SetAsync(turnContext, userInfo);
+				await _accessors.UserState.SaveChangesAsync(turnContext);
+
+				await turnContext.SendActivityAsync($"{userInfo.Name} 您好");
+			}
+		}
+		else
+		{
+			// 原本的EchoBot邏輯
+		}
+	}
+	else
+	{
+		.....
+	}
+
+	await _accessors.ConversationState.SaveChangesAsync(turnContext);
+}</code></pre></section><section><h3 id="WizKMOutline_1540388664069532">測試</h3><p>
+			上面修改完成之後，接下來就是測試的時候啦。
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-24-bot-framework-v4-8-use-textprompt-to-ask-user-name/55c45d4d-fc5c-4e7c-8a28-7eec2985e442.png" border="0" alt="Bot Framework Emulator_2018-10-24_21-25-32.png"><br><figcaption>調整完成之後的測試結果</figcaption></figure><p>
+			從這邊會發現，整個操作感覺和之前沒有差。
+			</p></section></section><section><h2 id="WizKMOutline_1540388664069877">結語</h2><p>
+		這篇把原本自己管理的ConversationState，改成使用<code>TextPrompt</code>來管理。
+		</p><p>
+		從結果來説，兩邊的結果是一致的，但是從程式碼的角度來説其實沒什麽太大差異。
+		</p><p>
+		就算用了<code>TextPrompt</code>好像和自己管理沒什麽差，那爲什麽要用呢？
+		</p><p>
+		原因是目前的例子太簡單了，下一篇把問題用複雜一點，看看搭配waterfall的dialog整體使用感覺如何。
+		</p></section>

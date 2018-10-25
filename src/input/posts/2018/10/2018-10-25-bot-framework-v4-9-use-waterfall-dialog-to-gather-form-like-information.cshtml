@@ -1,0 +1,230 @@
+Title: "[Bot Framework V4][09]使用waterfall建立表單式填寫"
+Published: 2018-10-25 23:01
+Modified: 2018-10-25 23:01
+Image: "/posts/2018/10/2018-10-25-bot-framework-v4-9-use-waterfall-dialog-to-gather-form-like-information/f07016ea-406f-404f-b47e-9006a05a7db9.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "看了如何透過單一的TextPrompt取得使用者的姓名
+但是只是爲了這樣就建立一個Dialog好像和自己控制流程沒什麽兩樣
+那麽爲什麽要使用TextPrompt呢？
+這篇將介紹另外一個dilog：waterfall，看看搭配waterfall整個dialog的優勢能夠呈現出來"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-25-bot-framework-v4-9-use-waterfall-dialog-to-gather-form-like-information/f07016ea-406f-404f-b47e-9006a05a7db9.jpg" border="0" alt="[Bot Framework V4][09]使用waterfall建立表單式填寫.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-8-use-textprompt-to-ask-user-name">[08]改用TextPrompt詢問使用者姓名</a>)使用<code>TextPrompt</code>來取得使用者的姓名，感覺起來好像和自己維護狀態沒什麽兩樣，因爲還是需要透過if else來呼叫。</p><p>
+		這樣Dialogs還有意義嗎？
+		</p><p>
+		這篇將會介紹另外一種使用情景，有時候需要搜集使用者的資料，例如説他要訂房的話會需要搜集他要訂什麽時間，住幾個晚上等等，這個時候Dialog就變得更加方便。
+		</p><p>
+		這篇將介紹如何透過<code>waterfall</code>來達到這個效果。
+		</p><div class="bs-callout bs-callout-info">
+			在V3版本有所謂的<code>FormFlow</code>，waterfall dialog做出來有點類似一樣的概念，有興趣可以看看：<a href="https://blog.alantsai.net/posts/2018/07/bot-framework-with-ai-cognitive-service-7-user-formflow-to-create-form-input-chatbot">[07]使用FormFlow讓Chatbot搜集表單資訊更容易</a></div><div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbotv4/tree/blog/chapter-09">alantsai-samples/mhat-hotelbotv4:blog/chapter-09</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1540504837908653" ;="" style="line-height: 1.6;">想增加什麽功能？</a><br></li><li><a href="#WizKMOutline_1540504837909821" ;="" style="line-height: 1.6;">調整什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1540504837909482" ;="" style="line-height: 1.6;">建立出RoomReservation的POCO</a><br></li><li><a href="#WizKMOutline_1540504837910467" ;="" style="line-height: 1.6;">整合剛建立的POCO到CounterState</a><br></li><li><a href="#WizKMOutline_1540504837910444" ;="" style="line-height: 1.6;">再來建立出一個新的DialogSet</a><br></li><li><a href="#WizKMOutline_1540504837910606" ;="" style="line-height: 1.6;">定義每一個step要做的事情</a><br></li><li><a href="#WizKMOutline_1540504837910884" ;="" style="line-height: 1.6;">修改bot邏輯呼叫DialogSet</a><br></li><li><a href="#WizKMOutline_1540504837911446" ;="" style="line-height: 1.6;">測試</a><br></li></ul><li><a href="#WizKMOutline_1540504837911216" ;="" style="line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more-->
+	<section><h2 id="WizKMOutline_1540504837908653">想增加什麽功能？</h2><p>
+		有了使用者的姓名，接下來就是看看如何協助訂房的輸入。
+		</p><p>
+		這邊需要幾個資訊：
+		</p><ol><li>從那天入住</li><li>要住幾個晚上</li><li>總共幾個人</li><li>床的大小</li></ol><p></p><p>
+		瞭解需求了之後，接下來就是開發。
+		</p></section><section><h2 id="WizKMOutline_1540504837909821">調整什麽？</h2><p>
+		接下來就要看看要調整什麽。
+		</p><p>
+		首先，需要建立一個POCO的model代表這個訂房的信息。
+		</p><p>
+		再來，建立一個dialog用來啓動這個流程。
+		</p><p>
+		然後，暫時先把取得姓名那段拿掉。
+		</p><p>
+		最後就是測試。
+		</p><p>
+		整個拆接下來就是：
+		</p><ol><li>建立出<code>RoomReservation</code>的POCO</li><li>整合剛建立的POCO到<code>CounterState</code></li><li>再來建立出一個新的DialogSet</li><li>定義每一個step要做的事情</li><li>修改bot邏輯呼叫DialogSet</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1540504837909482">建立出RoomReservation的POCO</h3><p>
+			首先第一步是建立出POCO，因此在Model資料夾下面建立：<code>RoomReservation</code></p><pre><code class="language-csharp">public class RoomReservation
+{
+	public DateTime StartDate { get; set; }
+	public int NumberOfNightToStay { get; set; }
+	public int NumberOfPepole { get; set; }
+	public string BedSize { get; set; }
+
+	public override string ToString()
+	{
+		return $"入住日期：{StartDate}{Environment.NewLine}" +
+		$"入住幾晚：{NumberOfNightToStay}{Environment.NewLine}" +
+		$"幾人：{NumberOfPepole}{Environment.NewLine}" +
+		$"床型：{BedSize}{Environment.NewLine}";
+	}
+}</code></pre></section><section><h3 id="WizKMOutline_1540504837910467">整合剛建立的POCO到CounterState</h3><p>
+			要把<code>RoomReservation</code>加入到Accessor，這邊偷懶用<code>CounterState</code>，因此在增加一個property進去：
+			</p><pre><code class="language-csharp">public class CounterState
+{
+	...
+	public RoomReservation RoomReservation { get; set; } = new RoomReservation();
+}</code></pre></section><section><h3 id="WizKMOutline_1540504837910444">再來建立出一個新的DialogSet</h3><p>
+			再來切換到<code>EchoWithCounterBot.cs</code>，首先是準備好DialogSet：
+			</p><pre><code class="language-csharp">public class EchoWithCounterBot : IBot
+{
+	...
+	private readonly DialogSet _dialogsWaterfall;
+
+	public EchoWithCounterBot
+		(EchoBotAccessors accessors, ILoggerFactory loggerFactory)
+	{
+		_dialogsWaterfall = new DialogSet(_accessors.DialogState);
+
+		var waterfallSteps = new WaterfallStep[]
+		{
+			GetStartStayDateAsync,
+			GetStayDayAsync,
+			GetNumberOfOccupantAsync,
+			GetBedSizeAsync,
+			GetConfirmAsync,
+			GetSummaryAsync,
+		};
+
+		_dialogsWaterfall.Add(new WaterfallDialog("formFlow", waterfallSteps));
+		_dialogsWaterfall.Add(new DateTimePrompt("dateTime"));
+		_dialogsWaterfall.Add(new NumberPrompt&lt;int&gt;("number"));
+		_dialogsWaterfall.Add(new ChoicePrompt("choice"));
+		_dialogsWaterfall.Add(new ConfirmPrompt("confirm"));
+	}
+	....
+}</code></pre><p>
+		這邊定義了一個DialogSet，裡面第一個是一個<code>Waterfall</code>dialog，其中定義了好多個steps。
+		</p><p>
+		再來增加了一些prompt，在這些steps可以呼叫使用。
+		</p><p>
+		准備好了之後，接下來是定義每一個steps。
+		</p></section><section><h3 id="WizKMOutline_1540504837910606">定義每一個step要做的事情</h3><p>
+			每一個steps都可以取得上一個steps結束的時候使用者輸入的内容。
+			</p><p>
+			因此，每一個steps，可以依照上一個steps的結果做出處理，然後觸發往下要執行的prompt或者waterfall結束。
+			</p><p>
+			接下來看看每一個step的定義：
+			</p><pre><code class="language-csharp">private async Task&lt;DialogTurnResult&gt; GetStartStayDateAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	return await stepContext.PromptAsync("dateTime",
+		new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("請輸入入住日期"),
+		},
+		cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetStayDayAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	(await GetCounterState(stepContext.Context))
+		.RoomReservation.StartDate =
+		DateTime.Parse(((List&lt;DateTimeResolution&gt;)stepContext.Result).First().Value);
+
+	return await stepContext.PromptAsync("number", new PromptOptions()
+	{
+		 Prompt = MessageFactory.Text("請輸入要住幾天"),
+	}, 
+	cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetNumberOfOccupantAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	(await GetCounterState(stepContext.Context))
+		.RoomReservation.NumberOfNightToStay = (int)stepContext.Result - 1;
+
+	return await stepContext.PromptAsync("number",
+		new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("幾人入住"),
+		},
+		cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetBedSizeAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	(await GetCounterState(stepContext.Context))
+		.RoomReservation.NumberOfPepole = (int)stepContext.Result;
+
+	var choices = new List&lt;Choice&gt;()
+	{
+		new Choice("單人床"),
+		new Choice("雙人床"),
+	};
+
+	return await stepContext.PromptAsync("choice",
+		new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("請選擇床型"),
+			Choices = choices,
+		},
+		cancellationToken);
+}
+	
+private async Task&lt;DialogTurnResult&gt; GetConfirmAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	var roomReservation = (await GetCounterState(stepContext.Context))
+		.RoomReservation;
+
+	roomReservation.BedSize = ((FoundChoice)stepContext.Result).Value;
+
+	return await stepContext.PromptAsync("confirm", new PromptOptions()
+	{
+		Prompt = MessageFactory.Text($"請確認您的訂房條件：{Environment.NewLine}" +
+		$"{roomReservation}")
+	});
+}
+
+private async Task&lt;DialogTurnResult&gt; GetSummaryAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	if ((bool)stepContext.Result)
+	{
+		await stepContext.Context.SendActivityAsync
+			($"訂單下定完成，訂單號：{DateTime.Now.Ticks}");
+	}
+	else
+	{
+		await stepContext.Context.SendActivityAsync("已經取消訂單");
+	}
+
+	return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+}</code></pre><div class="bs-callout bs-callout-info">
+			這邊有重構出一個<code>GetCounterState</code>，目的是爲了取得<code>CounterState</code>。
+		</div><div class="bs-callout bs-callout-info">
+			有些prompt有特別的用法，包含資料驗證等。這篇沒有機會介紹，未來有機會在介紹。
+		</div><p>
+		到這裡Dialog就准備好了。
+		</p></section><section><h3 id="WizKMOutline_1540504837910884">修改bot邏輯呼叫DialogSet</h3><p>
+			在<code>OnTurnAsync</code>會加入以下方式來啓動waterflow dialog：
+			</p><pre><code class="language-csharp">...
+var dialogWaterfallContext = await _dialogsWaterfall.CreateContextAsync(turnContext, cancellationToken);
+var waterfallResult = await dialogWaterfallContext.ContinueDialogAsync(cancellationToken);
+
+if(turnContext.Activity.Text == "訂房")
+{
+	await dialogWaterfallContext.BeginDialogAsync("formFlow",
+		null, cancellationToken);
+}
+else if(waterfallResult.Status != DialogTurnStatus.Empty)
+{
+
+}
+...</code></pre><div class="bs-callout bs-callout-warning">
+			爲了簡化功能，因此暫時把取得使用者姓名的部分拿掉
+		</div><div class="bs-callout bs-callout-info">
+			有一個空的if是爲了避免原本的echo功能觸發 - 這邊還有一個最後的else主要用來保留原本echo的功能。
+		</div></section><section><h3 id="WizKMOutline_1540504837911446">測試</h3><p>
+			最後測試下來就會變成：
+			</p><figure><img class="img-responsive" src="/posts/2018/10/2018-10-25-bot-framework-v4-9-use-waterfall-dialog-to-gather-form-like-information/e74804b8-84f6-4c8c-a2b3-cf9e504fa7c3.png" border="0" alt="Bot Framework Emulator_2018-10-25_23-41-46.png"></figure><figure><img class="img-responsive" src="/posts/2018/10/2018-10-25-bot-framework-v4-9-use-waterfall-dialog-to-gather-form-like-information/cec02e11-5627-496a-855c-a19f20fbed08.png" border="0" alt="2018-10-25_23-42-08.png"><br><figcaption>測試最後結果</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1540504837911216">結語</h2><p>
+		這篇介紹了waterfall這個dialog，可以看到透過step的方式可以自己定義每一個階段要做什麽。
+		</p><p>
+		不過，這裡也有注意到一件事情，那就是取得姓名的部分被暫時拿掉了，原因是控制誰在執行透過目前方式有點麻煩。
+		</p><p>
+		可是沒辦法解決嗎？畢竟好幾個不同的類型模組是很重要。
+		</p><p>
+		下一篇看看解決方式，怎麽把兩個功能（取得姓名以及訂房）整合在一起同時存在。
+		</p></section>

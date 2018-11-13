@@ -1,4 +1,4 @@
-#tool nuget:?package=Wyam
+#tool nuget:?package=Wyam&version=1.6.0
 #addin nuget:?package=Cake.Wyam
 #addin "Cake.Npm"
 

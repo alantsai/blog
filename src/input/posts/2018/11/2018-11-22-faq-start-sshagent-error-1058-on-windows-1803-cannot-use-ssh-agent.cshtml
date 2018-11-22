@@ -1,0 +1,101 @@
+﻿Title: "[faq]Windows 1803之後git for windows無法透過Start-SshAgent啓用ssh agent - 需要一直輸入passphrase的問題"
+Published: 2018-11-22 21:01
+Modified: 2018-11-22 21:01
+Image: "/posts/2018/11/2018-11-22-faq-start-sshagent-error-1058-on-windows-1803-cannot-use-ssh-agent/af33a992-5b06-4bd8-a7bf-738d8f538b1d.jpg"
+Tags: ["faq", "git", "ssh"]
+Series: ["「faq」"]
+PostDescription: "windows 1803會導致無法使用poshgit的Start-SshAgent來啓動ssh agent
+這會造成什麽問題呢？
+如果想用ssh來和git遠端repo溝通每一次都需要輸入passphrase
+煩死了
+快來看看怎麽解決"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/11/2018-11-22-faq-start-sshagent-error-1058-on-windows-1803-cannot-use-ssh-agent/af33a992-5b06-4bd8-a7bf-738d8f538b1d.jpg" border="0" alt="[faq]Windows 1803之後git for windows無法透過Start-SshAgent啓用ssh agent - 需要一直輸入passphrase的問題.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		還記得之前有一篇介紹git for windows最新版本的Credential Manager有問題導致沒有辦法和遠端repo溝通（<a href="/posts/2018/11/faq-NulIReferenceException-encountered-with-git-on-windows-when-do-clone-pull-push" >Windows安裝 git 2.19.1 之後做git clone-pull-push出現</a>）。透過那一篇，理論上和遠端repo驗證就沒什麽問題了。</p><p>
+		不過我自己在使用的時候發現，不知道爲什麽Azure DevOps的repo雖然跳出來輸入的是正確的帳號和密碼，但是git就是出現驗證失敗（github就不會）。
+		</p><p>
+		好吧，那換一種驗證方式，改成使用ssh。
+		</p><p>
+		不過用ssh又遇到另外一個問題，<em>每一次</em>和遠端溝通都要輸入passphrase超級麻煩，這個時候突然想起以前寫過（<a href="/posts/2015/09/use-ssh-in-windows-for-github" >何謂ssh，在Windows下如何使用ssh，如何在Windows透過ssh下載和上傳程式到github</a>）透過ssh agent不用一直輸入密碼。</p><p>
+		興奮的打開那一篇，學著裡面輸入<code>Start-SshAgent</code>，結果出現了<code>error：1058</code>。
+		</p><p>
+		什麽鬼，難道不能夠讓我開開心心的pull/push然後不輸入密碼嗎？
+		</p><p>
+		這篇將來介紹到底在Windows 1803之後做了什麽導致ssh agent啓動不起來。
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1542892538289514" kmcontenthide="1">相關文章</h4><ul><li><a href="/posts/2018/11/faq-NulIReferenceException-encountered-with-git-on-windows-when-do-clone-pull-push">[faq]Windows安裝 git 2.19.1 之後做git clone-pull-push出現</a><br></li><li><a href="/posts/2015/09/use-ssh-in-windows-for-github">何謂ssh，在Windows下如何使用ssh，如何在Windows透過ssh下載和上傳程式到github</a><br></li></ul></div></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1542892555216101" ;="">問題描述</a></li><li><a href="#WizKMOutline_1542892555216346" ;="">解決方式 - TL;DR</a></li><li><a href="#WizKMOutline_1542892555216168" ;="">爲什麽以前可以work</a></li><li><a href="#WizKMOutline_1542892555216869" ;="">Windows 1803的更新</a></li><li><a href="#WizKMOutline_1542892555216792" ;="">Start-SshAgent的問題</a></li><li><a href="#WizKMOutline_1542892555216270" ;="">Git for Windows的問題</a></li><li><a href="#WizKMOutline_1542892555216836" ;="">結語</a></li><li><a href="#WizKMOutline_1542892555217294" ;="">參考資料</a></li></ul></ul></div></section><!--more--><section><h2 id="WizKMOutline_1542892555216101">問題描述</h2><p>
+		首先，先來看看我指的是什麽意思。
+		</p><p><code>Start-SshAgent</code>是<code>Posh-git</code>裡面的一個helper的powershell方法，本質上就是做兩個事情：
+		</p><ol><li>啓動ssh-agent.exe</li><li>呼叫ssh-add.exe把密碼暫時記錄</li></ol><p></p><p>
+		一般都是需要用ssh的時候在啓動起來，因此當有需要的時候，輸入了<code>Start-SshAgent</code>卻出現了了<code>Unable to start ssh-agent service, error:1058</code>：
+		</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-22-faq-start-sshagent-error-1058-on-windows-1803-cannot-use-ssh-agent/09179bba-036b-4ba8-a1da-5276f58771e2.png" border="0" alt="01.png" ><br><figcaption>錯誤信息的截圖</figcaption></figure><p></p><p>
+		什麽鬼？怎麽不行了呢？之前那臺電腦也是Windows 10就好好的。
+		</p></section><section><h2 id="WizKMOutline_1542892555216346">解決方式 - TL;DR</h2><p>
+		以下解法適合 Windows 10 1803的作業系統 - 不知道未來微軟是否會調整，但是至少在1803會有這個問題。
+		</p><p>
+		需要執行以下幾個動作即可解決：
+		</p><dl><dt>
+				把ssh-agent這個service從disabled狀態改成manual
+			</dt><dd>
+				可以透過gui的方式去設定（顯示名稱是：<code>OpenSSH Authentication Agent</code>），如果透過powershell則是：
+				<pre><code class="language-powershell">Set-Service ssh-agent -StartupType Manual</code></pre></dd><dt>
+				調整git使用内建帶的ssh agent
+			</dt><dd>
+				透過指令執行：
+				<pre><code class="language-powershell">git config --global core.sshCommand "'C:/Windows/System32/OpenSSH/ssh.exe'"</code></pre></dd><dd></dd></dl><p>
+		做完了以上兩個動作之後，未來需要啓動ssh agent的時候只需要輸入<code>Start-SshAgent</code>。接下來和遠端溝通都不需要一直輸入passphrase - 太棒了。
+		</p><p>
+		如果對於爲什麽要做上面兩個事情有興趣的話請繼續往下看。
+		</p></section><section><h2 id="WizKMOutline_1542892555216168">爲什麽以前可以work</h2><p>
+		在説明原因之前，先把時間往回拉一點點，以前爲什麽直接呼叫<code>Start-SshAgent</code>可以work？
+		</p><p>
+		在説明這個部分之前，需要先瞭解<code>ssh-agent.exe</code>這個程式。
+		</p><p>
+		本質上<code>Start-SshAgent</code>做的事情就是兩個動作：
+		</p><ol><li>啓動ssh-agent.exe</li><li>透過呼叫ssh-add.exe把預設的passphrase加入</li></ol><p></p><p>
+		那麽有個問題就出來了，ssh-agent這個程式是從那來？
+		</p><p>
+		這個程式是和Git For Windows一起進來的，實際的程式位置在：<code>c:\Program Files\Git\usr\bin\ssh-agent.exe</code>。
+		</p><p>
+		所以Start-SshAgent這個從poshgit來的powershell function就是方便執行的一個helper而已。
+		</p><p>
+		一切都很美好直到......
+		</p></section><section><h2 id="WizKMOutline_1542892555216869">Windows 1803的更新</h2><p>
+		在Windows 1709的時候，微軟做了一件很好的事情，也就是<em>内建Open ssh</em>，變成是一個類似IIS的feature，使用者可以自己決定是否要安裝。
+		</p><p>
+		所以，1709還沒事，因爲你不安裝，那麽等同於和以前一樣。
+		</p><p>
+		但是在1803不同，1803<em>預設是安裝</em>的，但是他又很好心怕你吃資源所以對應的Windows Service是出於<code>Disabled</code>的狀態。
+		</p><p>
+		這個時候問題就來了，既然Windows内建了Open SSH，那麽到底應該用Git for Windows的還是用Windows内建的呢？
+		</p></section><section><h2 id="WizKMOutline_1542892555216792">Start-SshAgent的問題</h2><p>
+		既然Windows自己會帶，那麽當然是用Windows的比較好，因爲ssh-agent根本就在Path裡面，可以透過指令：<code>Get-Command ssh</code>看到：
+		</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-22-faq-start-sshagent-error-1058-on-windows-1803-cannot-use-ssh-agent/48919eb5-0165-42bf-b1f3-f36d40e947c5.png" border="0" alt="02.png">&nbsp;&nbsp;<br><figcaption>可以看到Path的在System32下面</figcaption></figure><p></p><p>
+		這件事情在Poshgit也有多方討論，因此最後決定是會去呼叫Windows裡面的ssh-agent service。這個時候問題就來了。
+		</p><p>
+		還記得上面提到1803很好心的做了什麽？他<em>預設把ssh-agent disable</em>了，可以透過指令：<code>Get-Service ssh-agent | select -property Status,Name,DisplayName,Starttype</code></p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-22-faq-start-sshagent-error-1058-on-windows-1803-cannot-use-ssh-agent/942faff5-6a9f-44ef-b170-55f9fec29785.png" border="0" alt="03.png">&nbsp; &nbsp;<br><figcaption>Service處於disabled的狀態</figcaption></figure><p></p><p>
+		那麽呼叫<code>Start-SshAgent</code>就gg了，因爲沒有辦法啓動一個disabled的服務。所以出現error 1058：
+		</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-22-faq-start-sshagent-error-1058-on-windows-1803-cannot-use-ssh-agent/3ddfd2bd-548f-42fc-889d-eda01afa6fbd.png" border="0" alt="01.png">&nbsp; &nbsp;&nbsp;<br><figcaption>啓動不起來，出現1058的錯誤</figcaption></figure><p></p><p>
+		因此，這個時候第一步的解法是把他改成<code>Manual</code>，可以透過指令完成
+		</p><pre><code class="language-powershell">Set-Service ssh-agent -StartupType Manual</code></pre><p></p></section><section><h2 id="WizKMOutline_1542892555216270">Git for Windows的問題</h2><p>
+		啓動ssh-agent沒有問題了，這個時候很開心的去做一些遠端操作，卻發現，<em>每一次操作還是要輸入passphrase</em>。
+		</p><p>
+		Why？不是已經啓動ssh-agent了嗎？
+		</p><p>
+		原因很簡單，因爲git for windows預設使用的是它<em>自帶的ssh-agent</em>。換句話説，他<em>不吃</em>Windows自帶的Open SSH。
+		</p><p>
+		知道問題就好解決了，那就是設定讓git吃Windows的Open SSH。
+		</p><p>
+		因此可以透過設定config：
+		</p><pre><code class="language-powershell">git config --global core.sshCommand "'C:/Windows/System32/OpenSSH/ssh.exe'"</code></pre><p></p></section><section><h2 id="WizKMOutline_1542892555216836">結語</h2><p>
+		以上就是整個的解決過程 - 當然在找資料的時候撞了很多墻，整個理清下來大概就是這樣。
+		</p><p>
+		這個故事其實也告訴一件事情，<em>調整系統的任何東西都是有影響</em>。
+		</p><p>
+		個人覺得，之前1709的做法很好，要不要安裝由使用者決定。到了1803，就算要預設安裝我也可以理解，但是爲什麽Service要處於Disabled的狀態呢？如果是爲了節省資源那和不如放在Manual的狀態就好？
+		</p><p>
+		反過來看poshgit的<code>Start-SshAgent</code>，如果說有多一個判斷Service是否為Disabled，如果是改成Manual的動作整個使用體驗會上一大階。
+		</p></section><section><h2 id="WizKMOutline_1542892555217294">參考資料</h2><dl><dt>
+				官方1709加入Open ssh的介紹
+			</dt><dd><a href="https://blogs.msdn.microsoft.com/powershell/2017/12/15/using-the-openssh-beta-in-windows-10-fall-creators-update-and-windows-server-1709/">https://blogs.msdn.microsoft.com/powershell/2017/12/15/using-the-openssh-beta-in-windows-10-fall-creators-update-and-windows-server-1709/</a></dd><dt>
+				Poshgit關於這個事情的討論
+			</dt><dd><ul><li><a href="https://github.com/dahlbyk/posh-git/issues/575">https://github.com/dahlbyk/posh-git/issues/575</a></li><li><a href="https://github.com/dahlbyk/posh-git/issues/583">https://github.com/dahlbyk/posh-git/issues/583</a></li></ul></dd></dl></section>

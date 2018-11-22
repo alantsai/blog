@@ -1,0 +1,38 @@
+﻿Title: "[faq]Windows安裝 git 2.19.1 之後做git clone/pull/push出現NullReferenceException錯誤的問題解決方式"
+Published: 2018-11-08 21:01
+Modified: 2018-11-08 21:01
+Image: "/posts/2018/11/2018-11-08-faq-NulIReferenceException-encountered-with-git-on-windows-when-do-clone-pull-push/b780fc2b-5ec0-454a-bf2d-08293c2c170e.jpg"
+Tags: ["faq", "git"]
+Series: ["「faq」"]
+PostDescription: "git for windows 安裝最新版本之後怎麽都沒辦法和遠端repo溝通了呢？全部出現NulIReferenceException。這篇看看來如何解決。"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/11/2018-11-08-faq-NulIReferenceException-encountered-with-git-on-windows-when-do-clone-pull-push/b780fc2b-5ec0-454a-bf2d-08293c2c170e.jpg" border="0" alt="[faq]Windows安裝 git之後做git push出現NullReferenceException錯誤的問題解決方式.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		最近在一臺乾净的電腦裡面重新安裝了開發環境，git作爲版控工具肯定是首選要裝的工具之一。
+		</p><p>
+		環境准備好了之後，當然就是要clone專案下來開始開發，可是竟然出現了<code>fatal: NulIReferenceException encountered.  Object reference not set to an instance of an object. </code></p><p>
+		太詭異了吧，用了git這麽多年還沒有遇到過這種問題，到底要怎麽處理呢？
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1541687313725799" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1541687313725105" ;="" style="font-size: 15px; line-height: 1.6;">解決方式 - TL;DR</a><br></li><li><a href="#WizKMOutline_1541687313725800" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽會壞掉？</a><br></li><li><a href="#WizKMOutline_1541687313725799" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1541687313725799">問題描述</h2><p>
+		裝完了git之後，直接下<code>git clone</code>（或者任何會和遠端repo做驗證的指令），出現<code>fatal: NulIReferenceException encountered.  Object reference not set to an instance of an object. </code></p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-08-faq-NulIReferenceException-encountered-with-git-on-windows-when-do-clone-pull-push/6dbe9c99-cf5c-416d-a539-fe4378398fd6.png" border="0" alt=""><br><figcaption>錯誤信息截圖</figcaption></figure></section><section><h2 id="WizKMOutline_1541687313725105">解決方式 - TL;DR</h2><p>
+		兩個方式（2則1即可）：
+		</p><ol><li>把git降板 - 解除安裝git，然後在安裝Git for Windows 2.19.0（<a href="https://github.com/git-for-windows/git/releases/tag/v2.19.0.windows.1">傳送門</a>）</li><li>把git credential managers安裝1.18.1版本以上（<a href="https://github.com/Microsoft/Git-Credential-Manager-for-Windows/releases/tag/v1.18.1">傳送門</a>） - 下載下來直接安裝即可</li></ol><p></p><p>
+		只要透過上面的兩個方式選擇一個就可以解決：
+		</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-08-faq-NulIReferenceException-encountered-with-git-on-windows-when-do-clone-pull-push/3bd00943-0ebb-4375-a43f-c34e4ac04fed.png" border="0" alt=""><br><figcaption>帳號密碼詢問的畫面就出來了</figcaption></figure><p></p><p>
+		如果對於爲什麽發生有興趣可以繼續往下看。
+		</p></section><section><h2 id="WizKMOutline_1541687313725800">爲什麽會壞掉？</h2><p>
+		從上面提到的兩個解決方式應該多多少少能夠猜到問題在那邊，沒錯就是git credential manager for windows這個工具的問題。
+		</p><p>
+		git for windows 2.19.1 所包含的credential manager版本有問題 - 這個問題導致了需要驗證帳號密碼的時候會出現<code>Null Reference Exception</code>。
+		</p><p>
+		瞭解這個之後兩個解決方法就不難理解，1個是透過降git的版本 - 那個版本的credential manager是沒有問題。
+		</p><p>
+		另外一個解決方式就是透過升級credentials manager - 在 1.18.1版本以上這個問題就解決掉了。
+		</p></section><section><h2 id="WizKMOutline_1541687313725799">結語</h2><p>
+		這篇提供的是git 2.19.1安裝之後和遠端repo驗證的時候出現<code>Null reference Exception</code>的處理方式。
+		</p><p>
+		從另外一個角度也告訴我們，沒事別亂升級軟體，就算要升級也要瞭解一下到底升級了什麽，并且要有個概念這個軟體有包含什麽工具。因爲，很有可能壞掉的是軟體包含的其他工具而不是軟體本身。
+		</p></section>

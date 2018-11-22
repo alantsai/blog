@@ -1,0 +1,377 @@
+Title: "[Bot Framework V4][10]在Dialog裡面做Branching以及Looping把不同功能更加模組化"
+Published: 2018-11-13 23:01
+Modified: 2018-11-13 23:01
+Image: "/posts/2018/11/2018-11-13-bot-framework-v4-10-use-branching-and-looping-in-dialogset-to-modularise-logic/63169a8f-2f10-48f8-83e2-e42d57488a1b.jpg"
+Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot"]
+Series: ["「Bot Framework V4」"]
+PostDescription: "透過waterfall可以建立出一系列問題來達到取得一些表單資訊
+一個waterfall代表一個功能，如果有多個組合要怎麽辦？
+舉例來説，詢問姓名和訂房功能屬於兩個waterfall但是怎麽把兩個整合在一起使用？
+這篇將透過介紹Branching以及looping達到功能模組化"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/11/2018-11-13-bot-framework-v4-10-use-branching-and-looping-in-dialogset-to-modularise-logic/63169a8f-2f10-48f8-83e2-e42d57488a1b.jpg" border="0" alt="[Bot Framework V4][10]在Dialog裡面做Branching以及Looping把不同目的更加模組化.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/10/bot-framework-v4-9-use-waterfall-dialog-to-gather-form-like-information">[09]使用waterfall建立表單式填寫</a>)介紹了使用<code>watfall</code>的方式達到建立一個表單式搜集的chatbot。</p><p>
+		裡面爲了簡化把取得姓名的部分暫時拿掉了，但是在實務上不同邏輯的dialog可能會存在，那怎麽辦呢？
+		</p><p>
+		這篇將介紹透過Dialog來做Branching以及Looping。
+		</p>
+		<div class="bs-callout bs-callout-default">
+			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbotv4/tree/blog/chapter-10">alantsai-samples/mhat-hotelbotv4:blog/chapter-10</a></div>
+	</section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1542121546885788" ;="" style="font-size: 15px; line-height: 1.6;">什麽是Branching和Looping</a><br></li><li><a href="#WizKMOutline_1542121546885125" ;="" style="font-size: 15px; line-height: 1.6;">加入Branching和Looping的概念到目前的範例</a><br></li><li><a href="#WizKMOutline_1542121546885621" ;="" style="font-size: 15px; line-height: 1.6;">修改現行的程式碼</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1542121546886825" ;="" style="font-size: 15px; line-height: 1.6;">建立一個HotelDialogSet</a><br></li><li><a href="#WizKMOutline_1542121546886543" ;="" style="font-size: 15px; line-height: 1.6;">完成詢問姓名的waterfall</a><br></li><li><a href="#WizKMOutline_1542121546886730" ;="" style="font-size: 15px; line-height: 1.6;">完成訂房的waterfall</a><br></li><li><a href="#WizKMOutline_1542121546886489" ;="" style="font-size: 15px; line-height: 1.6;">完成root waterfall</a><br></li><li><a href="#WizKMOutline_1542121546886619" ;="" style="font-size: 15px; line-height: 1.6;">整合到bot呼叫HotelDialogSet</a><br></li><li><a href="#WizKMOutline_1542121546886444" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1542121546886168" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1542121546885788">什麽是Branching和Looping</h2><p>
+		Branching就和名稱一樣的意思，分叉出去。
+		</p><p>
+		舉例來説，假設我的waterfall啓動的時候，因爲收到了什麽訊息這個時候<em>啓動另外一個waterfall</em>，
+		這個時候除非另外一個（剛啓動那個）waterfall結束，要不然不會繼續往原本的繼續執行下去。
+		</p><p>
+		這個就是所謂的Branching，先分叉出去，然後執行完了在分叉回來。
+		</p><p>
+		Branching是透過呼叫<code>BeginDialogAsync</code>達到。
+		</p><p>
+		Looping和字面上面的意思也一樣，當waterfall執行到最後一步的時候，不結束，重新<em>又new一個同樣的waterfall</em>，這樣就延續執行下去。
+		</p><p>
+		換而言之，就達到了一直loop。
+		</p><p>
+		Looping是透過呼叫<code>ReplaceDialogAsync</code>來達到。
+		</p></section><section><h2 id="WizKMOutline_1542121546885125">加入Branching和Looping的概念到目前的範例</h2><p>
+		對到目前的範例來説：
+		</p><ol><li>需要有branching分支出去執行取得姓名以及取得訂房這兩個flow</li><li>需要有loop，這樣整個waterfall永遠不會結束</li></ol><p></p><p>
+		因此整個流程概念如下：
+		</p><figure>
+			<img class="img-responsive" src="/posts/2018/11/2018-11-13-bot-framework-v4-10-use-branching-and-looping-in-dialogset-to-modularise-logic/03436a06-6557-4649-af4c-131e4d1a21dd.png" alt="">
+			<figcaption>整個流程的概念</figcaption></figure><p></p><p>
+		上圖有幾個重要的部分：
+		</p><dl><dt>
+				藍色的框框代表3個大flow
+			</dt><dd><p>
+				有3個大藍色的框框：
+				</p><ol><li>root - 這個是整個流程的起始點。root裡面有個echo - 當另外兩個branching條件不符合的時候，echo會觸發。</li><li>askNameWaterfall - 當使用者<em>沒有</em>輸入過姓名的時候，將透過branching的方式觸發這段的waterfall</li><li>bookRoom - 當使用者輸入<code>訂房</code>的時候，將透過branching的方式觸發</li></ol><p></p></dd><dt>
+				橘紅色的綫
+			</dt><dd>
+				代表是<em>branching</em>的部分，從root這個waterfall切換到另外兩個branching。
+				<div class="bs-callout bs-callout-info">
+					這邊<code>echo</code>有點特別，因爲他不屬於branching因此屬於root的一部分
+				</div></dd><dt>
+				綠色的綫
+			</dt><dd>
+				代表是<em>looping</em>的部分。當其他watefall結束的時候，都會回到root waterfall。
+			</dd></dl><p></p></section><section><h2 id="WizKMOutline_1542121546885621">修改現行的程式碼</h2><p>
+		上面有了概念之後，來看看如何調整現行的程式碼來達到使用branching以及looping。
+		</p><p>
+		整個修改會分爲幾個部分：
+		</p><ol><li>建立一個<code>HotelDialogSet</code></li><li>完成詢問姓名的waterfall</li><li>完成訂房的waterfall</li><li>完成root waterfall</li><li>整合到bot呼叫HotelDialogSet</li></ol><p></p><section><h3 id="WizKMOutline_1542121546886825">建立一個HotelDialogSet</h3><p>
+			首先建立出一個class叫做<code>HotelDialogSet</code>，然後讓這個class繼承<code>DialogSet</code>，透過這個方式讓邏輯整合到這個class就好。
+			</p><p>
+			由於之後會使用到Accessor來取得儲存的值，因此會用建構子傳入來，最後整個class：
+			</p><pre><code class="language-csharp">public class HotelDialogSet : DialogSet
+{
+	private EchoBotAccessors _accessors;
+
+	public HotelDialogSet(IStatePropertyAccessor&lt;DialogState&gt; dialogState,
+		EchoBotAccessors accessors) 
+		: base(dialogState)
+	{
+		_accessors = accessors;
+	}
+}</code></pre></section><section><h3 id="WizKMOutline_1542121546886543">完成詢問姓名的waterfall</h3><p>
+			首先來完成詢問姓名的waterfall，整個的邏輯和之前篇幅看到的一樣，定義出一個WaterfallDialog，用來取得使用者姓名：
+			</p><pre><code class="language-csharp">public class HotelDialogSet : DialogSet
+{
+	....
+	
+	public string askNameWaterfall { get; } = "askNameWaterfall";
+
+	public HotelDialogSet
+		(IStatePropertyAccessor&lt;DialogState&gt; dialogState, EchoBotAccessors accessors) 
+		: base(dialogState)
+	{
+		...
+		
+		var askNameDialogSet = new WaterfallStep[]
+		{
+			StartPromptName,
+			ProcessPromptName,
+		};
+
+		Add(new WaterfallDialog(askNameWaterfall, askNameDialogSet));
+
+		Add(new TextPrompt("textPrompt"));
+	}
+
+	private async Task&lt;DialogTurnResult&gt; ProcessPromptName
+		(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+	{
+		var userInfo = await _accessors.UserInfo.GetAsync
+			(stepContext.Context, () =&gt; new Model.UserInfo());
+
+		userInfo.Name = stepContext.Result.ToString();
+
+		await _accessors.UserInfo.SetAsync(stepContext.Context, userInfo);
+		await _accessors.UserState.SaveChangesAsync(stepContext.Context);
+
+		await stepContext.Context.SendActivityAsync($"{userInfo.Name} 您好");
+
+		return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+	}
+
+	private async Task&lt;DialogTurnResult&gt; StartPromptName
+		(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+	{
+		return await stepContext.PromptAsync("textPrompt", new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("請問尊姓大名？"),
+		}, 
+		cancellationToken);
+	}
+}</code></pre><p>
+		上面程式碼應該不太需要介紹，定義了了一個Waterfall，裡面有兩個step用來取得姓名以及儲存在Accessor。
+		</p></section><section><h3 id="WizKMOutline_1542121546886730">完成訂房的waterfall</h3><p>
+			看過了上面詢問名字的部分，相信對於訂房的做法也就很清楚了 - 一樣是建立一個waterfall，裡面定義出完成訂房需要的step。
+			</p><p>
+			首先是在建構子的時候建立出waterfall的step：
+			</p><pre><code class="language-csharp">public HotelDialogSet
+	(IStatePropertyAccessor&lt;DialogState&gt; dialogState, EchoBotAccessors accessors) 
+	: base(dialogState)
+{
+	...
+	
+	var waterfallSteps = new WaterfallStep[]
+	{
+		GetStartStayDateAsync,
+		GetStayDayAsync,
+		GetNumberOfOccupantAsync,
+		GetBedSizeAsync,
+		GetConfirmAsync,
+		GetSummaryAsync,
+	};
+
+	Add(new WaterfallDialog("bookRoom", waterfallSteps));
+	Add(new DateTimePrompt("dateTime"));
+	Add(new NumberPrompt&lt;int&gt;("number"));
+	Add(new ChoicePrompt("choice"));
+	Add(new ConfirmPrompt("confirm"));
+}</code></pre><p>
+		再來就是看看每一個step的實際動作：
+		</p><pre><code class="language-csharp">...
+
+#region bookRoom
+private async Task&lt;DialogTurnResult&gt; GetSummaryAsync
+  (WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	if ((bool)stepContext.Result)
+	{
+		await stepContext.Context.SendActivityAsync
+			($"訂單下定完成，訂單號：{DateTime.Now.Ticks}");
+	}
+	else
+	{
+		await stepContext.Context.SendActivityAsync("已經取消訂單");
+	}
+
+	return await stepContext.EndDialogAsync(cancellationToken: cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetConfirmAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	var roomReservation = (await GetCounterState(stepContext.Context))
+		.RoomReservation;
+
+	roomReservation.BedSize = ((FoundChoice)stepContext.Result).Value;
+
+	return await stepContext.PromptAsync("confirm", new PromptOptions()
+	{
+		Prompt = MessageFactory.Text($"請確認您的訂房條件：{Environment.NewLine}" +
+		$"{roomReservation}")
+	});
+}
+
+private async Task&lt;DialogTurnResult&gt; GetBedSizeAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	(await GetCounterState(stepContext.Context))
+		.RoomReservation.NumberOfPepole = (int)stepContext.Result;
+
+	var choices = new List&lt;Choice&gt;()
+	{
+		new Choice("單人床"),
+		new Choice("雙人床"),
+	};
+
+	return await stepContext.PromptAsync("choice",
+		new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("請選擇床型"),
+			Choices = choices,
+		},
+		cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetNumberOfOccupantAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	(await GetCounterState(stepContext.Context))
+		.RoomReservation.NumberOfNightToStay = (int)stepContext.Result - 1;
+
+	return await stepContext.PromptAsync("number",
+		new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("幾人入住"),
+		},
+		cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetStayDayAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	(await GetCounterState(stepContext.Context))
+		.RoomReservation.StartDate =
+		DateTime.Parse(((List&lt;DateTimeResolution&gt;)stepContext.Result).First().Value);
+
+	return await stepContext.PromptAsync("number", new PromptOptions()
+	{
+		Prompt = MessageFactory.Text("請輸入要住幾天"),
+	},
+	cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; GetStartStayDateAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	return await stepContext.PromptAsync("dateTime",
+		new PromptOptions()
+		{
+			Prompt = MessageFactory.Text("請輸入入住日期"),
+		},
+		cancellationToken);
+}
+#endregion</code></pre></section><section><h3 id="WizKMOutline_1542121546886489">完成root waterfall</h3><p>
+			剩下最後一個waterfall了，也就是所有的起點，<code>root</code>的waterfall。
+			</p><p>
+			一樣就是先在建構子定義出這個waterfall的step：
+			</p><pre><code class="language-csharp">...
+var rootSteps = new WaterfallStep[]
+{
+	StartRootAsync,
+	ProcessRootAsync,
+	LoopRootAsync,
+};
+
+Add(new WaterfallDialog("root", rootSteps));</code></pre><p>
+			再來看看實際step裡面執行的内容：
+			</p><pre><code class="language-csharp">private async Task&lt;DialogTurnResult&gt; LoopRootAsync
+	(WaterfallStepContext stepContext, CancellationToken cancellationToken)
+{
+	return await stepContext.ReplaceDialogAsync("root", null, cancellationToken);
+}
+
+private async Task&lt;DialogTurnResult&gt; ProcessRootAsync(WaterfallStepContext stepContext,
+ CancellationToken cancellationToken)
+{
+	var userInfo = await _accessors.UserInfo.GetAsync(
+		stepContext.Context, () =&gt; new Model.UserInfo());
+
+	if (string.IsNullOrEmpty(userInfo.Name))
+	{
+		return await stepContext.BeginDialogAsync(
+			askNameWaterfall, null, cancellationToken);
+	}
+	else if (stepContext.Result.ToString() == "訂房")
+	{
+		return await stepContext.BeginDialogAsync(
+			"bookRoom", null, cancellationToken);
+	}
+	else
+	{
+		CounterState state = await GetCounterState(stepContext.Context);
+
+		state.TurnCount++;
+
+		// Set the property using the accessor.
+		await _accessors.CounterState.SetAsync(stepContext.Context, state);
+
+		// Save the new turn count into the conversation state.
+
+		// Echo back to the user whatever they typed.
+		var responseMessage = $"Name: {userInfo.Name} Turn {state.TurnCount}: You sent '{stepContext.Result}'\n";
+		await stepContext.Context.SendActivityAsync(responseMessage);
+
+		return await stepContext.ContinueDialogAsync(cancellationToken);
+	}
+}
+
+private async Task&lt;DialogTurnResult&gt; StartRootAsync(WaterfallStepContext stepContext,
+ CancellationToken cancellationToken)
+{
+	return await stepContext.PromptAsync("textPrompt", new PromptOptions()
+	{
+		Prompt = MessageFactory.Text("您好，能夠幫到您什麽？"),
+	},
+	cancellationToken);
+}</code></pre><p>
+		這邊最重要的就是<code>ProcessRootAsync</code>以及<code>LoopRootAsync</code>。
+		</p><p>
+		在<code>ProcessRootAsync</code>裡面，透過呼叫<code>BeginDialogAsync</code>來做到<em>branching</em> - 依照輸入内容不同branch到不同的waterfall。
+		</p><p>
+		然後在<code>LoopRootAsunc</code>裡面呼叫<code>ReplaceDialogAsync</code>來做到<em>looping</em>。
+		</p></section><section><h3 id="WizKMOutline_1542121546886619">整合到bot呼叫HotelDialogSet</h3><p>
+			最後切換到<code>EchoWithCounterBot</code>來設定把整個流程啓動起來。
+			</p><p>
+			首先把<code>HotelDialogSet</code>在建構子的時候建立出來：
+			</p><pre><code class="language-csharp">public class EchoWithCounterBot : IBot
+{
+	private readonly HotelDialogSet _dialogs;
+	
+	public EchoWithCounterBot(EchoBotAccessors accessors,
+		ILoggerFactory loggerFactory)
+	{
+		...
+
+		_dialogs = new HotelDialogSet(_accessors.DialogState, accessors);
+	}
+}</code></pre><p>
+		最後要把整個啓動起來：
+		</p><pre><code class="language-csharp">public async Task OnTurnAsync(ITurnContext turnContext, 
+	CancellationToken cancellationToken = default(CancellationToken))
+{
+	if (turnContext.Activity.Type == ActivityTypes.Message)
+	{
+		var dc = await _dialogs.CreateContextAsync(
+			turnContext, cancellationToken);
+
+		await dc.ContinueDialogAsync(cancellationToken);
+
+		if (!turnContext.Responded)
+		{
+			await dc.BeginDialogAsync
+				("root", null, cancellationToken);
+		}
+	}
+	else
+	{
+		await turnContext.SendActivityAsync
+			($"{turnContext.Activity.Type} event detected");
+	}
+
+	await _accessors.ConversationState.SaveChangesAsync(turnContext);
+}</code></pre><div class="bs-callout bs-callout-info">
+			這邊忽略了要從<code>EchoWithCounterBot</code>裡面刪除原本code的部分處理 - 如果在處理上有遇到問題，歡迎參考範例程式碼。
+		</div></section><section><h3 id="WizKMOutline_1542121546886444">測試結果</h3><p>
+			首先是看取得姓名的部分：
+			</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-13-bot-framework-v4-10-use-branching-and-looping-in-dialogset-to-modularise-logic/9ed70eab-6011-4524-8074-74e6da35d5cb.png" border="0" alt="botframework-emulator_2018-11-13_22-49-49.png"><br><figcaption>沒有詢問過姓名任何輸入都會觸發</figcaption></figure><p></p><p>
+			再來使用關鍵字<code>訂房</code>：
+			</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-13-bot-framework-v4-10-use-branching-and-looping-in-dialogset-to-modularise-logic/b436359f-a004-4d3b-8f70-8125d288b070.png" border="0" alt="botframework-emulator_2018-11-13_22-51-11.png"><br><figcaption>觸發訂房的waterfall</figcaption></figure><p></p><p>
+			最後如果輸入其他任何内容，都變成echo模式：
+			</p><figure><img class="img-responsive" src="/posts/2018/11/2018-11-13-bot-framework-v4-10-use-branching-and-looping-in-dialogset-to-modularise-logic/17a567aa-0533-408d-b7b7-2cf550243592.png" border="0" alt="botframework-emulator_2018-11-13_22-51-21.png"><br><figcaption>測試其他輸入内容</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1542121546886168">結語</h2><p>
+		這篇透過建立出一個自己的DialogSet并且透過branching以及looping的方式讓整個組合運作起來。
+		</p><p>
+		透過邏輯整合到自己的DialogSet，在呼叫端（<code>EchoWithCounterBot</code>）變得非常的乾净，并且邏輯也分別出去了。
+		</p><p>
+		可是還是產生了別的問題，現在所有邏輯都卡在了DialogSet裡面，尤其是2個waterfall明明是不同的東西難道不能夠抽出去嗎？可不可以抽到一個獨立module然後需要的時候整合使用呢？
+		</p><p>
+		這就是composite dialogs的作用，下一篇再來介紹。
+		</p></section>

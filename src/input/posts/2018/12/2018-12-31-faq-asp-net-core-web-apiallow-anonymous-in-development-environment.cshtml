@@ -1,0 +1,95 @@
+﻿Title: "[faq]ASP .NET Core 如何在開發的情況下讓Controller不需要過Authorization (驗證)"
+Published: 2018-12-31 22:01
+Modified: 2018-12-31 22:01
+Image: "/posts/2018/12/2018-12-31-faq-asp-net-core-web-apiallow-anonymous-in-development-environment/b32113a1-07b2-42ae-9d5f-7bea098a7f02.jpg"
+Tags: ["asp-net-core", "net-core"]
+Series: ["「faq」"]
+PostDescription: "開發過程中，通常都會希望把身份驗證暫時拿掉
+這樣在測試過程至少速度比較快(不需要處理驗證相關)並且只需要考慮api本身的邏輯，而不用考慮是不是驗證有什麽錯
+
+不過怎麽楊可以簡單的在切換環境的時候決定要不要驗證呢？
+這篇看看Asp .NET Core怎麽透過global filter做到"
+---
+<section><figure><img class="img-responsive" src="/posts/2018/12/2018-12-31-faq-asp-net-core-web-apiallow-anonymous-in-development-environment/b32113a1-07b2-42ae-9d5f-7bea098a7f02.jpg" border="0" alt="ASP .NET Core 如何在開發的情況下讓Controller不需要過Authorization (驗證).jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>
+		最近常開發以及維護ASP .NET Core Web API的網站，其中一個會遇到問題就是，<em>如何在開發的情況下繞過驗證/授權(Authorization)</em>。
+		</p><p>
+		這篇將介紹，如何透過設定的方式一次開啓驗證以及不驗證。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1546260329385986" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1546260329385932" ;="" style="font-size: 15px; line-height: 1.6;">怎麽解決：透過加入AllowAnonymous的全域Filter</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1546260329385798" ;="" style="font-size: 15px; line-height: 1.6;">把IHostingEnvironment注入進來</a><br></li><li><a href="#WizKMOutline_1546260329385190" ;="" style="font-size: 15px; line-height: 1.6;">用環境判斷，如果是開發環境就加入[AllowAnonymous]</a><br></li></ul><li><a href="#WizKMOutline_1546260329385744" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1546260329385986">問題描述</h2><p>
+		在提到如何解決之前，先來看看指的是什麽問題。
+		</p><p>
+		在Controller裡面要加入驗證最簡單的方式就是把要判斷的Controller或者Action加上<code>[Authorization]</code>的Attribute。
+		</p><p>
+		例如所有<code>ApiBaseController</code>都需要經過驗證：
+		</p><pre><code class="language-csharp">[Authorize]
+public class ApiBaseController : ControllerBase
+{
+.....
+}
+		</code></pre><p>
+		不過有時候在開發階段卡驗證這個事情很煩，以Web Api的來説，一般來説會透過傳入<code>bearer token</code>來做驗證。
+		</p><p>
+		每一次測試都要取得不同的<code>Access Token</code>實在很煩，尤其是有時候API有問題，希望能夠排除掉是驗證有關的邏輯然後專注在API邏輯這個部分。
+		</p><p>
+		這個時候可以怎麽做？有沒有什麽可以在開發情況下不驗證，但是其他環境要驗證呢？
+		</p><div class="bs-callout bs-callout-info"><p>
+			題外話：
+			</p><p>
+			在資安裡面<em>認證 (Authentication)</em> 以及 <em>授權 (Authorization)</em>是兩個不同的事情。
+			</p><p>
+			在這篇裡面指的 <em>Authorization</em> 是 Asp .NET 裡面的 attribute，而不是傳統意義上面的Authorization。
+			</p></div></section><section><h2 id="WizKMOutline_1546260329385932">怎麽解決：透過加入AllowAnonymous的全域Filter</h2><p>
+		要處理這個問題有好多種解法，例如：
+		</p><ol><li>透過把BaseController裡面的<code>[Authorize]</code>拿掉 - 不過這個需要改code并且重新編譯，沒有辦法透過改設定的方式切換</li><li>透過build symbol不要包含<code>[Authorize]</code> - 雖然比第一個方法好一些，但是舉例來説如果用的是<code>debug</code>，那麽所有的debug build都不會包含驗證 - 也是沒辦法透過設定的方式切換</li></ol><p></p><p>
+		還有沒有其他解決方式呢？重要是這個方式能夠透過runtime切換。
+		</p><p>
+		要達到這個目的一種做法是覆寫<code>[Authorize]</code>，然後裡面判斷是否有權限的時候改成吃config的設定，有某個設定之結果。這個做法雖然可以解決並且也可以動態切換，但是還是有點繁瑣。
+		</p><p>
+		其實還有比這個更加快的做法，也就是在特定情況下，所有的Controller前面加上<code>[AllowAnonymous]</code>即可。
+		</p><p>
+		要做到這個很簡單，只需要調整<code>Startup.cs</code>：
+			</p><ol><li>把<code>IHostingEnvironment</code>注入進來</li><li>用環境判斷，如果是開發環境就加入<code>[AllowAnonymous]</code></li></ol><p></p><section><h3 id="WizKMOutline_1546260329385798">把IHostingEnvironment注入進來</h3><p>
+			將會使用<code>IHostingEnvironment.IsDevelopment()</code>來判斷是不是開發環境。要使用就先要注入進來，因此在Constructor做這件事情：
+</p><pre><code class="language-csharp">public IHostingEnvironment Environment { get; }
+
+public Startup(IConfiguration configuration, IHostingEnvironment env)
+{
+	Configuration = configuration;
+
+	Environment = env;
+}
+</code></pre><p></p><p>
+			有了<code>Environment</code>就可以判斷出目前的執行環境是什麽。
+			</p></section><section><h3 id="WizKMOutline_1546260329385190">用環境判斷，如果是開發環境就加入[AllowAnonymous]</h3><p>
+			知道了目前的執行環境是什麽之後，就可以在注冊MVC的時候，把所有的Controller加入<code>AllowAnonymous</code>。
+			</p><pre><code class="language-csharp">public void ConfigureServices(IServiceCollection services)
+{
+	if (Environment.IsDevelopment())
+	{
+		services.AddMvc(opts =&gt;
+	   {
+		   opts.Filters.Add(new AllowAnonymousFilter());
+	   })
+	   .SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+	}
+	else
+	{
+		services.AddMvc()
+		.SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+	}
+	
+	......
+}
+</code></pre><p>
+		邏輯還蠻清楚，當屬於<code>Development</code>環境的時候，給所有的Controller加入<code>AllowAnonymous</code>，換句話説不用過驗證。
+		</p><p>
+		如果不是開發環境，那麽就不用加，因此需要驗證的Controller都還是需要驗證。
+		</p></section></section><section><h2 id="WizKMOutline_1546260329385744">結語</h2><p>
+		這篇解決了在開發環境讓本來要過驗證的Controller可以不用過驗證，並且直接使用了.NET Core提供的環境判斷參數，因此在上正式機器的時候不會因此忘記要開啓驗證這個事情。
+		</p><p>
+		如果大家有更好的做法也歡迎和我分享。
+		</p></section>

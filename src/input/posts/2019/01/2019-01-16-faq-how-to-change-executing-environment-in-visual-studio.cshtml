@@ -1,0 +1,65 @@
+﻿Title: "[.net core]如何在開發階段透過Visual Studio設定不同的執行環境 (環境變數)"
+Published: 2019-01-16 22:01
+Modified: 2019-01-16 22:01
+Image: "/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/1f8cdc4f-ecc4-427b-a161-c9aaf6564e80.jpg"
+Tags: ["asp-net-core", "net-core", "visual studio", "faq"]
+Series: ["「faq」"]
+PostDescription: "上一篇介紹了如何在Development讓API不需要過驗證
+可是，如果要做整合測試希望要過驗證呢？
+有沒有辦法快速切換執行環境呢？
+這篇來看看Visual Studio怎麽做到"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/1f8cdc4f-ecc4-427b-a161-c9aaf6564e80.jpg" border="0" alt="[.net core]如何在開發階段透過Visual Studio設定不同的執行環境 (環境變數).jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2018/12/faq-asp-net-core-web-apiallow-anonymous-in-development-environment">[faq]ASP .NET Core 如何在開發的情況下讓Controller不需要過Authorization (驗證)</a>)介紹了如何透過當執行環境是Development的時候不要過驗證。</p><p>
+		透過那樣的設定可以讓開發者在開發階段的時候不用擔心驗證的部分。不過有時候需要把驗證的部分一起考慮進去怎麽辦？
+		</p><p>
+		例如想要做整合測試，確保需要權限的api邏輯沒有錯誤的時候怎麽辦？總不能夠直接打staging的機器吧。
+		</p><p>
+		這件事情其實在Visual Studio可以很容易的辦到，來看看如何切換執行環境。
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1547648926779117" kmcontenthide="1">相關文章</h4><ul><li><a href="/posts/2018/12/faq-asp-net-core-web-apiallow-anonymous-in-development-environment">[faq]ASP .NET Core 如何在開發的情況下讓Controller不需要過Authorization (驗證)</a><br></li></ul></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1547648931365575" ;="" style="font-size: 15px; line-height: 1.6;">.Net Core怎麽判斷目前是否是Development環境</a><br></li><li><a href="#WizKMOutline_1547648931365459" ;="" style="font-size: 15px; line-height: 1.6;">使用Visual Studio的Debug Profile</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1547648931365533" ;="" style="font-size: 15px; line-height: 1.6;">設定Profile</a><br></li><li><a href="#WizKMOutline_1547648931365942" ;="" style="font-size: 15px; line-height: 1.6;">使用profile</a><br></li></ul><li><a href="#WizKMOutline_1547648931365428" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1547648931365575">.Net Core怎麽判斷目前是否是Development環境</h2><p>
+		要解決這個問題首先要先瞭解一下.Net core是依照什麽機制來判定目前是屬于Development環境。
+		</p><p>
+		.Net Core在runtime的時候會檢查一個環境變數(Environment Variable)叫做<code>ASPNETCORE_ENVIRONMENT</code>，依照這個環境變數的值來決定目前是不是<em>Development</em>或者<em>Staging</em>或者<em>Production</em>。
+		</p><div class="bs-callout bs-callout-info">
+			題外話，除了這三個内建常見的之外，也可以設定成爲任意自己自訂的名稱，在<code>IHostingEnvironment.EnvironmentName</code>可以取到值。
+		</div><p>
+		所以其實可以透過設定Windows目前使用者的環境變數，加上<code>ASPNETCORE_ENVIRONMENT</code>，然後設定對應值來切換。
+		</p><p>
+		不過這麽做還是不太便利，畢竟要改環境變數尤其是只是開發用到的感覺太麻煩。
+		</p></section><section><h2 id="WizKMOutline_1547648931365459">使用Visual Studio的Debug Profile</h2><p>
+		Visual Studio其實有地方可以讓我們快速切換任何環境變數，我不太確定這個地方的官方名稱是什麽，不過這邊先暫時叫他Debug Profile。
+		</p><p>
+		要使用這個Profile需要做兩個事情：
+		</p><ol><li>設定Profile</li><li>使用Profile</li></ol> 
+		那麽就先從設定Profile開始。
+		<p></p><section><h3 id="WizKMOutline_1547648931365533">設定Profile</h3><p>
+			要設定Profile很簡單，只需要對任何一個要被執行的專案點<kbd>右鍵</kbd>，然後選擇<kbd>Properties</kbd>：
+			</p><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/f8300e6a-71a9-420c-bcd9-3f6f080249e5.png" border="0" alt="2019-01-16_22-05-03.png"><br><figcaption>一個Asp .Net Core Web Api的專案點下右鍵然後properties</figcaption></figure><p></p><p>
+			接下來：
+			</p><ol><li>切換到<code>Debug</code>的tab</li><li>可以看到目前有一個Profile叫做<code>IIS Express</code></li><li>然後這個裡面有設定<code>Environment Variable</code>為<code>ASPNETCORE_ENVIRONMENT = Development</code></li></ol><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/a3acb812-78de-4ca9-b79f-dec3d41ff6da.png" border="0" alt="devenv_2019-01-16_22-07-37.png"><br><figcaption>預設的Profile設定</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				題外話，這也是爲什麽從Visual Studio執行，不管是Debug build還是Release Build環境都屬於<em>Development</em>，因爲這個profile設定了。
+			</div><p>
+			看到了預設的設定之後，怎麽增加一個新的呢？
+			</p><p>
+			要增加新的一個profile只需要：
+			</p><ol><li>按下profile下拉旁邊的 <kbd>New</kbd> </li><li>輸入profile名稱 - 例如 <code>IIS Express - Prod</code> 代表模擬正式環境</li><li>按下 <kbd>OK</kbd></li></ol><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/d89797d9-66fb-4df0-ad6a-4141b75e19b2.png" border="0" alt="devenv_2019-01-16_22-09-55.png"><br><figcaption>增加一個新的profile</figcaption></figure><p></p><p>
+			增加完了profile接下來就是對這個profile做設定：
+			</p><ol><li>在Launch的下拉選擇<code>IIS Express</code> - <em>這個地方還有別的應用，在另外一篇在介紹啦</em></li><li>在Environment Variable那一欄右邊的<kbd>Add</kbd>點下去
+				</li><li>在Name的部分輸入<code>ASPNETCORE_ENVIRONMENT</code></li><li>在Value的部分輸入<code>Production</code></li><li>最後按下存檔</li></ol><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/460637b2-20bb-4b34-90f0-244a6a1296c0.png" border="0" alt="devenv_2019-01-16_22-13-32.png"><br><figcaption>設定profile</figcaption></figure><p></p><p>
+			這樣Profile就設定好了。
+			</p></section><section><h3 id="WizKMOutline_1547648931365942">使用profile</h3><p>
+			剛剛的profile設定好了之後，那麽該如何使用呢？
+			</p><p>
+			要使用很簡單，只需要對執行網站的綠色三角形的旁邊下拉點按下去，就會看到剛剛加入的Profile
+			</p><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/04306066-e28b-4718-82b8-692d8b0b4d3f.png" border="0" alt="devenv_2019-01-16_22-17-34.png"><br><figcaption>切換Profile</figcaption></figure><p></p><p>
+			切換之後，profile名稱會變，這個時候用一般執行網站方式（點他，或者<kbd>Ctrl+F5</kbd>或者<kbd>F5</kbd>都可以）
+			</p><figure><img class="img-responsive" src="/posts/2019/01/2019-01-16-faq-how-to-change-executing-environment-in-visual-studio/1e0b6ff7-ad52-43de-b3b2-8a9895e61b74.png" border="0" alt="devenv_2019-01-16_22-20-12.png"><br><figcaption>切換profile完成準備執行</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1547648931365428">結語</h2><p>
+		切換環境這個事情一開始可能覺得不太會用到，但是到後面會發現，爲了開發方便以及可以做整合測試，兩個環境切來切去常發生，這個時候Visual Studio的這個功能可以節省非常大量的時間。
+		</p><p>
+		以上希望對大家有幫助。
+		</p></section>

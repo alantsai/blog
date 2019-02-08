@@ -2,7 +2,7 @@
 Published: 2018-12-31 22:01
 Modified: 2018-12-31 22:01
 Image: "/posts/2018/12/2018-12-31-faq-asp-net-core-web-apiallow-anonymous-in-development-environment/b32113a1-07b2-42ae-9d5f-7bea098a7f02.jpg"
-Tags: ["asp-net-core", "net-core"]
+Tags: ["asp-net-core", "net-core", "faq"]
 Series: ["「faq」"]
 PostDescription: "開發過程中，通常都會希望把身份驗證暫時拿掉
 這樣在測試過程至少速度比較快(不需要處理驗證相關)並且只需要考慮api本身的邏輯，而不用考慮是不是驗證有什麽錯
@@ -14,7 +14,9 @@ PostDescription: "開發過程中，通常都會希望把身份驗證暫時拿�
 		最近常開發以及維護ASP .NET Core Web API的網站，其中一個會遇到問題就是，<em>如何在開發的情況下繞過驗證/授權(Authorization)</em>。
 		</p><p>
 		這篇將介紹，如何透過設定的方式一次開啓驗證以及不驗證。
-		</p></section>
+		</p>
+<div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1547648926779117" kmcontenthide="1">相關文章</h4><ul><li><a href="/posts/2019/01/faq-how-to-change-executing-environment-in-visual-studio">[.net core]如何在開發階段透過Visual Studio設定不同的執行環境 (環境變數)</a><br></li></ul></div>
+		</section>
 		<section>
 <a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1546260329385986" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1546260329385932" ;="" style="font-size: 15px; line-height: 1.6;">怎麽解決：透過加入AllowAnonymous的全域Filter</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1546260329385798" ;="" style="font-size: 15px; line-height: 1.6;">把IHostingEnvironment注入進來</a><br></li><li><a href="#WizKMOutline_1546260329385190" ;="" style="font-size: 15px; line-height: 1.6;">用環境判斷，如果是開發環境就加入[AllowAnonymous]</a><br></li></ul><li><a href="#WizKMOutline_1546260329385744" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
 		</section>

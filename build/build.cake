@@ -1,5 +1,5 @@
-#tool nuget:?package=Wyam&version=1.6.0
-#addin nuget:?package=Cake.Wyam&version=1.6.0
+#tool nuget:?package=Wyam&version=2.1.3
+#addin nuget:?package=Cake.Wyam&version=2.1.3
 #addin "Cake.Npm"
 
 var target = Argument("target", "Default");

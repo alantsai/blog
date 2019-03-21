@@ -1,0 +1,108 @@
+﻿Title: "[Azure DevOps]如何設定Pull Request的預設文字模板(template)"
+Published: 2019-03-21 21:01
+Modified: 2019-03-21 21:01
+Image: "/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/f449addd-d546-46fa-89e6-9fa7b5b8a510.jpg"
+Tags: ["best practices", "azure-devops", "faq"]
+Series: []
+PostDescription: "Code Review是一個很好的習慣，而Pull Request則是一個很好協助code review過程溝通的工具
+建立Pull Request的時候可以輸入一些描述，但是每一個工程師輸入的内容以及格式都不同，很頭痛
+更別說如果有些檢查應該先做之後才能建立pull request，但是工程師常常忘記怎麽辦？看看如何透過使用Template來解決這個問題，以及如何在Azure DevOps設定Default Branch"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/f449addd-d546-46fa-89e6-9fa7b5b8a510.jpg" border="0" alt="[Azure DevOps]如何設定Pull Request的預設文字模板(template).jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		Pull Request是一個非常好的Code Review方式，也是當初Github讓git火紅起來的其中一個原因之一。
+		</p><p>
+		在建立Pull Request的時候，一般會有一段訊息可以輸入，這個訊息主要描述了這一次Pull Request的一個主要目的。
+		</p><p>
+		但是，當團隊合作開發的時候，很有可能A工程師會輸入一種格式的内容，而B工程師又是另外一種。或者有時候有些條件需要符合才應該發起Pull Request，但是工程師忘記了，造成Reviewer需要花時間最後才發現根本最基本的條件都沒達到。
+		</p><p>
+		有沒有什麽方式可以提醒工程師在Pull Request發起的訊息要打好，並且該檢查的東西都要檢查過了呢？
+		</p><p>
+		這一篇，來看看在Azure DevOps裡面，如何透過建立template(範本)達到這個需求。
+		</p></section><section><div class="bs-callout bs-callout-info"><h4 kmcontenthide="1">相關文章</h4><ul><li><a href="/posts/2017/07/net-project-structure">該怎麼開專案的資料夾結構？每個專案應該要有的資料夾結構和檔案</a><br></li></ul></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1553172825590293" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽需要自訂Template</a><br></li><li><a href="#WizKMOutline_1553172825590129" ;="" style="font-size: 15px; line-height: 1.6;">如何建立自己的template</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1553172825590474" ;="" style="font-size: 15px; line-height: 1.6;">Template要放在某個特殊位置</a><br></li><li><a href="#WizKMOutline_1553172825590504" ;="" style="font-size: 15px; line-height: 1.6;">Template名稱和位置可以決定什麽時候自動出現</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1553172825590539" ;="" style="font-size: 15px; line-height: 1.6;">Default Template</a><br></li><li><a href="#WizKMOutline_1553172825591437" ;="" style="font-size: 15px; line-height: 1.6;">Branch Template</a><br></li><li><a href="#WizKMOutline_1553172825591226" ;="" style="font-size: 15px; line-height: 1.6;">Additional Template</a><br></li></ul></ul><li><a href="#WizKMOutline_1553172825591457" ;="" style="font-size: 15px; line-height: 1.6;">常見問題 - 爲什麽template沒有出現</a><br></li><li><a href="#WizKMOutline_1553172825591288" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1553172825591867" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1553172825590293">爲什麽需要自訂Template</h2><p>
+		從開頭大概知道了爲什麽應該要自訂template，快速總結一下。
+		</p><p>
+		自訂template的好處有：
+		</p><ol><li>可以確保建立Pull Request的人知道應該至少要輸入什麽</li><li>可以作爲一個checklist，提醒某些事情要做好在開pull request</li><li>Pull Request輸入的文字會變成commit message的一部分 - 在未來查找歷史很有幫助</li></ol><p></p><p>
+		光列出優點可能沒什麽感覺，直接看一個對比差異就有feel了。
+		</p><p>
+		首先，如果是一個沒有template的情況，那麽預設的<code>Description</code>呈現的是commit的訊息，例如：
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/bfaa942f-be30-4d77-a088-3633f62fdbe4.png" border="0" alt="chrome_2019-03-21_08-06-55.png"><br><figcaption>預設的畫面</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+			好吧，這個demo的commit訊息爛了一點，但是正式情況可別這樣
+		</div><p>
+		相較而言，如果今天有個template看到的可能是：
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/212abc1e-a1f7-4851-967f-66ce7a5842dc.png" border="0" alt="chrome_2019-03-21_08-11-48.png"><br><figcaption>有template的情況</figcaption></figure><p></p><p>
+		有template在搭配markdown裡面的checkbox，可以很容易建立出一個checklist，可以讓建立的人，做好每一項的時候把已經做好的打勾，然後reviewer只需要一看有沒打勾的直接退回，節省時間。
+		</p><div class="bs-callout bs-callout-info"><p>
+			如果説今天只是用Azure DevOps做版控，但是issue tracking在別的地方，那麽這個時候就沒辦法用<code>work items</code>直接關聯，但是就可以用第三項的形式把對應issue貼上。
+			</p><p>
+			有個好處是，當pull request完成的時候，這邊的訊息會一起進入commit message，未來很好查log的時候找到原始的單。
+			</p></div><p>
+		有feel了之後就要看看如何建立。
+		</p></section><section><h2 id="WizKMOutline_1553172825590129">如何建立自己的template</h2><p>
+		要建立template非常的簡單，需要瞭解兩個概念：
+		</p><ol><li>Template要<em>放在</em>某個特殊位置</li><li>Template<em>名稱+位置</em>可以決定什麽時候自動出現</li></ol><p></p><section><h3 id="WizKMOutline_1553172825590474">Template要放在某個特殊位置</h3><p>
+		Template是<code>放在 Git Repo</code>裡面，換句話説，和Source Code放在一起。
+		</p><p>
+		
+		不過放在那邊是有特殊位置，總共有：
+		</p><ol><li>放在<em>root</em>下面的<code>.azuredevops</code>資料夾裡面</li><li>放在<em>root</em>下面的<code>.vsts</code>資料夾裡面</li><li>放在<em>root</em>下面的<code>docs</code>資料夾裡面</li><li>放在<em>root</em>下面</li></ol><p></p><div class="bs-callout bs-callout-info">
+			以上幾個路徑是接下來這篇文章提到的所有的base，因此後面提到建立資料夾等都是建立在上面提到的幾個路徑之下。
+		</div><div class="bs-callout bs-callout-warning">
+			由於Template是和source code一起的，那麽哪一個branch的template會啟作用？<code>Default Branch</code>的會啟作用，後面會詳細介紹。
+		</div><div class="bs-callout bs-callout-info"><p>
+			放那邊就看各人的喜好啦，我喜歡放在<code>docs</code>下面，因爲我個人建議所有的專案建立的資料夾結構就有<code>docs</code>。
+			</p><p>
+			置入一下以前的另外一篇文章：<a href="/posts/2017/07/net-project-structure" style="font-size: 15px; line-height: 1.6;">該怎麼開專案的資料夾結構？每個專案應該要有的資料夾結構和檔案</a></p></div><p>
+		有了位置，接下來就是要看Template名稱和位置的差異。
+		</p></section><section><h3 id="WizKMOutline_1553172825590504">Template名稱和位置可以決定什麽時候自動出現</h3><p>
+			知道了基本路徑之後，就需要瞭解一下template的名稱以及會影響到的出現時間。
+			</p><p>
+			總共有3種類型的template：
+			</p><ol><li>Default Template：如果其他都沒有的情況下，要使用的Template</li><li>Branch Template：要指定pull request的目標是某一個branch的時候用</li><li>Additional Template：這種template不會預設使用，而是放在旁邊可以讓建立Pull Request的人選用</li></ol><p></p><p>
+			知道了不同差異，來看看每一個如何設定以及使用
+			</p><section><h4 id="WizKMOutline_1553172825590539">Default Template</h4><p>
+				只需要在上面提到的<em>base</em>資料夾下面加入一個檔案名稱為：
+				</p><ol><li>pull_request_template.md</li><li>pull_request_template.txt</li></ol> 
+				兩個二擇一即可。其實就是以<code>md</code>結尾或者<code>txt</code>結尾的一個<code>pull_request_template</code>檔案。
+				<p></p><p>
+				所以以下範例位置都有一樣的效果 (完整的路徑)：
+				</p><ul><li><code>{repository root}/.azuredevops/pull_request_template.md</code></li><li><code>{repository root}/.vsts/pull_request_template.md</code></li><li><code>{repository root}/docs/pull_request_template.md</code></li><li><code>{repository root}/pull_request_template.md</code></li></ul><p></p></section><section><h4 id="WizKMOutline_1553172825591437">Branch Template</h4><p>
+				有時候不同的branch要有不同的注意事項，這個時候就可以用branch template來蓋掉default template
+				</p><p>
+				只需要在上面提到的<em>base</em>資料夾下面的<code>pull_request_template/branches/</code>，然後branch名稱為<em>檔案名稱</em>結尾是<code>md</code>或者<code>txt</code>。
+				</p><p>
+				舉例來説，如果今天有個針對merge到<code>master</code> branch的template，那麽下面擇一即可(完整路徑)：
+				</p><ul><li><code>{repository root}/.azuredevops/pull_request_template/branches/master.md</code></li><li><code>{repository root}/.vsts/pull_request_template/branches/master.md</code></li><li><code>{repository root}/docs/pull_request_template/branches/master.md</code></li><li><code>{repository root}/pull_request_template/branches/master.md</code></li></ul><p></p><div class="bs-callout bs-callout-info">
+					target branch名稱會match到 <code>{branch}/*</code>。換句話説，如果有個branch template是<code>feature.md</code>，那麽 <code>feature</code>，或者<code>feature/*</code>都會使用這個
+				</div><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/077550be-08e1-42f9-9672-1972e219e6d4.png" border="0" alt="chrome_2019-03-21_20-08-35.png"><br><figcaption>如果有設定master branch template，那麽他會變成預設</figcaption></figure></section><section><h4 id="WizKMOutline_1553172825591226">Additional Template</h4><p>
+				有些Template預設不會使用，但是如果要用的話可以容易加入，這種就是Additional Template。
+				</p><p>
+				建立很簡單，只需要在上面提到的<em>base</em>資料夾下面的<code>pull_request_template/</code>，然後<em>任何檔案名稱</em>結尾是<code>md</code>或者<code>txt</code>。
+				</p><p>
+				舉例來説，如果今天有個Additional Template叫做<code>Addition</code>，那麽下面擇一即可(完整路徑)：
+				</p><ul><li><code>{repository root}/.azuredevops/pull_request_template/addition.md</code></li><li><code>{repository root}/.vsts/pull_request_template/addition.md</code></li><li><code>{repository root}/docs/pull_request_template/addition.md</code></li><li><code>{repository root}/pull_request_template/addition.md</code></li></ul><p></p><p>
+				下圖左邊可以看到總共有3種template，然後可以透過點選説明游俠框的地方去選擇要不要使用template：
+				</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/721a0fab-474c-4a5e-9bdd-2de8890ad21f.png" border="0" alt="chrome_2019-03-21_20-10-40.png"><br><figcaption>檔案結構並且如何apply template</figcaption></figure><p></p></section></section></section><section><h2 id="WizKMOutline_1553172825591457">常見問題 - 爲什麽template沒有出現</h2><p>
+		當遇到template有設定，但是沒有出現的時候，注意兩件事情：
+		</p><ol><li>確認template放在<em>正確位置</em>以及<em>檔名格式</em>是正確</li><li>確認template放在了<em>Default Branch</em>裡面</li></ol><p></p><p>
+		第一點檢查沒什麽好説，就看上一段的内容，看要什麽template，就檢查那個。
+		</p><p>
+		但是第二點的<em>Default Branch</em>是什麽？
+		</p><p>
+		在Azure DevOps有所謂的Default Branch，也就是預設要做pull request的時候選擇的branch。Template要放在這個branch裡面才有作用。
+		</p><div class="bs-callout bs-callout-info">
+			在Azure DevOps切換到Branch就可以看到那個是default，預設都是<code>master</code><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/f1dfb6fe-5b64-4f0b-bc5d-df63ec818c2e.png" border="0" alt="chrome_2019-03-21_20-16-27.png"><br><figcaption>預設branch會有一個tag在旁邊寫<code>Default</code></figcaption></figure></div><p>
+		知道了怎麽看Default Branch之後，下一個問題就是怎麽改？
+		</p><p>
+		修改只需要：
+		</p><ol><li>d點選左下角的<code>Project Settings</code></li><li>選擇<code>Repositories</code></li><li>展開repo，然後找到要設定為Default的那個branch</li><li>點選旁邊的3個點，就會出現選項：<code>Set as default branch</code></li></ol><p></p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-21-best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch/b24df41d-03d2-4a39-9c96-83b44063089d.png" border="0" alt="chrome_2019-03-21_20-18-25.png"><br><figcaption>修改Default Branch的方式</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1553172825591288">結語</h2><p>
+		我們常説，刪比新增來的快，因此有個template除了可以提醒要做什麽之外，如果有一些常見的輸入内容也可以用template幫大家準備好，只需要套用然後微調就好。
+		</p><p>
+		或許看起來只是小地方，但是可以讓未來維護或查找變得更加方便。
+		</p></section><section><h2 id="WizKMOutline_1553172825591867">參考資料</h2><dl><dt>
+				官方的説明文件
+			</dt><dd><a href="https://docs.microsoft.com/en-us/azure/devops/repos/git/pull-request-templates?view=azure-devops">Improve pull request descriptions using templates</a></dd></dl></section>

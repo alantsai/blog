@@ -1,0 +1,72 @@
+﻿Title: "[sql]怎麽快速從現有的資料庫Table產生出符合過濾條件資料的insert sql語法"
+Published: 2019-03-23 18:01
+Modified: 2019-03-23 18:01
+Image: "/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/316f35bd-77e3-4f64-9b13-6d352295261e.jpg"
+Tags: ["faq", "sql"]
+Series: []
+PostDescription: "如何針對某一個資料庫的Table產生出insert sql語法，不只是匯出所有資料的insert sql，也可以先下好過濾條件，只匯出符合條件資料的insert sql語法。how to generate sql insert statment with where condition for exisiting db table."
+---
+<section><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/316f35bd-77e3-4f64-9b13-6d352295261e.jpg" border="0" alt="[sql]怎麽快速從現有的資料庫Table產生產生出符合過濾條件的insert sql語法.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		有時候想要把現有的資料庫裡面的data傳遞給別人，但是又不想要把整個資料庫都給對方，這個時候給對方insert data的sql檔案是最快的。
+		</p><p>
+		但是，如果要自己手寫這個sql語法，如果只有1~2筆還好，但是如果有幾十筆呢？
+		</p><p>
+		如果不想要產生整個Table的資料，而是只有符合某些特定條件的才要，那麽要一筆一筆弄也太累了。
+		</p><p>
+		有沒有什麽工具可以使用讓這件事情變成只需要幾秒鐘就可以做到的呢？
+		</p><p>
+		這篇介紹一下兩種情景的產生方式？
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1553335983462695" ;="" style="font-size: 15px; line-height: 1.6;">快速從現有資料庫Table產生出insert 資料的 sql</a><br></li><ul><li><a href="#WizKMOutline_1553335983463916" ;="" style="font-size: 15px; line-height: 1.6;">使用SSMS匯出整個Table的資料為insert sql</a></li><li><a href="#WizKMOutline_1553335983463160" ;="" style="font-size: 15px; line-height: 1.6;">透過Visual Studio的SSDT產生符合條件的sql insert語法</a></li></ul><li><a href="#WizKMOutline_1553335983463353" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1553335983462695">快速從現有資料庫Table產生出insert 資料的 sql</h2><p>
+		有兩種方式可以用：
+		</p><ol><li>當想要把<em>整個</em>Table資料變成insert sql - 可以使用 SQL Server Management Studio (SSMS)</li><li>如果想要Table的<em>某些條件</em>的資料變成insert sql - 可以使用Visual Studio裡面的SQL Server Data Tools (SSDT)</li></ol><p></p><section><h3 id="WizKMOutline_1553335983463916">使用SSMS匯出整個Table的資料為insert sql</h3><p>
+			SSMS内建可以產生出某一個table的所有資料為insert語法，只需要透過<code>Generate Script</code>的語法即可。
+			</p><div class="bs-callout bs-callout-info">
+				SSMS可以透過這邊<a href="https://docs.microsoft.com/zh-tw/sql/ssms/download-sql-server-management-studio-ssms">傳送門</a>下載的到
+			</div><dl><dt>
+				對Table所在的DB點【右鍵】 -&gt; 【Tasks】 -&gt; 【Generate Scripts...】
+				</dt><dd><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/8f525559-e098-4cea-a217-ae3e78d2b56b.png" border="0" alt="Ssms_2019-03-23_17-26-27.png"><br><figcaption>選擇Generate Scripts</figcaption></figure></dd><dt>
+					選取要匯出的table
+				</dt><dd>
+					這邊看需求，以這邊例子想匯出<code>Address</code>這個table
+					<figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/d6aef097-863a-4c4f-81ff-73f3033d2597.png" border="0" alt="Ssms_2019-03-23_17-32-17.png"><br><figcaption>選擇Address table</figcaption></figure></dd><dd></dd><dt>
+					設定要產生的script為Data Only
+				</dt><dd><ol><li>先選擇<code>Advanced</code>的按鈕</li><li>找到<code>Type of data to script</code> - 選擇 <code>Data Only</code></li></ol><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/2f15c58b-236f-465b-8a1c-e54709f569b5.png" border="0" alt="Ssms_2019-03-23_17-33-11.png"><br><figcaption>設定script選項為Data Only</figcaption></figure></dd><dt>
+					檢查最後匯出結果
+				</dt><dd><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/9144c56e-93ea-4f70-a15a-c07bae65fe5b.png" border="0" alt="Ssms_2019-03-23_17-37-18.png"><br><figcaption>看到產生的sql語法</figcaption></figure></dd></dl><p>
+			透過SSMS可以快速匯出資料的insert sql，但是有個很大的問題是這個是<em>所有的資料</em>。
+			</p><p>
+			如果說資料很多，但是只希望裡面資料的某一些條件的資料怎麽辦？
+			</p></section><section><h3 id="WizKMOutline_1553335983463160">透過Visual Studio的SSDT產生符合條件的sql insert語法</h3><p>
+			上面SSMS的最大問題是沒有辦法對要產生的資料先做過濾。假設今天的需求是只產生出地址在<code>加拿大</code>的怎麽辦？
+			</p><p>
+			如果有這種需求，就可以使用VS搭配SST做到。
+			</p><div class="bs-callout bs-callout-info">
+				SSDT好像預設會裝，如果沒有的話，可以透過重新呼叫VS的安裝檔案，然後透過Modify方式選擇SSDT。
+			</div><dl><dt>
+					開啓Server Explorer加入DB的連線
+				</dt><dd><p>
+					開啓Server Explorer然後加入一個到DB的connection：
+					</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/4825eabe-dc1d-41ce-bccd-7793f6ae3e57.png" border="0" alt="2019-03-23_17-42-50.png"><br><figcaption>設定DB連線</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+						如果找不到Server Explorer，可以透過右上角的輸入框來搜索找到。
+					</div></dd><dt>
+					透過<code>Show Table Data</code>進入顯示所有資料的畫面
+				</dt><dd>
+					展開上面設定的連線，對要匯出的table點選【右鍵】，然後選擇<code>Show Table Data</code>:
+					<figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/7c636f5d-5c03-41dc-bf6a-d14a13aead6d.png" border="0" alt="devenv_2019-03-23_17-49-55.png"><br><figcaption>顯示table的資料</figcaption></figure></dd><dt>
+					設定搜索條件
+				</dt><dd><ol><li>點選上面漏斗的Icon - 代表filter條件</li><li>設定要過濾的條件 - 這邊是對<code>CountryRegion</code>這個欄位過濾<code>Canada</code></li><li>按下<kbd>OK</kbd>出發過濾</li></ol><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/ee5ead6b-c5ca-4935-99da-4d547c809519.png" border="0" alt="devenv_2019-03-23_17-54-17.png"><br><figcaption>設定過濾條件</figcaption></figure></dd><dt>
+					選擇Script把結果產生成爲sql
+				</dt><dd><p>
+					當按下<kbd>OK</kbd>之後，資料會被依照條件過濾，這個時候可以兩種方式產生為insert sql語法：
+					</p><ol><li>第一個檔案的icon是<code>Script</code>，把sql直接用另外一個頁簽呈現</li><li>第二個檔案的icon是<code>script to file</code>，把sql產生到檔案</li></ol><figure><img class="img-responsive" src="/posts/2019/03/2019-03-23-faq-how-to-generate-insert-sql-for-existing-table-with-where-condition/8ce31187-b18b-4279-b3be-d94c6261f808.png" border="0" alt="devenv_2019-03-23_17-55-48.png"><br><figcaption>產生sql語法的方法</figcaption></figure></dd></dl></section></section><section><h2 id="WizKMOutline_1553335983463353">結語</h2><p>
+		以上就是兩種快速產生資料insert sql的方式。
+		</p><p>
+		理論上這篇提到的兩個工具作爲.NET的工程師應該都會裝，因此應該不需要額外在裝什麽。
+		</p><p>
+		不過如果有更好的工具也歡迎下面留言分享。
+		</p></section>

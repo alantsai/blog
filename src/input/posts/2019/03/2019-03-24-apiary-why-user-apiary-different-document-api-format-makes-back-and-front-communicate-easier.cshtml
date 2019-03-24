@@ -1,0 +1,107 @@
+﻿Title: "[apiary][01]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 概念介紹篇"
+Published: 2019-03-24 18:01
+Modified: 2019-03-24 18:01
+Image: "/posts/2019/03/2019-03-24-apiary-why-user-apiary-different-document-api-format-makes-back-and-front-communicate-easier/f1a6d444-b616-41c1-ae1b-30c66b4f5f5e.jpg"
+Tags: ["apiary", "tool"]
+Series: ["apiary API前後端溝通好工具"]
+PostDescription: "讓前後端分離的情況下，能夠透過Apiary這個工具使用API Blueprint定義出API的格式，讓前後端可以並行開發。先從前後端分離的問題開始介紹起，瞭解問題以及那些解決方案，並且瞭解爲什麽apiary適合。"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/03/2019-03-24-apiary-why-user-apiary-different-document-api-format-makes-back-and-front-communicate-easier/f1a6d444-b616-41c1-ae1b-30c66b4f5f5e.jpg" border="0" alt="[apiary]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 概念介紹篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/，logl來源：https://apiary.io/</figcaption></figure></section><section><p>
+		近幾年前端爆炸式的成長，前後端分離的架構也越來越常見，如果前端和後端的開發者不是同一個人的時候，怎麽樣讓並行開發可以變得容易就非常的重用。
+		</p><p>
+		很長遇到一個問題是，前端開發者和後端開發者在API的内容以及格式有落差導致兩邊不好並行開發。
+		</p><p>
+		接下來的幾篇文章將要介紹<em>Apiary</em>這個工具，透過這個工具可以讓兩邊溝通沒有落差，並且可以同時進行開發。
+		</p><p>
+		這篇先從爲什麽選擇Apiary做開始，市面那麽多種，爲什麽要選Apiary，和其他方案比起來有什麽好處。
+		</p><p>
+		先從前後端開發問題看起，以及爲什麽Apiary (API Blueprint)是最適合的解決方案。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1553418944487992" ;="" style="font-size: 15px; line-height: 1.6;">前後端分離開發遇到的問題，以及可能解決的方法</a><br></li><ul><li><a href="#WizKMOutline_1553418944487983" ;="" style="font-size: 15px; line-height: 1.6;">前端和後端不同時開發</a></li><li><a href="#WizKMOutline_1553418944487302" ;="" style="font-size: 15px; line-height: 1.6;">先定義好文件，前端和後端同時開發</a></li><li><a href="#WizKMOutline_1553418944487184" ;="" style="font-size: 15px; line-height: 1.6;">用一些工具例如postman或者json server建立出mock server</a></li></ul><li><a href="#WizKMOutline_1553418944487882" ;="" style="font-size: 15px; line-height: 1.6;">解決方案：從統一格式看起</a><br></li><ul><li><a href="#WizKMOutline_1553418944487418" ;="" style="font-size: 15px; line-height: 1.6;">OpenAPI</a></li><li><a href="#WizKMOutline_1553418944488884" ;="" style="font-size: 15px; line-height: 1.6;">API Blueprint</a></li><li><a href="#WizKMOutline_1553418944488867" ;="" style="font-size: 15px; line-height: 1.6;">RAML</a></li></ul><li><a href="#WizKMOutline_1553418944488185" ;="" style="font-size: 15px; line-height: 1.6;">Apiary是什麽？</a><br></li><ul><li><a href="#WizKMOutline_1553418944488526" ;="" style="font-size: 15px; line-height: 1.6;">Apiary小檔案</a></li></ul><li><a href="#WizKMOutline_1553418944488579" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1553418944487992">前後端分離開發遇到的問題，以及可能解決的方法</h2><p>
+		前後端分離不用説是最近開發比較常見的一種架構，由後端提供API服務讓前端去呼叫然後呈現内容。
+		</p><p>
+		這種框架的好壞不再這個系列的探討範圍，但是這種開發方式有一個很大的問題是：<em>在開發過程中，怎麽確保前端和後端所知道的API定義都一樣？</em></p><p>
+		這個問題可能有幾種處理方式：
+		</p><ol><li>前端和後端不同時開發</li><li>先定義好文件，前端和後端同時開發</li><li>用一些工具例如postman或者json server建立出mock server</li></ol><p></p><p>
+		不過這集中處理方式多多少少都有一些缺點，也因此了有這系列介紹apiary的文章。
+		</p><p>
+		在進入正題之前，先看看這些處理方式有什麽問題。
+		</p><section><h3 id="WizKMOutline_1553418944487983">前端和後端不同時開發</h3><p>
+			第一種解決方式肯定是最直覺但是不一定有辦法運行的方法。
+			</p><p>
+			既然前端需要有等API，那麽何不等到後端開發好了前端在去接？
+			</p><p>
+			這種方式的好處是，因爲接的是正式API，接好了，那麽一切都好了。
+			</p><p>
+			但是，最大的問題是，沒辦法前後端同時開發。因爲前端一定要等後端開發好了才有辦法開始。
+			</p></section><section><h3 id="WizKMOutline_1553418944487302">先定義好文件，前端和後端同時開發</h3><p>
+			第一種方式沒辦法同時開發是因爲不知道API長什麽樣子因此要等後端。
+			</p><p>
+			那麽是不是把API的格式定義好就可以同時開發了？
+			</p><p>
+			理論上可行，但是這個方式也有兩個問題：
+			</p><ol><li>文件用什麽格式定義 - 每個開發者撰寫是否會依照同樣格式，並且大家看到的理解是否不同</li><li>直到後端開發好了才知道有沒有問題 - 在開發過程，由於只有文件，沒辦法實際驗證，那麽前端到底寫對沒對完全看不出來</li></ol><p></p></section><section><h3 id="WizKMOutline_1553418944487184">用一些工具例如postman或者json server建立出mock server</h3><p>
+			第二種方式看似前後端有了文件就可以同步開發，但是問題也不少。
+			</p><p>
+			最大的問題點是，前端沒辦法及時測試看看目前撰寫的和文件定義是否有不同。
+			</p><p>
+			因此又有了第三種，乾脆不寫文件了（或者除了文件之外），直接建立假的API Mock Server，前端就直接打Mock Server。那麽只要到時候真的Server和Mock server格式一樣，理論上只是切換api的host而已。
+			</p><p>
+			這種方式相較第二種好了許多，但是很大的問題變成：
+			</p><ol><li>修改Mock Server不一定容易 - 例如假設使用JSON Server，那麽撰寫的人需要熟悉npm的開發環境 - 學的確不難，但是如果作爲純後端要修改還需要一點時間上手</li><li>太過於依賴某個工具 - 例如使用的是postman，那麽要用postman的ui建立mock server，要版控這個文件定義就沒有辦法，並且只能夠用postman做修改</li></ol><p></p></section><p>
+		總結下來，上述各有優略，但是每一個工具想要解決的是：
+		</p><ol><li>前後端沒有統一格式，就沒辦法同時開發</li><li>文件沒有定義好的撰寫格式 - 每個人撰寫方式可能有點不同，怎麽確保大家寫出來的格式一樣</li><li>只有文件沒有mock server，還是要等後端好了才有辦法驗證前端是否沒寫好</li><li>mock server撰寫方式不一致 - 沒辦法用自己習慣的方式撰寫mock server，有些會太過依賴某個工具</li></ol><p></p><p>
+		以上這些問題其實很常見，因此世界上已經有聰明人想出了解決方法，同大多數解決方法一樣，不止一種解決方案。
+		</p></section><section><h2 id="WizKMOutline_1553418944487882">解決方案：從統一格式看起</h2><p>
+		文件化API是一第一步，有了文件化的API之後，就可以透過工具產生出Mock Server。
+		</p><p>
+		有了Mock Server之後，前後端的開發就可以同步進行，因爲前端可以用Mock Server邊開發邊驗證是否攥寫符合文件。
+		</p><p>
+		既然知道文件化API是第一步，那麽用一個<em>定義好，開放格式</em>變得非常重要。
+		</p><p>
+		目前市面上最廣汎使用的API文件格式有幾種：
+		</p><ol><li>OpenAPI</li><li>API Blueprint</li><li>RAML</li></ol><p></p><div class="table-responsive"><table class="table "><tbody><tr><th></th><th>OpenAPI</th><th>API Blueprint</th><th>RAML</th></tr><tr><th>使用的格式</th><td>YAML/JSON</td><td>Markdown (有些變化)</td><td>JSON</td></tr><tr><th>最出名的工具</th><td>Swagger</td><td>Apiary</td><td></td></tr><tr><th>建議使用情景</th><td>後端已經開發好 - 產生文件用</td><td>新開發需求，前後端溝通用</td><td>不建議使用</td></tr></tbody></table></div><div class="bs-callout bs-callout-info">
+			從上面總結的table可以看出，其實OpenAPI以及API Blueprint不一定要二擇一，而是<em>不同時期，使用最適合的工具</em>。
+		</div><p>
+		如果對每個格式的細節有興趣，請繼續看，不然跳過即可。
+		</p><section><h3 id="WizKMOutline_1553418944487418">OpenAPI</h3><p>
+			OpenAPI可能大家不熟悉，但是提到<em>Swagger</em>應該寫API的後端工程師都有聽説過。
+			</p><p>
+			簡單來説，Swagger可以讓我們從程式碼產生出API文件。而Swagger產生出來的就是OpenAPI的格式。
+			</p><p>
+			OpenAPI的格式為<em>YAML/JSON</em>，因此可以容易被版控。
+			</p></section><section><h3 id="WizKMOutline_1553418944488884">API Blueprint</h3><p>
+			API Blueprint是另外一個撰寫API的格式，而使用API Blueprint最出名的工具就是<em>Apiary</em>。
+			</p><p>
+			API Blueprint的格式為<em>某種變形的Markdown</em>，換句話説大家都會寫，相信不會寫markdown的工程師應該非常少數，並且版控容易。
+			</p><p>
+			但是相較於OpenAPI有Swagger可以從程式碼產生出來，API Blueprint就沒有。
+			</p></section><section><h3 id="WizKMOutline_1553418944488867">RAML</h3><p>
+			RAML其實和OpenAPI定位有點想，使用的也是<em>JSON</em>的格式。
+			</p><p>
+			不過由於和OpenAPI的定位很類似，因此目前比較少人再用了。
+			</p></section><p>
+		以我個人而言，選擇API Blueprint作爲文件撰寫，因爲Markdown大家都會，並且直接看原始也都看得懂。
+		</p><p>
+		相較而言，OpenAPI則看起來沒有那麽的直覺，RAML又沒有OpenAPI那麽廣汎，那麽選RAML還不如選OpenAPI。
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-24-apiary-why-user-apiary-different-document-api-format-makes-back-and-front-communicate-easier/cf072d39-1077-481c-9693-491c223c00b9.png" border="0" alt=""><br><figcaption>左邊是API Blueprint，右邊則是一樣的API用OpenAPI撰寫</figcaption></figure></section><section><h2 id="WizKMOutline_1553418944488185">Apiary是什麽？</h2><p>
+		上面説了那麽多，終於要進入了正題介紹這個系列的主軸，Apiary。
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1553418944488526">Apiary小檔案</h4><ol><li>官網：<a href="https://apiary.io/">https://apiary.io/</a></li><li>免費方案允許建立無限個專案，並且最多5個人可以維護</li><li>免費方案允許有Mock Server</li></ol></div><p>
+		Apiary本質上是一個<em>Editor+Mock+Test Server的服務</em>，他不止支援API Blueprint，也支援OpenAPI的格式。
+		</p><p>
+		撰寫好的文件自動會提供Mock Server可以使用，因此前端可以直接打Mock Server就可以驗證撰寫的是否有問題。
+		</p><p>
+		對於後端，有提供Test服務，能夠驗證後端產生的API是否同文件一樣。
+		</p><p>
+		免費的版本支援5個人同時編輯一個檔案，因此小團隊共同編輯也沒有什麽問題。
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-24-apiary-why-user-apiary-different-document-api-format-makes-back-and-front-communicate-easier/070ace66-af71-474d-a2b4-fa0974879dd2.png" border="0" alt="chrome_2019-03-24_16-54-02.png"><br><figcaption>產生出來的文件樣子</figcaption></figure></section><section><h2 id="WizKMOutline_1553418944488579">結語</h2><p>
+		這篇介紹了從最原始的問題，到最後幾種不同解決方案的介紹，以及非常初步介紹Apiary這一個工具。
+		</p><p>
+		花了一整個篇幅介紹問題是因爲能夠讓大家理解，爲什麽花時間學習API Blueprint以及Apiary是很值得。
+		</p><p>
+		下一篇先從Apiary的基本使用介紹開始。
+		</p></section>

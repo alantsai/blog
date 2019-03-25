@@ -1,0 +1,81 @@
+﻿Title: "[apiary][02]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 工具使用介紹篇"
+Published: 2019-03-25 22:31
+Modified: 2019-03-25 22:31
+Image: "/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/60ef9126-557f-400a-9c07-5f35c6b145ef.jpg"
+Tags: ["apiary", "tool"]
+Series: ["apiary API前後端溝通好工具"]
+PostDescription: "在上一篇瞭解了API文件化有哪些選擇，並且爲什麽選擇apiary之後，這篇來看看apiary提供了什麽功能，會用工具之後，在未來使用上才不會卡卡。"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/60ef9126-557f-400a-9c07-5f35c6b145ef.jpg" border="0" alt="[apiary][02]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 工具使用介紹篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/，logl來源：https://apiary.io/</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/03/apiary-why-user-apiary-different-document-api-format-makes-back-and-front-communicate-easier">[apiary][01]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 概念介紹篇</a>)介紹完了，讓前後端能夠溝通順暢的幾種API文件化的語言，以及爲什麽選擇Apiary (API Blueprint)之後。</p><p>
+		這一篇將來看看怎麽使用Apiary。將會以整個功能開始介紹起，讓大家先熟悉這個工具，也避免之後使用上面遇到一些奇奇怪怪的問題。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1553523419694888" ;="" style="font-size: 15px; line-height: 1.6;">建立一個專案</a><br></li><li><a href="#WizKMOutline_1553523419695869" ;="" style="font-size: 15px; line-height: 1.6;">Editor功能</a><br></li><li><a href="#WizKMOutline_1553523419695898" ;="" style="font-size: 15px; line-height: 1.6;">Documentation功能</a><br></li><li><a href="#WizKMOutline_1553523419695164" ;="" style="font-size: 15px; line-height: 1.6;">Inspector 功能</a><br></li><li><a href="#WizKMOutline_1553523419695923" ;="" style="font-size: 15px; line-height: 1.6;">Test 功能</a><br></li><li><a href="#WizKMOutline_1553523419695904" ;="" style="font-size: 15px; line-height: 1.6;">People 功能</a><br></li><li><a href="#WizKMOutline_1553523419695858" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1553523419694888">建立一個專案</h2><p>
+		Apiary的一切是從專案開始，所以在注冊完帳號之後 (注冊應該沒什麽好説的，就到官網點一點應該就可以了XD)，如果在到首頁，登入之後，在右上角名字下面有一個<em>continue</em></p><div class="bs-callout bs-callout-info">
+			也可以直接用網址：<a href="https://apiary.io/home">https://apiary.io/home</a></div><p>
+		點下去之後，就會進入專案的畫面。如果曾經有建立專案，那麽應該會自動帶入最後一次的。
+		</p><p>
+		在左上角logo的旁邊顯示的是目前的專案，點下去可以切換有權限的專案，或者點<code>Create New API Project</code>來建立一個新的專案
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/f23df01b-9aa5-4b05-b803-cac24e202154.png" border="0" alt="chrome_2019-03-25_20-25-18.png"><br><figcaption>建立或者切換專案</figcaption></figure><p></p><p>
+		點選建立的時候，會有幾個地方可以輸入：
+		</p><ol><li>專案類型：個人是免費，團隊屬於付費的服務</li><li>API名稱：自己記得住就好</li><li>Private API：如果打勾的話，只有特別設定的使用者才能夠看到，不然大家有網址都看得到。</li><li>選擇建立的格式：apiary也支援OpenAPI，所以如果要用apiary做撰寫OpenAPI也沒問題，只要這邊選擇就可以</li><li>最後確認建立的按鈕</li></ol><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/277db71a-33bd-4112-b544-97f6366095c5.png" border="0" alt="2019-03-25_20-35-38.png"><br><figcaption>建立新的專案</figcaption></figure><p></p><p>
+		按下按鈕，稍等一會，自動導入<em>編輯</em>功能，預設有一些内容作爲一個starting point。
+		</p><p>
+		有了專案之後，實際看一下每一個主要的功能。
+		</p><p>
+		整體來説，有以下幾個部分：
+		</p><ol><li>Documentation</li><li>Inspector</li><li>Editor</li><li>Test</li><li>Pepole</li></ol><p></p></section><section><h2 id="WizKMOutline_1553523419695869">Editor功能</h2><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/8028c622-98b0-4783-9a24-d01d50ad3377.png" border="0" alt="chrome_2019-03-25_21-21-20.png"><br><figcaption>進入Editor功能</figcaption></figure><p>
+		最重要的功能肯定是Editor功能，畢竟撰寫API文件都在這邊運作，功能來説大概有：
+		</p><ol><li>可以設定把這個project直接和github連接 - 我沒有用過，但是感覺可以直接和github專案同步，因此就算在local用別的工具修改也可以sync</li><li>太陽的icon - 可以切換到Dark Theme模式，聽説比較保護眼睛</li><li>文字A的Icon - 可以設定editor裡面的文字大小</li><li>驗證格式是否正確 - 這個是及時檢查，所以可以快速看出撰寫的有沒有符合spec，如果都符合就會是個打勾，不然就像截圖那樣告訴尼有多少個warning</li><li>開啓preview - 如果打開的話，右邊一半呈現的是Document模式的内容 - 個人不喜歡</li><li>儲存按鈕 - 儲存修改用 - 非常重要，apiary <em>沒有自動存檔功能</em></li><li>文件編輯區 - 沒啥特別，就是打文件的地方</li></ol><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/fe43ddea-f11c-4ec0-a18c-23ecabb0d7e3.png" border="0" alt=""><br><figcaption>Editor主要功能</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+			這邊要再次强調，apiary <em>沒有</em>自動儲存功能，如果忘記按下<kbd>Save</kbd>，然後直接関browser或者離開Editor頁面，東西就會不見！！！！！！！！！！！
+			
+		</div></section><section><h2 id="WizKMOutline_1553523419695898">Documentation功能</h2><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/6ecd0beb-6b06-47ef-a10e-8050421edf19.png" border="0" alt="chrome_2019-03-25_21-20-33.png"><br><figcaption>進入Documentation功能</figcaption></figure><p>
+		辛辛苦苦寫完的文件如果沒辦法漂漂亮亮的看到就沒什麽意義了。
+		</p><p>
+		Documentation功能就是用來呈現怎麽呼叫某一個API用的。
+		</p><ol><li>在左邊，是整個的目錄，因此可以點了快速到某個段落</li><li>在中間是每一個api的簡單描述</li><li>點下某一個，在右邊會出現詳細的説明</li></ol><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/e9bed2b4-c23a-4bc0-8201-2d33b9c80ea9.png" border="0" alt="chrome_2019-03-25_20-57-44.png"><br><figcaption>主要的三個部分</figcaption></figure><p>
+		這邊一塊很重要的是每一隻api的詳細訊息，從下面截圖可以看到：
+		</p><ul><li>api的路由是什麽，以及可以傳入的query string有什麽</li><li>api回傳的東西是什麽 - 包含每一個欄位的描述，以及範例值，還有型別 - 而且撰寫起來很容易</li><li>範例回傳的json内容</li></ul><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/bb77a736-17f5-4c07-886a-997f310bf629.png" border="0" alt="2019-03-25_21-04-15.png"><br><figcaption>api詳細描述</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+			這個範例我有調整了一下，所以才有這些訊息，原始建立出來的專案是沒有的。至於怎麽輸入這些訊息，下一篇會介紹。
+		</div><div class="bs-callout bs-callout-info">
+			有了這個之後，就不會有格式落差，或者欄位名稱搞不清楚的問題，要駡人也有證據了XD。
+		</div><p>
+		除了呈現api細節之外，可以點<kbd>Switch to Console</kbd>來打打看api (背景變成灰色，很好辨識到底在那個狀態)：
+		</p><dl><dt>
+				選擇要打那邊
+			</dt><dd>
+				建立好的文件自動有一個mock server可以用，因此可以選擇打mock server看看結果，當然，如果正式機器好了，可以切換到Production驗證看看回傳是否正確
+				<figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/cd36f638-06d1-4f79-802e-63c454bd4493.png" border="0" alt="chrome_2019-03-25_21-08-05.png"><br><figcaption>呼叫Mock Server</figcaption></figure></dd><dt>
+				得到的結果和文件比對差異
+			</dt><dd>
+				打出去之後，得到的結果可以和文件定義的做比對，能夠看出到底最終版本和原本定義是否有落差
+				<figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/776f6b7f-3b9e-4f00-89d5-6c39dbcfb889.png" border="0" alt="chrome_2019-03-25_21-09-59.png"><br><figcaption>檢查實際和定義是否一樣</figcaption></figure></dd></dl><div class="bs-callout bs-callout-info">
+			還記得之前建立的時候選擇是否為Private Project，如果沒有勾選，那麽把這一頁的網址給他人，就可以直接看到API文件，在分享上就很方便。
+		</div></section><section><h2 id="WizKMOutline_1553523419695164">Inspector 功能</h2><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/849ad92d-2175-47a8-bff3-702d3d25dfb8.png" border="0" alt="chrome_2019-03-25_21-21-03.png"><br><figcaption>進入Inspector功能</figcaption></figure><p>
+		還記得之前提到，文件寫好馬上有mock server可以讓前端去接，可是這個時候就遇到一個問題：<em>如果前端打mock，但是得不到結果到底是誰的問題？</em></p><p>
+		是前端網址打錯，還是mock server運作不正常？Inspector就可以解決這個問題。
+		</p><p>
+		Inspector功能很簡單，任何request打到了mock server，都會顯示出來。
+		</p><p>
+		並且可以看到當初的request以及response内容，前端再也沒有藉口說打不到是因爲mock server的問題。
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/968c3727-173e-4067-b266-15ed939a154a.png" border="0" alt=""><br><figcaption>可以看到每一個打過來的request</figcaption></figure></section><section><h2 id="WizKMOutline_1553523419695923">Test 功能</h2><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/0ad35130-67b8-443d-a27d-867520b01809.png" border="0" alt=""><br><figcaption>進入Test功能</figcaption></figure><p>
+		前端可以用 Inspector來測試接API，但是後端最後寫出來的API對不對怎麽測試？
+		</p><p>
+		Test功能就是這個用途，透過NPM一個工具叫做<code>dredd</code>，就可以驗證後端最後開發的API是否符合文件定義。
+		</p></section><section><h2 id="WizKMOutline_1553523419695904">People 功能</h2><figure><img class="img-responsive" src="/posts/2019/03/2019-03-25-apiary-getting-around-the-software-understand-how-to-use/43d0165b-efc9-4fdc-a950-48c9761267c1.png" border="0" alt="chrome_2019-03-25_21-20-11.png"><br><figcaption>進入People功能</figcaption></figure><p>
+		還記得一開始設定專案是否為Private，如果是Private我又需要別人一起修改怎麽辦？
+		</p><p>
+		這個時候可以使用Pepole，把朋友加進來，然後給他們修改權限，就可以一起修改同一份專案了。
+		</p><div class="bs-callout bs-callout-info">
+			免費版本要注意，一個專案不能夠超過<em>5個</em>使用者。
+		</div></section><section><h2 id="WizKMOutline_1553523419695858">結語</h2><p>
+		所謂工慾善其事，必先利其器。因此這篇針對了apiary這個工具有了一個比較完整的功能介紹。
+		</p><p>
+		當然，其實還有很多細節這篇沒有提到，但是至少看完了這篇對於最基本的功能以及要注意的地方都有比較清楚的認知。
+		</p><p>
+		瞭解了工具之後，下一篇將來看API Blueprint這個規格的語法 - 看看怎麽撰寫一個API文件。
+		</p></section>

@@ -1,0 +1,128 @@
+﻿Title: "[apiary][03]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - API Blueprint基本結構介紹篇"
+Published: 2019-03-26 22:11
+Modified: 2019-03-26 22:11
+Image: "/posts/2019/03/2019-03-26-apiary-understand-the-structure-of-api-blueprint/fe1947f8-5755-4943-9239-25b4dd24113c.jpg"
+Tags: ["apiary", "tool", "api-blueprint"]
+Series: ["apiary API前後端溝通好工具"]
+PostDescription: "在上一篇瞭解如何使用apiary這個工具之後接下來就是要知道怎麽用這個工具寫出api定義這篇先從API Blueprint的基本框架介紹起，先瞭解到底一份正確的文件會看到什麽内容"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/03/2019-03-26-apiary-understand-the-structure-of-api-blueprint/fe1947f8-5755-4943-9239-25b4dd24113c.jpg" border="0" alt="[apiary][03]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - API Blueprint基本結構介紹篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/，logl來源：https://apiary.io/</figcaption></figure></section><section><p>
+		在上一篇 (<a href="/posts/2019/03/apiary-getting-around-the-software-understand-how-to-use">[apiary][02]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 工具使用介紹篇</a>) 瞭解了怎麽使用apiary這一個工具來撰寫api的文件之後。</p><p>
+		在這一篇將來實際的撰寫看看感覺如何。
+		</p><p>
+		之前提到過apiary預設的文件格式是API Blueprint，因此這一篇將來看看API Blueprint怎麽使用，並且看看撰寫起來感覺如何。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1553608650322930" ;="" style="font-size: 15px; line-height: 1.6;">定一個Scenario</a><br></li><li><a href="#WizKMOutline_1553608650323818" ;="" style="font-size: 15px; line-height: 1.6;">API Blueprint的基本結構</a><br></li><ul><li><a href="#WizKMOutline_1553608650323466" ;="" style="font-size: 15px; line-height: 1.6;">Metadata</a></li><li><a href="#WizKMOutline_1553608650323315" ;="" style="font-size: 15px; line-height: 1.6;">API Name 和 Description</a></li><li><a href="#WizKMOutline_1553608650323471" ;="" style="font-size: 15px; line-height: 1.6;">Resource Group</a></li><li><a href="#WizKMOutline_1553608650323359" ;="" style="font-size: 15px; line-height: 1.6;">Resource</a></li><li><a href="#WizKMOutline_1553608650323435" ;="" style="font-size: 15px; line-height: 1.6;">Actions</a></li></ul><li><a href="#WizKMOutline_1553608650323919" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1553608650323339" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1553608650322930">定一個Scenario</h2><p>
+		在往下介紹之前，先來想象某一個情景。
+		</p><p>
+		假設今天要建立一個功能是一個很簡單的TODO app，在初期只需要簡單的 Create、Read、Update以及Delete (CRUD) 就可以。
+		</p><p>
+		那麽怎麽設計這個API呢？
+		</p></section><section><h2 id="WizKMOutline_1553608650323818">API Blueprint的基本結構</h2><p>
+		首先，API Blueprint就是markdown加上一些變形，因此只要會markdown，非常容易上手 (如果是Markdown苦手，這篇最後面有放一個鏈接到一個markdown的cheat sheet可以參考)。
+		</p><div class="bs-callout bs-callout-info">
+			不太確定是哪一個版本的markdown，有支援table，但是又沒有支援ToDo List，因此可能是變形版本的GitHub Flavored Markdown。
+		</div><p>
+		整個 API Blueprint 拆解下來大概有這麽幾個關鍵的部分：
+		</p><ol><li>Metadata - 主要定義那個版本的API Blueprint</li><li>API Name 和 Description - API的名稱以及説明</li><li>Resource Group - 相關的Resource可能放在同一個group裡面</li><li>Resource - 和某個資源有觀的API</li><li>Actions - 實際可以被觸發執行的内容</li></ol><p></p><p>
+		來細部看看每一個部分代表什麽。
+		</p><section><h3 id="WizKMOutline_1553608650323466">Metadata</h3><p>
+			每一個API Blueprint的最一開始就是metada，主要有兩個值：
+			</p><ol><li><code>FORMAT</code> - 定義使用那個版本的API Blueprint，大部分都是<code>1A</code></li><li><code>HOST</code> - 定義正式機器的base網址 - 用來驗證後端api是否正確用</li></ol><p></p><p>
+			常見的設定可能如下：
+</p><pre><code class="language-markdown">FORMAT: 1A
+HOST: http://polls.apiblueprint.org/</code></pre><p></p></section><section><h3 id="WizKMOutline_1553608650323315">API Name 和 Description</h3><p>
+			在 Metadata下面以一個<code>#</code> 為開始的就是 API Name
+			</p><p>
+			API Name下面的文字就是Description。
+			</p><div class="bs-callout bs-callout-info">
+				Description 可以用任意markdown的語法 - 包含不同的subheading或者是table
+			</div><p>
+			範例：
+			</p><pre><code class="language-markdown"># TODO 功能API
+
+這是一個 TODO 功能 API的描述文件
+
+## 這是第二段落
+
+可以用Table
+
+|  a |  b |   c|  d | e  |
+|---|---|---|---|---|
+|  1 | 2  |  3 |  4 |  5 |
+</code></pre><p>
+			最後呈現會是：
+			</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-26-apiary-understand-the-structure-of-api-blueprint/c1561328-8589-46a9-b07d-065bea948374.png" border="0" alt="chrome_2019-03-26_20-33-25.png"><br><figcaption>呈現内容</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1553608650323471">Resource Group</h3><p>
+			如果説有好多個Resource相關，可以把他們Group在一起。
+			</p><p>
+			主要差異是在Document呈現那邊，同一個group的會在同一個下面。
+			</p><p>
+			Resource Group的使用方式是，用heading符號(<code>#</code>) 然後後面跟著關鍵字 <code>Group</code>。
+			</p><p>
+			例如：
+			</p><pre><code class="language-markdown"># Group 功能1
+
+以下為功能1相關的服務</code></pre><p>
+			在Documentation看起來選單就會多一層：
+			</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-26-apiary-understand-the-structure-of-api-blueprint/2cf5cac2-80fe-4e12-aa2f-0ed5899c26f2.png" border="0" alt="chrome_2019-03-26_20-49-16.png"><br><figcaption>可以看到多一層結構 - 當resource很多的時候方便切割</figcaption></figure><p></p><p>
+			如果沒有設定任何Resource Group，那麽大家都是在<em>同一個預設</em>的Resource Group裡面。
+			</p></section><section><h3 id="WizKMOutline_1553608650323359">Resource</h3><p>
+			Resource簡單來説就是某一個api網址，例如我的TODO的CRUD可能是同一個 <em>Resource</em> (網址)，只是不同的 <em>Action</em> (http verb)
+			</p><p>
+			Resource一般是<em>兩個</em><code>#</code>，加上一段説明文字，後面一個方框帶入route。
+			</p><p>
+			例如：
+			</p><pre><code class="language-markdown">## Todo API [/api/todo]</code></pre><p></p></section><section><h3 id="WizKMOutline_1553608650323435">Actions</h3><p>
+			Action就是實際動作發生的地方 - 簡單來説如果以RESTFul的角度來看，那麽就是對應到http verb。
+			</p><p>
+			Action一般是<em>三個</em><code>#</code>，加上一段説明文字，後面一個方框帶入http verb。也可以帶入route訊息 (如果和Resource的route不一樣的話)
+			</p><p>
+			例如：
+			</p><pre><code class="language-markdown">### 取得所有的ToDo [GET]</code></pre><p>
+			如果說要調整route，舉例來説取得單筆的時候：
+			</p><pre><code class="language-markdown">### 取得單筆TODO [GET /api/todo/{todoId}]</code></pre><div class="bs-callout bs-callout-info">
+				Actions這邊還有很多細節，例如URI Template，或者怎麽定義傳入的參數以及回傳回來的格式等等。這些下一篇介紹。
+			</div></section><p>
+		這一篇的完整API Blueprint整個内容如下：
+		</p><pre><code class="language-markdown">FORMAT: 1A
+HOST: http://polls.apiblueprint.org/
+
+# TODO 功能API
+
+這是一個 TODO 功能 API的描述文件
+
+## 這是第二段落
+
+可以用Table
+
+|  a |  b |   c|  d | e  |
+|---|---|---|---|---|
+|  1 | 2  |  3 |  4 |  5 |
+
+# Group 功能1
+
+以下為功能1相關的服務
+
+## Todo API [/api/todo]
+
+### 取得所有的ToDo [GET]
+
+### 取得單筆TODO [GET /api/todo/{todoId}]
+
+取得單筆todo資料</code></pre></section><section><h2 id="WizKMOutline_1553608650323919">結語</h2><p>
+		這篇介紹完了API Blueprint的幾個主要架構項目，不過漏掉了怎麽定義Actions的部分。
+		</p><p>
+		由於Actions是文件的核心，也牽扯到request以及response的内容，因此這個部分將會在下一篇介紹。
+		</p><p>
+		在下一篇，將會針對Actions裡面的定義做介紹，包含了怎麽定義網址的參數，定義傳入的内容以及得到的結果格式等。
+		</p></section><section><h2 id="WizKMOutline_1553608650323339">參考資料</h2><dl><dt>
+				API Blueprint官方tutorial
+			</dt><dd>
+				這邊有完整的spec以及tutorial可以參考：<a href="https://apiblueprint.org/documentation/tutorial.html">https://apiblueprint.org/documentation/tutorial.html</a></dd><dt>
+				Github的Mastering Markdown
+			</dt><dd>
+				如果Markdown不熟悉，那麽可以參考github整理的一個小抄：<a href="https://guides.github.com/features/mastering-markdown/">https://guides.github.com/features/mastering-markdown/</a></dd></dl></section>

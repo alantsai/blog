@@ -1,0 +1,186 @@
+﻿Title: "[apiary][04]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - API Blueprint Actions格式篇"
+Published: 2019-04-02 22:11
+Modified: 2019-04-02 22:11
+Image: "/posts/2019/04/2019-04-02-apiary-understand-the-structure-of-actions-and-define-request-and-response/c524b087-b496-45d3-99dd-0b6fcf43445f.jpg"
+Tags: ["apiary", "tool", "api-blueprint"]
+Series: ["apiary API前後端溝通好工具"]
+PostDescription: "上一篇瞭解了apiary的基本文件格式，但是跳過了Actions的部分。這篇來看看怎麽定義Actions，也就是定義服務的request以及response内容"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/04/2019-04-02-apiary-understand-the-structure-of-actions-and-define-request-and-response/c524b087-b496-45d3-99dd-0b6fcf43445f.jpg" border="0" alt="[apiary][04]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - API Blueprint Actions格式篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/，logl來源：https://apiary.io/</figcaption></figure></section><section><p>
+		在上一篇 (<a href="/posts/2019/03/apiary-understand-the-structure-of-api-blueprint">[apiary][03]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - API Blueprint基本結構介紹篇</a>) 瞭解了整個API Blueprint的基本結構之後，對於整個文件的架構應該有個比較充分的瞭解了。</p><p>
+		但是上一篇因爲篇幅的關係，跳過了<em>Actions</em>裡面定義的部分。
+		</p><p>
+		Actions是什麽呢？基本上Actions就在定義某一之API可以接受的<strong><em>Request和Response</em></strong>是什麽。
+		</p><p>
+		這篇來看看怎麽定義。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1554213639164681" ;="" style="font-size: 15px; line-height: 1.6;">一個基本的Action有什麽東西？</a><br></li><li><a href="#WizKMOutline_1554213639164739" ;="" style="font-size: 15px; line-height: 1.6;">定義Action的Request</a><br></li><ul><li><a href="#WizKMOutline_1554213639164136" ;="" style="font-size: 15px; line-height: 1.6;">Parameters - 用來定義URI Template的部分</a></li><li><a href="#WizKMOutline_1554213639164233" ;="" style="font-size: 15px; line-height: 1.6;">Request 定義傳入的内容</a></li></ul><li><a href="#WizKMOutline_1554213639164343" ;="" style="font-size: 15px; line-height: 1.6;">定義Action的Response部分</a><br></li><ul><li><a href="#WizKMOutline_1554213639164867" ;="" style="font-size: 15px; line-height: 1.6;">單純回傳body内容</a></li><li><a href="#WizKMOutline_1554213639164997" ;="" style="font-size: 15px; line-height: 1.6;">回傳包含header内容</a></li><li><a href="#WizKMOutline_1554213639164938" ;="" style="font-size: 15px; line-height: 1.6;">定義多個不同的response</a></li></ul><li><a href="#WizKMOutline_1554213639164114" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1554213639164681">一個基本的Action有什麽東西？</h2><p>
+		任何一支API基本上都有兩個部分：
+		</p><dl><dt>
+				預期的Request是什麽
+			</dt><dd>
+				這邊又有分，屬於網址的一部分，例如說是不是接受某一個query string可以用來控制目前要顯示幾筆資料，或者是payload也就是post過來的body的部分。
+				
+			</dd><dt>
+				預期回復的Response是什麽
+			</dt><dd>
+				例如成功找到資料會回傳什麽回來，如果不成功會回傳什麽等等。
+			</dd></dl><p></p><p>
+		首先從Request裡面的url的部分開始看起。
+		</p></section><section><h2 id="WizKMOutline_1554213639164739">定義Action的Request</h2><p>
+		Request的部分有兩個：
+		</p><ol><li>定義URI Template的Parameters - 換句話説定義網址上面參數的部分</li><li>定義Request Payload - 當發生Post的時候要傳入的格式</li></ol><p></p><section><h3 id="WizKMOutline_1554213639164136">Parameters - 用來定義URI Template的部分</h3><p>
+			回到之前的TODO 功能API的範例。
+			</p><p>
+			假設，今天<code>取得所有的ToDo</code>的這一支API想要加上一次出現幾筆資料，那麽一般來説這個設定會屬於網址的一部分，可能是用query string呈現或者route的一部分。
+			</p><p>
+			這個時候就是要用URI Template來定義。
+			</p><p>
+			大概操作會是：
+			</p><ol><li>調整路由，包含幾筆資料這個參數</li><li>增加<code>Parameters</code>，定義參數含義</li></ol><p></p><dl><dt>
+					調整路由，包含幾筆資料這個參數
+				</dt><dd><p>
+					以這邊的例子將會用<code>PageSize</code>作爲一次幾筆的參數，以及<code>currentPage</code>代表目前是在第幾頁，那麽：
+					</p><pre><code class="language-markdown">### 取得所有的ToDo [GET /api/todo{?pageSize,currentPage}]</code></pre><p>
+					這邊用一個中括弧({})把所有的參數包起來，以問號(?)作爲開始表示<em>屬於Query String</em>，如果沒有問號則表示是<em>URI的一部分</em>。
+					</p></dd><dt>
+					增加 Parameters，定義參數含義
+				</dt><dd><p>
+					有了參數名稱之後，接下來就是要定義這些參數代表什麽意思。
+					</p><p>
+					首先會先增加一個 <code>Parameters</code>的區塊，然後裡面列出每一個URI Template定義的參數説明。
+					</p><p>
+					例如：
+					</p><pre><code class="language-markdown">### 取得所有的ToDo [GET /api/todo{?pageSize,currentPage}]
+
++ Parameters
+    + pageSize: 10 (number, optional) - 幾筆資料
+    + currentPage: 1 (number, optional) - 第幾頁</code></pre><p>
+					這邊要注意幾個地方
+					</p><ul><li>每一個開始都是用<code>+</code>做開頭 - 這個用來區分告知是某個區塊或者某一組</li><li>每一個大項目會投過空一行來作爲區隔</li><li>如果是在一起，但是是清單，那麽會寫在下一行，但是用<em>tab或者4個空白</em>表示下一層内容 - 例如 <code>pageSize</code> 就屬於<code>Parameters</code>的一部分所以是用空一行然後tab</li></ul><p></p><div class="bs-callout bs-callout-info"><p>
+						這邊定義欄位的格式是用一種叫做<code>MSON</code>的格式定義，詳細下一篇會介紹，但是基本格式為：
+						</p><code>&lt;parameter 名稱&gt;: `&lt;範例值&gt;` (&lt;型別&gt;, required | optional) - &lt;描述&gt;</code></div></dd></dl><p>
+			定義好了之後，看文件的時候這兩個參數就會出現了：
+			</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-02-apiary-understand-the-structure-of-actions-and-define-request-and-response/dabfafc8-9e77-4e39-85df-3c8e8570ea96.png" border="0" alt="chrome_2019-04-02_20-32-30.png"><br><figcaption>定義好的參數呈現樣子</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1554213639164233">Request 定義傳入的内容</h3><p>
+			一個TODO的APP如果不能夠新增的話，那麽就沒什麽用，所以要建立一個用來新增資料的API。
+			</p><p>
+			一般新增會挑選使用<code>POST</code>這個http verb，因此如果今天要定義一個接受JSON，裡面有個欄位是<code>title</code>，代表要建立的内容，那麽撰寫起來會是：
+			</p><pre><code class="language-markdown">### 新增一筆TODO [POST]
+
+用來新增一筆TODO
+
++ Request (application/json)
+
+        {
+            "title": "記得要買牛奶"
+        }</code></pre><p>
+			其實還滿直覺，使用 <code>Request</code>區塊定義允許接受傳進來的内容，然後定義一個返利格式出來。
+			</p><div class="bs-callout bs-callout-info">
+				這個時候會好奇，怎麽定義欄位的格式？在下一篇MSON會介紹到。
+			</div><figure><img class="img-responsive" src="/posts/2019/04/2019-04-02-apiary-understand-the-structure-of-actions-and-define-request-and-response/fa1e4d77-6dee-4259-8929-869b50764e0d.png" border="0" alt=""><br><figcaption>最後呈現結果</figcaption></figure></section><p>
+		Actions裡面透過Parameters以及Request定義了進來(request)的部分，那麽出去(response)的部分呢？
+		</p></section><section><h2 id="WizKMOutline_1554213639164343">定義Action的Response部分</h2><p><code>Response</code>這個區塊有兩個主要部分：
+		</p><ol><li>Headers - 定義回傳的資料Headers要包含什麽</li><li>Body - 回傳的實際内容是什麽。如果沒有Headers，那麽預設<em>任何定義的東西都是屬於body</em></li></ol><p></p><p>
+		一個Action<strong><em>可以有多個Response</em></strong>，例如當資料驗證不通過的時候，可能要回傳400等。
+		</p><p>
+		這邊分三個情況來看：
+		</p><ol><li>單純回傳body内容</li><li>回傳包含header内容</li><li>定義多個不同的response</li></ol><p></p><section><h3 id="WizKMOutline_1554213639164867">單純回傳body内容</h3><p>
+		首先以<code>取得所有的ToDo</code>為例子，回傳的内容是一個array，裡面的物件就兩個欄位：<code>id</code>以及<code>title</code>：
+		</p><pre><code class="language-markdown">### 取得所有的ToDo [GET /api/todo{?pageSize,currentPage}]
+
++ Parameters
+    + pageSize: 10 (number, optional) - 幾筆資料
+    + currentPage: 1 (number, optional) - 第幾頁
+
++ Response 200 (application/json)
+
+        [
+            {
+                "id": 1,
+                "title": "要買牛奶"
+            },
+            {
+                "id": 2,
+                "title": "要修好bug 123"
+            }
+        ]</code></pre></section><section><h3 id="WizKMOutline_1554213639164997">回傳包含header内容</h3><p>
+			如果説今天是呼叫了POST去建立一筆資料，如果今天走的是RESTFul的風格，那麽理論上header應該要回傳建立出來的資源的URI是什麽。
+			</p><p>
+			這個時候就可以用<code>Headers</code>這個區塊，不過因爲有了Headers，那麽就需要明確定義那邊是<code>Body</code>：
+			</p><pre><code class="language-markdown">### 新增一筆TODO [POST]
+
+用來新增一筆TODO
+
++ Request (application/json)
+
+        {
+            "title": "記得要買牛奶"
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /api/todo/4
+
+    + Body
+
+            {
+                "id": 4,
+                "title": "記得要買牛奶"
+            }</code></pre><figure><img class="img-responsive" src="/posts/2019/04/2019-04-02-apiary-understand-the-structure-of-actions-and-define-request-and-response/c5510f41-0c7b-4950-9d93-64acfe49da34.png" border="0" alt="chrome_2019-04-02_20-57-49.png"><br><figcaption>文件呈現的範例</figcaption></figure><div class="bs-callout bs-callout-info">
+				上面可以看到，雖然<code>Headers</code>沒有定義<code>Content-Type</code>，但是因爲明確指示回傳的是json，所以自動帶入
+			</div></section><section><h3 id="WizKMOutline_1554213639164938">定義多個不同的response</h3><p>
+			有時候因爲傳入内容不同，response也會有所不同。
+			</p><p>
+			舉例來説，當呼叫POST的時候，但是<code>title</code>是<em>空的</em>，那麽應該會回傳一個400帶訊息告訴說，title是必填欄位
+			</p><p>
+			這個時候就可以在加入一組<code>Response</code>代表這個情況：
+			</p><pre><code class="language-markdown">### 新增一筆TODO [POST]
+
+用來新增一筆TODO
+
++ Request (application/json)
+
+        {
+            "title": "記得要買牛奶"
+        }
+
++ Response 201 (application/json)
+
+    + Headers
+
+            Location: /api/todo/4
+
+    + Body
+
+            {
+                "id": 4,
+                "title": "記得要買牛奶"
+            }
+            
++ Response 400 (application/json)
+
+    驗證失敗
+
+    + Body
+    
+            {
+                "erroMessage": "title是必填欄位"
+            }</code></pre><figure><img class="img-responsive" src="/posts/2019/04/2019-04-02-apiary-understand-the-structure-of-actions-and-define-request-and-response/788252f0-dc67-497e-b43a-9d4ee321fcd7.png" border="0" alt="2019-04-02_21-04-15.png"><br><figcaption>文件呈現效果，可以看到兩個response</figcaption></figure><div class="bs-callout bs-callout-warning"><p>
+				雖然説這邊定義了兩個response，但是到了mock那邊還是只會回傳201那種情況，因此mock階段無法測試。
+				</p><p>
+				但是個人還是認爲這個很好，因爲當前端在做的時候，就會記得要處理error情況，同理後端也會記得其實有些驗證要做。
+				</p></div></section></section><section><h2 id="WizKMOutline_1554213639164114">結語</h2><p>
+		這篇介紹了如何定義<code>Actions</code>裡面的request以及response。
+		</p><p>
+		可是寫到現在應該會發現幾個問題：
+		</p><ol><li>定義request以及response的json沒辦法定義每一個欄位的形態以及一些説明 - 因此雖然有範例，但是溝通可能還是有落差</li><li>有些json無法重複使用 - 有一些格式其實都一樣，例如資料的validation如果不通過，可能有個固定格式，但是目前只能用copy和paste的方式來定義，未來如果要改不就改到死？</li><li>有些欄位其實很類似，可能差別就在有沒有id - 有沒有辦法用繼承的概念來定義物件？</li></ol><p></p><p>
+		因爲這兩個原因，其實有另外一個定義物件格式的方式，這個格式叫做<em>MSON</em>。
+		</p><p>
+		下一篇將會介紹MSON，並且看看如何讓我們定義變得更加簡單並且能夠reuse。
+		</p></section>

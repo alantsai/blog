@@ -1,0 +1,208 @@
+﻿Title: "[apiary][05]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - MSON格式篇"
+Published: 2019-04-05 21:01
+Modified: 2019-04-05 21:01
+Image: "/posts/2019/04/2019-04-05-apiary-what-is-mson-and-how-to-use-it/58aeef1b-f409-4e6a-9a7b-1f49801ceca7.jpg"
+Tags: ["apiary", "tool", "api-blueprint"]
+Series: ["apiary API前後端溝通好工具"]
+PostDescription: "在上一篇瞭解了如何定義api的Actions，原則上已經可以定義出API了但是上篇的很大問題是，沒辦法定義每一個欄位的形態、説明以及範例值更別説如果有些形態很長用到，一直copy and paste後面很不好維護這篇來看看MSON怎麽解決這個問題"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/04/2019-04-05-apiary-what-is-mson-and-how-to-use-it/58aeef1b-f409-4e6a-9a7b-1f49801ceca7.jpg" border="0" alt="[apiary][05]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - MSON格式篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/，logl來源：https://apiary.io/</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/04/apiary-understand-the-structure-of-actions-and-define-request-and-response">[apiary][04]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - API Blueprint Actions格式篇</a>)介紹了如何定義<em>Actions</em>，換句話説，以目前的知識要定義出一個API已經沒有什麽問題了。</p><p>
+		但是在上一篇還有遇到一個問題，那就是不管是request或者response的JSON物件<em>沒有定義出來裡面的欄位以及説明</em>。換句話説，目前的方式只有範例，但是每一個欄位的形態，描述沒有辦法定義。
+		</p><p>
+		Apiary團隊當初考慮到了這一個問題，因此建立出一個格式稱之爲<em>Markdown Syntax for Object Notation (MSON)</em>，專門用來描述JSON以及JSON Schema。
+		</p><p>
+		這邊來看看MSON怎麽使用。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1554469302701307" ;="" style="font-size: 15px; line-height: 1.6;">MSON是什麽</a><br></li><li><a href="#WizKMOutline_1554469302717832" ;="" style="font-size: 15px; line-height: 1.6;">MSON的基本格式</a><br></li><ul><li><a href="#WizKMOutline_1554469302717672" ;="" style="font-size: 15px; line-height: 1.6;">基本物件定義方式</a></li><li><a href="#WizKMOutline_1554469302717836" ;="" style="font-size: 15px; line-height: 1.6;">欄位是另外一個複雜物件</a></li><li><a href="#WizKMOutline_1554469302717879" ;="" style="font-size: 15px; line-height: 1.6;">内建特殊形態：如何定義array</a></li><li><a href="#WizKMOutline_1554469302717235" ;="" style="font-size: 15px; line-height: 1.6;">内建特殊形態：如何定義enum</a></li></ul><li><a href="#WizKMOutline_1554469302717987" ;="" style="font-size: 15px; line-height: 1.6;">MSON:客制形態，讓形態可以被重複使用</a><br></li><li><a href="#WizKMOutline_1554469302717354" ;="" style="font-size: 15px; line-height: 1.6;">MSON:形態繼承</a><br></li><li><a href="#WizKMOutline_1554469302717701" ;="" style="font-size: 15px; line-height: 1.6;">整合到API Blueprint文件裡面 - 使用 Attributes</a><br></li><li><a href="#WizKMOutline_1554469302717760" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1554469302717557" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1554469302701307">MSON是什麽</h2><p>
+		MSON的全稱是：<em>Markdown Syntax for Object Notation </em>，白話來説，就是可以用類似markdown的語法定義出JSON以及JSON Schema，因此可以透過這個語法定義好request以及response的物件訊息。
+		</p><p>
+		MSON雖然主要是用在API Blueprint裡面定義格式，不過MSON本身也是一個open standard的格式(<a href="https://www.ietf.org/rfc/rfc2119">RFC 2119</a>)，換句話説API Blueprint和MSON可以分開兩塊來看。
+		</p><p>
+		接下來，先看MSON的格式如何定義JSON，然後在看看怎麽在API Blueprint裡面透過<code>Attributes</code>來使用。
+		</p></section><section><h2 id="WizKMOutline_1554469302717832">MSON的基本格式</h2><p>
+		這邊一樣沿用之前的例子，如果說今天要定義一筆ToDo的格式看看會怎麽用MSON來定義。
+		</p><p>
+		這邊拆幾個情景來看：
+		</p><ol><li>基本物件定義方式</li><li>欄位是另外一個複雜物件</li><li>内建特殊形態：如何定義array</li><li>内建特殊形態：如何定義enum</li></ol><p></p><section><h3 id="WizKMOutline_1554469302717672">基本物件定義方式</h3><p>
+		假設今天最後的JSON結果是：
+		</p><pre><code class="language-json">{
+	"id": 1,
+	"title": "要買牛奶"
+}</code></pre><p>
+		那麽在MSON裡面就會是：
+		</p><pre><code class="language-markdown">+ id: 1 (number, required) - 資料的Id
++ title: `要買牛奶` (string, required) - todo 的描述</code></pre><p>
+		從這個範例可以看出，一個欄位的結構大概是：<code>+ {欄位名稱}: {範例值} ({形態}, {required | optional}) - {欄位描述}</code></p><div class="bs-callout bs-callout-info">
+			和昨天介紹到的<code>Parameters</code>的寫法結構一樣。
+		</div></section><section><h3 id="WizKMOutline_1554469302717836">欄位是另外一個複雜物件</h3><p>
+			基本的物件定義的出來了，如果說今天要複雜一點呢？
+			</p><p>
+			舉例來説，假設今天todo要多分類的概念，可以讓使用者自訂分類，這個時候就要多欄位出來。
+			</p><p>
+			假設最後的json物件是：
+			</p><pre><code class="language-json">{
+  "id": 1,
+  "title": "要買牛奶",
+  "category": {
+    "id": 1,
+    "name": "要買"
+  }
+}</code></pre><p>
+			那麽MSON就會是：
+			</p><pre><code class="language-markdown">+ id: 1 (number, required) - 資料的Id
++ title: `要買牛奶` (string, required) - todo 的描述
++ category
+	+ id: 1 (number, required) - 分類的Id
+	+ name: `要買` (string, required) - 分類名稱</code></pre><p>
+			從上面的範例可以看出，如果一個type是另外一個物件(以範例來説是<code>category</code>)，那麽只需要把裡面的property<em>前面先加一個tab</em>，其他同一般欄位定義方式一樣即可。
+			</p></section><section><h3 id="WizKMOutline_1554469302717879">内建特殊形態：如何定義array</h3><p>
+			能夠定義欄位，以及欄位是另外一個物件的方法了之後，接下來在介紹兩個比較特別的形態：<code>enum</code>以及<code>array</code>。
+			</p><p>
+			首先來看array，假設今天分類可以有多筆，這個時候就要變成array了。假設最後的json是：
+			</p><pre><code class="language-json">{
+  "id": 1,
+  "title": "要買牛奶",
+  "categories": [
+    {
+      "id": 1,
+      "name": "要買"
+    }
+  ]
+}</code></pre><p>
+			那麽對應的MSON就會變成：
+			</p><pre><code class="language-markdown">+ id: 1 (number, required) - 資料的Id
++ title: `要買牛奶` (string, required) - todo 的描述
++ categories (array)
+	+ (object)
+		+ id: 1 (number, required) - 分類的Id
+		+ name: `要買` (string, required) - 分類名稱</code></pre><p>
+			這次的修改有：
+			</p><ol><li>把<code>category</code>改成了<code>categories</code>表示是複數</li><li>由於變成了array，因此<code>categories</code>的形態特別定義爲<code>array</code></li><li>由於array裡面的物件不需要欄位名稱，因此array下面的第一個property只有定義為<code>object</code>，但是沒有property名稱</li><li>在<code>(object)</code>下面定義的就是物件的欄位</li></ol><p></p></section><section><h3 id="WizKMOutline_1554469302717235">内建特殊形態：如何定義enum</h3><p>
+			接下來看看另外一個特殊形態，<code>enum</code>。
+			</p><p>
+			有時候有些欄位只有特定幾個值，這個時候會用enum避免值有錯。
+			</p><p>
+			以目前的例子，假設需要一個欄位代表目前這個todo的狀態，那麽json的範例會是：
+			</p><pre><code class="language-json">{
+  "id": 1,
+  "title": "要買牛奶",
+  "state": "0"
+}</code></pre><p>
+			MSON定義起來會是：
+			</p><pre><code class="language-markdown">+ id: 1 (number, required) - 資料的Id
++ title: `要買牛奶` (string, required) - todo 的描述
++ state: 0 (enum)
+	+ 0 - 表示這個task已經完成
+	+ 1 - 表示這個task已經過期
+	+ 2 - 表示這個task尚未開始</code></pre></section></section><section><h2 id="WizKMOutline_1554469302717987">MSON:客制形態，讓形態可以被重複使用</h2><p>
+		上面的部分已經把怎麽用MSON定義物件的方式介紹完了，不過就算改成了MSON讓定義變得容易並且簡單，但是不好重複使用。
+		</p><p>
+		舉例來説，今天取得1筆ToDo得到的物件，和取多筆得到的物件可能從欄位來説是一樣的，那要重複寫兩次不是很傻？更別説如果需要調整，到時候修改很容易改到了一個但是<em>漏掉了另外一個</em>。
+		</p><p>
+		有沒有方式可以把定義好的MSON變成一個客制的形態？
+		</p><p>
+		這邊舉一個例子，假設<code>categories</code>想要建立一個形態專門描述，那麽可以：
+		</p><dl><dt>
+				定義一個<code>Resource</code>叫做<code>Data Structures</code>裡面有一個形態叫做<code>Category</code></dt><dd><p>
+				接下來在API Blueprint的文件 <strong><em>最下面</em></strong>增加一個區塊叫做<code>Data Structures</code> - 這是一個特殊的區塊用來定義客制形態用。
+				</p><p>
+				在<code>Data Structures</code>下面建立一個形態叫做<code>Category</code></p><pre><code class="language-markdown"># Data Structures
+
+## Category
+
++ id: 1 (number, required) - 分類的Id
++ name: `要買` (string, required) - 分類名稱</code></pre></dd><dt>
+				修改定義回傳的時候欄位<code>categories</code>，改成回傳一個<code>array[Category]</code></dt><dd><p>
+				最後的樣子是：
+				</p><pre><code class="language-markdown">+ id: 1 (number, required) - 資料的Id
++ title: `要買牛奶` (string, required) - todo 的描述
++ state: 0 (enum)
+	+ 0 - 表示這個task已經完成
+	+ 1 - 表示這個task已經過期
+	+ 2 - 表示這個task尚未開始
++ categories (array[Category])</code></pre><p>
+				從上面可以看到，<code>categories</code>從本來一個array object (預設沒有給形態就是object)，變成是一個array Category。
+				</p></dd></dl><p>
+		透過這種定義客制形態，只需要定義一次，在每個地方就可以重複使用，這樣未來就算要調整，只需要改一個地方即可。
+		</p></section><section><h2 id="WizKMOutline_1554469302717354">MSON:形態繼承</h2><p>
+			上面的客制形態讓我們可以重複使用一個已經定義好的形態，避免到處copy and paste。	
+		</p><p>
+		但是很有可能有些形態很類似，只是有部分欄位不同而已，這種情況怎麽辦？
+		</p><p>
+		從程式的角度來説，這個時候繼承就很適合做這種事情，而剛好MSON也有支援這種方式。
+		</p><p>
+		假設，未來定義的api不管回傳什麽都有一個固定的格式，例如：
+		</p><pre><code class="language-json">{
+  "statusDescription": "succes",
+  "result": {
+    // 看回傳内容
+  }
+}</code></pre><p>
+		那麽可以用MSON的Data Structure定義出：
+		</p><dl><dt>
+				一個客制形態叫做<code>Success</code>，代表只要成功都一定要有的欄位
+			</dt><dd><p>
+				首先定義一個<code>Success</code>的形態，表示所有的欄位都要包含。
+				</p><p>
+				然後建立一個<code>ToDoRead</code>的形態，<em>繼承</em><code>Success</code></p><pre><code class="language-markdown">## Success
+
++ statusDescription: succes
++ result
+
+## ToDoRead (Success)
+
++ result
+    + id: 1 (number, required) - 資料的Id
+    + title: `要買牛奶` (string, required) - todo 的描述
+    + state: 0 (enum)
+        + 0 - 表示這個task已經完成
+        + 1 - 表示這個task已經過期
+        + 2 - 表示這個task尚未開始
+    + categories (array[Category])
+
+## Category
+
++ id: 1 (number, required) - 分類的Id
++ name: `要買` (string, required) - 分類名稱</code></pre><p>
+				以上面例子來説，只要用到<code>ToDoRead</code>，就一定會有欄位<code>statusDescription</code>，以及<code>result</code>，因爲是繼承下來的，因此也可以覆寫。
+				</p></dd><dd></dd></dl></section><section><h2 id="WizKMOutline_1554469302717701">整合到API Blueprint文件裡面 - 使用 Attributes</h2><p>
+		MSON的介紹就到了這邊，基本上上面的如果都熟悉的話，任何JSON定義都沒有什麽問題。
+		</p><p>
+		接下來就是要怎麽在API Blueprint裡面使用定義出來的MSON形態。
+		</p><p>
+		要使用很簡單，本來上一篇是直接在<code>Response</code>裡面放入JSON，現在要用MSON只需要改成使用關鍵字<code>Attributes</code>即可。
+		</p><p>
+		以今天的例子來説，最後結果會是：
+		</p><pre><code class="language-markdown">### 取得單筆TODO [GET /api/todo/{todoId}]
+
+取得單筆todo資料
+
++ parameters
+    + todoId: 10 - todo 的id
+
++ Response 200 (application/json)
+
+    + Attributes (ToDoRead)</code></pre><p>
+		最後在文件呈現的樣子會是：
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-05-apiary-what-is-mson-and-how-to-use-it/5bea94bc-2579-4fe2-800e-f12e1dd5e14b.png" border="0" alt="Untitled.png"><br><figcaption>文件呈現樣子</figcaption></figure><p></p><p>
+		從上面截圖可以看到，每一個欄位的描述，以及一些範例的值。
+		</p><div class="bs-callout bs-callout-info">
+			如果今天沒有自訂形態，那麽<code>Attributes</code>就不需要括弧定義使用的形態，直接在下面寫上面提到的欄位定義語法即可。
+		</div></section><section><h2 id="WizKMOutline_1554469302717760">結語</h2><p>
+		這一篇介紹了MSON這個語法，透過MSON不只可以定義欄位的一些描述以及形態，還可以定義出客制形態並且透過繼承方式讓形態可以重複使用。
+		</p><p>
+		到這邊爲止，基本上怎麽用apiary定義api就沒有什麽問題了，接下來看另外一個功能，也就是mock的功能。
+		</p><p>
+		寫好的文件可以讓apiary自動產生mock，讓前端可以直接串接mock開發。
+		</p><p>
+		下一篇來看看怎麽用apiary提供的mock。
+		</p></section><section><h2 id="WizKMOutline_1554469302717557">參考資料</h2><dl><dt>
+				MSON的官方github
+			</dt><dd><a href="https://github.com/apiaryio/mson">https://github.com/apiaryio/mson</a></dd><dt>
+				API Blueprint的官方MSON tutorial
+			</dt><dd><a href="https://apiblueprint.org/documentation/mson/tutorial.html">https://apiblueprint.org/documentation/mson/tutorial.html</a></dd></dl></section>

@@ -1,0 +1,63 @@
+﻿Title: "[apiary][06]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 前端如何使用mock server以及inspector來開發"
+Published: 2019-04-07 17:01
+Modified: 2019-04-07 17:01
+Image: "/posts/2019/04/2019-04-07-apiary-how-to-use-the-mock-server-and-interceptor-for-debugging/308c78ea-5345-4135-b998-db6ef211956a.jpg"
+Tags: ["apiary", "tool", "api-blueprint"]
+Series: ["apiary API前後端溝通好工具"]
+PostDescription: "在上一篇瞭解完了MSON之後，基本上要用API Blueprint來定義API應該就沒什麽問題了API定義好了，這個時候apiary自動建立出mock可以讓前端接這篇來看看前端怎麽使用mock，並且有問題如何debug"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/04/2019-04-07-apiary-how-to-use-the-mock-server-and-interceptor-for-debugging/308c78ea-5345-4135-b998-db6ef211956a.jpg" border="0" alt="[apiary][06]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - 前端如何使用mock server以及inspector來開發.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/，logl來源：https://apiary.io/</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/04/apiary-what-is-mson-and-how-to-use-it">[apiary][05]設計API時好用的工具 - 讓前後端溝通格式不再卡卡 - MSON格式篇</a>)介紹完了MSON之後，基本上要寫出一個API格式的文件就沒什麽問題。</p><p>
+		當API定義出來了之後，Apiary會自動建立出一個mock server，前端這個時候就可以呼叫這個mock server做初步的開發。
+		</p><p>
+		同時間，後端就可以依照定義好的API文件開始去開發。
+		</p><p>
+		理論上來説，只要前端和後端都依照同一份開發，那麽最後只需兩邊好了的時候做一個整合測試，那麽整體功能就完成了。
+		</p><p>
+		這篇來看看前端呼叫mock server的方式。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1554534662826923" ;="" style="font-size: 15px; line-height: 1.6;">善用apiary documentation裡面的console模式來測試API</a><br></li><li><a href="#WizKMOutline_1554534662826755" ;="" style="font-size: 15px; line-height: 1.6;">使用postman測試mock server</a><br></li><li><a href="#WizKMOutline_1554534662826489" ;="" style="font-size: 15px; line-height: 1.6;">使用inspector功能來debug mock server問題</a><br></li><li><a href="#WizKMOutline_1554534662826180" ;="" style="font-size: 15px; line-height: 1.6;">結語 - 以及接下來可以研究的方向</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1554534662826923">善用apiary documentation裡面的console模式來測試API</h2><p>
+		定義好的API文件可以透過apiary裡面的<em>Documentation</em>看到範例傳入以及回傳的内容。
+		</p><p>
+		可以切換到<em>Console模式</em>，這個時候有點像是一般的REST Client直接打到API上面：
+		</p><ol><li>目前連線是mock - 可以看到mock的網址</li><li>如果説需要改base的連線變成是打正式機器，這個時候就可以透過切換的下來改成Production</li><li><kbd>Call Resource</kbd>按鈕基本上就是發出request</li></ol><figure><img class="img-responsive" src="/posts/2019/04/2019-04-07-apiary-how-to-use-the-mock-server-and-interceptor-for-debugging/1233ba9f-5ea4-482f-a38f-da1bef9e71b0.png" border="0" alt="chrome_2019-04-06_12-41-52.png"><br><figcaption>Console模式打到mock server上面</figcaption></figure><p></p><p>
+		透過這個console模式，其實是一個很好測試呼叫mock或者production的一個Http Client工具。
+		</p><p>
+		由於mock server在那邊，因此不止用apiary的console模式可以呼叫，任意Http Client工具都可以，舉例來説postman。
+		</p></section><section><h2 id="WizKMOutline_1554534662826755">使用postman測試mock server</h2><p>
+		以同樣剛剛那一隻api為例子，直接輸入到postman可以得到預期的範例結果：
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-07-apiary-how-to-use-the-mock-server-and-interceptor-for-debugging/0d50037b-dea0-4871-906c-c9c302a848fc.png" border="0" alt="Postman_2019-04-06_12-48-25.png"><br><figcaption>postman呼叫mock server</figcaption></figure><p>
+		換句話説，既然打得到mock，那麽前端就可以先用這個mock來進行開發。
+		</p><p>
+		可是如果在整合mock的期間，發生了一些奇怪的問題，例如爲什麽打了沒有回應之類的，這個時候怎麽debug？
+		</p></section><section><h2 id="WizKMOutline_1554534662826489">使用inspector功能來debug mock server問題</h2><p>
+		有時候前端在接mock的時候會遇到問題，例如明明應該回傳一些東西，但是出現了奇怪的訊息，舉例來説：
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-07-apiary-how-to-use-the-mock-server-and-interceptor-for-debugging/318cc02f-4588-464d-a9f1-99a5a170b8e8.png" border="0" alt="Postman_2019-04-06_12-55-51.png"><br><figcaption>呼叫有錯誤的mock api</figcaption></figure><p>
+		從上面截圖看的出那邊有錯誤嗎？
+		</p><p>
+		這個時候可以用<em>inspector</em>功能，這邊可以看到所有打到mock server的request以及response：
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-07-apiary-how-to-use-the-mock-server-and-interceptor-for-debugging/3a6e37f6-b860-432c-8398-2d1eb1359b85.png" border="0" alt="chrome_2019-04-06_12-58-46.png"><br><figcaption>從上圖可以看到得到了一個404</figcaption></figure><p>
+		和上一個有打成功的有看出差異嗎？
+		</p><p>
+		這次失敗因爲打錯了，把<code>todo</code>打成了<code>tod0</code> - 最後一個o打成了0。
+		</p><p>
+		因此使用inspector可以debug送到mock server的内容。
+		</p></section><section><h2 id="WizKMOutline_1554534662826180">結語 - 以及接下來可以研究的方向</h2><p>
+		這篇介紹了如何使用文件定義好之後在apiary自動產生的mock server，並且介紹了如何使用<code>inspector</code>來debug送到mock server的request以及response。
+		</p><p>
+		相信通過這一篇，對於前端如何使用mock開始開發就沒什麽問題。
+		</p><p>
+		接下來，當後端開發好了，文件可以反過來用於驗證後端開發的格式是否正確。
+		</p><p>
+		除此之外，定義好的API文件其實還有很多不同的用途，因爲API Blueprint是開放格式，因此任何工具只要依照那個開放格式去寫，那麽都可以使用這個API文件。
+		</p><p>
+		例如說，不要依賴apiary，想要自己產生文件的html，或者架設自己的mock server，或者自動產生出postman可以使用的collection等，都有一些第三方開發好的套件可以用。
+		</p><p>
+		以這個系列來説，暫時就寫到這邊，上面提到的一些其他用途可以讓大家去自由發揮。
+		</p><p>
+		如果在使用什麽有問題，歡迎留言給我，或者如果有更好用的工具也歡迎隨時交流。
+		</p></section>

@@ -1,0 +1,151 @@
+﻿Title: "[git]如何快速清理已經合並(merged)的分支(branch) - local及remote"
+Published: 2019-04-12 21:31
+Modified: 2019-04-12 21:31
+Image: "/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/38bdb679-06e9-46be-98b5-984a8fe66e85.jpg"
+Tags: ["git", "faq", "powershell"]
+Series: ["faq"]
+PostDescription: "git的分支(branch)功能完全是殺手鐧就像多重影分身一樣，不同分身(分支)的經驗(修改)都可以合并但是當合并完了之後，怎麽快速把這些分支殺掉？這篇看看如何透過powershell快速處理local以及remote合并的分支"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/38bdb679-06e9-46be-98b5-984a8fe66e85.jpg" border="0" alt="[git]如何快速清理已經合並(merged)的分支(branch) - local及remote.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		分支(branch)可以説是git的殺手鐧功能，透過建立分支就像使用多重影分身之術一樣，可能同時進行不同分支的開發，最後可以透過合并(merge)把所有的修改整合在一起。
+		</p><p>
+		不過開啓大量分支有一個缺點，那就是當合并成功之後，怎麽<em>清理不需要的分支</em>。
+		</p><p>
+		這篇就來看看怎麽快速清理掉這些無用的"分身"。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1555073509012268" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1555073509012469" ;="" style="font-size: 15px; line-height: 1.6;">解決方式 - TL;DR</a><br></li><li><a href="#WizKMOutline_1555073509013766" ;="" style="font-size: 15px; line-height: 1.6;">指令分解</a><br></li><ul><li><a href="#WizKMOutline_1555073509013882" ;="" style="font-size: 15px; line-height: 1.6;">把local已經合并的分支砍掉指令説明</a></li><li><a href="#WizKMOutline_1555073509013191" ;="" style="font-size: 15px; line-height: 1.6;">遠端指令之當遠端分支已經合并並且刪除</a></li><li><a href="#WizKMOutline_1555073509013259" ;="" style="font-size: 15px; line-height: 1.6;">遠端指令之當遠端分支已經合并但是沒有被刪除</a></li></ul><li><a href="#WizKMOutline_1555073509013528" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1555073509012268">問題描述</h2><p>
+		由於git屬於分散式的版控，因此如果有push到遠端(remote)的分支，在遠端以及local同時都會有這個分支。
+		</p><p>
+		這個時候當把分支合并之後，由於做合并動作的地方可能不同，因此在不同地方可能會遺留不需要的分支，這個時候如果不清理乾净在看log的時候很痛苦。
+		</p><p>
+		那總共有可能有哪些情況呢？
+		</p><dl><dt>
+				1. 當分支存在遠端已經合并並且被砍掉
+			</dt><dd>
+				這種情況是當在遠端裡面的分支被砍掉，由於不是從你的local發起，因此<em>local還會殘留</em>這些已經被合并的分支。
+			</dd><dt>
+				2. 當分支在遠端已經合并，但是還沒砍掉
+			</dt><dd>
+				有可能有些已經push到遠端的分支<em>已經被合并了</em>，但是做合并的人忘記把<em>分支刪掉</em>。
+			</dd><dt>
+				3. 當local的分支已經合并但是忘記刪掉
+			</dt><dd>
+				有些分支是自己local建立的，並且已經合并了。這個時候如果忘記砍掉可能就會殘留在log裡面。
+			</dd></dl><p>
+		下圖是上面提到的三個情況的發生情景圖，左邊是遠端的repo branch (azure DevOps)，右邊則是local的repo (TortioseGit)
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/37471991-b59f-43b3-ba58-05e94c2d605e.png" border="0" alt="TortoiseGitProc_2019-04-12_06-42-00.png"><br><figcaption>情景情況圖</figcaption></figure><p>
+		針對這3種情況怎麽快速清理這些分支呢？
+		</p></section><section><h2 id="WizKMOutline_1555073509012469">解決方式 - TL;DR</h2><p>
+		這邊針對每一個情況的做法快速説明：
+		</p><div class="bs-callout bs-callout-warning">
+			這邊主要針對的是用Windows PowerShell的指令，因此以下都是直接在PowerShell執行
+		</div><div class="bs-callout bs-callout-warning">
+			以下指令假設目前在要檢查的分支。舉例來説，以上圖問題的情景，目前正在<code>master</code></div><dl><dt>
+				1. 當分支存在遠端已經合并並且被砍掉
+			</dt><dd><pre><code class="language-powershell">git pull --prune
+git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></pre></dd><dt>
+				2. 當分支在遠端已經合并，但是還沒砍掉
+			</dt><dd><pre><code class="language-powershell">git push origin --delete $(git branch -r --merged | Select-String "origin/HEAD", "origin/master", "origin/develop" -NotMatch | %{$_.ToString().Trim().Replace("origin/", "")})
+git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></pre></dd><dt>
+				3. 當local的分支已經合并但是忘記刪掉
+			</dt><dd><pre><code class="language-powershell">git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></pre></dd></dl><p>
+		當上面都執行完了之後，最後得到的結果如下圖，是不是乾净很多啦：
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/c8da7d94-a363-4d14-96b5-241f4140c94e.png" border="0" alt="TortoiseGitProc_2019-04-12_08-20-21.png"><br><figcaption>merge過的branch都清理乾净了</figcaption></figure><p>
+		如果對於上面指令的分解有興趣，在往下看吧。
+		</p></section><section><h2 id="WizKMOutline_1555073509013766">指令分解</h2><p>
+		其實上面3種情景在做的事情拆開來講是兩個部分：
+		</p><ol><li>把<em>遠端</em>的相關tracking砍掉</li><li>把<em>local</em>的相關tracking砍掉</li></ol><p></p><p>
+		如果是情景1和2，由於牽涉到了<em>遠端</em>，因此第一個指令有點不同，但是第二個指令<em>3個情景</em>都是一樣，都是在把<em>local</em>相關tracking處理乾净。
+		</p><p>
+		因此，先從處理localtracking的指令：<code>git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code>介紹起。
+		</p><section><h3 id="WizKMOutline_1555073509013882">把local已經合并的分支砍掉指令説明</h3><p>
+			完整的指令是：<code>git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></p><p>
+			先從裡面的<code>$(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code>介紹起。
+			</p><p>
+			這一段的目的是：<em>取得所有已經被合并的分支但是過濾掉master或者develop分支</em></p><p>
+			分解來説：
+			</p><dl><dt>
+					git branch --merged
+				</dt><dd><p>
+					這個是git内建的一個指令，取得所有以目前所在分支來説，已經被合并過的分支。因此，任何還沒有在當下分支所包含的分支不會出現。
+					</p><p>
+					不過這個指令有個討厭的地方是，它會<em>包含目前分支</em>。換句話説，我們在<code>master</code>執行，因此裡面包含<code>master</code>。
+					</p><p>
+					爲了解決這個問題，使用了powershell的pipe做處理，也就是下一段。
+					</p></dd><dt>
+					Select-String "master", "develop" -NotMatch 	
+				</dt><dd><p><code>Selete-String</code>這一段的目的是要把部分我們<em>不要被刪掉的分支</em>給過濾掉。
+					</p><p>
+					這邊用了<code>master</code>以及<code>develop</code>因爲大部分這兩個分支是永遠存在的。
+					</p><p>
+					如果有分支也想過濾掉，那麽直接在加入在<code>develop</code>後面即可。
+					</p><p>
+					Select-String 其實底層跑的是Regular Expression，所以結果不是文字而已，因此有了下一個pipe
+					</p></dd><dt>
+					%{$_.ToString().Trim()}
+				</dt><dd>
+					這個部分目的很簡單，就是把所有在<code>Select-String</code>得到的，要轉換成爲string。
+				</dd><dd></dd></dl><p>
+			到目前爲止，已經取得了所有已經被合并的分支，不過排除掉了<code>master</code>以及<code>develop</code>，這個時候就可以把這些分支砍了。
+			</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/2aad28b2-c742-4b3c-99fd-fedee7a8bfe7.png" border="0" alt="powershell_2019-04-12_20-45-10.png"><br><figcaption>範例，呼叫指令取得的清單</figcaption></figure><p>
+			因此在最外圍的指令為：<code>git branch -d</code>，也就是内建砍掉分支的指令。
+			</p><p>
+			瞭解了如何處理local指令之後，接下來就是看看遠端指令怎麽處理。
+			</p></section><section><h3 id="WizKMOutline_1555073509013191">遠端指令之當遠端分支已經合并並且刪除</h3><p>
+			這個是情景1的情況，也就是當有人把遠端分支合并了，並且有把分支也一起砍掉了。
+			</p><p>
+			這個時候，其實就是清理兩個東西：
+			</p><ol><li>清理local對於遠端分支的track</li><li>清理local對應遠端分支在本地的branch</li></ol><p></p><p>
+			第二點同上面清理local分支方法一樣，不過第一點，怎麽清除local對於遠端分支的track branch呢？
+			</p><p>
+			git的pull指令已經有提供：<code>git pull --prune</code></p><p>
+			這個指令將會把所有遠端已經被刪掉的分支，把local有對應track的遠端分支也刪掉。
+			</p><p>
+			感覺有點繞口，換句話説，假設<code>origin</code>遠端有個分支<code>branch1</code>，local會有一個分支稱之爲：<code>origin/branch1</code>。當執行完了<code>git pull --prune</code>那麽這個分支會自動清理。
+			</p></section><section><h3 id="WizKMOutline_1555073509013259">遠端指令之當遠端分支已經合并但是沒有被刪除</h3><p>
+			這種情況就是，做合并的人忘記把分支砍掉！！！
+			</p><p>
+			當遇到這個情況的時候，第一件事情請譴責合并的人XD，怎麽可以留垃圾在repo裡面。
+			</p><div class="bs-callout bs-callout-info">
+				當然，如果有做pull request的話就可以避免這種事情發生 - 關於pull request近期會介紹，敬請期待。
+			</div><p>
+			這個時候，也是兩個動作：
+			</p><ol><li>清理掉local有track遠端的分支 - 這次由於遠端還沒砍掉，因此要把遠端的記錄也砍了</li><li>清理本段對應遠端分支在本地的branch</li></ol><p></p><p>
+			清理掉local的指令是：<code>git push origin --delete $(git branch -r --merged | Select-String "origin/HEAD", "origin/master", "origin/develop" -NotMatch | %{$_.ToString().Trim().Replace("origin/", "")})</code></p><p>
+			這個和砍掉本地的分支指令很像，一樣，從裡面的拆解起來，裡面那段是<em>找到所有remote已經合并過的branch</em>：
+			</p><dl><dt>
+					git branch -r --merged
+				</dt><dd><p>
+					這個指令可以取得從local repo裡面，track remote 分支的有沒有已經被合并過了。
+					</p><p>
+					由於也會包含常見的develop和master branch，因此要過濾這兩個，因此有了pipe
+					</p></dd><dt>
+					Select-String "origin/HEAD", "origin/master", "origin/develop" -NotMatch
+				</dt><dd>
+					這邊蠻好理解，忽略掉常見要保留的，這邊有一個特殊<code>HEAD</code>也不太需要動到。
+				</dd><dt>
+					%{$_.ToString().Trim().Replace("origin/", "")}
+				</dt><dd>
+					這邊基本上是要把結果回傳成爲一個string，不過由於結果包含了remote的prefix - 常見是<code>origin/</code>，這個時候要把這個部分拿掉，因爲等一下刪除不需要包含origin。
+				</dd></dl><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/61e18b66-657d-4219-81db-e3a31902d85c.png" border="0" alt="powershell_2019-04-12_20-46-13.png"><br><figcaption>取得所有remote已經合并的分支清單指令的範例</figcaption></figure><p>
+			有了要刪除的清單之後，就呼叫：<code>git push origin --delete</code></p><p>
+			這個指令會把origin上面，對應剛剛那些branch都給砍了。
+			</p><div class="bs-callout bs-callout-info"><p>
+				如果實際執行這個指令，powershell可能會出現紅字，但是實際上還是有執行成功。
+				</p><p>
+				出現紅字好像是傳入方法有點不太正確，如果以後有找到原因再來調整語法。
+				</p></div><p>
+			砍掉local分支方法就不用説啦。
+			</p></section></section><section><h2 id="WizKMOutline_1555073509013528">結語</h2><p>
+		這篇介紹了如何快速清理已經合并完的分支的方式。
+		</p><p>
+		涵蓋了3種不同的情景，相信做完之後，整個log就會清爽很多。
+		</p><p>
+		保持乾净的log，到時候要看commit訊息的字也不會被擠掉，可以提升很多工作效率，以及減少“啊咋”的感覺。
+		</p><p>
+		如果有不同的清理方式，也歡迎和我分享哦。
+		</p></section>

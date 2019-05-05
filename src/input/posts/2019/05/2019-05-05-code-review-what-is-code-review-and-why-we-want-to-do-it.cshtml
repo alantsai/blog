@@ -1,0 +1,107 @@
+﻿Title: "[01]讓團隊彼此知道程式碼走向 - 淺談Code Review的好處及意義篇"
+Published: 2019-05-05 13:31
+Modified: 2019-05-05 13:31
+Image: "/posts/2019/05/2019-05-05-code-review-what-is-code-review-and-why-we-want-to-do-it/32232b4c-0ff0-4378-9967-38393bfc0160.jpg"
+Tags: ["code-review", "code-quality"]
+Series: ["code-review"]
+PostDescription: "一個大一點的軟體開發過程，通常不會只有一個工程師在開發，當工程師多的時候，怎麽知道彼此之間程式碼修改方式是否正確？code review是一個讓彼此之間知道程式碼走向的一個流程，這篇來看看code review是什麽、爲什麽要做、怎麽做、以及做了可能有什麽壞處"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/05/2019-05-05-code-review-what-is-code-review-and-why-we-want-to-do-it/32232b4c-0ff0-4378-9967-38393bfc0160.jpg" border="0" alt="[01]淺談Code Review的好處及意義篇 - 讓團隊彼此知道程式碼走向.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		程式碼對於工程師來説，就像是自己的小孩一樣，要時常的關心它，如果不怎麽做很容易導致長歪。
+		</p><p>
+		當程式碼還只是自己維護的情況下，掌控肯定很高，畢竟只有自己在開發而已，但是當是一個團隊在開發的時候，怎麽掌控或者知道走向就變的很重要。
+		</p><p>
+		這也就是Code Review的主要目的，這篇來看一下爲什麽要做code Review，Code Review要看什麽，以及有什麽工具可以協助這一件事情。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1557032510588678" ;="" style="font-size: 15px; line-height: 1.6;">Code Review是什麽？</a><br></li><li><a href="#WizKMOutline_1557032510588315" ;="" style="font-size: 15px; line-height: 1.6;">Code Review有什麽好處，應該做嗎？</a><br></li><li><a href="#WizKMOutline_1557032510589363" ;="" style="font-size: 15px; line-height: 1.6;">Code Review的壞處是什麽？</a><br></li><li><a href="#WizKMOutline_1557032510589248" ;="" style="font-size: 15px; line-height: 1.6;">Code Review要看什麽？</a><br></li><li><a href="#WizKMOutline_1557032510589897" ;="" style="font-size: 15px; line-height: 1.6;">Code Review怎麽加速？</a><br></li><li><a href="#WizKMOutline_1557032510589386" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1557032510589587" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1557032510588678">Code Review是什麽？</h2><p>
+		當我們在寫文章的時候，會請專門人員來校稿一樣，Code Review是一樣的概念。
+		</p><p>
+		當程式碼針對某一個功能/問題修正了之後，請另外一位工程師協助看看程式碼是否有任何問題，這就是Code Review。
+		</p></section><section><h2 id="WizKMOutline_1557032510588315">Code Review有什麽好處，應該做嗎？</h2><p>
+		執行Code Review有一些好處：
+		</p><dl><dt>
+				團隊凝聚力更高
+			</dt><dd><p>
+				由於當有任何修改要上的時候，會請其他工程師互相review程式碼，因此大家<em>更清楚程式碼走向</em>。
+				</p><p>
+				換句話説，凝聚力會更加的高，因爲彼此知道修改了什麽。
+				</p></dd><dt>
+				知識共享
+			</dt><dd><p>
+				要達成一個功能有很多種不同的寫法，但是很有可能有些寫法比較簡潔，或者更優化，這個時候透過review可以讓工程師知道這個事情。
+				</p><p>
+				舉例來説，開發一定有自己的框架，很有可能某些功能框架已經有提供，但是另外一個使用者不知道。
+				</p><p>
+				透過review告訴他，那麽不止程式碼更一致，未來也更清楚知道怎麽寫更好。
+				</p><p>
+				因此，達到了知識共享的目的。
+				</p></dd><dt>
+				程式碼的一致性更高
+			</dt><dd><p>
+				每個人有不同的開發習慣，但是團隊一定會有制定整個團隊的習慣。
+				</p><p>
+				透過Code Review可以互相提醒，讓整體程式碼一致性更好。
+				</p></dd></dl><p>
+		從上面幾個好處，可以發現到，code review真的是一個可以讓團隊以及程式碼更加好的一個流程。這個也可以從Stack Overflow 2019的問卷調查看的出來：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-05-code-review-what-is-code-review-and-why-we-want-to-do-it/b89969d3-7f94-48a2-a6c3-d714077385c2.png" border="0" alt=""><br><figcaption>快7成的工程師認爲Code Review有價值。來源：https://insights.stackoverflow.com/survey/2019#work-_-code-review</figcaption></figure><p></p><p>
+		但是他的壞處是什麽？
+		</p></section><section><h2 id="WizKMOutline_1557032510589363">Code Review的壞處是什麽？</h2><p>
+		好處不可能都全占，那麽如果今天要在團隊做Code Review的壞處是什麽？
+		</p><p>
+		很簡單，就是需要<strong><em>花時間</em></strong>。換句話説，會增加團隊的<em>開發成本</em>。
+		</p><p>
+		因爲開發完了，要請另外一個工程師來看，那麽那個工程師看的過程就是一個額外需要花時間的地方。
+		</p><p>
+		那到底會花多少時間呢？
+		</p><p>
+		同樣是Stack Overflow 2019 的報告，這項調查詢問每一個禮拜平均在Code Review花的時間：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-05-code-review-what-is-code-review-and-why-we-want-to-do-it/5ea7592f-86b9-4904-86fb-159d01f3579b.png" border="0" alt=""><br><figcaption>平均每一個禮拜花的時間。來源：https://insights.stackoverflow.com/survey/2019#work-_-code-review</figcaption></figure><p>
+		從上面可以看到，大約3/4的人每一個星期至少需要花不超過5小時的時間來做code review。
+		</p><p>
+		以我自己的經歷來説，我至少每一個禮拜需要花至少6個小時在Code Review這件事情 - 甚至有可能更多。
+		</p><p>
+		不過個人覺得這個時間是值得的。
+		</p></section><section><h2 id="WizKMOutline_1557032510589248">Code Review要看什麽？</h2><p>
+		如果說，團隊覺得Code Review是值得投資的一件事情，那麽，下一個問題就是，Code Review到底要看什麽？
+		</p><p>
+		第一個想到的可能是，看看功能是否有運作正常，例如是否有修復好bug或者有把功能開發正確。但是實際上Code Review一般不是用來找defect。
+		</p><p>
+		有研究指出<em>15%</em>的code review是找到可能的bug，但是實際上<em>50%</em>相關的comment都是和<em>程式碼的可維護性(maintainability)</em>有關係。
+		</p></section><section><h2 id="WizKMOutline_1557032510589897">Code Review怎麽加速？</h2><p>
+		知道Code Review在看什麽之後，爲了減少Code Review要花的時間，那麽怎麽樣能夠讓Code Review花的時間減少呢？
+		</p><dl><dt>
+				Reviewer要知道修改的目的是什麽
+			</dt><dd><p>
+				首先，如果Reviewer對於要Review的功能不清楚，那麽花的時間就會比較久。
+				</p><p>
+				因此，每一個修改對應的Ticket裡面的DoD (Definition of Done)寫的好不好很重要。
+				</p></dd><dt>
+				使用好的工具 - Pull Request
+			</dt><dd><p>
+				在Review的過程一定會需要針對某段程式碼進行<em>comment</em>，然後原開發者經過修改之後，會有新的<em>update</em>。
+				</p><p>
+				這些部分好的工具應該可以讓Reviewer容易做到，而Pull Request就是這麽一個好用的工具。
+				</p><div class="bs-callout bs-callout-info">
+					下一篇會有詳細介紹pull request
+				</div></dd><dt>
+				每一次Review只要包含一個功能
+			</dt><dd><p>
+				這個和git裡面提到的原則一樣，每一個commit只應該有一個相關的修改。
+				</p><p>
+				同樣道理，要review的每一段，都應該只有一個相關修改。
+				</p><div class="bs-callout bs-callout-warning">
+					在之後的篇幅將會介紹，如果包含多個修改，爲什麽會導致review要更花時間。
+				</div></dd></dl></section><section><h2 id="WizKMOutline_1557032510589386">結語</h2><p>
+		這篇介紹了，什麽是Code Review，Code Review的好處/壞處，以及如果要做Code Review要看什麽以及如何加速。
+		</p><p>
+		如果看完了這篇，決定想要在公司開始code review這件事情，那麽有個好工具可以讓您上天堂。
+		</p><p>
+		在下一篇將來介紹工具的部分，也就是所謂的Pull Request。
+		</p><p>
+		看看什麽是PUll Request，怎麽建立，並且使用在Code Review。
+		</p></section><section><h2 id="WizKMOutline_1557032510589587">參考資料</h2><dl><dt>
+				微軟關於Code Review這件事在看什麽
+			</dt><dd><a href="https://docs.microsoft.com/en-us/azure/devops/learn/devops-at-microsoft/code-reviews-not-primarily-finding-bugs">Code reviews are not (primarily) for finding bugs</a></dd></dl></section>

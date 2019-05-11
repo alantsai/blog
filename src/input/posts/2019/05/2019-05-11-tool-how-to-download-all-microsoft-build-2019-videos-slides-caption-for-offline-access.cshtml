@@ -1,0 +1,64 @@
+﻿Title: "[tool]如何快速下載所有Microsoft Build 2019的Session影片、簡報等資源"
+Published: 2019-05-11 10:31
+Modified: 2019-05-11 10:31
+Image: "/posts/2019/05/2019-05-11-tool-how-to-download-all-microsoft-build-2019-videos-slides-caption-for-offline-access/492165d1-73b8-4772-9054-9b1f697b4485.jpg"
+Tags: ["tool", "powershell"]
+Series: []
+PostDescription: "最近和微軟開發有關的最新訊息一定是從Microsoft Build 2019來。如果要去網路不好或者像我一樣不是吃到飽網路想要坐車的時候看這些session只能事先下載。但是，怎麽能夠把這些session的影片、簡報等資源快速下載下來呢？來看看這篇如何利用powershell做到快速下載"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/05/2019-05-11-tool-how-to-download-all-microsoft-build-2019-videos-slides-caption-for-offline-access/492165d1-73b8-4772-9054-9b1f697b4485.jpg" border="0" alt="[tool]如何快速下載所有Microsoft Build 2019的Session影片、簡報等資源.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>
+		這段時間對於.NET開發者 (或者任何關注于微軟技術的開發者) 來説最大的新訊息莫過於Build 2019的大會内容了。
+		</p><p>
+		相信大會上面有很多Session是大家感興趣的，有些甚至希望下載下來能夠放到手機或者平板在網路不好的時候可以觀看。
+		</p><p>
+		不過每一個有興趣的Session都需要一個一個點下載實在太過於麻煩，更別説除了影片之外，還有可能有slide、字幕等等可以下載。
+		</p><p>
+		太麻煩了，懶惰是工程師的美德，這篇看看如何用Powershell自動下載所有的Session。
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1557543714207369" ;="" style="font-size: 15px; line-height: 1.6;">直接使用 - TL;DR</a><br></li><li><a href="#WizKMOutline_1557543714208838" ;="" style="font-size: 15px; line-height: 1.6;">關於Script的來源</a><br></li><li><a href="#WizKMOutline_1557543714208891" ;="" style="font-size: 15px; line-height: 1.6;">如何找到Session Code</a><br></li><li><a href="#WizKMOutline_1557543714208539" ;="" style="font-size: 15px; line-height: 1.6;">未來調整？</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1557543714207369">直接使用 - TL;DR</h2><p>
+		只需要幾個步驟即可：
+		</p><dl><dt>
+				clone或者下載powershell script
+			</dt><dd><p>
+				可以透過指令：
+				</p><pre><code class="language-powershell">git clone https://github.com/alantsai/mhat-ps-download-build2019.git</code></pre><p>
+				或者下載zip檔案：<a href="https://github.com/alantsai/mhat-ps-download-build2019/archive/master.zip">https://github.com/alantsai/mhat-ps-download-build2019/archive/master.zip</a></p></dd><dt>
+				開啓powerhsell進入clone或者解壓縮出來的<code>src</code>資料夾
+			</dt><dd>
+				在<code>src\Download-BuildResources.ps1</code>就是下載資源的script檔案。開啓powershell，<code>cd</code>進入<code>src</code>資料。
+				<figure><img class="img-responsive" src="/posts/2019/05/2019-05-11-tool-how-to-download-all-microsoft-build-2019-videos-slides-caption-for-offline-access/f6b87f61-d921-4b59-8cfe-b36aaee909fa.png" border="0" alt="powershell_ise_2019-05-11_10-42-34.png"><br><figcaption>cd進入src看到的内容</figcaption></figure></dd><dt>
+				依照需求下指令
+			</dt><dd><p>
+				如果要下載<em>所有</em>Session到當前資料夾的Download下面：
+				</p><pre><code class="language-powershell">.\Download-BuildResources.ps1 -directory .\Download</code></pre><p>
+				如果要下載<em>指定</em>的Session到當前的資料夾下面的Download
+				</p><pre><code class="language-powershell">.\Download-BuildResources.ps1 -directory .\Download -sessionCodes "CFS3006,BRK2006"</code></pre></dd></dl><p>
+		如果Session已經有提供影片、slides等資源的話，將會被下載下來，例如：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-11-tool-how-to-download-all-microsoft-build-2019-videos-slides-caption-for-offline-access/7c8c6c7e-b515-4033-a31b-f181e2608f8e.png" border="0" alt="explorer_2019-05-11_10-46-30.png"><br><figcaption>所有資源都存在的情況下，都會被下載</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+			如果已經下載過的Session不會被重複下載。
+		</div><div class="bs-callout bs-callout-info">
+			每一個下載下來的Session會包含(如果有提供的話):
+			<ol><li>影片 (*.mp4)</li><li>字幕 (*.vtt)</li><li>説明文字 (*.txt)</li><li>slide (*.pptx)</li></ol></div><p>
+		如果對於script的來源，以及如何找到Session code有興趣在往下看。
+		</p></section><section><h2 id="WizKMOutline_1557543714208838">關於Script的來源</h2><p>
+		基本上官方這一次有提供一個powershell script能夠幫助一鍵下載所有Session或者下載感興趣的Session。
+		</p><p>
+		這個powershell script在每一個Session的最下面可以下載的到：<a href="https://mybuild.techcommunity.microsoft.com/VideoDownloader/Download-BuildResources.zip"> Get the bulk session resource download script</a></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-11-tool-how-to-download-all-microsoft-build-2019-videos-slides-caption-for-offline-access/a87ecd50-7db6-441a-ac4f-a0bbc301e8c8.png" border="0" alt="chrome_2019-05-11_10-50-20.png"><br><figcaption>以keynote為例子，影片下面有提供</figcaption></figure><p></p><p>
+		但是這個script缺少了一些我想要的元素：
+		</p><ol><li>下載的資料夾名稱用SessionCode - 很難整理</li><li>下載的資源缺少字幕</li><li>下載的資訊缺少最後更新時間 - 這個是爲了如果有更新的時候可以重新下載做準備</li></ol><p></p><p>
+		因此用了官方提供的内容，進行了一些修改，才有這個專案：<a href="https://github.com/alantsai/mhat-ps-download-build2019">https://github.com/alantsai/mhat-ps-download-build2019</a></p></section><section><h2 id="WizKMOutline_1557543714208891">如何找到Session Code</h2><p>
+		假設今天不需要下載全部影片，而是部分影片就好，這個時候可以傳入用逗點分割(CSV)的SessionCode字串，那麽將會只下載有指定的Session。
+		</p><p>
+		可是這個Session Code要從那邊來呢？
+		</p><p>
+		首先可以先進入到Session Catalog的地方：<a href="https://mybuild.techcommunity.microsoft.com/sessions?t=%257B%2522from%2522%253A%25222019-05-06T08%253A00%253A00-07%253A00%2522%252C%2522to%2522%253A%25222019-05-08T19%253A45%253A00-07%253A00%2522%257D#top-anchor">傳送門</a></p><p>
+		找到感興趣的Session，例如Key Note：<a href="https://mybuild.techcommunity.microsoft.com/sessions/77571">傳送門</a></p><p>
+		在右邊的<code>Session Code</code>就是需要的代碼，以這個爲例子就是<code>KEY</code>：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-11-tool-how-to-download-all-microsoft-build-2019-videos-slides-caption-for-offline-access/14b88dbc-f4e3-4961-812f-0cee3b8c6049.png" border="0" alt="chrome_2019-05-11_10-56-42.png"><br><figcaption>Key Note的Session Code</figcaption></figure></section><section><h2 id="WizKMOutline_1557543714208539">未來調整？</h2><p>
+		由於修改的部分有包含最後更新時間，因此理論上script可以調整去讀這個資訊，然後比對來看看是否需要重新下載。
+		</p>
+				<p>
+		或者對英文苦手來説能夠把字幕透過Azure的Cognitive Service直接翻譯成中文
+		</p> 
+		<p>
+		不過這個以後再説吧。
+		</p></section>

@@ -1,0 +1,70 @@
+﻿Title: "[02][讓團隊彼此知道程式碼走向]何爲Pull Request並且如何建立 - 以Azure DevOps爲例"
+Published: 2019-05-19 13:31
+Modified: 2019-05-19 13:31
+Image: "/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/cff4d33d-d173-45eb-9810-afad50964211.jpg"
+Tags: ["code-review", "code-quality", "azure-devops"]
+Series: ["code-review"]
+PostDescription: "還記得上一次提到關於code review的好處及意義。如果對於code review有興趣要如何開始呢？這篇看看什麽是pull request，並且如何能夠建立出一個pull request。將使用Azure DevOps作爲範例"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/cff4d33d-d173-45eb-9810-afad50964211.jpg" border="0" alt="[02][讓團隊彼此知道程式碼走向]何爲Pull Request並且如何建立 - 以Azure DevOps爲例.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/05/code-review-what-is-code-review-and-why-we-want-to-do-it">[01]淺談Code Review的好處及意義篇 - 讓團隊彼此知道程式碼走向</a>)瞭解了什麽是Code Review以及爲什麽可能會想要做Code Review之後。</p><p>
+		下一個問題就是，如果真的想開始實行該怎麽做呢？
+		</p><p>
+		這一篇來介紹一下Pull Request的概念，以及如何協助做Code Review。
+		</p><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1558249774907654" kmcontenthide="1">相關文章</h4><ul><li><a href="/posts/2019/03/best-practice-how-to-setup-pull-request-template-in-azure-devops-with-set-default-branch">[Azure DevOps]如何設定Pull Request的預設文字模板(template)</a> - pull request Description預設範本</li><li><a href="/posts/2017/07/review-study420170624-git-presentation">[回顧][活動][Study4]20170624-大家應該都要會的工具 git - 從放棄到會用</a> - git參考資料</li></ul></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1558249777412504" ;="" style="font-size: 15px; line-height: 1.6;">Pull Request是什麽?</a><br></li><li><a href="#WizKMOutline_1558249777413569" ;="" style="font-size: 15px; line-height: 1.6;">怎麽建立Pull Request?</a><br></li><li><a href="#WizKMOutline_1558249777413690" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1558249777412504">Pull Request是什麽?</h2><p>
+		在講Pull Request之前，必須先提到另外一個東西，也就是<em>git</em>。
+		</p><p>
+		git已經是一個顯學，尤其是在Open Source的領域裡面，不使用git host的open source原始碼應該不多見。
+		</p><p>
+		可是爲什麽大家都喜歡用git呢？尤其在open source的領域？
+		</p><p>
+		這個不得不提到git的殺手級應用，<em>branch</em>功能。
+		</p><p>
+		這篇不是git的介紹文章，不過簡單來説，在git裡面能夠透過<em>開branch</em>的方式，達到開發新功能的時候不影響現行的code，等到確認開發完成之後，在透過<em>merge</em>的方式把這個branch整合回到主要的branch。
+		</p><p>
+		這邊注意到一件事情，要把修改整合回去，需要透過<em>merge</em>的方式 - 那有沒有可能在merge執行之前，先停一下，要有個人去看一下程式碼，確認沒問題在<em>確認執行merge</em>這個動作。
+		</p><p>
+		這個停一下的階段就是所謂的<em>Pull Request</em>。
+		</p><div class="bs-callout bs-callout-info"><p>
+		爲什麽叫做pull request原因是在open source的領域當某一個人想要幫忙修改某一段程式碼，由於他不是這個專案的常駐開發者，因此只能夠透過先<em>fork</em>到自己的repo之後，修改，在頭功發起的概念。
+		</p><p>
+		而這個動作就是叫做pull request。
+		</p></div><div class="bs-callout bs-callout-info">
+			題外話，當初GitHub爲什麽火紅起來就是因爲fork以及pull request的機制，讓open source開發變得很方便。也是因爲GitHub讓git這個工具變成所有工程師必備的技能之一。
+		</div><div class="bs-callout bs-callout-info">
+			如果對於git不是那麽熟悉，可以參考之前我做過的簡報：<a href="/posts/2017/07/review-study420170624-git-presentation">[回顧][活動][Study4]20170624-大家應該都要會的工具 git - 從放棄到會用</a></div></section><section><h2 id="WizKMOutline_1558249777413569">怎麽建立Pull Request?</h2><p>
+		上面瞭解了什麽是pull request之後，接下來就是要瞭解怎麽建立出pull request。
+		</p><p>
+		基本上每一個能夠host git的平臺都有pull request的功能，在這個系列將會使用Azure DevOps作爲範例 - 不過其他平臺(例如:GitHub、GitLab等)操作起來也是一樣的概念。
+		</p><dl><dt>
+		首先，還記得上面提到，把新的修改先建立在一個branch裡面。
+			</dt><dd><pre><code class="language-powershell">git checkout -b feature/fix-readme</code></pre><figure><img class="img-responsive" src="/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/d141cc45-10c4-4d30-964d-77a138908bde.png" border="0" alt="ApplicationFrameHost_2019-05-19_14-26-48.png"><br><figcaption>建立出branch用作與放相關修改</figcaption></figure></dd><dt>
+				修改加上一些commit最後好了把這個branch push上repo
+			</dt><dd><p>
+				對<code>ReadMe.md</code>做一些修改、commit最後push上去
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/5a3431e4-1897-4a4f-b256-c8e0014a1e62.png" border="0" alt="powershell_2019-05-19_14-30-39.png"><br><figcaption>把修改push上去
+					</figcaption></figure></dd><dt>
+			在Azure Devops找到 Repo -&gt; Pull Request建立一個Pull Request
+			</dt><dd><p>
+				先進入到Azure DevOps的Repos功能裡面的Pull Request來建立：
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/b95238fc-ac66-4b16-b3e1-d30067866c0f.png" border="0" alt="ApplicationFrameHost_2019-05-19_14-33-15.png"><br><figcaption>找到建立Pull Request的按鈕</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+					可以從截圖上面看到，因爲剛剛push上去branch的關係，所以它有提示是否直接用那個branch建立pull request。
+				</div></dd><dt>
+				建立出Pull Request
+			</dt><dd>
+				這邊有幾個選項要選擇：
+				<ol><li>選擇是哪個branch要合并</li><li>要合并到那邊 - 一般是 <code>develop</code>或者<code>master</code></li><li>title輸入這個Pull Request的標題 - 一般建議可以搭配把issue tracking號碼寫上去以及簡單描述</li><li>Description - 更詳細的描述 - 建議可以用pull request template (詳細可以參考：<a href="/posts/2019/05/code-review-what-is-code-review-and-why-we-want-to-do-it">[01]讓團隊彼此知道程式碼走向 - 淺談Code Review的好處及意義篇</a>)讓一切一致</li><li>要給誰做Review - 可以多個人</li><li>這個修改和那個Work item有關 - 如果有用Azure DevOps作爲Issue Tracking，那麽可以容易把需求和修改綁在一起</li><li>按下<kbd>Create</kbd>按鈕</li></ol><figure><img class="img-responsive" src="/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/7c1e1e45-50f1-4544-91f6-325d2f462303.png" border="0" alt="2019-05-19_14-43-39.png"><br><figcaption>建立pull request填寫的内容</figcaption></figure></dd><dt>
+				建立完成，進入review的畫面
+			</dt><dd><p>
+				按下<kbd>create</kbd>之後，會自動被帶入到做pull request review的畫面
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-19-code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops/cbfc3520-6cb7-4f45-8497-4ef296bcf00e.png" border="0" alt="ApplicationFrameHost_2019-05-19_14-56-46.png"><br><figcaption>pull request review畫面</figcaption></figure><p>
+				這個畫面將是Reviewer接下來會操作的畫面。
+				</p></dd></dl></section><section><h2 id="WizKMOutline_1558249777413690">結語</h2><p>
+		這篇介紹了什麽是Pull Request，並且如何建立出一個Pull Request。
+		</p><p>
+		在下一篇就是要瞭解從Reviewer的角度，如何開始做Code Review這一件事情。
+		</p></section>

@@ -1,0 +1,165 @@
+﻿Title: "[活動]DevDays Asia 2019 之 Lab Vision AI Dev Kit Workshop"
+Published: 2019-05-25 15:11
+Modified: 2019-05-25 15:11
+Image: "/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/bbd726f1-93a7-4e13-bbec-e56abf0fc65d.jpg"
+Tags: ["「活動」", "custom-vision", "azure-iot-hub", "「devdaysasia2019」"]
+Series: ["「活動」", "「devdaysasia2019」"]
+PostDescription: "DevDaysAsia 2019 在第一天的時候參加了Vision AI Dev Kit的Workshop。整體來説就是用custom vision + Azure IoT Hub做一個識別是否有戴工安帽的AI服務。來看看做了什麽"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/bbd726f1-93a7-4e13-bbec-e56abf0fc65d.jpg" border="0" alt="IMG_20190521_130239.jpg"><br><figcaption>Vision AI Dev Kit Workshop</figcaption></figure></section><section><p>
+		Vision AI Dev Kit Workshop是DevDaysAsia 2019 第一天的其中一個Lab。
+		</p><p>
+		其中官方的介紹如下：
+		</p><div class="bs-callout bs-callout-info">
+			In this lab, you will create, build and deploy your Machine Learning models to our cutting-edge Vision AI Dev Kit and leverage the hardware acceleration powered by Qualcomm QCS603 chipset.  You will also be guided to use Microsoft Custom Vision to train your own models.
+		</div><p>
+		當初在決定要不要參加這個lab的時候有點猶豫 - 因爲看到裡面提到Custom Vision - 而Custom Vision還算有點熟悉所以有點猶豫。
+		</p><p>
+		不過最後還是因爲好奇<em>Vision AI Dev Kit</em>是什麽，因此參加了。
+		</p><p>
+		最後結果還是蠻好玩的，這篇給大家參考一下都做了什麽。
+		</p><div class="bs-callout bs-callout-warning">
+			以下圖片都是用手機拍的，所以可能有點模糊，大家將就一下吧。
+		</div><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1558767415798398" kmcontenthide="1">參考資料</h4><ul><li><a href="/tags/custom-vision">Custom Vision相關的文章</a></li></ul></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1558767420229630" ;="" style="font-size: 15px; line-height: 1.6;">什麽是Vision AI Dev Kit</a><br></li><li><a href="#WizKMOutline_1558767420229483" ;="" style="font-size: 15px; line-height: 1.6;">Vision AI Dev Kit Workshop</a><br></li><li><a href="#WizKMOutline_1558767420229180" ;="" style="font-size: 15px; line-height: 1.6;">操作1：瞭解如何設定Vision AI Dev Kit</a><br></li><li><a href="#WizKMOutline_1558767420229691" ;="" style="font-size: 15px; line-height: 1.6;">操作2：用Custom Vision訓練一個Classification模型</a><br></li><li><a href="#WizKMOutline_1558767420230675" ;="" style="font-size: 15px; line-height: 1.6;">操作3：透過USB直接連線到Vision AI Dev Kit - 發現只是一個Linux裝置</a><br></li><li><a href="#WizKMOutline_1558767420230520" ;="" style="font-size: 15px; line-height: 1.6;">操作4：用Custom Vision訓練一個Object Detection模型</a><br></li><li><a href="#WizKMOutline_1558767420230107" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1558767420229630">什麽是Vision AI Dev Kit</h2><p>
+		既然最初參加的原因是因爲想要瞭解Vision AI Dev Kit，因此首先要來看看這個是一個什麽東西。
+		</p><p>
+		Vision AI Dev Kit是微軟和Qualcomm合作推出的一個<em>IoT Device</em>。
+		</p><p>
+		這個Device透過硬體加速的方式，讓執行AI模型變得更加容易，最後這個設備變成一個IoT的Device讓有些運算可以直接在邊緣計算(Edge Computing)處理。
+		</p><p>
+		微軟在這邊的角色是：
+		</p><ol><li><em>模型建立</em>：可以用微軟的Custom Vision或者Azure Machine Learning的服務來建立</li><li><em>Device管理</em>：透過搭配Azure IoT Hub自動部署模型上去</li></ol><p></p><p>
+		整個Device的規格如下：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/a8e2af5b-e856-44ae-98b6-bff3730070f2.jpg" border="0" alt=""><br><figcaption>Technical Spec</figcaption></figure><p></p><p>
+		更多詳細訊息可以參考：
+		</p><ol><li><a href="https://aka.ms/visionaidevkit">Vision AI Dev Kit的首頁介紹</a></li><li><a href="https://azure.github.io/Vision-AI-DevKit-Pages/docs/Get_Started/">官方的使用介紹</a> - 接下來的lab動作和官方介紹概念是一樣</li></ol><p></p><p>
+		大概瞭解了Vision AI Dev Kit之後，接下來就是實際的lab了。
+		</p><div class="bs-callout bs-callout-info">
+			以下因爲爲了避免一直打字，所以有時候稱爲Device指的就是Vision AI Dev Kit
+		</div></section><section><h2 id="WizKMOutline_1558767420229483">Vision AI Dev Kit Workshop</h2><p>
+		首先，這一場lab因爲機器設備的關係，所以實際上是<em>2個人共用一個裝置</em>。
+		</p><p>
+		和我一起的大哥人很好，基本上由我操作。
+		</p><p>
+		總共有3個東西：
+		</p><ol><li>筆電 - 用來操作lab</li><li>Vision AI Dev Kit - 我們IoT設備</li><li>一臺銀幕 - 方便看到Vision AI Dev Kit的内容</li></ol><p></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/75a0f072-fd7d-412f-9010-e62b68f850db.jpg" border="0" alt="IMG_20190521_130239.jpg"><br><figcaption>整個設備</figcaption></figure><p>
+		要做這個lab除了需要Vision AI Dev Kit這個設備之外，還需要：
+		</p><ol><li>有Azure訂閲 - 會需要用來建立Custom Vision的Key以及Azure IoT Hub</li><li>Custom Vision - 如果有使用過操作起來會很快</li></ol><p></p><p>
+		整個的流程架構如圖：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/b4d5586f-281f-492d-963e-2307b64d7d58.jpg" border="0" alt="IMG_20190521_132324.jpg"><br><figcaption>整個的架構圖</figcaption></figure><p></p><p>
+		這個Lab總共有4個步驟，詳細可以看：<a href="https://github.com/devinwong/vision-ai-dev-kit-hol">https://github.com/devinwong/vision-ai-dev-kit-hol</a>：
+		</p><ol><li>操作1：瞭解如何設定Vision AI Dev Kit</li><li>操作2：用Custom Vision訓練一個Classification模型</li><li>操作3：透過USB直接連線到Vision AI Dev Kit - 發現只是一個Linux裝置</li><li>操作4：用Custom Vision訓練一個Object Detection模型</li></ol><p></p><p>
+		這個Lab 4個操作都做完了 - 也有機會協助了旁邊幾個同學，來看看整個操作時如何。
+		</p></section><section><h2 id="WizKMOutline_1558767420229180">操作1：瞭解如何設定Vision AI Dev Kit</h2><dl><dt>
+				筆電連上Vision AI Dev Kit
+			</dt><dd><p>
+		首先要把Device透過USB和筆電連上，這個目的是<em>讓Device供電啟動成功</em>。
+		</p><p>
+		在Device的底部可以看到Device的名稱，這個時候筆電開啓WiFI搜索那個Device名稱的SSID然後連線上去即可。可能的SSID會像是：<code>MSIOT_BD097D</code></p><p>
+		連上Device的WiFI之後，網頁應該會自動開啓<a href="http://setupaicamera.ms">http://setupaicamera.ms</a>，準備設定裝置：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/a1449b0f-1706-4092-972f-f9a41855be98.jpg" border="0" alt="IMG_20190521_133832.jpg"><br><figcaption>啟動設定畫面</figcaption></figure><p></p></dd><dt>
+				把Vision AI Dev Kit連接上Azure IoT Hub
+			</dt><dd><p>
+				按下下一步，會需要設定這一個Device要連到那個WiFi以及一些SSH訊息。這邊的WiFi記得要是可以<em>連外網</em>，因爲要和Azure IoT Hub接上。
+				</p><p>
+				按下網頁的下一步會看到這個<em>Device的ID</em>，把這個ID記錄下來，然後按下<kbd>next</kbd></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/IMG_20190521_133855.jpg" border="0" alt="IMG_20190521_133855.jpg"><br><figcaption>取得Device Id</figcaption></figure><p></p><p>
+				會自動開啓瀏覽器，然後用有<em>Azure Subscription</em>的帳號登入之後，就可以輸入這個Device的Id
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/6e1dde12-967c-4560-9c46-1f46ab2f59b9.jpg" border="0" alt="IMG_20190521_134102.jpg"><br><figcaption>輸入Id的畫面</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+					如果微軟的登入裝置畫面沒有出現，可以透過輸入網址：<a href="https://microsoft.com/devicelogin">https://microsoft.com/devicelogin</a></div><p>
+				等到驗證成功了之後，接下來就是要設定這個Device要和哪一個Azure IoT Hub整合在一起。
+				</p><p>
+				首先要選擇用哪一個Tenant，然後選擇要用哪一個Azure IoT Hub。
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/89906cbc-3c0d-4529-937c-a8c9d1b61f2e.jpg" border="0" alt=""><br><figcaption>選擇使用那個Azure IoT Hub</figcaption></figure><p></p><div class="bs-callout bs-callout-warning"><p>
+					理論上可以直接透過設定畫面把Azure IoT Hub建立出來，但是在實際操作的時候，不成功。
+					</p><p>
+					所以是先去了<a href="https://portal.azure.com">Azure Portal</a>，然後建立一個Azure IoT Hub (<a href="https://portal.azure.com/#create/Microsoft.IotHub">傳送門</a></p></div><p>
+				如果接上了，就需要設定這個Device名稱是什麽，我這邊叫做：<code>iot1</code></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/6fb13c2d-157d-45c9-bde4-0f35bddd8449.jpg" border="0" alt=""><br><figcaption>設定IoT名稱</figcaption></figure><p></p><p>
+				再來就是要等 - 這邊取決於網路速度，因爲他會下載Docker Image，主要目的就是和Azure IoT Hub接上
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/6e7961f0-2e06-4e12-b638-31602cb30aca.jpg" border="0" alt=""><br><figcaption>等待下載中</figcaption></figure><p></p><p>
+				如果好了，銀幕會直接出現畫面 - 這個就是Device的camera看到的東西
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/ab8d9682-fa1c-4e25-9e54-23af92156d72.jpg" border="0" alt=""><br><figcaption>設定成功 - 銀幕有東西啦</figcaption></figure><p></p><p>
+				同時，從設定的網頁會看到一段<code>rtsp</code>網址，這個串流位置也可以透過用一些工具例如PotPlayer直接播放看到camera看到的内容。
+				</p></dd></dl></section><section><h2 id="WizKMOutline_1558767420229691">操作2：用Custom Vision訓練一個Classification模型</h2><p>
+		連上設備之後，接下來就是要訓練模型。
+		</p><dl><dt>
+				用Custom Vision訓練Classification Model - 識別是否有帶上工安帽
+			</dt><dd><p>
+					接下來用Custom Vision訓練出Classification Model。
+					</p><p>
+					在建立專案的時候，記得匯出要選擇：<code>Vision AI Dev Kit</code></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/26703347-5c54-4bf8-9950-84e1fb9ab48c.jpg" border="0" alt=""><br><figcaption>建立專案的設定</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+						詳細怎麽訓練，這邊就不介紹了，有興趣看我另外一篇：
+						<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-27-use-custom-vision-to-train-your-image-classifier">Custom Vision - 自己的Model自己Train 建立圖片的分類模型</a></div><p>
+					模型訓練好了之後，就可以把模型匯出成爲<code>Vision AI Dev Kit</code></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/ebbcd558-6f86-4225-a476-133f63414576.png" border="0" alt="chrome_2019-05-25_14-10-49.png"><br><figcaption>匯出模型</figcaption></figure><p></p><p>
+					匯出之後得到的是一個zip檔案，把這個zip檔案解壓縮出來會得到<em>3個檔案</em>：
+					</p><ol><li>labels.txt</li><li>model.dlc</li><li>va-snpe-engine-library_config.json</li></ol><p></p></dd><dt>
+				把訓練出來的模型上傳到Azure Storage - 或者任意可以有public url的地方
+			</dt><dd><p>
+				訓練出來解壓縮出來的3個檔案需要上傳到一個<em>有publi連線</em>的地方。
+				</p><p>
+				可以用Azure Storage或者其他地方 - 最後的結果是<em>3個public url分別代表可以取得這三個檔案的位置</em>。
+				</p></dd><dt>
+				把訓練模型發佈到Device裡面
+			</dt><dd><p>
+			由於Device已經在Azure IoT Hub接上，因此可以透過Azure IoT Hub把模型publish上去。
+			</p><p>
+			首先，在Azure IoT Hub上面找到Iot Edge這個選項，然後找到<code>iot1</code>這個device然後點進去。
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/bd7b223c-0d29-44e9-bd46-2718f55ff0db.png" border="0" alt="chrome_2019-05-25_14-18-07.png"><br><figcaption>找到iot1這個device</figcaption></figure><p></p><p>
+			再來找到Module：<code>AIVisionDevKitGetStartedModule</code></p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/830dcdbc-1074-4311-b6c1-f701894e555a.png" border="0" alt="chrome_2019-05-25_14-20-22.png"><br><figcaption>找到module</figcaption></figure><p></p><div class="bs-callout bs-callout-info">
+				如果有玩過Azure IoT Edge就知道，另外兩個Module是Azure IoT Hub在管理用。
+			</div><p>
+			透過設定<code>Module Identity Twin</code>的方式，把模型換掉：
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/52bfef47-5739-4ba9-8ca9-48512de9564a.png" border="0" alt="chrome_2019-05-25_14-21-19.png"><br><figcaption>Module Identity Twin</figcaption></figure><p></p><p>
+			把<code>ModelUrl</code>、<code>LabelUrl</code>以及<code>ConfigUrl</code>改成上傳的那幾個url即可
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/b2ea436d-d924-44b6-880e-8f77acba5f01.png" border="0" alt="chrome_2019-05-25_14-21-54.png"><br><figcaption>調整3個model的網址</figcaption></figure><p></p><p>
+			記得修改好了之後要按下<kbd>save</kbd>。
+			</p></dd><dt>
+				測試模型
+			</dt><dd><p>
+				稍等一段時間之後，看到畫面出現<code>NoHardHat</code> - Classification訓練的時候，<em>沒有</em>工安帽子的Tag名稱
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/54b813cc-e278-41db-9f48-14721b9872e6.jpg" border="0" alt=""><br><figcaption>測試結果</figcaption></figure><p></p><p>
+				把工安帽子戴上之後，文字變成了<code>HardHat</code> - Classification訓練的時候，<em>有</em>工安帽子的Tag名稱。
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/d0f683b2-e68c-4a09-8f97-2f72980dbd43.jpg" border="0" alt=""><br><figcaption>測試結果</figcaption></figure><p></p></dd></dl></section><section><h2 id="WizKMOutline_1558767420230675">操作3：透過USB直接連線到Vision AI Dev Kit - 發現只是一個Linux裝置</h2><p>
+		接下來，透過usb連線到device那臺機器：
+		</p><dl><dt>
+				adb devices
+			</dt><dd>
+				這個指令可以列出目前那些設備有連線：
+				<figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/b37ec613-39b5-4609-b9be-61c9571960e2.jpg" border="0" alt=""><br><figcaption>執行結果</figcaption></figure></dd><dt>
+				adb shell
+			</dt><dd>
+				透過這個指令就可以連到Device裡面，接下來就可以透過下一些linux指令來控制這個device。
+			</dd><dt>
+				在device執行操作
+			</dt><dd>
+				既然進入了device，就可以下一些指令來看一下log，例如：<code>docker logs -f AIVisionDevKitGetStartedModule</code>，就能夠看到辨別的情況：
+				<figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/a38ef07a-59bb-40f4-b365-dea6c8879c4e.jpg" border="0" alt=""><br><figcaption>辨別情況的log</figcaption></figure></dd></dl></section><section><h2 id="WizKMOutline_1558767420230520">操作4：用Custom Vision訓練一個Object Detection模型</h2><p>
+		這邊的訓練和操作2的Classification模型是一樣概念，步驟就是：
+		</p><ol><li>在Custom Vision建立一個Object Detection的專案</li><li>透過訓練，把模型匯出</li><li>把匯出的模型解壓縮之後，上傳到可以public url連到的地方</li><li>在Azure IoT Hub那邊，把module：<code>AIVisionDevKitGetStartedModule</code>裡面的3個模型網址設定為訓練出來的地方</li><li>測試</li></ol><p></p><p>
+		這個時候做測試，可以發現識別出了工安帽子的地方：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-25-review-event-devdaysasia2019-day-1-lab-vision-ai-dev-kit-workshop/effe9f80-df69-47a7-910b-ff503298f581.jpg" border="0" alt=""><br><figcaption>識別出工安帽子的地方</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1558767420230107">結語</h2><p>
+		Vision AI Dev Kit其實就是一個IoT的Device。
+		</p><p>
+		與微軟有深度合作讓接上Azure IoT Hub做管理變得容易，然後也可以用Custom Vision ai做簡單的訓練，如果要自己控制就要用Azure Machine Lerning的服務。
+		</p><p>
+		以前我也有玩過Azure IoT Hub，一般的Device都是用VM來模擬，有點假。所以透過Vision AI Dev Kit感覺更有真實感覺。
+		</p><p>
+		不過Vision AI Dev Kit也有缺點，他的識別區域不是整個看到的畫面，大概中間70%左右才有辦法識別，兩邊就沒有辦法 - 不知道算不算缺點。
+		</p><p>
+		在來Vision AI Dev Kit感覺應該也不便宜 - 這個lab倒是沒有提到，所以估計自己買來玩的幾率應該不高。
+		</p>
+		<p>
+		要做完完整的Lab，需要對Azure幾個服務都熟悉。這次有機會都做完，因此有幸幫助了一些學院，順便置入一下我的部落格XD。
+		</p> 
+		<p>
+		也因爲這樣，在第二天有學員來攤位找我聊技術(其實就是我這個偽資料科學家嘴炮微軟在建立模型這塊提供什麽服務XD)。
+		</p> 
+		<p>
+		因此，感覺這次Lab還蠻不錯。
+		</p> 
+		<p>
+		以上，就是這一次的lab - 希望大家都有一點感覺。
+		</p></section>

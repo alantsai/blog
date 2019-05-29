@@ -1,0 +1,86 @@
+﻿Title: "[活動]DevDays Asia 2019 之 Lab Microsoft Teams"
+Published: 2019-05-27 22:11
+Modified: 2019-05-27 22:11
+Image: "/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/e34ccfa3-7aa7-430d-9ad9-1818c2ef9054.jpg"
+Tags: ["「活動」", "microsoft-teams", "azure-iot-hub", "「devdaysasia2019」"]
+Series: ["「活動」", "「devdaysasia2019」"]
+PostDescription: "在DevDaysAsia 2019的第二天開始有一個Teams的Workshop。好奇裡面在做什麽嗎？好奇Teams可以做到什麽嗎？好奇如何自己嘗試Lab嗎？來看看這一篇"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/e34ccfa3-7aa7-430d-9ad9-1818c2ef9054.jpg" border="0" alt="IMG_20190522_153645.jpg"><br><figcaption>Teams Workshop</figcaption></figure></section><section><p>
+		在DevDaysAsia 2019的第二天的下半場，我參加了Microsoft Teams的Lab。
+		</p><p>
+		這一場Lab透過一步一步的操作，讓在不懂寫程式的情況下也可以感覺一下如何建立出一個bot在Teams裡面。
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1558969282692653" kmcontenthide="1">相關文章</h4><ul><li><a href="/posts/2019/05/review-event-devdaysasia2019-day-2">[活動]DevDays Asia 2019 - 第二天</a></li><li><a href="/posts/2018/04/devtooltips-5-ngrok-allow-public-to-access-localhost-website-and-sql-server">ngrok讓外部能夠連到localhost的網站及服務</a></li></ul></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1558969285867950" ;="" style="font-size: 15px; line-height: 1.6;">Teams Workshop做了什麽</a><br></li><li><a href="#WizKMOutline_1558969285867123" ;="" style="font-size: 15px; line-height: 1.6;">Lab 内容</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1558969285867424" ;="" style="font-size: 15px; line-height: 1.6;">步驟3：在Contoso HR Talent應用程式建立個人索引標簽</a><br></li><li><a href="#WizKMOutline_1558969285867954" ;="" style="font-size: 15px; line-height: 1.6;">步驟5：在Contoso HR Talent應用程式建立bot</a><br></li><li><a href="#WizKMOutline_1558969285867419" ;="" style="font-size: 15px; line-height: 1.6;">步驟6: 安裝訊息擴展</a><br></li></ul><li><a href="#WizKMOutline_1558969285867615" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1558969285867766" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1558969285867950">Teams Workshop做了什麽</h2><p>
+		基本上這個Lab模擬為人力資源部門(HR)建立一個客制的Teams app，目的是：
+		</p><ol><li>快速協助HR招募人才</li><li>提供及時面試回饋</li><li>安排面試的流程</li></ol><p></p><p>
+		這個Lab透過：<a href="https://microsoftevents.learnondemand.net">https://microsoftevents.learnondemand.net</a>，讓參與者能夠註冊一個class。
+		</p><p>
+		這個class就是透過左邊連到一臺VM，然後右邊是操作步驟，一步一步跟著走就可以把lab做完。
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/a4a20850-3c4f-45ae-a237-6d549104b0af.png" border="0" alt=""><br><figcaption>操作的感覺</figcaption></figure><p></p><p>
+		這個class能夠存在90天，因此可以一直回來跟著做。
+		</p><div class="bs-callout bs-callout-info">
+			我有詢問過講師，提供的class碼是不能夠分享的，但是我有找到，在微軟的Self-paced Labs是有這個一模一樣可以做，只需要：
+			<ol><li>進入到：<a href="https://www.microsoft.com/handsonlabs/SelfPacedLabs">https://www.microsoft.com/handsonlabs/SelfPacedLabs</a></li><li>搜索：<code>Teamwork Solutions practice</code></li><li>選擇<code>Launch</code>即可</li></ol><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/a5f22e30-cdaf-441a-8b21-9fd19f428e98.png" border="0" alt="chrome_2019-05-27_22-07-42.png"><br><figcaption>啟動的截圖</figcaption></figure></div><p>
+		整個lab基本使用了：
+		</p><ol><li>Teams裡面的App Studio - 不用寫code自動產生出Teams App的Manifest檔案 - 能夠快速部署app到Teams</li><li>ngrok - 會需要建立chatbot - 使用ngrok不用部署chatbot就可以測試</li><li>Visual Studio - 把chatbot以及網站run起來</li></ol><p></p></section><section><h2 id="WizKMOutline_1558969285867123">Lab 内容</h2><p>
+		這個Lab總共有 10個Exercise，由於時間的關係以及上一個Lab的經驗，有一些沒有做：
+		</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/4c0d32b4-0949-4d14-af1f-ca4d12b1bf4e.jpg" border="0" alt="IMG_20190522_153742.jpg"><br><figcaption>那些要做，那些會跳過</figcaption></figure><p></p><div class="bs-callout bs-callout-warning"><p>
+			還蠻好玩的，這種教學方式蠻好的，尤其是可以不用自己手動打一些内容(只需要點選<code>T</code>會自動輸入)，但是實際上照著做並沒有辦法真的成功Orz
+			</p><p>
+			有些exercise跳過是因爲時間的關係 (聽説也有一些雷)，不過實際上當我參與這個lab的時候，也有遇到過不去的坎......，只能説Demo魔咒太厲害了XD。
+			</p></div><p>
+		快速看幾個有做成功。
+		</p><p>
+		第一步是在設定一些環境相關的準備，做完之後就有Teams以及ngrok設定好local用Visual Studio run起來可以呼叫的網站。
+		</p><section><h3 id="WizKMOutline_1558969285867424">步驟3：在Contoso HR Talent應用程式建立個人索引標簽</h3><p>
+			這個步驟做完之後，就可以在這個部署出來的Apps看到一個Tab，可以看到每一個職缺德應徵情況
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/4811f015-7c16-44e8-a2d3-5c5c47b41510.png" border="0" alt="chrome_2019-05-27_22-17-56.png"><br><figcaption>應徵情況</figcaption></figure><figure>
+				aaa
+				<figcaption>看到所有的應徵情況</figcaption></figure><div class="bs-callout bs-callout-warning">
+				如果有依照説明做，上面應該是寫Contoso HR Talent，我有改名稱所以是HR Alan。
+			</div><p>
+			透過這種Personal Tab，可以想象如果今天有什麽訊息需要呈現的話，能夠簡單在Teams看到。
+			</p></section><section><h3 id="WizKMOutline_1558969285867954">步驟5：在Contoso HR Talent應用程式建立bot</h3><p>
+			這個步驟基本上就是建立出一個bot在app裡面。
+			</p><p>
+			Visual Studio的程式碼本身就有包含bot - 很有意思的是，在Teams可以透過App Studio<em>直接註冊Bot Service</em></p><p>
+			換句話説，本來都是在Azure需要先建立一個<code>Channel Registration</code>透過App Studio直接搞定。
+			</p><div class="bs-callout bs-callout-warning"><p>
+				這邊就是遇到的其中一個雷，如果依照步驟把他發佈到了<code>HR Talent Development</code>的<code>General</code>會沒有反應。
+				</p><p>
+				經過測試，從那個channel發出的訊息，<em>根本進不到bot裡面</em>。(透過Visual Studio下中斷點驗證)
+				</p><p>
+				講師一度崩潰的找問題中，最後我和RD大大找到，只要發到其他的channel就可以 - 還因爲這樣結束的時候工作人員還以爲我也是助教的一員，本來要不給我證書XD。
+				</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/741e5b4f-e9a5-4e24-a15d-44b022892605.jpg" border="0" alt="IMG_20190522_171025.jpg"><br><figcaption>講師崩潰不投影找問題中</figcaption></figure></div><p>
+			正確成功之後應該可以看到這樣：
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/ef49e253-a736-4478-853f-adada2127d29.png" border="0" alt="chrome_2019-05-27_22-37-02.png"><br><figcaption>可以詢問bot能夠做什麽，然後列出所有職缺</figcaption></figure><p></p><p>
+			可以點某一個職缺取得更多訊息，也可以新增一個：
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/4466f31b-eb98-4166-8585-267bed0e7d29.png" border="0" alt="chrome_2019-05-27_22-41-23.png"><br><figcaption>建立一個新的職缺</figcaption></figure><p></p></section><section><h3 id="WizKMOutline_1558969285867419">步驟6: 安裝訊息擴展</h3><p>
+			上面步驟5透過使用的是chatbot的方式來操作取得職缺以及那些人有申請。
+			</p><p>
+			訊息擴展則比較偏使用UI的方式呈現一樣的訊息：
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/80daa52d-ccda-4bab-afc9-032af3a6dfab.png" border="0" alt="chrome_2019-05-27_22-43-51.png"><img class="img-responsive" src="/posts/2019/05/2019-05-27-review-event-devdaysasia2019-day-2-lab-microsoft-teams-workshop/66d4f23e-865e-456a-a578-ef3b77e5cf0b.png" border="0" alt="chrome_2019-05-27_22-44-16.png"><br><figcaption>職缺的清單，以及申請人清單</figcaption></figure><p></p></section></section><section><h2 id="WizKMOutline_1558969285867615">結語</h2><p>
+		透過這個Lab其實可以看到Teams蠻多很有意思的地方：
+		</p><ol><li>可以透過Peronsal Tab呈現一些html的内容</li><li>可以透過chatbot的交談方式得到想要的資訊</li><li>可以透過訊息擴展讓資訊用一種比較UI的方式呈現資訊</li></ol><p></p><p>
+		這個Lab其實還有一些不同的東西，例如把Sharepoint的Webparts内容整合到Teams，以及一些其他應用。
+		</p><p>
+		有機會可以玩看看，Teams感覺不只是一個溝通的平臺，它更多變成是一個platform。
+		</p></section><section><h2 id="WizKMOutline_1558969285867766">參考資料</h2><dl><dt>
+				Self Paced Lab - 能夠自己跟著走
+			</dt><dd>
+				進入網站：<a href="https://www.microsoft.com/handsonlabs/SelfPacedLabs">https://www.microsoft.com/handsonlabs/SelfPacedLabs</a>，然後搜索<code>Teamwork Solutions practice</code></dd><dt>
+				範例程式碼
+			</dt><dd>
+				在Lab裡面Visual Studio跑起來的程式碼是：<a href="https://github.com/OfficeDev/msteams-sample-contoso-hr-talent-app">https://github.com/OfficeDev/msteams-sample-contoso-hr-talent-app</a></dd><dt>
+				Teamwork Solutions Accelerator initiative
+			</dt><dd>
+				如果想要開發Teams的App然後請微軟幫忙推廣，可以看：
+				<a href="https://www.microsoft.com/microsoft-365/partners/teamwork/solutions-accelerator">https://www.microsoft.com/microsoft-365/partners/teamwork/solutions-accelerator</a></dd><dt>
+				學習資源
+			</dt><dd>
+				一些開發的學習資源：<a href="https://developer.microsoft.com/en-us/microsoft-teams/docs#microsoftteamscommunity">https://developer.microsoft.com/en-us/microsoft-teams/docs#microsoftteamscommunity</a></dd></dl></section>

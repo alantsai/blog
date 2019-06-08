@@ -1,0 +1,63 @@
+﻿Title: "[03][讓團隊彼此知道程式碼走向]Azure DevOps的Pull Request提供了什麽功能？"
+Published: 2019-05-29 22:11
+Modified: 2019-05-29 22:11
+Image: "/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/20593d82-928b-44fd-9d76-c3531686ac3c.jpg"
+Tags: ["code-review", "code-quality", "azure-devops"]
+Series: ["code-review"]
+PostDescription: "在上一篇看了如何透過開一個分支開發新功能。開發好了之後，把branch push上去，然後在Azure DevOps開了一個pull request。接下來的問題就是，Azure DevOps的pull request有哪些功能呢？這篇來看看"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/20593d82-928b-44fd-9d76-c3531686ac3c.jpg" border="0" alt="[03][讓團隊彼此知道程式碼走向]Azure DevOps的Pull Request提供了什麽功能？.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/05/code-review-02-what-is-pull-request-and-how-to-create-it-in-azure-devops">何爲Pull Request並且如何建立 - 以Azure DevOps爲例</a>)介紹了如何透過建立branch來把修改獨立出來，並且在修改完成之後透過建立Pull Request的方式建立出可以Code Review的一個請求。</p><p>
+		這一篇將來看看Azure DevOps裡面的Pull Request包含了那些功能。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1559143669315798" ;="" style="font-size: 15px; line-height: 1.6;">Pull Request的基本功能以及4個tab功能介紹</a><br></li><ul><li><a href="#WizKMOutline_1559143669315996" ;="" style="font-size: 15px; line-height: 1.6;">Overview</a></li><li><a href="#WizKMOutline_1559143669315321" ;="" style="font-size: 15px; line-height: 1.6;">Files</a></li><li><a href="#WizKMOutline_1559143669315677" ;="" style="font-size: 15px; line-height: 1.6;">Updates</a></li><li><a href="#WizKMOutline_1559143669315381" ;="" style="font-size: 15px; line-height: 1.6;">Commits</a></li></ul><li><a href="#WizKMOutline_1559143669315230" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1559143669315798">Pull Request的基本功能以及4個tab功能介紹</h2><p>
+		在進入任何一個Pull Request的時候，在上半段是幾個和這個Pull Request有關的重要訊息以及操作：
+		</p><ol><li>可以看到是那個branch要merge到哪一個 - 這邊如果設定錯誤可以做一些調整</li><li>這邊可以看到所有comment的狀態 - 第一個數字代表<em>多少個</em>已經處於close狀態，後面的數字則是<em>總共有幾個</em>comment</li><li>approve 按鈕 - 如果reviewer覺得沒有問題，那麽就可以按下Approve代表通過。在按鈕旁邊的下拉還有幾種不同的決定可以選擇</li><li>complete 按鈕 - 決定要merge。按鈕旁邊的下拉還有其他選項，包含把這個Pull Request直接拒絕掉。</li></ol><figure><img class="img-responsive" src="/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/6cac83e2-1ce1-4d05-b96c-d95971bb0f6a.png" border="0" alt="ApplicationFrameHost_2019-05-19_19-03-48.png"><br><figcaption>幾個重要的訊息及按鈕</figcaption></figure><div class="bs-callout bs-callout-info"><h4 kmcontenthide="1">approve以及complete的差異</h4><p>
+			approve代表這個reviewer對於這個pull request的態度。
+			</p><p>
+			不過，取決於各個公司訂立的規則，很有可能需要至少幾個reviewer確認過，才能夠把他merge回去。換句話説，才能夠選擇complete按鈕。
+			</p></div><p></p><p>
+		在往下看，會看到總共有4個tab分別為：
+		</p><ol><li>Overview</li><li>Files</li><li>Updates</li><li>Commits</li></ol><p></p><section><h3 id="WizKMOutline_1559143669315996">Overview</h3><p>
+			這一個tab包含了這個Pull Request的整個Overview訊息。
+			</p><p>
+			總共有幾個部分：
+			</p><ol><li>Description：顯示當初建立這個Pull Request的人所寫的詳細描述</li><li>comment：不管是透過這邊直接留下的comment或者因爲選擇某一段程式碼所作出的comment都會在這邊一個一個呈現</li><li>Work Items：如果有使用Azure DevOps的issue tracking，那麽這邊是可以直接看到原始需求方便參照</li><li>Reviewers：有指派那幾個人要做Review的動作</li><li>Labels：可以針對這個Pull Request下label - 類似於一個summary概念。例如可以下一個<code>WIP</code>代表這個Pull Request還在Work In Progress因此先不要merge。</li></ol><figure><img class="img-responsive" src="/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/a17635f1-eac9-495a-8bd8-be0044cb89ec.png" border="0" alt="ApplicationFrameHost_2019-05-19_18-47-47.png"><br><figcaption>Overview幾個重要的點</figcaption></figure><p></p><p>
+			Reviewer一般來説，用到最多是第2點，有任何<em>建議或者意見</em>直接寫成comment，能夠給coder一些建議。
+			</p><p>
+			如果有針對某一個程式碼片段做comment，也會在這邊出現。
+			</p><p>
+			因此，這一頁是overview，能夠看到所有的reviewer comment。
+			</p></section><section><h3 id="WizKMOutline_1559143669315321">Files</h3><p>
+			Files這個tab就是透過看<em>有被修改的檔案以及每一個片段</em>。
+			</p><p>
+			這一個tab有幾個部分：
+			</p><ol><li>Updates - 這個等一下會更詳細介紹，但是基本上<em>每一次push</em>就是<em>1次update</em> - 因此如果有review過了，但是coder有更新，那麽可以切換這個filter只看<em>某一個update</em> - 換句話説之前看過的就不用看了</li><li>顯示那些Comment - 因爲可以針對某一個程式碼片段寫comment，透過這個可以控制那些comment要<em>出現在檔案清單</em>，以及在看每個檔案修改的時候<em>要展開這個comment</em></li><li>修改檔案清單 - 這邊會列出有被修改的檔案，如果要只看某一個檔案的修改，可以點那個檔案，右邊就只會呈現那個檔案的修改。</li><li>差異比對 - 這個畫面可以看到差異比對，左邊是<em>修改前</em>，右邊是<em>修改後</em> - 和一般的diff viewer沒什麽兩樣。</li></ol><figure><img class="img-responsive" src="/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/f19c449d-6116-4bba-979b-9f7911c85311.png" border="0" alt="chrome_2019-05-29_22-52-58.png"><br><figcaption>Files頁面看到的内容</figcaption></figure></section><section><h3 id="WizKMOutline_1559143669315677">Updates</h3><p>
+			Updates這個概念很有意思，一般來説當coder在開發的時候，可能會有很多commit，但是都是<em>到了一個段落</em>之後，會做一次push。
+			</p><p>
+			或者說，只有當<em>做好了</em>才會push。
+			</p><p>
+			因此，理論上，<em>每一次的push</em>，都代表著一個<em>更新</em>。
+			</p><p>
+			Updates就是要用來呈現這個訊息的功能，所以每一次push就會是一次<em>更新</em>。
+			</p><p>
+			這個Tab能夠看到總共有幾次updates (換句話説幾個push)，然後每一個push包含了什麽commit
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/4581be81-1e78-4d2d-8804-f34dff8790fd.png" border="0" alt=""><br><figcaption>可以看到總共兩個update，然後每一個update有一個commit</figcaption></figure><div class="bs-callout bs-callout-info"><p>
+				有update這個概念非常好，因爲：<em>假設有review過了，其實我只會對新的code要再次review而已，這個時候就可以靠update</em>。
+				</p></div><p>
+			Updates這個Tab比較少直接看 - 不過不同的地方都可以看到這個功能的影子，舉例來説，<code>Files</code>裡面就可以切換呈現只看那個update，或者在Overview在看某一段程式碼comment的時候也會用到。
+			</p></section><section><h3 id="WizKMOutline_1559143669315381">Commits</h3><p>
+			這個tab顧名思義，就是把所有的commit列出來。
+			</p><p>
+			這個tab用的情景還蠻低，因爲一般來説除非前面的訊息不夠，才會來看這個部分。
+			</p><figure><img class="img-responsive" src="/posts/2019/05/2019-05-29-code-review-03-azure-devops-pull-request-functionality/67ace7b5-4bbc-4533-a637-7c5213de917c.png" border="0" alt="chrome_2019-05-29_23-15-59.png"><br><figcaption>commits範例 - 可以看到有2筆</figcaption></figure></section></section><section><h2 id="WizKMOutline_1559143669315230">結語</h2><p>
+			這一篇把Azure DevOps裡面對某一個pull request要做操作的畫面整個介紹了一遍。
+			</p><p>
+			相信有了這一篇對於Azure DevOps Pull Request有什麽功能應該有比較詳細的概念。
+			</p><p>
+			不過實際上會如何使用呢？下一篇，從使用的角度，來實際看看，如果run一個pull request的code review是什麽感覺。
+			</p></section>

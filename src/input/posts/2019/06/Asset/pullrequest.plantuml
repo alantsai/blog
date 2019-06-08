@@ -1,0 +1,48 @@
+@startuml Code Review流程
+
+title Code Review 流程
+start
+
+:開需求單;
+partition 工程師 {
+    :建立分支;
+    :開發;
+    :建立Pull Request;
+    :通知Reviewer;    
+}
+
+
+partition 審核者 {
+    :審核;    
+        note left
+            * 看看是否有之前comment還未處理
+            * 實際抓下來測試功能是否正常
+        end note
+    while (是否通過?) is (不通過)
+        :針對有問題程式碼留下comment;
+        :任何其他問題留下comment;
+        :設定狀態為Reject;
+            
+        partition 工程師 {
+            :針對每一個comment處理;
+                note right
+                    並不是每一個comment都需要調整
+                    經過過溝通決定是否要處理
+                end note
+            :工程師把修改的code push上去;
+                note right
+                    在Azure DevOps可以透過
+                    Updates快速看到新修改
+                end note
+        }
+    endwhile (通過) 
+
+    :完成pull request;
+        note left
+            自動合並回分支
+            自動刪除這個修改相關的分支
+        end note
+}
+
+stop
+@enduml

@@ -1,0 +1,78 @@
+﻿Title: "[04][讓團隊彼此知道程式碼走向]整合的威力 - 整個Review的過程"
+Published: 2019-06-08 22:11
+Modified: 2019-06-08 22:11
+Image: "/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/f3c2a321-d60a-4e4f-9568-fd025c4b1fe7.jpg"
+Tags: ["code-review", "code-quality", "azure-devops"]
+Series: ["code-review"]
+PostDescription: "在上一篇瞭解了整個Azure DevOps的Pull Request功能之後。接下來實際看看整個flow串在一起是如何。從最一開始的需求，到complete整個code review - 並且看看這種整合服務的好處"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/f3c2a321-d60a-4e4f-9568-fd025c4b1fe7.jpg" border="0" alt="[04][讓團隊彼此知道程式碼走向]整合的威力 - 整個Review的過程.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/05/code-review-03-azure-devops-pull-request-functionality">[03]Azure DevOps的Pull Request提供了什麽功能？</a>)瞭解了整個Azure DevOps的Pull Request功能之後，接下來就是看看在實際上如果整個串起來是什麽感覺。</p><p>
+		這篇將從做一開始的需求，到最後整個功能確認修改好並且合並回主要分支。
+		</p><p>
+		這一篇也希望可以看到Azure DevOps這種一整套整合好的工具的好處。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1560010708377619" ;="" style="font-size: 15px; line-height: 1.6;">整個Code Review的流程</a><br></li><li><a href="#WizKMOutline_1560010708377357" ;="" style="font-size: 15px; line-height: 1.6;">建立需求單</a><br></li><li><a href="#WizKMOutline_1560010708377814" ;="" style="font-size: 15px; line-height: 1.6;">工程師建立分支修復完建立pull request</a><br></li><li><a href="#WizKMOutline_1560010708377752" ;="" style="font-size: 15px; line-height: 1.6;">審核者審核code - 留下comment</a><br></li><li><a href="#WizKMOutline_1560010708377782" ;="" style="font-size: 15px; line-height: 1.6;">工程師調整之後重新push</a><br></li><li><a href="#WizKMOutline_1560010708377901" ;="" style="font-size: 15px; line-height: 1.6;">審核者再次review</a><br></li><li><a href="#WizKMOutline_1560010708377955" ;="" style="font-size: 15px; line-height: 1.6;">結束</a><br></li><li><a href="#WizKMOutline_1560010708377526" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1560010708377619">整個Code Review的流程</h2><p>
+		在開始之前，先來看一下整個Code Review的流程會是如何：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/af9be6bd-1056-46e2-8aee-635c42ef3f67.png" border="0" alt="Code Review流程.png"><br><figcaption>Code Review的流程</figcaption></figure><p>
+		在上面流程可以看到，總共有主要兩個角色：
+		</p><ol><li>工程師：作爲開發功能的人</li><li>審核者：作爲審核開發者code的人</li></ol> 
+		屬於那個角色的工作有用框框包起來。
+		<p></p><p>
+		整個步驟可以拆分幾個大項：
+		</p><ol><li>建立需求單</li><li>工程師建立分支修復完建立pull request</li><li>審核者審核code - 留下comment</li><li>工程師調整之後重新push</li><li>審核者再次review</li><li>結束</li></ol><p></p></section><section><h2 id="WizKMOutline_1560010708377357">建立需求單</h2><p>
+		雖然在整個系列focus的點都是Pull Request的部分，但是可以看一下如果需求也是Azure DevOps管理的話整個會是如何。
+		</p><p>
+		可以在左上角的<em>+號</em>，或者從<em>Boards -&gt; Work Items</em> 裡面去建立一個bug單。
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/c0c86605-16b0-400b-8c50-cd32c4e27b7d.png" border="0" alt="ApplicationFrameHost_2019-06-08_22-47-24.png"><br><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/8f30dda3-dbdc-4227-abc4-aa42d639b8d2.png" border="0" alt="ApplicationFrameHost_2019-06-08_22-49-50.png"><br><figcaption>建立bug單</figcaption></figure></section><section><h2 id="WizKMOutline_1560010708377814">工程師建立分支修復完建立pull request</h2><p>
+		有了需求單之後，接下來就是工程師要開始針對這個去修改。
+		</p><p>
+		修改的時候肯定希望開一個分支，這樣才能夠透過建立pull request來做code review。
+		</p><p>
+		在Azure DevOps上面的issue直接開分支很容易，只需要在單子的右邊點建立即可：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/287e10bd-940e-48ba-8978-9b5b1b999fe9.png" border="0" alt="ApplicationFrameHost_2019-06-08_22-56-19.png"><br><figcaption>建立一個分支</figcaption></figure><p></p><p>
+		有了這個分支之後，工程師就可以針對這個分支去做修改，然後push，最後push上去然後建立pull request。
+		</p><div class="bs-callout bs-callout-info">
+			相對應建立方式之前篇章有介紹過，這邊就不在重複介紹了。
+		</div></section><section><h2 id="WizKMOutline_1560010708377752">審核者審核code - 留下comment</h2><p>
+		pull request建立出來之後，接下來就是由審核者去審核code。
+		</p><p>
+		審核者進入Pull Request之後，可以先透過右邊的work items快速看到單子當初的描述，以及<em>Definition Of Done</em>，可以用來做審核的依據。
+		</p><p>
+		再來可以透過<em>Files</em>功能，來看實際修改内容
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/912f5dfa-bbb7-4d60-b224-7896314ce5f7.png" border="0" alt="chrome_2019-06-08_23-03-38.png"><br><figcaption>看到workitem以及切換到Files去看修改審核</figcaption></figure><p>
+		從<em>Files</em> tab可以看到title修改成功了，但是實際的描述沒有改到，因此這個時候就可以針對這一段做comment。
+		</p><p>
+		當然，如果有一些不是某一隻程式碼，那麽可以在<em>Overview</em>裡面的comment直接寫描述。
+		</p><p>
+		Review完了，直接把狀態改成<em>Reject</em></p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/d308bda8-1789-48d3-89d6-b8cff0a475f6.png" border="0" alt="chrome_2019-06-08_23-09-34.png"><br><figcaption>把某一段程式碼做comment，然後把狀態改成<code>Reject</code></figcaption></figure></section><section><h2 id="WizKMOutline_1560010708377782">工程師調整之後重新push</h2><p>
+		工程師收到被Reject之後，就會來看留下了什麽comment。
+		</p><p>
+		把相對應的修改commit之後在push上去，就可以在通知審核者可以在重新看一下。
+		</p><p>
+		還記得每一次的push都是一個update，這個時候就會多出update。
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/ed910944-a27e-42e7-bd1c-d1ad86180931.png" border="0" alt="chrome_2019-06-08_23-11-58.png"><br><figcaption>update增加一個</figcaption></figure></section><section><h2 id="WizKMOutline_1560010708377901">審核者再次review</h2><p>
+		這個時候審核著再重新Review的時候，可以直接看<em>Overview</em>的Tab頁面，就可以看到之前comment的程式碼修改情況。
+		</p><ol><li>可以切換<code>View Orginal Diff</code>來看這次修改之前 (也就是第一次看到的時候)長的樣子，以及目前的樣子確認是否修改好</li><li>切換的時候可以看右邊的修改結果是什麽</li><li>沒有問題可以留下新的備注</li><li>把這個comment resolve掉</li><li>右上角可以看到所有comment都resolve結束</li></ol><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/e2f344a0-474c-45f7-808a-a308fb665fad.png" border="0" alt="chrome_2019-06-08_23-13-22.png"><br><figcaption>重新review修改</figcaption></figure><p>
+		也可以切換到<code>Files</code> tab，然後只看最新的修改：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/4f4abb15-f544-4b8d-b0b5-702196716d3f.png" border="0" alt="chrome_2019-06-08_23-18-36.png"><br><figcaption>只看最新修改</figcaption></figure></section><section><h2 id="WizKMOutline_1560010708377955">結束</h2><p>
+		最後檢查所有的comment都resolve完成。
+		</p><p>
+		這個時候可以把狀態改成<code>Approve</code>，然後<code>Complete</code>這一次的Pull Request。
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/8c3a270a-2962-4ab0-8f8a-065d9a037e6a.png" border="0" alt="chrome_2019-06-08_23-21-05.png"><br><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/632f9dd2-7df9-4f91-ab25-a115f88c237f.png" border="0" alt="2019-06-08_23-21-52.png"><br><figcaption>檢查狀態，並且結束這個pull request</figcaption></figure><p>
+		complete之後，branch以及work item會自動關掉以及結束。
+		</p><p>
+		這個時候，如果回去看本來的bug單，會發現：
+		</p><ol><li>狀態自動被改成<code>Resolved</code></li><li>自動增加一個comment表示merge完成</li><li>有對應pull request鏈接以及merge commit的鏈接</li></ol><figure><img class="img-responsive" src="/posts/2019/06/2019-06-08-code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops/e011d487-b21d-418a-8fd1-6af3b24bf6fb.png" border="0" alt="chrome_2019-06-08_23-24-48.png"><br><figcaption>整個串在一起</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1560010708377526">結語</h2><p>
+		這篇介紹了整個code review從需求到結束的整個流程，並且看到了Azure DevOps作爲整個整合在一起的工具讓整個串在一起變得要找的時候非常方便。
+		</p><p>
+		相信到了這個階段，對於如何使用Azure DevOps做Code Review已經沒有什麽問題了，可是如果想要設定一些規則呢？
+		</p><p>
+		舉例來説，要完成pull request一定要至少程式可以build，或者至少有多少人Approve才可以。
+		</p><p>
+		這個要怎麽設定呢？下一篇來看看。
+		</p></section>

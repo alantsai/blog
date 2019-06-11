@@ -1,0 +1,83 @@
+﻿Title: "[05][讓團隊彼此知道程式碼走向]如何强制走Pull Request?以及設定符合規則才能合並分支"
+Published: 2019-06-11 22:11
+Modified: 2019-06-11 22:11
+Image: "/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/2fe0b23e-7ffa-4d3c-99e6-cacf5b54253b.jpg"
+Tags: ["code-review", "code-quality", "azure-devops"]
+Series: ["code-review"]
+PostDescription: "在上一篇看完了整個Code Review怎麽串起來之後，是不是有點心動想要在公司裡面運行，但是又怕有人不和規則走，這篇來看看如何透過branch policy來解決這個問題"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/2fe0b23e-7ffa-4d3c-99e6-cacf5b54253b.jpg" border="0" alt="[05][讓團隊彼此知道程式碼走向]如何强制走Pull Request以及設定符合規則才能合並分支.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/06/code-review-04-integrate-together-flow-of-code-review-from-issue-to-complete-in-azure-devops">[04][讓團隊彼此知道程式碼走向]整合的威力 - 整個Review的過程</a>)介紹完了整個Code Review的過程，從最一開始的需求，到修改好之後，透過Pull Request做Code Review然後把修改合並回主線。</p><p>
+		基本上所有的功能基本都會使用了，但是還有一個很大的問題：<em>如果開發者不走Pull Request的話一切不都完了？</em></p><p>
+		這一篇將來看一下，如何强制要求一定要走Pull Request，並且一些設定讓Pull Request一定要有符合某些條件才可以結束。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1560264068522575" ;="" style="font-size: 15px; line-height: 1.6;">爲什麽想要强制走Pull Request？</a><br></li><li><a href="#WizKMOutline_1560264068522840" ;="" style="font-size: 15px; line-height: 1.6;">Branch Policy 怎麽設定？</a><br></li><ul><li><a href="#WizKMOutline_1560264068522850" ;="" style="font-size: 15px; line-height: 1.6;">Require a minimum number of reviewers</a></li><li><a href="#WizKMOutline_1560264068522637" ;="" style="font-size: 15px; line-height: 1.6;">Check for linked work items</a></li><li><a href="#WizKMOutline_1560264068522136" ;="" style="font-size: 15px; line-height: 1.6;">Check for comment resolution</a></li><li><a href="#WizKMOutline_1560264068523253" ;="" style="font-size: 15px; line-height: 1.6;">Limit merge types</a></li><li><a href="#WizKMOutline_1560264068523465" ;="" style="font-size: 15px; line-height: 1.6;">Build Validation</a></li><li><a href="#WizKMOutline_1560264068523153" ;="" style="font-size: 15px; line-height: 1.6;">Require approval from additional services</a></li><li><a href="#WizKMOutline_1560264068523643" ;="" style="font-size: 15px; line-height: 1.6;">Automatically include code reviewers</a></li></ul><li><a href="#WizKMOutline_1560264068523845" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1560264068523998" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1560264068522575">爲什麽想要强制走Pull Request？</h2><p>
+		相信看到這篇這個問題應該很好回答了，假設希望程式碼回去之前都有人一定要review過，那麽强制走Pull Request就很重要。
+		</p><p>
+		强制走Pull Request換句話説，就是不允許直接把local修改直接push上去，而一定要透過開分支，然後走pull request流程。
+		</p><p>
+		由於這個鎖是針對<em>特定的分支</em>(鎖住不允許直接push)，因此在Azure DevOps這個設定叫做：<code>Branch Policy</code>。針對某一個分支所設定的policy。
+		</p></section><section><h2 id="WizKMOutline_1560264068522840">Branch Policy 怎麽設定？</h2><p>
+		既然這個叫做Branch Policy，那麽從Branch功能進去是最直覺的方式。
+		</p><p>
+		假設今天想要設定<code>master</code>這個branch不允許直接push，而是要過pull request，那麽：
+		</p><ol><li>先在 <code>Repos</code> -&gt; <code>Branches</code>列出所有的分支</li><li>找到要設定的分支，例如<code>master</code>，點選旁邊的3個點</li><li>點選<code>Branch Policies</code>進入設定</li></ol><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/fdb7a5ef-5f71-4913-a0a4-ac50f8eb7c21.png" border="0" alt="chrome_2019-06-11_21-14-41.png"><br><figcaption>對master設定branch policy</figcaption></figure><p>
+		接下來就會看到設定的畫面：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/3d07b4cd-07f4-47b7-96fb-3c296c361803.png" border="0" alt="chrome_2019-06-11_21-18-20.png"><br><figcaption>誰當Branch Policy的畫面</figcaption></figure><p>
+		接下來對於幾個設定將做出介紹。
+		</p><section><h3 id="WizKMOutline_1560264068522850">Require a minimum number of reviewers</h3><p>
+			這個設定將決定：<em>總共有幾個Reviewer要投Approve才能夠過Pull Request</em>。
+			</p><p>
+			透過這個設定，能夠規定幾個人看過才算過。
+			</p><p>
+			這個設定還有幾個細節：
+			</p><ol><li>這個數字設定，最少有幾個Reviewer看過才夠</li><li>是否允許建立Pull Request的人算一個Reviwer - 有時候假設規定一定要有1個Reviewer看過，但是剛好大家都忙，那麽有勾選這個讓自己可以approve過然後complete就變得很重要</li><li>如果Reviewer的決定是<code>Waiting For</code>或者<code>Reject</code>，是否還是可以過</li><li>如果有Reviewer已經投狀態了，但是有新的update，是否要把他們的狀態reset</li></ol><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/5c784104-e7cd-4952-bd8c-e1077ed69593.png" border="0" alt="chrome_2019-06-11_21-21-34.png"><br><figcaption>設定幾個reviewer</figcaption></figure></section><section><h3 id="WizKMOutline_1560264068522637">Check for linked work items</h3><p>
+			這個設定將決定：<em>Pull Request是否一定要綁定work items</em>。
+			</p><p>
+			很多時候某個修改<em>不知道爲了什麽而改</em>，如果每一個修改一定會對應到一個issue，那麽這個設定就變得很重要，因爲可以規定是不是一定要綁work item。
+			</p><p>
+			這個設定還有子項，可以覺得是<em>硬性規定還是可選規定</em>。
+			</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/e43f3f32-c374-4f62-b936-42a93cba1e68.png" border="0" alt=""><br><figcaption>設定一定要綁定work item</figcaption></figure></section><section><h3 id="WizKMOutline_1560264068522136">Check for comment resolution</h3><p>
+			這個設定將決定：<em>是否所有的Comment都要Resolve</em></p><p>
+			不管是針對某一個程式碼下comment還是針對overview裡面寫comment，每一個comment預設狀態都是un resolve。
+			</p><p>
+			這個設定就可以決定，是不是都一定要resolve才能夠complete。
+			</p><p>
+			和上一個一樣，能夠決定是不是<em>硬性規定還是可選規定</em>。
+			</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/d3eb600f-381c-4a25-8d9e-443ac456ce99.png" border="0" alt=""><br><figcaption>設定一定要處理所有的comment</figcaption></figure></section><section><h3 id="WizKMOutline_1560264068523253">Limit merge types</h3><p>
+			當complete要merge回去的時候，可以選擇要用<em>什麽方式merge回去</em>。
+			</p><p>
+			這個設定就是：<em>鎖定可以選擇哪幾種merge方式</em>。
+			</p><p>
+			預設開啓4種方式：
+			</p><ol><li>Basic Merge - 這個就是一般的<code>git merge --no-ff</code></li><li>Squash Merge - 把所有的commit壓縮成爲1個commit然後merge</li><li>Rebase and Fast Forward - 透過rebase然後一般的merge - 最後結果是commit tree<em>永遠是一條線</em> - 個人不推薦</li><li>Rebase with Merge - 透過rebase，然後做一個--no-ff的gommit</li></ol><p></p><p>
+			這個就看團隊的git分支的策略來選擇就好。
+			</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/aa0a97c6-6655-4f4d-b817-fe1c6a8b5286.png" border="0" alt=""><br><figcaption>Limit Merge Type設定截圖</figcaption></figure></section><section><h3 id="WizKMOutline_1560264068523465">Build Validation</h3><p>
+			一般來説，要merge回去之前一定會想要知道，這個branch<em>是否build會成功</em>。如果build成功，其實連看都不需要看了。
+			</p><p>
+			這個要搭配Azure Pipeline，如果Azure Pipeline有設定Build Definition，這邊就可以選擇要用那個Build Definition。
+			</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/c29d91e4-6c79-4b14-b2cb-687ca949cf28.png" border="0" alt="chrome_2019-06-11_22-19-00.png"><br><figcaption>設定Build Validation</figcaption></figure></section><section><h3 id="WizKMOutline_1560264068523153">Require approval from additional services</h3><p>
+			這個服務沒有使用過，不過看起來可以透過打一些狀態到Azure DevOps來，然後在依照這個狀態決定是否能夠過。
+			</p><p>
+			應該可以用這個搭配其他服務，然後透過打狀態的方式整合別的服務來決定是否透過pull request。
+			</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/2d3e28e6-f323-4632-92f8-96b7dea02eac.png" border="0" alt="chrome_2019-06-11_22-26-26.png"><br><figcaption>設定其他服務的狀態</figcaption></figure></section><section><h3 id="WizKMOutline_1560264068523643">Automatically include code reviewers</h3><p>
+			在公司内部可能有些人是特別負責審核某些程式碼，這個時候可以透過設定，只要有建立Pull Request他會自動被設定為Reviewer。
+			</p><p>
+			這個設定就在設誰要變成自動加入的Reviewer。
+			</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-11-code-review-05-force-use-pull-request-and-set-rules-before-pull-request-can-be-complete/16765dff-3f61-45e8-a683-f12aabf6ca34.png" border="0" alt="chrome_2019-06-11_22-28-40.png"><br><figcaption>設定誰要自動被加入為Reviewr</figcaption></figure></section></section><section><h2 id="WizKMOutline_1560264068523845">結語</h2><p>
+		建立Pull Request來做Code Review是很好的控制程式碼品質的方式之一。
+		</p><p>
+		但是很怕會有人繞過這個機制，而偷偷上程式。
+		</p><p>
+		這篇介紹的Branch Policy就是爲了避免這個問題。
+		</p><p>
+		這個系列到這邊應該就暫時到一個段落 - 希望透過這個系列讓大家會想要做Code review，然後瞭解如何透過Azure DevOps讓做這一件事情變得簡單。
+		</p></section><section><h2 id="WizKMOutline_1560264068523998">參考資料</h2><dl><dt>
+				Improve code quality with branch policies
+			</dt><dd>
+				官方介紹這個功能：
+				<a href="https://docs.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops">https://docs.microsoft.com/en-us/azure/devops/repos/git/branch-policies?view=azure-devops</a></dd></dl></section>

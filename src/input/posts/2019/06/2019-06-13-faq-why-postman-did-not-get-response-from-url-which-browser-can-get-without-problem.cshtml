@@ -1,0 +1,40 @@
+﻿Title: "[faq]爲什麽Postman打不到網站？明明用瀏覽器打就可以"
+Published: 2019-06-13 22:11
+Modified: 2019-06-13 22:11
+Image: "/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/d668fae6-0f62-4a90-b945-c9a38a19325a.jpg"
+Tags: ["faq", "postman", "tool"]
+Series: ["「faq」"]
+PostDescription: "Postman應該是每一個web開發者都會安裝的工具之一。但是，剛安裝好的postman爲什麽打過去沒有任何response。這篇來看看怎麽解決 - 小提示：和網址是https有關"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/d668fae6-0f62-4a90-b945-c9a38a19325a.jpg" border="0" alt="[faq]爲什麽Postman打不到網站？明明用瀏覽器打就可以.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		相信Postman應該是所有寫Web都會裝的工具之一，畢竟能夠把api儲存成爲collection，可以用環境便是，併且能夠分享給他人使用太方便了。
+		</p><p>
+		不過，之前遇到一個問題，明明網站已經起來了，然後瀏覽器打那個網址可以取得東西，但是爲什麽用postman卻不行呢？
+		</p><p>
+		這篇來看一下怎麽解決。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1560436716601431" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1560436716601708" ;="" style="font-size: 15px; line-height: 1.6;">解決方法</a><br></li><li><a href="#WizKMOutline_1560436716601906" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1560436716601431">問題描述</h2><p>
+		首先解決問題之前，先來看看怎麽重現這個問題。
+		</p><p>
+		假設我直接開一個Asp .NET Web Api的專案，然後把他run起來。
+		</p><p>
+		這個時候，可以看到用chrome有得到資料，但是用postman卻沒有，這是爲什麽呢？
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/4d8cdbd8-484f-46b0-9ca2-e7c2a5bba7d2.png" border="0" alt="Postman_2019-06-13_22-26-10.png"><br><figcaption>chrome瀏覽得到資料，但是postman卻不行</figcaption></figure></section><section><h2 id="WizKMOutline_1560436716601708">解決方法</h2><p>
+		其實這個問題，Postman已經有給提示，但是又有多少人容易忽略呢？至少我一開始就是忽略了他的描述：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/64850efb-0ea8-494b-83db-1fb83adbd6aa.png" border="0" alt="Postman_2019-06-13_22-26-35.png"><br><figcaption>postman説明可能的原因</figcaption></figure><p>
+		原來是因爲當IIS啟動的時候，https所使用的ssl是一個self signed的憑證，而postman<em>預設</em>會阻擋不允許self signed的網站能夠被呼叫。
+		</p><p>
+		找到問題點，就好解決了，不過設定是在那邊呢？
+		</p><p>
+		首先，從左上角的Menu找到：<code>File</code> -&gt; <code>Settings</code></p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/dd328fe6-15bb-4d6f-9501-da48fdc8b123.png" border="0" alt="Postman_2019-06-13_22-28-37.png"><br><figcaption>Settings的地方</figcaption></figure><p></p><p>
+		在跳出來的popup就會看到：<code>SSL Verification Certification</code>，把他勾掉就好（如圖）
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/2aeafca1-2379-4a1a-9d26-8e5950cc5d06.png" border="0" alt="Postman_2019-06-13_22-30-05.png"><br><figcaption>設定不要阻擋</figcaption></figure><p></p><p>
+		設定好了之後，在用postman打一次，就看到結果啦：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-13-faq-why-postman-did-not-get-response-from-url-which-browser-can-get-without-problem/7c61a164-4f96-4ea4-a768-b53244caa122.png" border="0" alt="Postman_2019-06-13_22-30-51.png"><br><figcaption>得到正確結果</figcaption></figure></section><section><h2 id="WizKMOutline_1560436716601906">結語</h2><p>
+		這篇告訴我們，<em>要認真看所有的訊息</em>。資訊都在那邊，只要細心一點就不用一直抓頭髮。
+		</p><p>
+		不過爲什麽Postman預設要擋也滿奇怪，或許是資安考量吧。
+		</p></section>

@@ -1,0 +1,149 @@
+﻿Title: "[活動] Microsoft Teams 黑客松 2019"
+Published: 2019-06-17 22:11
+Modified: 2019-06-17 22:11
+Image: "/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/ce808cf4-13b8-4da5-8019-9dca4d6c0e70.jpg"
+Tags: ["「活動」", "microsoft-teams", "bot framework"]
+Series: ["「活動」"]
+PostDescription: "上周五有幸參加了微軟在台灣舉辦的Microsoft Teams Hacathon。這篇來介紹一下當天學習到(其實就是吃吃喝喝以及很衰XD)的情況。好啦，不只是廢文啦，有些參考資料讓有興趣的人可以去玩玩。"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/ce808cf4-13b8-4da5-8019-9dca4d6c0e70.jpg" border="0" alt="01.jpg"><br><figcaption>Microsoft Teams Hackathon</figcaption></figure></section><section><p>
+		在今年參加DevDaysAsia 2019的時候，一不小心就推坑了公司的幾個夥伴參加了微軟Teams的Hackathon。
+		</p><p>
+		小弟我其實從來沒有參加過Hackathon，所以也是一個非常有意思的體驗。
+		</p><p>
+		這篇快速記錄一下做了什麽，以及一些參考資源讓大家如果對於Teams有興趣可以去玩玩。
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1560783882528128" kmcontenthide="1">相關文章</h4><ol><li><a href="/tags/%E3%80%8Cdevdaysasia2019%E3%80%8D">「devdaysasia2019」</a></li><li><a href="/tags/%E3%80%8Cchatbot-+-ai-=-%E4%B8%8B%E4%B8%80%E4%BB%A3%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F%E3%80%8D">「chatbot + AI = 下一代操作模式」</a></li><li><a href="/tags/%E3%80%8Cbot-framework-v4%E3%80%8D">「Bot Framework V4」</a></li></ol></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1560783884498583" ;="" style="font-size: 15px; line-height: 1.6;">場地</a><br></li><li><a href="#WizKMOutline_1560783884498763" ;="" style="font-size: 15px; line-height: 1.6;">開場以及一些開發參考資料</a><br></li><li><a href="#WizKMOutline_1560783884498621" ;="" style="font-size: 15px; line-height: 1.6;">早上時間 - 開始開發 - 已不寫code爲主</a><br></li><li><a href="#WizKMOutline_1560783884498330" ;="" style="font-size: 15px; line-height: 1.6;">中午吃飯時間</a><br></li><li><a href="#WizKMOutline_1560783884498391" ;="" style="font-size: 15px; line-height: 1.6;">下午時間 - BotBuilder</a><br></li><li><a href="#WizKMOutline_1560783884498121" ;="" style="font-size: 15px; line-height: 1.6;">下午茶時間 - 鹽酥鷄</a><br></li><li><a href="#WizKMOutline_1560783884498422" ;="" style="font-size: 15px; line-height: 1.6;">下午下半段</a><br></li><li><a href="#WizKMOutline_1560783884498731" ;="" style="font-size: 15px; line-height: 1.6;">評審時間</a><br></li><li><a href="#WizKMOutline_1560783884498364" ;="" style="font-size: 15px; line-height: 1.6;">結束以及小禮物</a><br></li><li><a href="#WizKMOutline_1560783884498547" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1560783884498583">場地</h2><p>
+		這次的活動舉辦在 華山文創園區的西二館，主辦單位非常貼心的在行前通知標注了位置。
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/36ebd48c-175c-4f26-b84a-e6fac8846b43.png" border="0" alt="ApplicationFrameHost_2019-06-14_08-01-56.png"><br><figcaption>交通指引</figcaption></figure><p><em>可是我完全沒有注意到！！！！！</em></p><p>
+		當天還下著傾盆大雨，結果繞了一大圈才找到地方。
+		</p><p>
+		這件事情告訴我們，請好好看行前通知，<em>這件事情很重要！！！</em></p><p>
+		這次總共有25個團隊報名參加，每一隊都是2~4個人。在報到的時候就遇到了今天的對手之一，整隊認識的兩個都是大神。
+		</p>
+		<p>
+		整個會場，前面是講臺，後面就是吃的東西。
+		</p> 
+		<figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/9247d8cf-95f4-4086-bffe-ee56e5c6e7e5.jpg" border="0" alt="04.jpg"><br><figcaption>一張後面各隊簡報的時候的全景圖</figcaption></figure><p></p><p>
+		我們在舞臺前面的桌子那邊，趕快換上報到拿到的衣服以及吊牌，然後看看桌面有一些什麽東西
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/c52f9f85-504b-43e7-b88b-9267e2019c76.jpg" border="0" alt=""><br><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/f3269abc-a4c0-4731-8f40-b23db2310102.jpg" border="0" alt="07.jpg"><br><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/cd3e4412-f4c8-4d25-a065-5e7b48c80319.jpg" border="0" alt="06.jpg"><br><figcaption>衣服、吊牌、幾包餅乾、一些小物</figcaption></figure><p>
+		主辦單位還有準備早餐 - 有豆漿、蛋餅、三明治等。
+		</p></section><section><h2 id="WizKMOutline_1560783884498763">開場以及一些開發參考資料</h2><p>
+		一開始，因爲很多人都沒來得及找到地方 (果然大家都不看行前通知XD)，所以開場的時間比預期的還要晚大概半個小時。
+		</p><p>
+		開場最主要是由Dan (Microsoft Teams 亞洲負責人)來做介紹，主要是説明在Microsoft Teams上面總共有那些地方可以開發：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/d9ebab92-b736-462f-a1c5-8fbb1a0a267a.png" border="0" alt="FoxitReader_2019-06-17_21-19-07.png"><br><figcaption>幾個可以開發的點</figcaption></figure><p></p><p>
+		給了一些開發的idea，以及demo怎麽透過Microsoft Flow搭配達到不寫code的情況下也可以開發。
+		</p><p>
+		在活動開始的幾天前，主辦單位也有給一些參考資料，用來介紹如何開始開發Teams：
+		</p><dl><dt>
+				完全不寫code，用Sharepoint作爲資料儲存的地方以及Microsoft Flow作爲邏輯定義
+			</dt><dd><a href="https://techcommunity.microsoft.com/t5/Microsoft-Teams-Blog/Building-low-code-no-code-approval-workflows-for-your-team-using/ba-p/376414">Building low code/no code approval workflows for your team using Microsoft Teams, SharePoint &amp; Flow</a></dd><dt>
+				Tutorial + 範例程式碼 - 一步一步看用開發的方式做Teams的App
+			</dt><dd><p>
+				這個就是偏給Develop看的，裡面用Tutorial的方式把每一個可以開發的點做介紹
+				</p><a href="https://github.com/OfficeDev/TrainingContent/tree/master/Teams">Introduction to Microsoft Teams Development</a></dd><dt>
+				教學影片介紹Teams開發
+			</dt><dd><p>
+				這個系列的影片還不錯，裡面有一個是介紹Microsoft Teams的架構
+				</p><a href="https://www.youtube.com/channel/UC7fmX61ezM08j1RXx2ruLog/featured">Microsoft Teams Platform</a></dd><dt>
+				Microsoft Teams的給Developer的一個資源集中地
+			</dt><dd><p>
+				如果想要找到一個地方包含整個Teams的參考資料以及Sample程式碼，那麽這個網站就不能夠錯過
+			</p><a href="https://aka.ms/TeamsDev">Microsoft Teams Developer Platform</a></dd></dl></section><section><h2 id="WizKMOutline_1560783884498621">早上時間 - 開始開發 - 已不寫code爲主</h2><p>
+		這邊其實沒什麽好説的XD (謎之聲: 不太對吧，這邊才是重點吧)。
+		</p><p>
+		實際上我們這組雖然有非常粗略的討論過要做什麽，但是沒有一個確切明確要做到的程度以及範圍，最後到會場才又討論了一下。
+		</p><p>
+		早上剛討論完的時候，本來預計是用 Microsoft Forms + Microsoft Flow + Adaptive Card 作爲UI方式去開發，換句話説其實沒有太多coding的任務。
+		</p><p>
+		我那時候的任務是，研究一下怎麽開發Microsoft Teams的Tab。
+		</p><p>
+		這也是我一天霉運的開始XD - 超級不順。
+		</p><p>
+		一開始，想説先把一個Hello World的Teams Sample App run起來，因此找到了: <a href="https://github.com/OfficeDev/msteams-samples-hello-world-csharp">msteams-samples-hello-world-csharp</a></p><p>
+		想説就clone下來，然後直接F5試試，結果直接出錯Orz.....，出現了一個IIS Express執行的問題，找了老半天最後透過改Port方式run起來之後，還沒深入之前別的隊員已經做完了Orz。
+		</p><p>
+		快速的互相sync了一下，發現，用Forms和Flow好像有點太簡單，一下就串出來，想説有沒有可能寫點code，把Forms的問卷一題一題透過Adaptive Card方式詢問出來？
+		</p><p>
+		那這個就會牽扯到寫Bot - 不正是我的强項嗎？想説下午我先主要把框架拉出來，然後大家一起寫，沒想到這就是噩夢的開始XD。
+		</p></section><section><h2 id="WizKMOutline_1560783884498330">中午吃飯時間</h2><p>
+		下午開始之前當然是要先吃飽飽的啦。
+		</p><p>
+		中午就3個主餐自己挑選，然後配上一些自己夾的配菜
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/42103dc8-de20-4a8d-9826-0051f1e78c7c.jpg" border="0" alt="08.jpg"><br><figcaption>選擇了米粉和一些東西</figcaption></figure></section><section><h2 id="WizKMOutline_1560783884498391">下午時間 - BotBuilder</h2><p>
+		吃飽飽之後，當然就是要開始開發啦。
+		</p><p>
+		上午的東西被打掉了之後，要進入我熟悉的Bot想説應該沒有問題吧。
+		</p><p>
+		一開始想要從 Micorosft Teams BotBuilder 開始
+		</p><p>
+		基本上有一個nuget套件叫做<code>Microsoft.Bot.Connector.Teams</code>，這個套件在BotBuilder上面提供了一些方法，讓<em>取得和Teams相關的資訊更加方便</em>。
+		</p><p>
+		一樣從Hello World開始：<a href="https://github.com/OfficeDev/BotBuilder-MicrosoftTeams/tree/master/CSharp/Samples/Microsoft.Bot.Connector.Teams.SampleBot">Microsoft.Bot.Connector.Teams.SampleBot</a></p><p>
+		魔咒又開始了，run不起來！！！！！！
+		</p><p>
+		理論上這種Hello World應該問題不大才對，但是不知道爲什麽，就是run不起來。
+		</p><p>
+		搞了一會，請另外一個夥伴 (Ryan) clone下來run，就沒有問題Orz，然後請他把那個專案放到Azure DevOps，然後我抓下來，run <em>就沒問題Orz</em>。
+		</p><p>
+		太生氣了Orz，這時候下午茶時間到了，去吃點東西解氣XD。
+		</p></section><section><h2 id="WizKMOutline_1560783884498121">下午茶時間 - 鹽酥鷄</h2><p>
+		其實下午查的時候我正在努力的和我的Visual Studio奮戰中，完全沒注意到有下午茶。
+		</p><p>
+		還是我的夥伴 (Atlas) 幫忙去拿的，把備份化爲食欲。
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/141cf0bd-4863-4336-ac83-545213261900.jpg" border="0" alt="09.jpg"><br><figcaption>鹽酥鷄</figcaption></figure><p>
+		中間Sky哥還有來探班，請我們還有郭董他們喝飲料。
+		</p><p>
+		吃飽喝足，當然就是奮鬥下去。
+		</p></section><section><h2 id="WizKMOutline_1560783884498422">下午下半段</h2><p>
+		到這裡Bot至少run起來了，併且也有做出用卡片的方式來問問題，這個時候卡到一個問題就是如何建立問題的流程。
+		</p><p>
+		這有什麽難的，好説我也是寫過Bot Framework V3和V4的人，這不就用V4的Dialog就能夠解決
+		</p><div class="bs-callout bs-callout-info">
+			參考資料：<a href="/posts/2018/10/bot-framework-v4-9-use-waterfall-dialog-to-gather-form-like-information">[Bot Framework V4][09]使用waterfall建立表單式填寫</a></div><p>
+		看了之後我發現，V4又改版了 - 之前寫的code屬於比較舊的方式 （題外話：Bot Framework V4是不是應該又來重新寫一下，介紹一下新的調整XD）。
+		</p><p>
+		找了一下，發現了新的寫法，不過這時候又出現新的問題，我的Bot emulator發瘋了Orz。
+		</p><p>
+		不知道爲什麽，連不上我的Bot - 也沒辦法發送訊息，這時候想説，重開治百病，來重開電腦試試。
+		</p><p>
+		結果發現，更加嚴重重開完了連專案都開不起來Orz，開不到10秒，VS自動關閉。
+		</p><p>
+		甚至衰的不止是我，另外一個夥伴 (Kyle) 的電腦也開始有問題Orz。
+		</p><p>
+		好在，還有一臺是可以work的，到最後，我們3個開發的工程師，輪流使用一臺電腦來解決bug （感覺好像更有hackathon的feel）。
+		</p><p>
+		衰事不止這項，後面做的太認真，到最後10分鐘才準備要打包Bot到Teams App裡面，結果發現 <em>更恐怖的事情</em>，emulator可以運作，但是到了Teams就<em>gg</em>了......。
+		</p><p>
+		還好我們有豐富的經驗，在最後10分鐘3個人輪流把他處理掉了Orz。
+		</p></section><section><h2 id="WizKMOutline_1560783884498731">評審時間</h2><p>
+		到了18點，大家都停下來了，要開始一組一組demo。
+		</p><p>
+		我們排在了倒數第二，在第20組。
+		</p><p>
+		晚餐的時候是吃Pizza，趁著其他人還在demo趕快去後面吃晚餐。
+		</p><p>
+		到我們的時候demo什麽就不説了，放一張demo時候的相片：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/d41eff7d-c15a-4513-b7a1-4c514f3fa7a9.jpg" border="0" alt="10.jpg"><br><figcaption>站在旁邊看大大們表演的小弟</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1560783884498364">結束以及小禮物</h2><p>
+		經過了漫長的評審時間，結束的時候好像是21:00左右，比預計早1個小時。
+		</p><p>
+		當然要來一張大合照：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/6d694ef6-cb2d-4284-997a-b79c73e55d39.jpg" border="0" alt="62536284_2713760781971335_8562515099875540992_n.jpg" name=""><br><figcaption>大合照</figcaption></figure><p></p><p>
+		以及我們隊伍的大合照：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/2cd65ade-6a2f-46e5-a229-7f097232f90b.jpg" border="0" alt="31041.jpg"><br><figcaption>團隊大合照 - 大家都累了</figcaption></figure><p></p><p>
+		在離開的時候，還一人送了一個袋子，裡面有便當盒盒、一支筆以及提飲料的袋子：
+		</p><figure><img class="img-responsive" src="/posts/2019/06/2019-06-14-review-event-microsoft-teams-hackathon/28d67a36-33ff-45cf-8f21-9bb020222712.jpg" border="0" alt="IMG_20190615_132848.jpg"><br><figcaption>小禮物</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1560783884498547">結語</h2><p>
+		這次對我來説是一個很特別的體驗，由於Hackathon這種活動一般都要兩個人以上才能夠參加，而作爲不怎麽出門的宅男我要找到隊友有點困難，因此從來沒有參加過。加上我本來其實沒有什麽有趣的Idea，因此就算有技術也不知道做什麽。
+		</p><p>
+		以我們的小組來説，其實後面14:00~15:00才開始真的敲定要做什麽，然後最後真的是開發到了最後一分鐘，真的還蠻好玩。
+		</p><p>
+		學到的教訓就是：
+		</p><ol><li>行前通知很重要，要記得好好看</li><li>買電腦要注意 - 某L牌的感覺良率有點問題，還是少碰的好Orz</li><li>程式碼變化很快 - V4系列的概念還可以用，但是code有點老舊 (才半年而已又改版了) - 不過這個系列感覺看的人也不多，不確定要不要在重啓這個系列</li><li>Idea果然是最重要的 - 會寫code是沒用的Orz</li><li>如果心臟狗大顆的話，就最後10分鐘在做整合測試XD - 發現emulator和Teams有差異，差異大到code沒辦法work的地步</li></ol><p></p><p>
+		不過Microsoft Teams真的滿好玩，有機會可以用這篇的參考資料開發看看。
+		</p><p>
+		如果大家有興趣，説不定之後我會有個系列介紹Teams。
+		</p></section>

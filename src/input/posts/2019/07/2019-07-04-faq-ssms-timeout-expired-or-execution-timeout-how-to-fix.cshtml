@@ -1,0 +1,68 @@
+﻿Title: "[faq]在SSMS遇到Timeout expired或者Execution Timeout(逾時)怎麽辦？"
+Published: 2019-07-04 21:11
+Modified: 2019-07-04 21:11
+Image: "/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/dfc728dd-aa7e-4b6b-afb4-4754a5c3bd60.jpg"
+Tags: ["sql", "tool", "faq"]
+Series: []
+PostDescription: "相信SSMS應該是每一個用MSSQL的工程師都會安裝的工具。如果遇到執行跑很久的SQL或者需要透過GUI修改大筆資料的Table Schema的時候。都有可能遇到timeout expired或者execution timeout的問題。怎麽解決？這篇來看看"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/dfc728dd-aa7e-4b6b-afb4-4754a5c3bd60.jpg" border="0" alt="[faq]在SSMS遇到Timeout expired或者Execution Timeout(逾時)怎麽辦？.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		SSMS (Sql Server Management Studio) 相信應該是需要使用MSSQL都會裝的管理工具。
+		</p><p>
+		有些時候要執行一些要跑比較久的SQL語法的時候，或者要修改有大筆資料的Table Schema的時候，都有可能會遇到Timeout Expired或者Execution Timeout這種錯誤訊息的時候應該要怎麽辦？
+		</p><p>
+		這篇就來看看遇到這種問題，如何延長整個SSMS執行可容許的時間。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1562246554348859" ;="" style="font-size: 15px; line-height: 1.6;">SSMS 裡面的兩種執行時間</a><br></li><li><a href="#WizKMOutline_1562246554348363" ;="" style="font-size: 15px; line-height: 1.6;">第一種問題：解決執行SQL的Timeout問題</a><br></li><li><a href="#WizKMOutline_1562246554348470" ;="" style="font-size: 15px; line-height: 1.6;">第二種問題：修改Table Schema的Timeout</a><br></li><li><a href="#WizKMOutline_1562246554348493" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1562246554348897" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1562246554348859">SSMS 裡面的兩種執行時間</h2><p>
+		要解決這個問題，首先需要瞭解，在SSMS裡面其實有<em>兩種Execution Timeout</em>：
+		</p><dl><dt>
+				執行SQL的Timeout
+			</dt><dd><p>
+				這種類型的Timeout主要是用SSMS<em>執行某一段SQL語法</em>花的時間太長的時候會觸發。
+				</p><p>
+				可能發生的情景有：當要join很多table然後做運算的時候可能會遇到，或者執行一段很花時間的store procedure也會。
+				</p></dd><dt>
+				修改table schema的Timeout
+			</dt><dd><p>
+				這種類型的Timeout主要是用SSMS<em>透過UI界面修改Table Schema</em>的時候花的時間太長的時候會觸發。
+				</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/27e7df17-d714-43f3-b292-6bc8d60e3796.png" border="0" alt="Ssms_2019-07-04_20-38-01.png"><br><figcaption>修改Table Schema的畫面</figcaption></figure><p>
+				舉例來説，假設今天建立的Table想要把某個欄位變成Identity，並且需要保留資料，那麽原生的sql語法是不支援直接轉換，都需要透過一個中繼欄位儲存舊的資料然後在寫回去。
+				</p><p>
+				這種時候，透過SSMS的GUI界面會修改，在背後自動做這件事情，很方便。
+				</p><p>
+				但是，如果現有資料兩非常大，就會遇到這個錯誤。
+				</p></dd></dl><p>
+		這兩種執行都有可能因爲花的時間太久導致Timeout的錯誤。
+		</p><p>
+		要解決就要依照是做那個動作導致Timeout來調整。
+		</p><p>
+		要怎麽調整呢？我們繼續往下看。
+		</p></section><section><h2 id="WizKMOutline_1562246554348363">第一種問題：解決執行SQL的Timeout問題</h2><p>
+		從Menu上面的 <kbd>Tools</kbd> -&gt; <kbd>Options</kbd></p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/2aa6123f-bda0-4e43-823c-7f18f72b06eb.png" border="0" alt="Ssms_2019-07-04_20-38-19.png"><br><figcaption>Tools -&gt; Options</figcaption></figure><p></p><p>
+		在左邊找到<kbd>Query Execution</kbd>，在右邊的<kbd>Execution Time-out</kbd>設定即可
+		</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/b4f68525-a9df-4049-a272-9fb040b4c8d1.png" border="0" alt="Ssms_2019-07-04_20-39-28.png"><br><figcaption>設定Execution Time-out</figcaption></figure><p></p><div class="bs-callout bs-callout-warning">
+			畫面的説明0表示不會Timeout，但是我好像曾經遇到過0還是有Timeout，所以如果有遇到就把數字拉大就可以了。
+		</div></section><section><h2 id="WizKMOutline_1562246554348470">第二種問題：修改Table Schema的Timeout</h2><p>
+		和第一種一樣，要先透過從Menu上面的 <kbd>Tools</kbd> -&gt; <kbd>Options</kbd></p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/5b00687e-b556-40bd-a06e-3608179ead52.png" border="0" alt="Ssms_2019-07-04_20-38-19.png"><br><figcaption>Tools -&gt; Options</figcaption></figure><p></p><p>
+		在左邊找到<kbd>Designer</kbd>，然後右邊有一個<kbd>Transaction Timeout After</kbd>的值。
+		</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-04-faq-ssms-timeout-expired-or-execution-timeout-how-to-fix/6c41e035-84d7-43b2-b3a1-93605ce5c2e4.png" border="0" alt="Ssms_2019-07-04_21-02-46.png"><br><figcaption>設定Table Schema Timeout的地方</figcaption></figure><p></p><p>
+		如果說想要直接用和第一種執行SQL的Timeout的時間一樣的話，就把checkbox打勾拿掉即可。
+		</p><div class="bs-callout bs-callout-warning"><p>
+			這邊曾經遇到過checkbox不勾，然後SQL的Timeout是設定0，但是還是遇到了執行Timeout的問題。
+			</p><p>
+			解決方法就是保留checkbox打勾，然後把輸入框的時間輸入一個很長的數值就可以。
+			</p></div></section><section><h2 id="WizKMOutline_1562246554348493">結語</h2><p>
+		這篇介紹了SSMS的兩種執行方式對應的Timeout設定方式。
+		</p><p>
+		希望透過這篇大家都不會在遇到用SSMS管理DB遇到Timeout的問題。
+		</p><p>
+		當然，如果SQL執行下去非常久，雖然SSMS不會Timeout但是從App的體驗程度肯定不好，這個時候就需要做效能調教就是另外一個議題啦。
+		</p></section><section><h2 id="WizKMOutline_1562246554348897">參考資料</h2><dl><dt>
+				SO上面有人問到這個問題
+			</dt><dd><a href="https://stackoverflow.com/questions/1137190/changing-the-commandtimeout-in-sql-management-studio">Changing the CommandTimeout in SQL Management studio</a></dd><dt>
+				官方FAQ關於這個問題
+			</dt><dd><a href="https://support.microsoft.com/en-us/help/915849/error-message-when-you-try-to-modify-a-large-table-by-using-sql-server">Error message when you try to modify a large table by using SQL Server Management Studio: "Timeout expired"</a></dd></dl></section>

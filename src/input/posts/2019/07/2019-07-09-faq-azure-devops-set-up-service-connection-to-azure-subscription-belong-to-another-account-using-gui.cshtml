@@ -1,0 +1,101 @@
+﻿Title: "[faq]Azure DevOps如何透過設定Service Connection連到非同帳號的Azure 訂閲 - GUI篇"
+Published: 2019-07-09 22:00
+Modified: 2019-07-09 22:00
+Image: "/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/e90a1864-ff2f-4713-9d91-842c108c4290.jpg"
+Tags: ["azure-devops", "azure", "continuous-delivery"]
+Series: []
+PostDescription: "Azure DevOps設定自動部署上Azure應該是一個很常見的需求。如果Azure DevOps的帳號也有Azure訂閲的權限的話，那麽設定很容易，直接下拉就選得到。但是如果Azure DevOps的帳號沒有Azure訂閲的權限呢？這篇看看如何透過在Azure建立Service Principal用來讓Azure DevOps設定Service Connection。達到管理Azure DevOps的帳號沒有Azure訂閲權限也可以設定部署"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/e90a1864-ff2f-4713-9d91-842c108c4290.jpg" border="0" alt="Azure DevOps如何透過設定Service Connection連到非同帳號的Azure 訂閲 - GUI篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><p>
+		Azure DevOps裡面的Pipeline功能讓做軟體開發裡面的CI (Continuous Integration) 以及CD (Continuous Develiery) 非常的容易。
+		</p><p>
+		其中，在CD的時候把結果部署到Azure上面是很常見的一個需求。
+		</p><p>
+		在Azure DevOps裡面設定可以部署到那個Azure訂閲裡面是透過設定<em>Service Connection</em>，如果目前登入到Azure DevOps的帳號有權限操作Azure訂閲，那麽設定Service Connection非常的容易。
+		</p><p>
+		但是如果沒有呢？畢竟管理Azure DevOps和管理Azure很有可能是兩個不同的帳號。
+		</p><p>
+		這個時候怎麽辦呢？
+		</p><p>
+		這篇來看看如何透過在Azure建立App以及Service Principal，然後在Azure DevOps使用這些資訊建立出Service Connection能夠CD部署到Azure上面。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1562680336572336" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1562680336572787" ;="" style="font-size: 15px; line-height: 1.6;">解決方式</a><br></li><ul><li><a href="#WizKMOutline_1562680336573533" ;="" style="font-size: 15px; line-height: 1.6;">在Azure建立Service Principal</a></li><li><a href="#WizKMOutline_1562680336573997" ;="" style="font-size: 15px; line-height: 1.6;">在Azure DevOps設定Service Connection</a></li></ul><li><a href="#WizKMOutline_1562680336573167" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1562680336572336">問題描述</h2><p>
+		首先，先來看一下Azure DevOps裡面會設定Service Connection的地方。
+		</p><p>
+		假設今天想要部署結果到Azure Web App，從Azure DevOps Piepline裡面的Release可以建立出一個task。
+		</p><p>
+		這個時候設定Azure Subscription欄位，可以直接用下拉選單列出目前總共有那些可以用的Azure Service Conenction：
+		</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/38fe4689-65a6-472c-81a7-e0fe75f2a462.png" border="0" alt="chrome_2019-07-09_20-46-16.png"><br><figcaption>可以選擇的Azure訂閲</figcaption></figure><p>
+		可以看到，如果目前登入Azure DevOps的帳號有Azure訂閲，會自動列出來，這個時候直接選擇就可以使用了。
+		</p><p>
+		可是如果今天這個帳號沒有Azure訂閲呢？
+		</p></section><section><h2 id="WizKMOutline_1562680336572787">解決方式</h2><p>
+		要解決這個問題，大概分兩個部分：
+		</p><ol><li>先用有Azure權限的帳號登入建立出Service Principal並且設定允許的權限</li><li>到Azure DevOps用剛剛建立出來的Service Principal建立出Service Connection</li></ol><p></p><p>
+		換句話説，用有權限的帳號在Azure先建立一個代表權限的app (或者叫做Service Principal)，在Azure DevOps用那個app作爲連線的帳號建立出Service Connection。
+		</p><section><h3 id="WizKMOutline_1562680336573533">在Azure建立Service Principal</h3><p>
+			首先，接下來操作Azure的帳號必須有權限在Azure Active Directory裡面建立App Registration。
+			</p><div class="bs-callout bs-callout-info"><p>
+			如果說使用的帳號在AAD裡面是一般user，那麽記得在Azure的User Setting (<a href="https://portal.azure.com/#blade/Microsoft_AAD_IAM/UsersManagementMenuBlade/UserSettings">傳送門</a>) App Registration要開啓
+			</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/3262597d-de36-4b9d-a545-ea10e2cec113.png" border="0" alt="chrome_2019-07-09_20-59-46.png"><br><figcaption>允許一般user建立app</figcaption></figure></div><dl><dt>
+					進入到App Registration畫面
+				</dt><dd><p>
+						從AAD的 <em>App Registration</em> -&gt; <em>New Registration</em>進入
+					</p><p>
+					也可以透過<a href="https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/RegisteredAppsPreview">傳送門</a>直接開啓。
+					</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/77a65ed5-0544-46d7-9e17-4048ab0ccf6c.png" border="0" alt="chrome_2019-07-09_21-01-19.png"><br><figcaption>進入App Registration畫面</figcaption></figure></dd><dt>
+					輸入App的Name以及Account Type
+				</dt><dd>
+					Name好識別就可以，Account Type選擇第一個即可，然後按下Register
+					<figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/476d26c1-accd-49c1-b5da-e9db6ddd6ea6.png" border="0" alt="chrome_2019-07-09_21-03-45.png"><br><figcaption>設定app</figcaption></figure></dd><dt>
+					取得 Application Id 以及 Directory (tenant) Id
+				</dt><dd><p>
+					當app建立好了之後，會自動導向建立出來的app頁面，這個時候可以取得等一下需要的兩個id：
+					</p><ol><li>app id</li><li>tenant id</li></ol><p></p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/4dd51f6b-fbce-4e99-a3bc-ee4f12b8d358.png" border="0" alt="chrome_2019-07-09_21-06-55.png"><br><figcaption>取得兩個重要的id</figcaption></figure></dd><dt>
+					取得password
+				</dt><dd><p>
+					接下來要建立一個密碼，也是稍後設定會用到：
+					</p><ol><li>選擇左邊的 <em>Certificate &amp; secrets</em></li><li>卷下來選擇 <em>New Client Secret</em></li><li>輸入這一組密碼的名稱</li><li>設定多久到期</li><li>按下 <em>add</em></li></ol><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/f3e12a9d-54ce-438f-9b22-4dde3d56a1e5.png" border="0" alt="chrome_2019-07-09_21-07-59.png"><br><figcaption>加入password</figcaption></figure><p>
+					稍等一下，會在清單裡面看到多了一筆密碼，記得要複製看到的密碼。
+					</p><p>
+					這個密碼<em>只會呈現這一次</em>，換句話説如果沒有複製下來的話，那麽只能重新在產生一個。
+					</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/2ee44819-61f5-48c1-935e-b13722b9c485.png" border="0" alt="chrome_2019-07-09_21-10-18.png"><br><figcaption>複製產生出來的密碼</figcaption></figure></dd><dt>
+					進入到Subscription取得Subscription Id以及Name
+				</dt><dd><p>
+					切換到訂閲(Subscription)清單(<a href="https://portal.azure.com/#blade/Microsoft_Azure_Billing/SubscriptionsBlade">傳送門</a>)，選擇會被部署的那個訂閲
+					</p><p>
+					取得Overview看到的Id以及Name：
+					</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/fc3fa37c-55b4-468d-9f4b-54ec5b5da878.png" border="0" alt="chrome_2019-07-09_21-31-08.png"><br><figcaption>取得訂閲Id以及Name</figcaption></figure><p></p></dd><dt>
+					設定剛剛的App為訂閲的owner
+				</dt><dd><p>
+					最後一步要設定剛剛的那個app在訂閲的權限為owner。
+					</p><ol><li>在左邊選擇 <em>Access Control (IAM)</em></li><li>選擇 <em>Add</em> -&gt; <em>Add Role Assignments</em></li><li>Role選擇 <em>Owner</em></li><li>搜索剛剛建立的app名字</li><li>從清單選擇最後要加入的帳號</li><li>確認之後按下<em>Save</em></li></ol><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/3d8203a8-b88d-482e-b4b4-3eaf66a15214.png" border="0" alt="chrome_2019-07-09_21-19-31.png"><br><figcaption>設定app權限</figcaption></figure></dd></dl><p>
+			到這邊Azure Service Principal就建立好啦 - 接下來就是回Azure DevOps看看怎麽連在一起。
+			</p></section><section><h3 id="WizKMOutline_1562680336573997">在Azure DevOps設定Service Connection</h3><p>
+			接下來操作都是在Azure DevOps - 首先先開啓之前設定Azure Subscription的畫面。
+			</p><dl><dt>
+					進入Service Connection的設定畫面
+				</dt><dd><p>
+					點選 Azure Subscription旁邊的<em>Manange</em>連接
+					</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/ebcd1f82-e56c-4851-a716-bbd90d988666.png" border="0" alt="chrome_2019-07-09_21-24-05.png"><br><figcaption>Manage連接</figcaption></figure></dd><dt>
+					選擇建立Azure Resource Manager
+				</dt><dd><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/de3d46d5-600b-49ef-96af-41f44c0625ed.png" border="0" alt="chrome_2019-07-09_21-25-48.png"><br><figcaption>建立Azure Resource Manager</figcaption></figure></dd><dt>
+					切換到full version的畫面
+				</dt><dd>
+					在跳出來的視窗拉到下面，點選連接<em>use the full version of the service connection dialog.</em><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/f387770f-70db-4c3b-90a2-44518f09f388.png" border="0" alt="chrome_2019-07-09_21-27-57.png"><br><figcaption>開啓完整設定模式</figcaption></figure></dd><dt>
+					依序輸入從Azure那邊得到的訊息
+				</dt><dd><ol><li>Connection Name設定好識別即可 - 在Azure DevOps選單出現的名字</li><li>Subscription Id - 上面取得的訂閲Id</li><li>Subscription Name - 上面取得的訂閲名稱</li><li>Service Principle Client Id - 建立Application得到的Application Id</li><li>Service principal key - 在Application設定password得到的那一串</li><li>Teant Id - 在Application Overview裡面看到的 Directory (Teanat) Id</li><li>驗證是否有輸入錯 - 如果都okay應該會出現 Verified</li><li>按下 Ok 即可</li></ol><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/e8283f70-410c-4b5e-a7f2-b1898068fcb3.png" border="0" alt="chrome_2019-07-09_21-32-57.png"><br><figcaption>設定好Service Connection</figcaption></figure></dd></dl></section><p>
+		到這邊Azure DevOps的Service Connection就設定好了，只需要回到剛剛選擇Subscription的下拉就可以選擇到了：
+		</p><ol><li>如果下來沒有出現，可以點選旁邊的按鈕來reload</li><li>可以選擇到剛剛建立的connection</li></ol><figure><img class="img-responsive" src="/posts/2019/07/2019-07-09-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui/fd90a9ad-1d0b-4d7d-bd3e-6eaf85923555.png" border="0" alt="chrome_2019-07-09_21-36-07.png"><br><figcaption>設定成功，可以選擇到了</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1562680336573167">結語</h2><p>
+		透過這篇，相信如果管理Azure DevOps以及Azure是兩個帳號要設定部署也沒有什麽問題。
+		</p><p>
+		不過上面的操作有點繁瑣，尤其是微軟其實會不定期的更新Azure，所以截圖的内容很有可能幾年或者幾個月之後又改版又要去瞭解如何拿到這些訊息。
+		</p><p>
+		有沒有更無腦的設定方式呢？
+		</p><p>
+		下篇來介紹如何透過Powershell指令快速建立。
+		</p></section>

@@ -1,0 +1,165 @@
+﻿Title: "[faq]Azure DevOps如何透過設定Service Connection連到非同帳號的Azure 訂閲 - Powershell篇"
+Published: 2019-07-11 20:00
+Modified: 2019-07-11 20:00
+Image: "/posts/2019/07/2019-07-11-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-powershell/b96232ab-5bcd-49a1-be4e-6f25d7262b06.jpg"
+Tags: ["azure-devops", "azure", "continuous-delivery", "powershell"]
+Series: []
+PostDescription: "上篇介紹了如何在Azure透過GUI建立Service Principal給Azure DevOps的Service Connection用，但是，GUI畢竟改版地方可能會換，更別説每個人執行起來可能會漏掉步驟，導致整個時間變長。有沒有什麽方式是不管誰執行起來結果都一樣？script就是最好的解法，這篇來看看如何透過powershell建立Service Principal。"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/07/2019-07-11-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-powershell/b96232ab-5bcd-49a1-be4e-6f25d7262b06.jpg" border="0" alt="[faq]Azure DevOps如何透過設定Service Connection連到非同帳號的Azure 訂閲 - powershell篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/key-tag-security-label-symbol-2114047/</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/07/faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui">[faq]Azure DevOps如何透過設定Service Connection連到非同帳號的Azure 訂閲 - GUI篇</a>)介紹了如何透過GUI的方式在Azure建立出Service Principal用來在Azure DevOps設定Service Connections的時候用來作爲登入的驗證方式。</p><p>
+		不過GUI雖然直覺，但是Azure如果有改版那麽很有可能資訊的位置會換，這個時候要在產生Service Principal又可能要找一下。
+		</p><p>
+		更好的方式其實可以透過用script的方式得到結果 - 這樣不管誰來做，得到的結果都會是一樣的 - 並且需要的資訊也可以一目瞭然，不用切來切去找不同訊息的位置。
+		</p><p>
+		這篇來看一下，如何透過powershell的方式，快速建立出Service Principal。
+		</p><div class="bs-callout bs-callout-info"><h4 kmcontenthide="1">相關文章</h4><ol><li><a href="/posts/2019/07/faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-gui">[faq]Azure DevOps如何透過設定Service Connection連到非同帳號的Azure 訂閲 - GUI篇</a><br></li></ol></div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1562848574698584" ;="" style="font-size: 15px; line-height: 1.6;">使用Powershell的環境準備</a><br></li><li><a href="#WizKMOutline_1562848574698819" ;="" style="font-size: 15px; line-height: 1.6;">一鍵建立Azure Service Principal</a><br></li><li><a href="#WizKMOutline_1562848574698153" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li><li><a href="#WizKMOutline_1562848574698884" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li><li><a href="#WizKMOutline_1562848574699233" ;="" style="font-size: 15px; line-height: 1.6;">參考資料</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1562848574698584">使用Powershell的環境準備</h2><p>
+		在實際介紹script内容之前，要先説明一下需要先準備什麽。
+		</p><p>
+		用script方式操作Azure有幾種方式：
+		</p><ol><li>az commandline - 這個是一個用python寫的跨平臺的工具 - 能夠直接操作Azure</li><li>AzureRM Powershell module - 這個是一個powershell module用來操作Azure - 屬於比較舊的一個powershell module</li><li>Az Powershell module - 這個是目前最新操作Azure的module，用來取代AzureRM - 最大差異是支援Powershell Core - 換句話説可以跨平臺</li></ol><p></p><p>
+		在接下來的script用的是<em>AzureRM</em>版本 - 要轉換成爲另外兩個版本不難。
+		</p><p>
+		如果在裝Visual Studio的時候有選擇Azure的話，那麽AzureRM<em>已經有裝在電腦</em>裡面了，如果沒有可以透過PowershellGet去安裝：
+		</p><pre><code class="language-powershell">Install-Module -Name AzureRM -AllowClobber</code></pre><p>
+		接下來就實際看看完整的script。
+		</p></section><section><h2 id="WizKMOutline_1562848574698819">一鍵建立Azure Service Principal</h2> 
+		<pre><code class="language-powershell">#Initialize
+$environmentName = "AzureCloud"
+$spnRole = "Contributor"
+
+$ErrorActionPreference = "Stop"
+$VerbosePreference = "SilentlyContinue"
+$userName = ($env:USERNAME).Replace(' ', '')
+$curentDateTime = Get-Date -Format "yyyyMMddTHHmmss"
+$displayName = [String]::Format("AzureDevOps.{0}.{1}", $userName, $curentDateTime)
+$homePage = "http://" + $displayName
+$identifierUri = $homePage
+
+function Get-AzureCmdletsVersion
+{
+    $module = Get-Module AzureRM -ListAvailable
+    if($module)
+    {
+        return ($module).Version
+    }
+    return (Get-Module Azure -ListAvailable).Version
+}
+
+function Get-Password
+{
+    Add-Type -AssemblyName System.Web
+    $password = [System.Web.Security.Membership]::GeneratePassword(40, 3)
+
+    $currentAzurePSVersion = Get-AzureCmdletsVersion
+    $azureVersion511 = New-Object System.Version(5, 1, 1)
+
+    $script:plainTextPassword = $password
+    if($currentAzurePSVersion -and $currentAzurePSVersion -ge $azureVersion511)
+    {
+        $password = ConvertTo-SecureString $password -AsPlainText -Force
+    }
+
+    return $password
+}
+
+
+#Import AzureRM
+$isAzureModulePresent = Get-Module -Name AzureRM* -ListAvailable
+if ([String]::IsNullOrEmpty($isAzureModulePresent) -eq $true)
+{
+    Write-Output "Script requires AzureRM modules to be present. Obtain AzureRM from https://github.com/Azure/azure-powershell/releases. Please refer https://github.com/Microsoft/azure-pipelines-tasks/blob/master/Tasks/AzureResourceGroupDeploymentV2/README.md for recommended AzureRM versions." -Verbose
+    return
+}
+
+Import-Module -Name AzureRM.Profile
+
+# login
+Write-Output "Provide your credentials to access Azure subscription" -Verbose
+
+Connect-AzureRmAccount -EnvironmentName $environmentName
+
+
+# select subscription
+$azureSubscription = Get-AzureRmSubscription | Out-GridView -PassThru
+$connectionName = $azureSubscription.Name
+$tenantId = $azureSubscription.TenantId
+$id = $azureSubscription.SubscriptionId
+
+#Create a new AD Application
+Write-Output "Creating a new Application in AAD (App URI - $identifierUri)" -Verbose
+$servicePrincipalKey = Get-Password
+$azureAdApplication = New-AzureRmADApplication -DisplayName $displayName `
+     -HomePage $homePage -IdentifierUris $identifierUri -Password $servicePrincipalKey -Verbose
+$appId = $azureAdApplication.ApplicationId
+Write-Output "Azure AAD Application creation completed successfully (Application Id: $appId)" -Verbose
+
+#Create new SPN
+Write-Output "Creating a new SPN" -Verbose
+$spn = New-AzureRmADServicePrincipal -ApplicationId $appId
+$spnName = $spn.ServicePrincipalNames
+Write-Output "SPN creation completed successfully (SPN Name: $spnName)" -Verbose
+
+#Assign role to SPN
+Write-Output "Waiting for SPN creation to reflect in Directory before Role assignment"
+Start-Sleep 30
+Write-Output "Assigning role ($spnRole) to SPN App ($appId)" -Verbose
+
+New-AzureRmRoleAssignment -RoleDefinitionName $spnRole -ServicePrincipalName $appId
+
+Write-Output "SPN role assignment completed successfully" -Verbose
+
+
+#Print the values
+Write-Output "`nCopy and Paste below values for Service Connection" -Verbose
+Write-Output "***************************************************************************"
+Write-Output "Connection Name: $connectionName(SPN)"
+Write-Output "Environment: $environmentName"
+Write-Output "Scope Level: Subscription"
+Write-Output "Subscription Id: $id"
+Write-Output "Subscription Name: $connectionName"
+Write-Output "Service Principal Id: $appId"
+Write-Output "Service Principal key: $script:plainTextPassword"
+Write-Output "Tenant Id: $tenantId"
+Write-Output "***************************************************************************"</code></pre><div class="bs-callout bs-callout-info"><p>
+			本來我想要分段介紹，但是後來想一下感覺還滿直覺，並且每一段都有註解，就留給大家研究啦。
+			</p><p>
+			如果有不清楚的歡迎留言一起討論
+			</p></div></section><section><h2 id="WizKMOutline_1562848574698153">測試結果</h2><p>
+		要使用上面的script很簡單，只需要開啓一個powershell或者ISE，然後把整段貼進去然後執行就可以了。
+		</p><dl><dt>
+				執行script並且輸入Azure登入的帳號以及密碼
+			</dt><dd><p>
+				這邊使用的範例是用ISE來執行，第一步是要先登入Azure有權限的帳號以及密碼：
+				</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-11-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-powershell/5685dc07-b406-4d37-b7a7-380f06d7731c.png" border="0" alt="powershell_ise_2019-07-11_20-16-27.png"><br><figcaption>執行之後需要登入</figcaption></figure></dd><dt>
+				選擇您要建立Service Principal在那個訂閲
+			</dt><dd><p>
+				登入成功之後，會跳出所有能夠使用的訂閲給您選擇。
+				</p><p>
+				以我的例子，有兩個訂閲，我選擇使用第二個訂閲：
+				</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-11-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-powershell/56c08270-84d6-42e6-8ef3-d022691875e8.png" border="0" alt="powershell_ise_2019-07-11_20-19-54.png"><br><figcaption>選擇第二個訂閲</figcaption></figure></dd><dt>
+				複製需要的訊息在Azure DevOps建立Service Connection
+			</dt><dd><p>
+				接下來就稍等一下，讓他跑完，最後跑完會把所有訊息匯整，方便建立Azure DevOps的Service Connection。
+				</p><figure><img class="img-responsive" src="/posts/2019/07/2019-07-11-faq-azure-devops-set-up-service-connection-to-azure-subscription-belong-to-another-account-using-powershell/0d67a344-c75d-45cc-b295-bbf35f9b4ea0.png" border="0" alt="powershell_ise_2019-07-11_20-24-57.png"><br><figcaption>把得到的訊息建立到Service Connection</figcaption></figure></dd></dl></section><section><h2 id="WizKMOutline_1562848574698884">結語</h2><p>
+		用GUI雖然從操作面來説相對容易(至少不用懂如何寫Powershell)，但是每一個人操作可能結果都不一樣，有可能因爲漏掉一步或者少記錄什麽需要來來回回的確認訊息。
+		</p><p>
+		反過來説，如果有人寫好了script，雖然寫script比較花費時間，但是一寫好了，接下來不管是誰操作結果都會一樣，並且速度很快。
+		</p><p>
+		希望這篇能夠讓大家快速建立出需要的Service Principal。
+		</p></section><section><h2 id="WizKMOutline_1562848574699233">參考資料</h2><dl><dt>
+				Script參考來源
+			</dt><dd><p>
+				這個powerhsell script是我基於這個：<a href="https://github.com/microsoft/azure-pipelines-extensions/blob/master/TaskModules/powershell/Azure/SPNCreation.ps1">SPNCreation.ps1</a>修改而成。
+				</p><p>
+				原始比較完整，包含當不是建立在subscription而是在Management Group，以及支援Azure Stack。
+				</p></dd><dt>
+				AzureRM安裝方式
+			</dt><dd><p>
+			
+				雖然AzureRM快要被淘汰了，但是很多script還是用AzureRM寫的，因此知道怎麽安裝還是很方便：
+			</p><p><a href="https://docs.microsoft.com/bs-latn-ba/powershell/azure/azurerm/install-azurerm-ps?view=azurermps-6.13.0">Install Azure PowerShell on Windows with PowerShellGet</a></p></dd></dl></section>

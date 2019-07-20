@@ -86,6 +86,7 @@ Connect-AzureRmAccount -EnvironmentName $environmentName
 
 # select subscription
 $azureSubscription = Get-AzureRmSubscription | Out-GridView -PassThru
+$azureSubscription | Select-AzureRmSubscription
 $connectionName = $azureSubscription.Name
 $tenantId = $azureSubscription.TenantId
 $id = $azureSubscription.SubscriptionId

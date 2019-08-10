@@ -1,0 +1,81 @@
+﻿Title: "[faq]ASP .NET Core Web Api使用RazorLight套件部署上Azure Web App執行不起來的故障排除"
+Published: 2019-08-07 20:00
+Modified: 2019-08-07 20:00
+Image: "/posts/2019/08/2019-08-07-faq-troubleshoot-problem-publish-to-azure-web-app-asp-net-core-web-api-with-razorlight/3f4a2a33-a60f-4eac-bb85-ce19cd4ad6c1.jpg"
+Tags: ["asp-net-core"]
+Series: []
+RelatedPost: ["2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem"]
+PostDescription: "在.NET世界如果需要用到Template Engine的話，想必Razor應該會第一個考慮的語言。畢竟如果有寫過ASP .NET MVC的話應該都會很熟悉。不過如果不是MVC專案能夠直接用嗎？RazorLight就是其中一個可以讓.NET專案使用Razor作爲template的套件。不過，在ASP NET Core用到部署上去可是會遇到一些問題。這篇來看看如何排除這些問題"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/08/2019-08-07-faq-troubleshoot-problem-publish-to-azure-web-app-asp-net-core-web-api-with-razorlight/3f4a2a33-a60f-4eac-bb85-ce19cd4ad6c1.jpg" border="0" alt="[faq]ASP .NET Core Web Api使用RazorLight套件部署上Azure Web App執行不起來的故障排除.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		寫過ASP .NET MVC的對於Razor語法想必不陌生，畢竟相較於以前aspx那種語法，使用Razor這個template語法寫起來簡潔並且易懂很多。
+		</p><p>
+		現在漸漸流行的是前端和後端分離，因此更多情況會撰寫Web Api，而畫面留給前端的框架來寫。
+		</p><p>
+		但是這並不代表Razor沒有作用，畢竟有很多時候在後端需要用到template的概念產生一些内容。
+		</p><p>
+		例如説假設今天系統需要寄送mail，那麽mail内容就很適合用Razor template來撰寫。
+		</p><p>
+		RazorLight就是一個方便再.NET專案裡面使用Razor template的一個套件。
+		</p><p>
+		不過使用了之後，在local測試的時候可能沒有問題，但是部署上去整個網站run不起來怎麽辦？
+		</p><p>
+		這篇來看看使用RazorLight的ASP .NET Core Web Api在部署到Azure Web App之後怎麽避免出現錯誤。
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1565450329911720" kmcontenthide="1">github sample project</h4>
+			這篇描述的sample程式碼可以在github看到：<a href="https://github.com/alantsai-samples/dotnet-core-razorlight-publish">https://github.com/alantsai-samples/dotnet-core-razorlight-publish</a>
+		</div></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1565450331381250" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1565450331381490" ;="" style="font-size: 15px; line-height: 1.6;">解決方式</a><br></li><li><a href="#WizKMOutline_1565450331381558" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1565450331381250">問題描述</h2><p>
+		首先，先來看看如果直接部署上Azure Web App可能會遇到什麽錯誤。
+		</p><dl><dt>
+				錯誤1：cshtml template沒有跟著上去·的問題
+			</dt><dd>
+				這個錯誤訊息應該還滿明顯，一般是 <code>DirectoryNotFound</code> 或者 是 <code>InvalidOperationException: Project can not find template with key xxx</code> Exception：
+				<figure><img class="img-responsive" src="/posts/2019/08/2019-08-07-faq-troubleshoot-problem-publish-to-azure-web-app-asp-net-core-web-api-with-razorlight/3ec92ab5-f27f-4108-a89f-d3b98b81d007.png" border="0" alt="chrome_2019-08-10_21-26-32.png"><br><figcaption>DirectoryNotFound錯誤</figcaption></figure></dd><dd></dd><dt>
+				錯誤2：Can not find compilation library location for package "Microsoft.AspNet.WebApi.Client"
+			</dt><dd>
+				這個錯誤有很多不同的形式，也有可能會是 <code>Can't load metadata reference from the entry assembly</code><figure><img class="img-responsive" src="/posts/2019/08/2019-08-07-faq-troubleshoot-problem-publish-to-azure-web-app-asp-net-core-web-api-with-razorlight/37db973d-45c4-496d-92a4-bb70645bde37.jpg" border="0" alt=""><br><figcaption>Can not find compilation library location for package "Microsoft.AspNet.WebApi.Client" 錯誤截圖</figcaption></figure></dd></dl></section><section><h2 id="WizKMOutline_1565450331381490">解決方式</h2><p>
+		針對上面的兩個問題，可以透過<em>修改 *.csproj</em>增加設定的方式解決。
+		</p><dl><dt>
+				錯誤1：cshtml template沒有跟著上去·的問題
+			</dt><dd><p>
+				這個問題貌似簡單，感覺好像和一般asset類型的處理方式就好(右鍵，選擇 property然後調整爲<code>copy always</code>)，但是實際上和一般asset處理方式還是有點不同，就算改了變成<code>copy always</code>也沒有作用。
+				</p><p>
+				正確的處理方式是，在csproj加上：
+				</p><pre><code class="language-xml">&lt;PropertyGroup&gt;
+	&lt;MvcRazorCompileOnPublish&gt;false&lt;/MvcRazorCompileOnPublish&gt;
+&lt;/PropertyGroup&gt;</code></pre><p>
+				透過這個方式，cshtml的檔案就會上去了。
+				</p></dd><dt>
+				錯誤2：Can not find compilation library location for package "Microsoft.AspNet.WebApi.Client"
+			</dt><dd><p>
+				這個問題在比較複雜的專案才會出現，解決方式也是透過修改csproj裡面加上：
+				</p><pre><code class="language-xml">&lt;PropertyGroup&gt;
+	&lt;PreserveCompilationContext&gt;true&lt;/PreserveCompilationContext&gt;
+	&lt;MvcRazorExcludeRefAssembliesFromPublish&gt;false&lt;/MvcRazorExcludeRefAssembliesFromPublish&gt;
+&lt;/PropertyGroup&gt;</code></pre></dd></dl><p>
+		這兩個問題合在一起的話，csproj的設定就會是：
+		</p><pre><code class="language-xml">&lt;PropertyGroup&gt;
+	&lt;MvcRazorCompileOnPublish&gt;false&lt;/MvcRazorCompileOnPublish&gt;
+	&lt;PreserveCompilationContext&gt;true&lt;/PreserveCompilationContext&gt;
+	&lt;MvcRazorExcludeRefAssembliesFromPublish&gt;false&lt;/MvcRazorExcludeRefAssembliesFromPublish&gt;
+&lt;/PropertyGroup&gt;</code></pre><p></p><figure><img class="img-responsive" src="/posts/2019/08/2019-08-07-faq-troubleshoot-problem-publish-to-azure-web-app-asp-net-core-web-api-with-razorlight/2fca1a22-5afd-435d-8455-2d7ddeb9216d.png" border="0" alt=""><br><figcaption>設定的截圖</figcaption></figure></section><section><h2 id="WizKMOutline_1565450331381558">結語</h2><p>
+		Razor是一個很方便的template語言，尤其是如果有用過ASP .NET MVC的話。
+		</p><p>
+		RazorLight則是其中一個讓任何.NET專案能夠用Razor Template的套件。
+		</p><p>
+		如果有template的需求不妨試試看，這篇則可以表面掉部署上去的問題。
+		</p></section>
+		<section>
+		<h2>參考資料</h2> 
+		<ul>
+			<li><a href="https://github.com/dotnet/sdk/issues/1489">https://github.com/dotnet/sdk/issues/1489</a></li> 
+			<li><a href="https://github.com/lukencode/FluentEmail/issues/126">https://github.com/lukencode/FluentEmail/issues/126</a></li> 
+			<li><a href="https://github.com/toddams/RazorLight/issues/203">https://github.com/toddams/RazorLight/issues/203</a></li> 
+			<li><a href="https://github.com/dotnet/core/issues/1725">https://github.com/dotnet/core/issues/1725</a></li> 
+		</ul> 
+
+		</section>

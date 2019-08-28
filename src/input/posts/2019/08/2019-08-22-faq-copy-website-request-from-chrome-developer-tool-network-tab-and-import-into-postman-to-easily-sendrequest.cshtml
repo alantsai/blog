@@ -1,0 +1,55 @@
+﻿Title: "[faq]如何把瀏覽器執行的request，快速建立到postman來做開發測試用"
+Published: 2019-08-22 20:00
+Modified: 2019-08-22 20:00
+Image: "/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/f439ae57-b152-4903-be1c-e5e2cbad27fb.jpg"
+Tags: ["faq", "postman"]
+Series: ["「faq」"]
+PostDescription: "當網站發生錯誤的時候，最好和工程師溝通的方式就是把出錯的那個request給他 - 讓他可以模擬問題。那怎麽樣能夠快速複製出request，並且工程師怎麽能夠使用呢？這篇看看如何透過Chrome + Postman來達到這個需求"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/f439ae57-b152-4903-be1c-e5e2cbad27fb.jpg" border="0" alt="[postman]如何把瀏覽器執行的request複製，快速建立到postman來做開發測試用.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		近幾年拜前端蓬勃發展所賜，越來越多的網站使用前後端分離的架構。
+		</p><p>
+		後端只需要建立API，而前端只需要關注在畫面以及如何呼叫後端的API就好了。
+		</p><p>
+		這個時候，假設網站發生了錯誤，那麽怎麽樣快速建立出前端打到後臺API的方法就變得很重要。
+		</p><p>
+		因爲能夠快速建立出這些API的request，能夠更加容易透過改打的host而直接打到測試環境 - 更加<em>容易debug</em>問題出現在那邊。
+		</p><p>
+		更不用説，如果今天想要告知後端問題在那邊，那麽提供一個完整Request内容也可以<em>減少溝通成本</em>。
+		</p><p>
+		這篇來看看如何用Chrome以及Postman搭配來達到這個效果。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1566727374664909" ;="" style="font-size: 15px; line-height: 1.6;">模擬問題</a><br></li><li><a href="#WizKMOutline_1566727374664558" ;="" style="font-size: 15px; line-height: 1.6;">如何取得request發送内容？</a><br></li><li><a href="#WizKMOutline_1566727374664544" ;="" style="font-size: 15px; line-height: 1.6;">如何建立到Postman變成一個request？</a><br></li><li><a href="#WizKMOutline_1566727374664429" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1566727374664909">模擬問題</h2><p>
+		這邊用簡單情景來模擬想要達到的效果。
+		</p><p>
+		首先，假設w3school的XMLHttpRequest範例的request是有問題的api：<a href="https://www.w3schools.com/js/tryit.asp?filename=tryjs_ajax_first">https://www.w3schools.com/js/tryit.asp?filename=tryjs_ajax_first</a></p><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/ce643548-b778-4e78-be30-13fec76ec267.png" border="0" alt="chrome_2019-08-25_17-20-57.png"><br><figcaption>按下的Change Content假設是有問題的api</figcaption></figure><p>
+		假設這個時候發現這個api有問題，怎麽樣才能夠把這個request内容提供給後端的開發者呢？
+		</p></section><section><h2 id="WizKMOutline_1566727374664558">如何取得request發送内容？</h2><p>
+		可以使用Chrome的Developer Tool (透過按下<code>F12</code>、<code>Ctrl+Shift+I</code>或者選項裡面的<code>More Tools</code>選擇到）
+		</p><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/7736e7a3-ae7e-4923-bf9c-cdf2b0732b2b.jpg" border="0" alt=""><br><figcaption>More Tools 開啓 Developer Tools</figcaption></figure><p></p><p>
+		在Developer Tools切換到<code>Network</code>標簽，然後找到那個request：
+		</p><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/ffd2ab96-b62e-42bb-a49e-4af6709708f9.png" border="0" alt="chrome_2019-08-25_17-30-06.png"><br><figcaption>找到對應的request</figcaption></figure><div class="bs-callout bs-callout-info">
+			假設request很多，可以透過filter的方式快速過濾。舉例來説，只要看ajax可以透過選擇<code>XHR</code>來過濾出request類型。
+		</div><p>
+		對Request：
+		</p><ol><li>點<code>右鍵</code></li><li>選擇<code>Copy</code></li><li>選擇<code>Copy as cURL (Bash)</code></li></ol><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/b246db8e-4140-4e27-b3aa-d6a3a203ec28.png" border="0" alt="chrome_2019-08-25_17-31-35.png"><br><figcaption>複製request成爲bash可以執行的script内容</figcaption></figure><p></p><div class="bs-callout bs-callout-info"><p>
+			可以看到Copy還有不同的script語言，不過cURL是能夠匯入到Postman。
+			</p><p>
+			如果接下來不用postman，也可以選擇用別的例如Powershell來執行達到一樣的效果。
+			</p></div></section><section><h2 id="WizKMOutline_1566727374664544">如何建立到Postman變成一個request？</h2><p>
+		有了上面取得的cURL的script之後，可以在postman用import方式加入：
+		</p><ol><li>選擇<code>Import</code></li><li>選擇最後一個tab：<code>Paste Raw Text</code></li><li>把取得的cURL貼上到輸入框</li><li>按下<code>Import</code>按鈕</li></ol><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/3095769f-13cb-4c45-a7a1-2b1d134a8cc6.png" border="0" alt="Postman_2019-08-25_17-36-51.png"><br><figcaption>匯入request</figcaption></figure><p></p><p>
+		匯入進去之後，可以看到一個request被建立出來，並且可以看到相關的Header等也一起被建立出來
+		</p><figure><img class="img-responsive" src="/posts/2019/08/2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest/2b990ccf-0029-4059-9ec3-d9e3c8c79808.png" border="0" alt="Postman_2019-08-25_17-40-50.png"><br><figcaption>左邊是原本request，右邊則是匯入成爲postman的request内容</figcaption></figure><p></p><p>
+		有了postman request之後，就可以很容易透過調整url的request改成打local的server來做debug了。
+		</p><div class="bs-callout bs-callout-warning">
+			有遇到情況是，在chrome本來是POST，但是進入到postman變成了GET。因此有時候要注意以下，但是其他參數像是Header裡面的token都會一起過去很方便。
+		</div></section><section><h2 id="WizKMOutline_1566727374664429">結語</h2><p>
+		透過能夠把發送的Request記錄下來，然後發送給工程師，可以減少掉很多溝通的時間（例如要告訴工程師點了什麽，選了什麽才產生了錯誤）。
+		</p><p>
+		這個也可以讓工程師作爲修改期間的測試方式，在修改好了之後也可以用這個方式驗證確保修掉了問題。
+		</p></section>

@@ -1,0 +1,68 @@
+﻿Title: "[faq]如何把各瀏覽器(IE、Edge和Chrome)的request一次儲存下來提供給工程師"
+Published: 2019-08-28 21:00
+Modified: 2019-08-28 21:00
+Image: "/posts/2019/08/2019-08-28-faq-download-network-request-as-har-for-ie-edge-and-chrome-and-import-back-for-use/00521b65-5e63-4325-a047-8cc74b74a3b4.jpg"
+Tags: ["faq", "postman", "debug"]
+Series: ["「faq」"]
+RelatedPost: ["2019-08-22-faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest"]
+PostDescription: "如果發現網站有問題，但是不知道那個request提供給工程師比較有用怎麽辦？最簡單的方式就是全部都保留，讓工程師自己決定那個才是有意義的。這篇看看如何在IE、Edge以及Chrome下載HAR然後如何使用。"
+---
+<section><figure><img class="img-responsive" src="/posts/2019/08/2019-08-28-faq-download-network-request-as-har-for-ie-edge-and-chrome-and-import-back-for-use/00521b65-5e63-4325-a047-8cc74b74a3b4.jpg" border="0" alt="[faq]如何把各瀏覽器(IE、Edge和Chrome)的request一次儲存下來提供給工程師.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/despair-alone-being-alone-archetype-513528/</figcaption></figure></section><section><p>
+		在上一篇(<a href="/posts/2019/08/faq-copy-website-request-from-chrome-developer-tool-network-tab-and-import-into-postman-to-easily-sendrequest">[faq]如何把瀏覽器執行的request，快速建立到postman來做開發測試用</a>)介紹了如何能夠透過在Chrome裡面複製有問題的request成爲cURL(Bash)指令，然後在postman裡面透過匯入的方式轉換成為可以方便測試以及呼叫的request。</p><p>
+		可是如果今天我有很多個Request都有問題呢？
+		</p><p>
+		或者說如果假設今天使用系統的人不是用Chrome怎麽辦？
+		</p><p>
+		或者如果分辨不出那個request有問題怎麽辦？
+		</p><p>
+		這篇將介紹如何在IE、Edge以及Chrome匯出完整的network request成爲har，並且工程師可以如何使用這個HAR做使用。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1567000169393871" ;="" style="font-size: 15px; line-height: 1.6;">什麽是HAR？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1567000169393429" ;="" style="font-size: 15px; line-height: 1.6;">IE</a><br></li><li><a href="#WizKMOutline_1567000169393845" ;="" style="font-size: 15px; line-height: 1.6;">Edge</a><br></li><li><a href="#WizKMOutline_1567000169393977" ;="" style="font-size: 15px; line-height: 1.6;">Chrome</a><br></li></ul><li><a href="#WizKMOutline_1567000169393807" ;="" style="font-size: 15px; line-height: 1.6;">如何使用得到的HAR檔案？</a><br></li><li><a href="#WizKMOutline_1567000169393926" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more-->
+		<section><h2 id="WizKMOutline_1567000169393871">什麽是HAR？</h2><p>
+		HAR的全稱是：HTTP Archive format，是一個由W3C定義用JSON方式儲存用來表示HTTP溝通的一個檔案格式。這個檔案通常的副檔名是<code>.har</code>。
+		</p><p>
+		基本上，大部分的瀏覽器都有支援har，因此可以利用這個方式來把所有的network request儲存起來然後提供給工程師做分析使用。
+		</p><p>
+		這邊將介紹3個常見的瀏覽器如何儲存成爲har：
+		</p><ol><li>IE</li><li>Edge</li><li>Chrome</li></ol><p></p><p>
+		以下將會使用<a href="http://www.google.com">http://www.google.com</a>做測試
+		</p><section><h3 id="WizKMOutline_1567000169393429">IE</h3><p>
+			開啓IE之後，直接透過按下<kbd>F12</kbd>開啓開發者工具。
+			</p><p>
+			接下來直接瀏覽到google：
+			</p><ol><li>切換到<code>Network</code> Tab</li><li>從左邊數過來第三個icon (磁碟icon) 點下去</li><li>這個時候會有一個儲存輸入框跳出來，輸入要儲存的檔名以及位置就可以了</li></ol><figure><img class="img-responsive" src="/posts/2019/08/2019-08-28-faq-download-network-request-as-har-for-ie-edge-and-chrome-and-import-back-for-use/86b2e32e-20a6-4f23-9c64-88bd09f63dc2.png" border="0" alt="iexplore_2019-08-28_21-20-47.png"><br><figcaption>IE匯出har</figcaption></figure><p></p><p>
+			這樣就會拿到一個har檔案。
+			</p></section><section><h3 id="WizKMOutline_1567000169393845">Edge</h3><p>
+			和IE差不多，開啓Edge之後，直接透過按下<kbd>F12</kbd>開啓開發者工具。
+			</p><p>
+			接下來直接瀏覽到google：
+			</p><ol><li>一樣是從左邊數過來第三個icon (磁碟icon) 點下去</li><li>這個時候會有一個儲存輸入框跳出來，輸入要儲存的檔名以及位置就可以了</li></ol><figure><img class="img-responsive" src="/posts/2019/08/2019-08-28-faq-download-network-request-as-har-for-ie-edge-and-chrome-and-import-back-for-use/28aea796-cbf4-4de3-ad2f-5d5e9e891e9e.png" border="0" alt="ApplicationFrameHost_2019-08-28_21-17-12.png"><br><figcaption>Edge匯出har</figcaption></figure><p></p><p>
+			這樣就會拿到一個har檔案。
+			</p></section><section><h3 id="WizKMOutline_1567000169393977">Chrome</h3><p>
+			和其他瀏覽器差不多，開啓Chrome之後，直接透過按下<kbd>F12</kbd>開啓開發者工具。
+			</p><p>
+			接下來直接瀏覽到google：
+			</p><ol><li>一樣切換到<code>network</code></li><li>在最後一個箭頭向下的Icon就是儲存</li></ol><figure><img class="img-responsive" src="/posts/2019/08/2019-08-28-faq-download-network-request-as-har-for-ie-edge-and-chrome-and-import-back-for-use/f0a4a9ed-ff18-48fa-b199-414141ded539.png" border="0" alt="2019-08-28_21-21-32.png"><br><figcaption>Chrome匯出har</figcaption></figure><p></p><p>
+			這樣就會拿到一個har檔案。
+			</p></section></section><section><h2 id="WizKMOutline_1567000169393807">如何使用得到的HAR檔案？</h2><p>
+		有了HAR檔案之後，可以使用Chrome來把這些訊息變成一個一個的request。
+		</p><p>
+		先開啓一個Chrome，並且用<kbd>F12</kbd>開啓Developer Tool
+		</p><p>
+		在<code>Network</code>的倒數第二個icon(箭頭向上)就可以把得到的HAR檔案匯入進來。
+		</p><p>
+		這個時候就會看到每個request都出現了，就像是用chrome瀏覽這些網站一樣。
+		</p><figure><img class="img-responsive" src="/posts/2019/08/2019-08-28-faq-download-network-request-as-har-for-ie-edge-and-chrome-and-import-back-for-use/bb18254d-643c-4772-b18c-71203ca381eb.png" border="0" alt="chrome_2019-08-28_21-40-02.png"><br><figcaption>匯入HAR並且看到所有的Request</figcaption></figure><p>
+		這個時候要分析那個request有問題，或者要匯入到Postman都沒有問題。
+		</p><p>
+		透過這個方式，也減少和工程師溝通到底是哪個request有問題或者因爲點了什麽導致有問題的成本 - 自己上去看XD。
+		</p></section><section><h2 id="WizKMOutline_1567000169393926">結語</h2><p>
+		有時候和畫面選項很多，可能是選了什麽，在不選擇什麽情況下才有問題。
+		</p><p>
+		透過直接給HAR，可以讓工程師馬上知道是那個request搭配什麽參數有問題，並且如果需要分析什麽訊息也很方便。
+		</p><p>
+		減少掉很多鷄同鴨講的時間。
+		</p></section>

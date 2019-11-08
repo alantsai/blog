@@ -1,14 +1,14 @@
-Title: "[chatbot + AI = 下一代操作模式][19]把LUIS和BotBuilder整合"
+Title: "[chatbot + AI = 下一代操作模式][19]把LUIS和Bot Builder SDK整合"
 Published: 2018-07-24 22:05
-Modified: 2018-07-24 22:05
+Modified: 2019-11-08 22:05
 Image: "/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/36be808a-5de0-400c-97d6-1e179118eebe.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai", "luis"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
 PostDescription: "上一篇介紹完了如何在luis建立app/model之後
-這篇將來看看如何發佈建立好的app/model，并且在BotBuilder裡面如何整合
+這篇將來看看如何發佈建立好的app/model，并且在Bot Builder SDK裡面如何整合
 讓chatobot也能識別使用者意圖"
 ---
-<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/36be808a-5de0-400c-97d6-1e179118eebe.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][19]把LUIS和BotBuilder整合.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/36be808a-5de0-400c-97d6-1e179118eebe.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][19]把LUIS和Bot Builder SDK整合.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-18-create-luis-app-from-theory-to-practise">[18]在LUIS建立app - 概念變成實作</a>)看完如何建立一個app，然後定義intent以及utterance。</p><p>
 		這篇將來看看如何把上篇建立好的model發佈出去，并且用在實際的程式裡面。這篇將整合LUIS建立出來的Model到目前的chatbot裡面，讓chatbot的判斷不再是呆板的if else。
 		</p>
@@ -16,9 +16,9 @@ PostDescription: "上一篇介紹完了如何在luis建立app/model之後
 			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-19">alantsai-samples/mhat-hotelbot:blog/chapter-19</a></div>
 	</section>
 		<section>
-<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532444931305714" ;="" style="font-size: 15px; line-height: 1.6;">如何讓LUIS和BotBuilder結合？</a><br></li><li><a href="#WizKMOutline_1532444931305887" ;="" style="font-size: 15px; line-height: 1.6;">發佈LUIS app</a><br></li><li><a href="#WizKMOutline_1532444931305999" ;="" style="font-size: 15px; line-height: 1.6;">整合LUIS到BotBuilder</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532444931305351" ;="" style="font-size: 15px; line-height: 1.6;">建立一個Dialog繼承LuisDialog</a><br></li><li><a href="#WizKMOutline_1532444931305556" ;="" style="font-size: 15px; line-height: 1.6;">調整每一個intent對應需要發生的事情</a><br></li><li><a href="#WizKMOutline_1532444931305142" ;="" style="font-size: 15px; line-height: 1.6;">調整初始進入的Dialog</a><br></li><li><a href="#WizKMOutline_1532444931305963" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1532444931305864" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532444931305714" ;="" style="font-size: 15px; line-height: 1.6;">如何讓LUIS和Bot Builder SDK結合？</a><br></li><li><a href="#WizKMOutline_1532444931305887" ;="" style="font-size: 15px; line-height: 1.6;">發佈LUIS app</a><br></li><li><a href="#WizKMOutline_1532444931305999" ;="" style="font-size: 15px; line-height: 1.6;">整合LUIS到Bot Builder SDK</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1532444931305351" ;="" style="font-size: 15px; line-height: 1.6;">建立一個Dialog繼承LuisDialog</a><br></li><li><a href="#WizKMOutline_1532444931305556" ;="" style="font-size: 15px; line-height: 1.6;">調整每一個intent對應需要發生的事情</a><br></li><li><a href="#WizKMOutline_1532444931305142" ;="" style="font-size: 15px; line-height: 1.6;">調整初始進入的Dialog</a><br></li><li><a href="#WizKMOutline_1532444931305963" ;="" style="font-size: 15px; line-height: 1.6;">測試結果</a><br></li></ul><li><a href="#WizKMOutline_1532444931305864" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
 		</section>
-		<!--more--><section><h2 id="WizKMOutline_1532444931305714">如何讓LUIS和BotBuilder結合？</h2><p>
+		<!--more--><section><h2 id="WizKMOutline_1532444931305714">如何讓LUIS和Bot Builder SDK結合？</h2><p>
 		有兩個動作需要做：
 		</p><ol><li>上篇雖然把model建立出來了，但是沒有<em>發佈</em>，因此需要先發佈了之後，外界才可以透過REST Api調用</li><li>調整chatbot的程式 - 目前是在<em>RootDialog</em>裡面透過if else來切換觸發那個Dialog。這個工作將轉交給LUIS來做這個意圖識別</li></ol><p></p></section><section><h2 id="WizKMOutline_1532444931305887">發佈LUIS app</h2><p>
 		登入到luis.ai的網站上面，并且進入到上篇所建立的app裡面，在上面的menu選擇<em>PUBLISH</em></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/39457d3b-8b69-43be-a3ac-2baa0d75ce01.png" border="0" alt="chrome_2018-07-24_17-07-45.png"><br><figcaption>切換到Publish app的畫面</figcaption></figure><p></p><p>
@@ -33,13 +33,13 @@ PostDescription: "上一篇介紹完了如何在luis建立app/model之後
 			題外話，看到版號應該會想到版本控制對吧。LUIS設計還蠻好，除了staging和production切換之外，還有把版號這個事情考慮進去。這都是影響服務品質應該有的管控。
 		</div><p>
 		發佈完了要測試一下有沒有問題，這個時候直接點下<em>End Point</em>，然後在最後一個參數<code>q</code>輸入想要查詢的，將會得到結果：
-		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/58959360-983a-40b8-a03e-934ca1327295.png" border="0" alt="chrome_2018-07-24_17-22-54.png"><br><figcaption>測試發佈的model是否有問題</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1532444931305999">整合LUIS到BotBuilder</h2><p>
-		接下來就是把LUIS整合到BotBuilder裡面。
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/58959360-983a-40b8-a03e-934ca1327295.png" border="0" alt="chrome_2018-07-24_17-22-54.png"><br><figcaption>測試發佈的model是否有問題</figcaption></figure><p></p></section><section><h2 id="WizKMOutline_1532444931305999">整合LUIS到Bot Builder SDK</h2><p>
+		接下來就是把LUIS整合到Bot Builder SDK裡面。
 		</p><p>
 		從上面知道，其實LUIS最後提供的就是一個REST API而已，所以可以自己做一個class專門處理溝通然後返回結果，
-		不過不用那麽麻煩，BotBuilder已經有包好Dialog可以直接使用。
+		不過不用那麽麻煩，Bot Builder SDK已經有包好Dialog可以直接使用。
 		</p><div class="bs-callout bs-callout-info">
-			題外話：還蠻驚訝沒找到有現成的C# Library獨立在做和LUIS溝通的這個事情，不過BotBuilder裡面有包含，如果非chatbot的程式需要和LUIS溝通，可以參考一下BotBuilder的原始碼，省的自己寫。
+			題外話：還蠻驚訝沒找到有現成的C# Library獨立在做和LUIS溝通的這個事情，不過Bot Builder SDK裡面有包含，如果非chatbot的程式需要和LUIS溝通，可以參考一下Bot Builder SDK的原始碼，省的自己寫。
 		</div><p>
 		接下來，改造一下現行程式來用LUIS判斷使用者的意圖，總共有幾個部分：
 		</p><ol><li>建立一個<code>RootLuisDialog</code>繼承<code>LuisDialog</code></li><li>調整每一個intent對應需要發生的事情</li><li>調整進入的起始Dialog</li><li>測試結果</li></ol><p></p><section><h3 id="WizKMOutline_1532444931305351">建立一個Dialog繼承LuisDialog</h3><p>
@@ -123,7 +123,7 @@ private IDialog&lt;object&gt; MakeLuisDialog()
 			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-24-bot-framework-with-ai-cognitive-service-19-use-luis-in-bot-builder-to-create-chatbot/3271ddbc-ebfa-4cda-a260-2279a097b355.png" border="0" alt="botframework-emulator_2018-07-24_22-58-27.png"><br><figcaption>測試結果</figcaption></figure><p>
 			接下來就是把其他的intent也加進去即可。
 			</p></section></section><section><h2 id="WizKMOutline_1532444931305864">結語</h2><p>
-		這篇介紹了如何把建立出來的LUIS app發佈成爲服務，并且如何和BotBuilder結合，讓chatbot能夠使用LUIS的威力來識別使用者的意圖。
+		這篇介紹了如何把建立出來的LUIS app發佈成爲服務，并且如何和Bot Builder SDK結合，讓chatbot能夠使用LUIS的威力來識別使用者的意圖。
 		</p><p>
 		到目前爲止，對於LUIS的基本概念以及使用已經有了基本概念，不過裡面還有蠻多的細節，例如entities的使用、持續維護LUIS app等，下一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-20-define-entities-in-luis">[20]LUIS深入使用 - 定義Entities來截取參數</a>)先從entities開始介紹。
 		</p></section>

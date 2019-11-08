@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][23]LUIS管理工具 - luis-api和LUDown介紹"
 Published: 2018-08-01 23:05
-Modified: 2018-08-01 23:05
+Modified: 2019-11-08 23:05
 Image: "/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/fb86363d-2228-4948-b199-ddbbfb52245d.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "luis"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -41,12 +41,12 @@ PostDescription: "上篇看完了如何透過web界面提供給一般使用者�
 			所有的指令結構都是：<code>luis {動作} {功能}</code></p><ol><li>{動作} 指的是 新增(add)、刪除(delete)、修改(update)和列表(list) - 這邊列的是幾個常見的，還有其他可以用</li><li>{功能} 指的是這個動作對什麽resource有起作用，例如 app、intent、entity等</li></ol><p></p><p>
 			舉例來説，如果要列出所有的apps可以透過輸入：<kbd>luis list apps</kbd>：
 			</p><figure><img class="img-responsive" src="/posts/2018/08/2018-08-01-bot-framework-with-ai-cognitive-service-23-tools-for-mangaging-luis-luis-apis-and-ludown-intro/67846d20-a871-45e3-a167-1dd72b60b00a.png" border="0" alt="powershell_2018-08-01_19-02-02.png"><br><figcaption>json格式顯示所有的app</figcaption></figure><p></p><p>
-			指令太多了，我這邊不會在往更深入的介紹，如果有興趣直接參考官方文件比較快：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/LUIS">https://github.com/Microsoft/botbuilder-tools/tree/master/LUIS</a></p></section></section><section><h2 id="WizKMOutline_1533154770777805">LUDown是什麽？</h2>
+			指令太多了，我這邊不會在往更深入的介紹，如果有興趣直接參考官方文件比較快：<a href="https://github.com/Microsoft/Bot Builder SDK-tools/tree/master/LUIS">https://github.com/Microsoft/Bot Builder SDK-tools/tree/master/LUIS</a></p></section></section><section><h2 id="WizKMOutline_1533154770777805">LUDown是什麽？</h2>
 		<div class="bs-callout bs-callout-default">
 			<h4>LUDown小檔案</h4> 
 			<ul>
-				<li>Github Repo：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown">https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown</a></li> 
-				<li>參考文件：<a href="https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown/docs">https://github.com/Microsoft/botbuilder-tools/tree/master/Ludown/docs</a></li> 
+				<li>Github Repo：<a href="https://github.com/Microsoft/Bot Builder SDK-tools/tree/master/Ludown">https://github.com/Microsoft/Bot Builder SDK-tools/tree/master/Ludown</a></li> 
+				<li>參考文件：<a href="https://github.com/Microsoft/Bot Builder SDK-tools/tree/master/Ludown/docs">https://github.com/Microsoft/Bot Builder SDK-tools/tree/master/Ludown/docs</a></li> 
 			</ul> 
 		</div>
 		
@@ -75,7 +75,7 @@ PostDescription: "上篇看完了如何透過web界面提供給一般使用者�
 				，無形中浪費掉很多時間。如果可以在檔案定義好，然後一次更新上去不是很方便？更別説有版控這個利器。
 			</div><div class="bs-callout bs-callout-info">
 				更多.lu的寫法可以參考：
-				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/lu-file-format.md">https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/lu-file-format.md</a></div></section><section><h3 id="WizKMOutline_1533154770778132">.lu檔案變成JSON model</h3><p>
+				<a href="https://github.com/Microsoft/Bot Builder SDK-tools/blob/master/Ludown/docs/lu-file-format.md">https://github.com/Microsoft/Bot Builder SDK-tools/blob/master/Ludown/docs/lu-file-format.md</a></div></section><section><h3 id="WizKMOutline_1533154770778132">.lu檔案變成JSON model</h3><p>
 			.lu檔案是給人看的，而LUIS要看的是JSON model檔案，因此這個時候LUDown就出來了。
 			</p><p>
 			透過ludown的parse指令即可，整個參數是：<code>ludown parse toluis -l &lt;folder with .lu files&gt; [-s -o &lt;outputfolder&gt; -n &lt;luisAppName&gt; --verbose -c &lt;luisAppCulture&gt;]</code></p><p>
@@ -85,7 +85,7 @@ PostDescription: "上篇看完了如何透過web界面提供給一般使用者�
 				預設建立的Model是英文，所以如果是要給中文的Model使用的JSON檔案，需要設定參數<code>-c</code>。
 			</div><div class="bs-callout bs-callout-info">
 				更多參數説明可以參考：
-				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/create-luis-json.md">https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/create-luis-json.md</a></div></section><section><h3 id="WizKMOutline_1533154770778892">把JSON Model發佈到luis.ai</h3><p>
+				<a href="https://github.com/Microsoft/Bot Builder SDK-tools/blob/master/Ludown/docs/create-luis-json.md">https://github.com/Microsoft/Bot Builder SDK-tools/blob/master/Ludown/docs/create-luis-json.md</a></div></section><section><h3 id="WizKMOutline_1533154770778892">把JSON Model發佈到luis.ai</h3><p>
 			有了JSON Model之後，下一步就是把這個Model部署到luis.ai上面。
 			</p><p>
 			部署上去有兩種做法：
@@ -102,7 +102,7 @@ PostDescription: "上篇看完了如何透過web界面提供給一般使用者�
 				匯出除了從web界面執行，也可以用<code>luis-apis</code>來達到。
 			</div><div class="bs-callout bs-callout-info">
 				更多參數可以參考：
-				<a href="https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/refresh-command.md">https://github.com/Microsoft/botbuilder-tools/blob/master/Ludown/docs/refresh-command.md</a></div></section></section><section><h2 id="WizKMOutline_1533154770778380">結語</h2><p>
+				<a href="https://github.com/Microsoft/Bot Builder SDK-tools/blob/master/Ludown/docs/refresh-command.md">https://github.com/Microsoft/Bot Builder SDK-tools/blob/master/Ludown/docs/refresh-command.md</a></div></section></section><section><h2 id="WizKMOutline_1533154770778380">結語</h2><p>
 		當管理的LUIS Model變大的時候，只透過web界面來操作有時候是不夠快速，并且沒辦法批次建立或者修改Model。
 		</p><p>
 		透過今天介紹的兩個工具：<code>luis-apis</code>能夠把在web任意操作透過CLI方式控制，達到可撰寫常用scripts快速重複類似的動作。透過<code>LUDown</code>讓JSON Model變成人可以容易看并且好修改的類似markdown語法的檔案，

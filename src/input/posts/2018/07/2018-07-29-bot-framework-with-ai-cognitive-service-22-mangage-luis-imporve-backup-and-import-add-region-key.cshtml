@@ -1,15 +1,15 @@
 Title: "[chatbot + AI = 下一代操作模式][22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key"
 Published: 2018-07-29 23:05
-Modified: 2018-07-29 23:05
+Modified: 2019-11-08 23:05
 Image: "/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/183a7da4-05ee-43c8-96a8-45fa339d71ee.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai", "luis"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
-PostDescription: "上篇看完了如何把BotBuilder和LUIS的entities結合了之後，基本上LUIS的使用應該就很清楚了。
+PostDescription: "上篇看完了如何把Bot Builder SDK和LUIS的entities結合了之後，基本上LUIS的使用應該就很清楚了。
 不過，和軟體上綫一樣，難不在開發，而是在之後的維護。LUIS也是一樣。
 接下來幾篇要介紹的是管理LUIS的部分，先從如何持續加强app、加入不同region的key、加入共同編輯者以及備份和匯入"
 ---
 <section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-29-bot-framework-with-ai-cognitive-service-22-mangage-luis-imporve-backup-and-import-add-region-key/183a7da4-05ee-43c8-96a8-45fa339d71ee.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][22]LUIS管理及維護 - 持續加强app、多人維護、備份以及加入別的region key.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
-		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder">[21]LUIS深入使用 - 如何在BotBuilder使用entities</a>)介紹完了如何在程式碼裡面使用LUIS截取的Entities之後，基本上LUIS的設定以及和程式碼如何搭配使用就基本上介紹完了。</p><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-21-use-luis-entities-in-botbuilder">[21]LUIS深入使用 - 如何在Bot Builder SDK使用entities</a>)介紹完了如何在程式碼裡面使用LUIS截取的Entities之後，基本上LUIS的設定以及和程式碼如何搭配使用就基本上介紹完了。</p><p>
 		程式最困難不是在開發，而是上綫之後的維護，LUIS的app也是如此，怎麽樣讓LUIS的app越來越好是接下來幾篇要介紹的部分。
 		</p><p>
 		這篇先從四個部分開始：<em>依照使用者輸入内容來加强app</em>、<em>如何使用不同region的LUIS</em>、<em>多人維護 app</em>和<em>備份/匯入 app</em>。

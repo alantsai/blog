@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][37]維護QnA Maker的知識庫 - 設定url或者檔案為來源、多人維護以及離綫定義知識庫"
 Published: 2018-08-21 18:10
-Modified: 2018-08-21 18:10
+Modified: 2019-11-08 18:10
 Image: "/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/226376f3-a5fa-4370-968f-25547a95b819.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "qna-maker"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -9,7 +9,7 @@ PostDescription: "上一篇看完了如何整合QnA Maker到Chatbot裡面，到�
 這篇來看看如何透過url和檔案方式設定Knowledge Base、怎麽多人維護Knowledge Base以及怎麽透過工具在離綫狀態準備好Knowledge Base的内容"
 ---
 <section><figure><img class="img-responsive" src="/posts/2018/08/2018-08-21-bot-framework-with-ai-cognitive-service-37-manage-qnamaker-knowledge-use-url-and-file-add-collaborator-and-mange-knowledge-offline-using-tool/226376f3-a5fa-4370-968f-25547a95b819.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][37]維護QnA Maker的知識庫 - 設定url或者檔案為來源、多人維護以及離綫定義知識庫.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
-		上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot">[36]Chatbot整合QnAMaker - 使用對話查找知識集</a>)介紹完了如何把QnA Maker整合到BotBuilder裡面，讓使用者可以透過問答的方式去搜索設定好的Knowledge。</p><p>
+		上一篇(<a href="/posts/2018/08/bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot">[36]Chatbot整合QnAMaker - 使用對話查找知識集</a>)介紹完了如何把QnA Maker整合到Bot Builder SDK裡面，讓使用者可以透過問答的方式去搜索設定好的Knowledge。</p><p>
 		這篇要來介紹維護Knowledge Base這件事。如何透過設定截取網頁内容或者截取檔案内容來設定Knowledge、怎麽多個人維護和怎麽Offline 透過LUDown這個工具來Offline備份以及設定。
 		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1534845858781112" ;="" style="font-size: 15px; line-height: 1.6;">如何設定用截取網站或者檔案方式設定Knowledge Base</a><br></li><li><a href="#WizKMOutline_1534845858782366" ;="" style="font-size: 15px; line-height: 1.6;">如何讓多人維護同一個Knowledge base</a><br></li><li><a href="#WizKMOutline_1534845858782976" ;="" style="font-size: 15px; line-height: 1.6;">Offline設定Knowledge Base的工具</a><br></li><li><a href="#WizKMOutline_1534845858782268" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1534845858781112">如何設定用截取網站或者檔案方式設定Knowledge Base</h2><p>
 		還記得在一開始建立Knowledge Base的時候，在<em>Step 4</em>的時候有詢問設定網址或者檔案的方式來輸入Knowledge内容。那個時候我們沒有理他，直接跳過了。

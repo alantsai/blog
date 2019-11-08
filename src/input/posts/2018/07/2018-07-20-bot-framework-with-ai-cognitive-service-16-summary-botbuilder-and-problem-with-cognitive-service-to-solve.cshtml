@@ -1,6 +1,6 @@
-Title: "[chatbot + AI = 下一代操作模式][16]BotBuilder開發總結 - 下一步是搭AI服務"
+Title: "[chatbot + AI = 下一代操作模式][16]Bot Builder SDK開發總結 - 下一步是搭AI服務"
 Published: 2018-07-20 22:05
-Modified: 2018-07-20 22:05
+Modified: 2019-11-08 22:05
 Image: "/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/68dbdf12-4905-4298-b936-d037558d8fdb.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "azure", "cognitive service", "ai"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -10,9 +10,9 @@ PostDescription: "chatbot開發介紹到了一個段落了，看完到目前爲�
 ---
 <section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/68dbdf12-4905-4298-b936-d037558d8fdb.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][16]BotBuilder開發總結 - 下一步是搭AI服務.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-15-use-direct-line-to-connect-chatbot-in-any-program">[15]上綫 - 透過Direct Line把chatbot和任意程式做連接</a>)介紹完了Direct Line Channel之後，Azure Bot Service 和 BotBuilder 搭配開發chatbot的部分就到了一個尾聲。當然，裡面還有很多細節可以介紹，但是以目前介紹的内容來説，要開發出一個能用的chatbot已經不是什麽問題。</p><p>
-		那下一步是什麽？在介紹bot builder的過程會發現，開發chatbot其實蠻死板的，有沒有辦法讓他更加智能一些？如果搭上最近幾年很火的AI服務就可以。
+		那下一步是什麽？在介紹Bot Builder SDK的過程會發現，開發chatbot其實蠻死板的，有沒有辦法讓他更加智能一些？如果搭上最近幾年很火的AI服務就可以。
 		</p><p>
-		這篇將快速回顧一下目前bot builder所學到的内容，以及下一步如何搭配AI服務來增加可用性。
+		這篇將快速回顧一下目前Bot Builder SDK所學到的内容，以及下一步如何搭配AI服務來增加可用性。
 		</p></section>
 		<section>
 			<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1532095796894685" ;="" style="font-size: 15px; line-height: 1.6;">整個Azure Bot Service</a><br></li><li><a href="#WizKMOutline_1532095796894950" ;="" style="font-size: 15px; line-height: 1.6;">目前爲止的chatbot開發有什麽問題？</a><br></li><li><a href="#WizKMOutline_1532095796894990" ;="" style="font-size: 15px; line-height: 1.6;">AI服務怎麽解決這些問題？</a><br></li><li><a href="#WizKMOutline_1532095796894292" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
@@ -20,8 +20,8 @@ PostDescription: "chatbot開發介紹到了一個段落了，看完到目前爲�
 		<!--more--><section><h2 id="WizKMOutline_1532095796894685">整個Azure Bot Service</h2><figure><img class="img-responsive" src="/posts/2018/07/2018-07-20-bot-framework-with-ai-cognitive-service-16-summary-botbuilder-and-problem-with-cognitive-service-to-solve/23aeb2bf-0c43-4b11-badc-cb8b785e63bd.jpg" border="0" alt="a238a09a-ee30-4106-8ec1-175e92acb902.jpg"><br><figcaption>整個Azure Bot Service的框架</figcaption></figure><p>
 		知道大家應該已經看膩上面那張圖，不過在回來看一下應該會更有感。
 		</p><p>
-		從右邊的bot builder框架開發出chatbot，再到左邊的搭配bot channel registration把chatbot和各個channel連接起來，在整個過程介紹了：
-		</p><ol><li>bot builder的開發，從模擬器測試，邏輯最小單位的Dialog、到FormFlow再到訊息卡片話呈現</li><li>把chatbot上綫，使用到了Azure的App Service來做hosting</li><li>透過bot channel registration把chatbot和各個channel做關聯，有任意網頁的web control，有Facebook Messenger再到任意程式都可以接的Direc tLIne Channel</li></ol><p></p><p>
+		從右邊的Bot Builder SDK框架開發出chatbot，再到左邊的搭配bot channel registration把chatbot和各個channel連接起來，在整個過程介紹了：
+		</p><ol><li>Bot Builder SDK的開發，從模擬器測試，邏輯最小單位的Dialog、到FormFlow再到訊息卡片話呈現</li><li>把chatbot上綫，使用到了Azure的App Service來做hosting</li><li>透過bot channel registration把chatbot和各個channel做關聯，有任意網頁的web control，有Facebook Messenger再到任意程式都可以接的Direc tLIne Channel</li></ol><p></p><p>
 		到這邊對於整個chatbot開發應該有些感覺了，但是會發現chatbot有個很大的問題，那就是<em>感覺像玩具</em>，蠻好玩，但是如果真的用來做什麽，好像又沒有什麽辦法，這是爲什麽？
 		</p></section><section><h2 id="WizKMOutline_1532095796894950">目前爲止的chatbot開發有什麽問題？</h2><p>
 		如果沒有真的開發下去，可能還沒發現什麽，但是如果回想一下目前整個操作，會發現：

@@ -1,6 +1,6 @@
 Title: "[Bot Framework V4][01]開篇"
 Published: 2018-10-17 21:01
-Modified: 2018-10-17 21:01
+Modified: 2019-11-08 21:01
 Image: "/posts/2018/10/2018-10-17-bot-framework-v4-1-introduction/5b1b59dc-2b26-479e-beb1-8d6c7c8e9a51.jpg"
 Tags: ["「Bot Framework V4」", "bot framework", "ai", "chatbot", "net-core"]
 Series: ["「Bot Framework V4」"]
@@ -11,7 +11,7 @@ PostDescription: "還記得之前「chatbot + AI = 下一代操作模式」這�
 <section><figure><img class="img-responsive" src="/posts/2018/10/2018-10-17-bot-framework-v4-1-introduction/5b1b59dc-2b26-479e-beb1-8d6c7c8e9a51.jpg" border="0" alt="[Bot Framework V4][01]開篇.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		還記得沒多久之前介紹的另外一個系列(<a href="/tags/%E3%80%8Cchatbot-+-ai-=-%E4%B8%8B%E4%B8%80%E4%BB%A3%E6%93%8D%E4%BD%9C%E6%A8%A1%E5%BC%8F%E3%80%8D">「chatbot + AI = 下一代操作模式」</a>)，那個時候介紹了新一代的操作模式俗稱的Chatbot，以及看Chatbot結合Cognitive Service這種AI API所帶來的另外一種使用者體驗。
 		</p><p>
-		那時候因爲V4還在Preview，所以介紹了使用Bot Framework V3(準確一點說是BotBuilder V3)。
+		那時候因爲V4還在Preview，所以介紹了使用Bot Framework V3(準確一點說是Bot Builder SDK V3)。
 		</p><p>
 		而V4在9月底的時候正式發佈GA了(進入Stable)，因此有了這個系列的開始，來看看V4改變了什麽。
 		</p></section>
@@ -35,7 +35,7 @@ PostDescription: "還記得之前「chatbot + AI = 下一代操作模式」這�
 		</p><p>
 		V4其實是聼取了大家使用V3的經驗整個打掉重練的一個框架，最底層使用的是Asp .NET Core 2.0 (換句話説，Bot的部分可以跨平臺），因此如果有Asp .NET Core的經驗的話，會感覺很舒服。
 		</p><p>
-		不過如果沒有使用過Asp .NET Core也不用擔心，這個系列會介紹一些概念，然後最主要還是focus在Bot Builder的部分上面。
+		不過如果沒有使用過Asp .NET Core也不用擔心，這個系列會介紹一些概念，然後最主要還是focus在Bot Builder SDK的部分上面。
 		</p></section><section><h2 id="WizKMOutline_1539856506211665">這個系列需要準備什麽工具/知識？</h2><p>
 		基本上和V3需要的知識/工具差不多：
 		</p><ol><li>C# - 最基本的C#一定要懂，再來懂 async，和瞭解 Asp .NET Core會讓理解更加容易，但是不會問題也不會太大（至少從理解程式的角度來説）</li><li>Visual Studio - 整個系列用的是VS 2017，然後記得<em>要安裝.NET Core</em>(最少2.0，如果要用2.0以上可以自己調整)。如果想要離綫安裝，可以參考我之前寫過的一篇

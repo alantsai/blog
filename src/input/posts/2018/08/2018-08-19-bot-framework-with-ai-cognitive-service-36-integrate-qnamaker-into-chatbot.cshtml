@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][36]Chatbot整合QnAMaker - 使用對話查找知識集"
 Published: 2018-08-19 22:10
-Modified: 2018-08-19 22:10
+Modified: 2019-11-08 22:10
 Image: "/posts/2018/08/2018-08-19-bot-framework-with-ai-cognitive-service-36-integrate-qnamaker-into-chatbot/833d0d69-8690-44db-95a0-e20e3eb73975.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "qna-maker", "bot framework", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -17,7 +17,7 @@ PostDescription: "上一篇介紹完了QnA Maker的功能之後，接下來就�
 	</section>
 	<!--more-->
 	<section><h2 id="WizKMOutline_1534688251337223">整合QnA Maker到Chatbot</h2><p>
-		BotBuilder裡面有提供QnA Maker的Dialog，因此要整合到Chatbot裡面會比較容易一些。不過，提供的QnAMakerDialog還需要做一些微調，因此還是會建立一個Dialog做這些相關的微調。
+		Bot Builder SDK裡面有提供QnA Maker的Dialog，因此要整合到Chatbot裡面會比較容易一些。不過，提供的QnAMakerDialog還需要做一些微調，因此還是會建立一個Dialog做這些相關的微調。
 		</p><p>
 		整個需要調整的部分如下：
 		</p><ol><li>安裝有QnAMaker的Dialog套件</li><li>增加BasicQnAMakerDialog</li><li>調整RootLuisDialog</li><li>調整web.config</li><li>測試</li></ol><p></p><section><h3 id="WizKMOutline_1534688251337511">安裝有QnAMaker的Dialog套件</h3><p>

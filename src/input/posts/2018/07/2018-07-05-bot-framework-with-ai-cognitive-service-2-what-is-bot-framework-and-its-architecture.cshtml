@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][02]微軟的Bot Framework是什麽？"
 Published: 2018-07-05 06:01
-Modified: 2018-07-05 06:01
+Modified: 2019-11-05 06:01
 Image: "/posts/2018/07/2018-07-05-bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture/fdd059fc-d756-4631-9367-26619cd86d97.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "cognitive service", "ai", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -12,7 +12,7 @@ PostDescription: "微軟既然提出了CaaP，那麽也會提出他的解決方�
 <section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-05-bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture/fdd059fc-d756-4631-9367-26619cd86d97.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][01]開篇 - 爲什麽應該學.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-1-introduction-what-is-caap-why-learn-bot-framework-and-cognitives-service">[01]開篇 - CaaP是什麽，爲什麽應該學</a>)瞭解了下一個時代的操作模式：CaaP (Conversation as a Platform)，那麽微軟的解決方案是什麽？這個解決方案的架構是什麽？</p><p>
 		這一篇將會從high level的角度來看看微軟的整體解決方案，Microsoft Bot Framework。
-		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1530860378170150" ;="" style="font-size: 15px; line-height: 1.6;">開發一個chatbot需要經過什麽流程</a><br></li><li><a href="#WizKMOutline_1530860378170951" ;="" style="font-size: 15px; line-height: 1.6;">Microsoft Bot Framework 是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530860378170472" ;="" style="font-size: 15px; line-height: 1.6;">BotBuilder是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530860378170634" ;="" style="font-size: 15px; line-height: 1.6;">BotBuilder小檔案</a><br></li></ul><li><a href="#WizKMOutline_1530860378170418" ;="" style="font-size: 15px; line-height: 1.6;">Bot Service是什麽？</a><br></li><li><a href="#WizKMOutline_1530860378170624" ;="" style="font-size: 15px; line-height: 1.6;">Azure Bot Service是什么？</a><br></li></ul><li><a href="#WizKMOutline_1530860378170362" ;="" style="font-size: 15px; line-height: 1.6;">快速看一下这篇提到的keyword</a><br></li><li><a href="#WizKMOutline_1530860378171182" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1530860378170150">開發一個chatbot需要經過什麽流程</h2><p>
+		</p></section><section><a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1530860378170150" ;="" style="font-size: 15px; line-height: 1.6;">開發一個chatbot需要經過什麽流程</a><br></li><li><a href="#WizKMOutline_1530860378170951" ;="" style="font-size: 15px; line-height: 1.6;">Microsoft Bot Framework 是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530860378170472" ;="" style="font-size: 15px; line-height: 1.6;">Bot Builder SDK是什麽？</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1530860378170634" ;="" style="font-size: 15px; line-height: 1.6;">Bot Builder SDK小檔案</a><br></li></ul><li><a href="#WizKMOutline_1530860378170418" ;="" style="font-size: 15px; line-height: 1.6;">Bot Service是什麽？</a><br></li><li><a href="#WizKMOutline_1530860378170624" ;="" style="font-size: 15px; line-height: 1.6;">Azure Bot Service是什么？</a><br></li></ul><li><a href="#WizKMOutline_1530860378170362" ;="" style="font-size: 15px; line-height: 1.6;">快速看一下这篇提到的keyword</a><br></li><li><a href="#WizKMOutline_1530860378171182" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div></section><!--more--><section><h2 id="WizKMOutline_1530860378170150">開發一個chatbot需要經過什麽流程</h2><p>
 		開發一個chatbot和任意軟體一樣都會經歷過從最初期的規劃到最後面的持續監控：
 		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-05-bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture/93487305-17b0-4c95-9c25-30e3960b4df4.png" border="0" alt="bot-service-overview.png"><br><figcaption>Azure Bot Service想幫助解決的問題，參考可以看：
 				<a href="https://docs.microsoft.com/en-us/azure/bot-service/bot-service-overview-introduction">https://docs.microsoft.com/en-us/azure/bot-service/bot-service-overview-introduction</a></figcaption></figure><p></p><p>
@@ -25,16 +25,16 @@ PostDescription: "微軟既然提出了CaaP，那麽也會提出他的解決方�
 			code角度來説）</li><li><em>減少寫chatbot底層的一些處理，而專注在chatbot的業務邏輯</em> - chatbot有很多細節，例如如何記錄使用者之前回答過什麽（瞭解上下文），呈現的内容多元化（例如圖文式），
 				多元的互動模式（例如簡單的是否回答，以及選項式回答） - 這些底層的工bot framework都提供了</li></ol><p></p><p>
 		要達到上面説的目的以及好處，bot framework提供兩個重要的工具/服務：
-		</p><ul><li>BotBuilder - 開發的sdk</li><li>Bot Service - host chatbot的服務</li></ul><p></p><p>
-		這兩個部分分別對應到了開發工具（BotBuilder作爲sdk），以及host上去之後的服務（bot service）。那麽這兩個工具提供了什么幫助呢？
-		</p><section><h3 id="WizKMOutline_1530860378170472">BotBuilder是什麽？</h3><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1530860378170634">BotBuilder小檔案</h4><dl><dt>
+		</p><ul><li>Bot Builder SDK - 開發的sdk</li><li>Bot Service - host chatbot的服務</li></ul><p></p><p>
+		這兩個部分分別對應到了開發工具（Bot Builder SDK作爲sdk），以及host上去之後的服務（bot service）。那麽這兩個工具提供了什么幫助呢？
+		</p><section><h3 id="WizKMOutline_1530860378170472">Bot Builder SDK是什麽？</h3><div class="bs-callout bs-callout-default"><h4 id="WizKMOutline_1530860378170634">Bot Builder SDK小檔案</h4><dl><dt>
 						Open Source的sdk
 					</dt><dd>
 						可以在<a href="https://github.com/Microsoft/BotBuilder">github microsoft/botbuilder</a>看到完整的source code。
 					</dd><dt>
 						版本
 					</dt><dd><p>
-						目前BotBuilder有兩個版本，V3 (stable) 以及 V4 (preview)。
+						目前Bot Builder SDK有兩個版本，V3 (stable) 以及 V4 (preview)。
 						</p><p>
 						V3 支援C#以及NodeJs，而V4支援C#，NodeJs，Python以及Java。
 						</p><p>
@@ -46,21 +46,21 @@ PostDescription: "微軟既然提出了CaaP，那麽也會提出他的解決方�
 					</dt><dd>
 						C#版本的底層就是Asp .Net Web Api，因此有寫過的話對於一些開發的模式會比較清楚。
 					</dd></dl></div><p>
-			BotBuilder是一個開發的sdk，方便我們在chatbot開發的時候提供了一些必要的服務，例如：
-			</p><ul><li>上下文的處理 - chatbot最麻煩的一塊是記得使用者之前輸入了什麽，這個BotBuilder提供機制方便處理</li><li>一些必要常見的輸出方式 - 例如圖文内容，讓使用者做選擇的輸出内容等等</li><li>不同平臺的格式處理 - 讓業務邏輯處理同一種資料格式，而其他不同的平臺格式再底層的時候幫忙做對應轉換</li></ul> 
-			因此，使用BotBuilder可以讓我們<em>不用關注</em>那些底層細節而是<em>專注</em>於我們的業務邏輯就好。
+			Bot Builder SDK是一個開發的sdk，方便我們在chatbot開發的時候提供了一些必要的服務，例如：
+			</p><ul><li>上下文的處理 - chatbot最麻煩的一塊是記得使用者之前輸入了什麽，這個Bot Builder SDK提供機制方便處理</li><li>一些必要常見的輸出方式 - 例如圖文内容，讓使用者做選擇的輸出内容等等</li><li>不同平臺的格式處理 - 讓業務邏輯處理同一種資料格式，而其他不同的平臺格式再底層的時候幫忙做對應轉換</li></ul> 
+			因此，使用Bot Builder SDK可以讓我們<em>不用關注</em>那些底層細節而是<em>專注</em>於我們的業務邏輯就好。
 			<p></p><div class="bs-callout bs-callout-warning">
-				我覺得最混亂的地方是使用的naming，因爲bot framework一直持續在調整，因此有些地方把bot framework = botbuilder，但是實際上botbuilder只是bot framework其中一個部分而已。
+				我覺得最混亂的地方是使用的naming，因爲bot framework一直持續在調整，因此有些地方把bot framework = Bot Builder SDK，但是實際上Bot Builder SDK只是bot framework其中一個部分而已。
 			</div><p>
 			當我們把服務開發好了之後，下一步就是做部署。怎麽樣部署才能夠達到多個平臺都能夠使用？這個就是bot service進來的地方。
-			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-05-bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture/7202800f-96c5-4568-8102-3f7cc9fd2187.png" border="0" alt="01 botbuilder.png"><br><figcaption>只有BotBuilder怎么和其他地方接</figcaption></figure></section><section><h3 id="WizKMOutline_1530860378170418">Bot Service是什麽？</h3><p>
+			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-05-bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture/7202800f-96c5-4568-8102-3f7cc9fd2187.png" border="0" alt="01 Bot Builder SDK.png"><br><figcaption>只有Bot Builder SDK怎么和其他地方接</figcaption></figure></section><section><h3 id="WizKMOutline_1530860378170418">Bot Service是什麽？</h3><p>
 			當我們開發好了之後，部署上去了之後怎麽樣能夠讓別的平臺也能夠接上？
 			</p><p>
 			不同平臺肯定有他們的資料格式以及傳輸内容，怎麽樣能夠讓我的chatbot code不改變的情況下都能夠使用？
 			</p><p>
 			熟悉開發的就知道，那就再做一層翻譯的把其他的服務轉成同樣語言然後做好對應注冊就可以啦。
 			</p><p>
-			因此有了Bot Service，bot service主要的工作就是用來做一個中間人，設定好chatbot的位置，以及其他平臺（channel）需要接上的部分，把兩個地方搭起來。至於實際不同格式的翻譯屬於botbuilder該處理的一部分。
+			因此有了Bot Service，bot service主要的工作就是用來做一個中間人，設定好chatbot的位置，以及其他平臺（channel）需要接上的部分，把兩個地方搭起來。至於實際不同格式的翻譯屬於Bot Builder SDK該處理的一部分。
 			</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-05-bot-framework-with-ai-cognitive-service-2-what-is-bot-framework-and-its-architecture/a238a09a-ee30-4106-8ec1-175e92acb902.png" border="0" alt="02 Bot Framework.png"><br><figcaption>從結構的角度來説，兩個的分佈如下。有些細節的部分還沒介紹到，之後篇幅有細節在説明</figcaption></figure></section><section><h3 id="WizKMOutline_1530860378170624">Azure Bot Service是什么？</h3><p>
 			Bot Framework剛出現的時候，是有一個自己的獨立網頁用來設定以及注冊bot service。而bot service背後其實就是放在azure。那麽何不把他完整和azure整合呢？
 			</p><p>
@@ -73,7 +73,7 @@ PostDescription: "微軟既然提出了CaaP，那麽也會提出他的解決方�
 			</dt><dd>
 				微軟的CaaP解決方案，簡單來説，只要和chatbot開發有關都屬於他的範疇。
 			</dd><dt>
-				BotBuilder
+				Bot Builder SDK
 			</dt><dd>
 				協助開發chatbot的sdk。目前有V3和V4，V4在preview，支援更多語言以及使用.net core開發。
 			</dd><dt>
@@ -89,7 +89,7 @@ PostDescription: "微軟既然提出了CaaP，那麽也會提出他的解決方�
 			</dt><dd>
 				不同的消息來源，例如line，FB，slack都是channel
 			</dd></dl></section><section><h2 id="WizKMOutline_1530860378171182">結語</h2><p>
-		這篇對Microsoft Bot Framework的兩個重要工具做了非常high level的介紹，分別爲開發的BotBuilder以及hosting的Bot Service（Azure Bot Service）。
+		這篇對Microsoft Bot Framework的兩個重要工具做了非常high level的介紹，分別爲開發的Bot Builder SDK以及hosting的Bot Service（Azure Bot Service）。
 		</p><p>
 		這篇的内容可以先有個概念就好，知道接觸到實際開發在回來看的話可能會更加容易理解。
 		</p><p>

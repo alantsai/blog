@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][08]如何微調FormFlow讓使用上更流暢"
 Published: 2018-07-12 20:41
-Modified: 2018-07-12 20:41
+Modified: 2018-11-08 20:41
 Image: "/posts/2018/07/2018-07-12-bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience/d72fc894-3e34-4cff-979c-04e4f3649b0b.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -22,7 +22,7 @@ PostDescription: "上一篇介紹了如何使用FormFlow來讓chatbot透過交�
 	<section><h2 id="WizKMOutline_1531398922878603">如何微調FormFlow内容？</h2><p>
 		還記得以前學MVC的時候，做CRUD資料的部分都是搭配Entity Framework儲存在資料庫。那個時候，表單呈現的欄位也是用Model定義出來，如果欄位名稱要調整，那時候我們需要做什麽？
 		</p><p>
-		沒錯，那時候我們會用<em>DataAnnotation Attribute</em>來給我們的Model欄位提供一些資訊，在前臺的Helper產生欄位的時候就會使用這些資訊對產生内容做出微調。而BotBuilder是<em>一樣的概念</em>。
+		沒錯，那時候我們會用<em>DataAnnotation Attribute</em>來給我們的Model欄位提供一些資訊，在前臺的Helper產生欄位的時候就會使用這些資訊對產生内容做出微調。而Bot Builder SDK是<em>一樣的概念</em>。
 		</p><p>
 		還有另外一種微調方式是在把Model轉換成爲FormFlow的時候，那邊也可以做一些調整。
 		</p><p>
@@ -164,5 +164,5 @@ public class RoomReservation
 		</p><p>
 		是時候在回到我們之前的問題，邏輯全部都擠在了<code>RootDialog</code>裡面，那以後怎麽維護？我們的SOLID都去了哪裏？
 		</p><p>
-		BotBuilder考慮到了這個事情，因此有<code>IDialog</code>，下一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc">[09]使用IDialog來實現SoC</a>)將來看看怎麽拆分我們邏輯讓一切變得更加乾净并且更SOLID。
+		Bot Builder SDK考慮到了這個事情，因此有<code>IDialog</code>，下一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc">[09]使用IDialog來實現SoC</a>)將來看看怎麽拆分我們邏輯讓一切變得更加乾净并且更SOLID。
 		</p></section>

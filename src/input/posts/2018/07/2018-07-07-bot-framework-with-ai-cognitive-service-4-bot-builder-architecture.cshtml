@@ -1,28 +1,28 @@
-Title: "[chatbot + AI = 下一代操作模式][04]瞭解BotBuilder的組成"
+Title: "[chatbot + AI = 下一代操作模式][04]瞭解Bot Builder SDK的組成"
 Published: 2018-07-07 06:01
-Modified: 2018-07-26 12:51
+Modified: 2019-11-08 12:51
 Image: "/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/9415b647-b987-4c49-8aa7-747219e6cd1a.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
 PostDescription: "上一篇建立出了一個EchoBot并且瞭解如何使用bot emulator來進行測試
 在這一篇將會深入看一下建立出來的code，并且瞭解如何修改來調整chatbot的邏輯"
 ---
-<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/9415b647-b987-4c49-8aa7-747219e6cd1a.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][04]瞭解BotBuilder的架構.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
+<section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/9415b647-b987-4c49-8aa7-747219e6cd1a.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][04]瞭解Bot Builder SDK的架構.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot">[03]建立第一個chatbot - EchoBot</a>)透過使用Project Template建立出一個EchoBot出來，并且透過了bot emulator瞭解了如何和chatbot做測試。</p><p>
-		這篇將會深入一些，看看BotBuilder的組成以及一些比較重要的class。
+		這篇將會深入一些，看看Bot Builder SDK的組成以及一些比較重要的class。
 		</p></section>
 		<div class="bs-callout bs-callout-default">
 			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-04">alantsai-samples/mhat-hotelbot:blog/chapter-04</a>
 		</div>
 		<section>
-<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531024842070435" ;="" style="font-size: 15px; line-height: 1.6;">BotBuilder的運作方式</a><br></li><li><a href="#WizKMOutline_1531024842070420" ;="" style="font-size: 15px; line-height: 1.6;">MessageController.cs</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531024842071748" ;="" style="font-size: 15px; line-height: 1.6;">Activity</a><br></li></ul><li><a href="#WizKMOutline_1531024842071275" ;="" style="font-size: 15px; line-height: 1.6;">RootDialog.cs</a><br></li><li><a href="#WizKMOutline_1531024842071506" ;="" style="font-size: 15px; line-height: 1.6;">調整chatbot</a><br></li><li><a href="#WizKMOutline_1531024842071863" ;="" style="font-size: 15px; line-height: 1.6;">這篇幾個重要Keyword總結</a><br></li><li><a href="#WizKMOutline_1531024842071795" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1531024842070435" ;="" style="font-size: 15px; line-height: 1.6;">Bot Builder SDK的運作方式</a><br></li><li><a href="#WizKMOutline_1531024842070420" ;="" style="font-size: 15px; line-height: 1.6;">MessageController.cs</a><br></li><ul style="MARGIN: 0px 0px 0px 30px"><li><a href="#WizKMOutline_1531024842071748" ;="" style="font-size: 15px; line-height: 1.6;">Activity</a><br></li></ul><li><a href="#WizKMOutline_1531024842071275" ;="" style="font-size: 15px; line-height: 1.6;">RootDialog.cs</a><br></li><li><a href="#WizKMOutline_1531024842071506" ;="" style="font-size: 15px; line-height: 1.6;">調整chatbot</a><br></li><li><a href="#WizKMOutline_1531024842071863" ;="" style="font-size: 15px; line-height: 1.6;">這篇幾個重要Keyword總結</a><br></li><li><a href="#WizKMOutline_1531024842071795" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
 		</section>
-		<!--more--><section><h2 id="WizKMOutline_1531024842070435">BotBuilder的運作方式</h2><p>
+		<!--more--><section><h2 id="WizKMOutline_1531024842070435">Bot Builder SDK的運作方式</h2><p>
 		首先看一下上一篇建立出來的的VS 專案内容。裡面東西不復雜，可以看到只有幾個資料夾以及class：
-		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/e48e4d81-b2c3-474b-948b-12604055ac60.png" border="0" alt="devenv_2018-07-08_11-28-39.png"><br><figcaption>最基本的BotBuilder專案結構</figcaption></figure><p></p><p>
+		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/e48e4d81-b2c3-474b-948b-12604055ac60.png" border="0" alt="devenv_2018-07-08_11-28-39.png"><br><figcaption>最基本的Bot Builder SDK專案結構</figcaption></figure><p></p><p>
 		我們可以看一下：
 		</p><ol><li>MessagesController.cs</li><li>RootDialog.cs</li></ol><p></p></section><section><h2 id="WizKMOutline_1531024842070420">MessageController.cs</h2><p>
-		之前有提到過，BotBuilder是以Asp .Net Web Api為基地，因此一定會有一個Controller作爲進入點。而這個class就是我們整個服務的進入點。
+		之前有提到過，Bot Builder SDK是以Asp .Net Web Api為基地，因此一定會有一個Controller作爲進入點。而這個class就是我們整個服務的進入點。
 		</p><p>
 		往裏面看可以看到只有一個Post方法，并且接的參數形態是<code>Activity</code>。然後依照不同的<em>ActivityType</em>，有不同的處理：
 </p><pre><code class="language-csharp">public async Task<httpresponsemessage> Post([FromBody]Activity activity)
@@ -44,9 +44,9 @@ PostDescription: "上一篇建立出了一個EchoBot并且瞭解如何使用bot 
 		</p><section><h3 id="WizKMOutline_1531024842071748">Activity</h3><p>
 				還記得之前的一張圖嗎：
 				</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/3d2ce310-ff24-4f29-9ab0-d01e38cab2a9.png" border="0" alt="a238a09a-ee30-4106-8ec1-175e92acb902.png"><br><figcaption>整個Bot Framework的結構</figcaption></figure><p></p><p>
-				我們提到過，爲了支援不同平臺，BotBuilder會用一個統一格式作爲最後的資料結構，而Activity或者更抽象的說IActivity就是這麽一個統一的形態。
+				我們提到過，爲了支援不同平臺，Bot Builder SDK會用一個統一格式作爲最後的資料結構，而Activity或者更抽象的說IActivity就是這麽一個統一的形態。
 				</p><p>
-				因此BotBuilder每一次收到的都是一個Activity，而Activity又有分形態：
+				因此Bot Builder SDK每一次收到的都是一個Activity，而Activity又有分形態：
 				</p><dl><dt>
 						ActivityTypes.Message
 					</dt><dd>
@@ -72,7 +72,7 @@ PostDescription: "上一篇建立出了一個EchoBot并且瞭解如何使用bot 
 				</p><p>
 				最基本的文字類型，可以透過<code>Text</code>這個Property取得值。其他的訊息類型後面有遇到在介紹。
 				</p></section></section><section><h2 id="WizKMOutline_1531024842071275">RootDialog.cs</h2><p>
-			Dialog是BotBuilder裡面的一個概念，可以簡單理解成爲：<em>專門處理一件事情的最小單位</em>，所以例如我的chatbot有查訂單和查旅館兩個功能，那麽就有2個dialog分別處理對應事情。
+			Dialog是Bot Builder SDK裡面的一個概念，可以簡單理解成爲：<em>專門處理一件事情的最小單位</em>，所以例如我的chatbot有查訂單和查旅館兩個功能，那麽就有2個dialog分別處理對應事情。
 			</p><p>
 			Dialog在後面拆分邏輯的時候會有更加詳細的介紹，以目前來説可以理解為RootDialog是我們的文字訊息處理的主要邏輯。
 			</p><p>
@@ -132,7 +132,7 @@ private async Task MessageReceivedAsync(IDialogContext context, IAwaitable&lt;ob
 }</code></pre><figure><img class="img-responsive" src="/posts/2018/07/2018-07-07-bot-framework-with-ai-cognitive-service-4-bot-builder-architecture/a4d18055-a6cf-4e1a-bd9d-0a033696a5a0.png" border="0" alt="Bot Framework Emulator_2018-07-08_12-27-38.png"><br><figcaption>測試結果</figcaption></figure></section><section><h2 id="WizKMOutline_1531024842071863">這篇幾個重要Keyword總結</h2><dl><dt>
 					IActivity
 				</dt><dd>
-					整個BotBuilder接受以及傳送的一個共用的資料形態。
+					整個Bot Builder SDK接受以及傳送的一個共用的資料形態。
 				</dd><dt>
 					IDialog
 				</dt><dd>
@@ -142,7 +142,7 @@ private async Task MessageReceivedAsync(IDialogContext context, IAwaitable&lt;ob
 				</dt><dd>
 					處理Chatbot上下文以及流程的物件。
 				</dd></dl></section><section><h2 id="WizKMOutline_1531024842071795">結語</h2><p>
-			這篇對於整個BotBuilder的運作以及幾個重要物件做了介紹，并且透過一個小修改調整了chatbot的邏輯。
+			這篇對於整個Bot Builder SDK的運作以及幾個重要物件做了介紹，并且透過一個小修改調整了chatbot的邏輯。
 			</p><p>
 			可是接下來有個很重要的問題是，我如果要記錄和使用者有關的訊息要怎麽存？
 			</p><p>

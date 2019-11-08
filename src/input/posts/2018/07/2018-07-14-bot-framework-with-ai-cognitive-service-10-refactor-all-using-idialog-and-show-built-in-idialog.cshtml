@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][10]用IDialog全部重構 - 階段性總結"
 Published: 2018-07-14 23:05
-Modified: 2018-07-14 23:05
+Modified: 2019-11-08 23:05
 Image: "/posts/2018/07/2018-07-14-bot-framework-with-ai-cognitive-service-10-refactor-all-using-idialog-and-show-built-in-idialog/64fd12d8-96bf-4344-bcc1-898ae00dda20.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "refactor"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -9,7 +9,7 @@ PostDescription: "這篇我們將把剩下的邏輯全部重構為Dialog，
 ---
 <section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-14-bot-framework-with-ai-cognitive-service-10-refactor-all-using-idialog-and-show-built-in-idialog/64fd12d8-96bf-4344-bcc1-898ae00dda20.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][10]用IDialog全部重構 - 階段性總結.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc">[09]使用IDialog來實現SoC</a>)介紹了怎麽使用</span><code >IDialog</code>來拆分邏輯，并且一步一步的用取得名字的邏輯拆成為一個<code>NameDialog</code>。</p><p>
-		在這一篇我們將會把所有的邏輯重構成爲IDialog，并且對於目前學習到的BotBuilder做一個階段性的總結。
+		在這一篇我們將會把所有的邏輯重構成爲IDialog，并且對於目前學習到的Bot Builder SDK做一個階段性的總結。
 		</p><div class="bs-callout bs-callout-default">
 			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-10">alantsai-samples/mhat-hotelbot:blog/chapter-10</a></div></section>
 	<section>
@@ -295,13 +295,13 @@ private async Task ConfirmReservation(IDialogContext context, IAwaitable&lt;bool
 </p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-14-bot-framework-with-ai-cognitive-service-10-refactor-all-using-idialog-and-show-built-in-idialog/a6eea89e-4c14-456d-ba0a-3d5557ac312c.png" border="0" alt="Bot Framework Emulator_2018-07-14_23-54-36.png"><br><figcaption>最後確認畫面</figcaption></figure><p></p><p>
 由這個範例看出，我們可以透過重構IDialog讓我們邏輯能夠重複使用，這樣就不用一直寫這些utility功能。
 </p></section><section><h2 id="WizKMOutline_1531584868556276">結語</h2><p>
-		到目前爲止，我們已經把整個BotBuilder的主要component瞭解的7788了。我們從訊息格式瞭解起，知道用<code>Activity</code>作爲統一的格式，然後透過Rich Card的輸出内容讓我們可以讓輸出變得更加漂亮。
+		到目前爲止，我們已經把整個Bot Builder SDK的主要component瞭解的7788了。我們從訊息格式瞭解起，知道用<code>Activity</code>作爲統一的格式，然後透過Rich Card的輸出内容讓我們可以讓輸出變得更加漂亮。
 		</p><p>
 		再來我們看了FormFlow，用它來快速建立表單輸入的方式。
 		</p><p>
 		最後介紹了用Dialog來拆分邏輯，并且介紹了其中一個内建的Dialog，<code>PromptDialog</code>。
 		</p><p>
-		BotBuilder還有一些細節，例如透過Scoreable來處理一些特殊關鍵字，不過這個以後有機會在介紹。
+		Bot Builder SDK還有一些細節，例如透過Scoreable來處理一些特殊關鍵字，不過這個以後有機會在介紹。
 		</p><p>
 		對於開發一個Chatbot目前的知識量已經足夠了，并且我們透過這些知識做出了一個訂房的chatbot，接下來我們就可以考慮把他散佈出去讓大家來給我們一些feedback。
 		</p><p>

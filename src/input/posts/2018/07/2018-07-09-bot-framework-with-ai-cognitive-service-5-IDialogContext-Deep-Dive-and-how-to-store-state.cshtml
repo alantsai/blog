@@ -1,15 +1,15 @@
 Title: "[chatbot + AI = 下一代操作模式][05]深入IDialogContext - 處理上下文、對外的聯係和state"
 Published: 2018-07-09 06:01
-Modified: 2018-07-09 06:01
+Modified: 2019-11-08 06:01
 Image: "/posts/2018/07/2018-07-09-bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state/4ff79c80-eedf-46d3-b363-632b5471ee52.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
-PostDescription: "上一篇把EchoBot的程式碼看了一遍，并且把BotBuilder重要的幾個物件都介紹了
+PostDescription: "上一篇把EchoBot的程式碼看了一遍，并且把Bot Builder SDK重要的幾個物件都介紹了
 接下來會在更深入一些。
 這篇將會介紹IDialogContext的3個作用。其中2個在上篇介紹過了，這篇將會著重在state管理這塊"
 ---
 <section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-09-bot-framework-with-ai-cognitive-service-5-IDialogContext-Deep-Dive-and-how-to-store-state/4ff79c80-eedf-46d3-b363-632b5471ee52.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][05]深入IDialogContext - 處理上下文以及對外的聯係.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
-		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-4-bot-builder-architecture">[04]瞭解BotBuilder的組成</a>)完整看了EchoBot的程式碼組成，并且瞭解了BotBuilder一些常見的物件。并且依照所學調整了部分程式碼。</p><p>
+		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-4-bot-builder-architecture">[04]瞭解Bot Builder SDK的組成</a>)完整看了EchoBot的程式碼組成，并且瞭解了Bot Builder SDK一些常見的物件。并且依照所學調整了部分程式碼。</p><p>
 		這一篇將會聚焦在其中一個管理上下文以及對來連綫的物件<code>IDialogContext</code>。
 		</p><div class="bs-callout bs-callout-default">
 			這篇的程式碼github頁面是<a href="https://github.com/alantsai-samples/mhat-hotelbot/tree/blog/chapter-05">alantsai-samples/mhat-hotelbot:blog/chapter-05</a></div></section>

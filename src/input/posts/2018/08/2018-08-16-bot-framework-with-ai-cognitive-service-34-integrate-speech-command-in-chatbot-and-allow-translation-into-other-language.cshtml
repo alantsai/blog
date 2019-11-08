@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][34]賦予Chatbot用語音下指令以及翻譯的功能"
 Published: 2018-08-16 23:10
-Modified: 2018-08-16 23:10
+Modified: 2019-11-08 23:10
 Image: "/posts/2018/08/2018-08-16-bot-framework-with-ai-cognitive-service-34-integrate-speech-command-in-chatbot-and-allow-translation-into-other-language/1aea1117-f82b-47ef-97fc-866df779573f.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "azure", "cognitive service", "ai", "speech-service", "bot framework", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -28,7 +28,7 @@ PostDescription: "上篇看完了如何在C# Console用Translator Speech Api
 			</p><p>
 			詳細的程式碼就不發在部落格上面了，詳細請看
 			：<a href="https://github.com/alantsai-samples/mhat-hotelbot/blob/blog/chapter-34/src/MHAT.HotelBot/Services/TranslatorSpeechService.cs">mhat-hotelbot/src/MHAT.HotelBot/Services/TranslatorSpeechService.cs</a></p></section><section><h3 id="WizKMOutline_1534432173655862">建立Dialog處理語音邏輯</h3><p>
-			接下來要建立一個Dialog叫做<code>SpeechTranslationDialog</code>，這個Dialog的主要目的是把BotBuilder得到的内容做處理，然後呼叫<code>TranslatorSpeechService</code>做語音轉文字和翻譯的處理。
+			接下來要建立一個Dialog叫做<code>SpeechTranslationDialog</code>，這個Dialog的主要目的是把Bot Builder SDK得到的内容做處理，然後呼叫<code>TranslatorSpeechService</code>做語音轉文字和翻譯的處理。
 			</p><p>
 			這邊要注意一下，一般來説模擬器可以直接發語音做測試，但是可能是我電腦問題，兩個版本的模擬器都無法使用語音，因此我用了一個自定的格式，這個内容格式是：<code>media@@{語音檔案路徑}</code>。
 			</p><p>

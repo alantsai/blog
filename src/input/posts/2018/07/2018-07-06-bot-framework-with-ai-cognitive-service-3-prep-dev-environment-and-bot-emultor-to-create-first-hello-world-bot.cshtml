@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][03]建立第一個chatbot - EchoBot"
 Published: 2018-07-06 06:01
-Modified: 2019-04-07 16:01
+Modified: 2019-11-07 16:01
 Image: "/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/ed84f038-299e-4a36-8e7b-6602b64369ad.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -48,23 +48,23 @@ PostDescription: "瞭解了Bot Framework之後，要怎麽開始開發呢？
 			</dt><dd>
 				如果還沒有Visual Studio，可以去下載一個community版本，如果需要離綫安裝可以參考我之前寫過的一篇
 				<a href="/posts/2017/03/visualstudio2017-offline-install">建立離線安裝(Offline Install)包</a></dd><dt>
-				BotBuilder的Project Template
+				Bot Builder SDK的Project Template
 			</dt><dd><p>
-					<del>可以從Visual Studio Marketplace下載到<a href="https://marketplace.visualstudio.com/items?itemName=BotBuilder.BotBuilderV3">Bot Builder Template for Visual Studio</a></del>
+					<del>可以從Visual Studio Marketplace下載到<a href="https://marketplace.visualstudio.com/items?itemName=BotBuilder.BotBuilderV3">Bot Builder SDK Template for Visual Studio</a></del>
 					</p>
 					<p>
-					最近V3的Template VSIX已經從Marketplace下架，不過還是可以從github網站下載的到：<a href="https://github.com/Microsoft/BotBuilder-V3/raw/master/CSharp/Generator/BotBuilderVSIX.vsix">直接下載</a>，<a href="https://github.com/Microsoft/BotBuilder-V3/tree/master/CSharp/Generator">Github Repo</a>
+					最近V3的Template VSIX已經從Marketplace下架，不過還是可以從github網站下載的到：<a href="https://github.com/Microsoft/Bot Builder SDK-V3/raw/master/CSharp/Generator/Bot Builder SDKVSIX.vsix">直接下載</a>，<a href="https://github.com/Microsoft/Bot Builder SDK-V3/tree/master/CSharp/Generator">Github Repo</a>
 					</p>
 					<p>
 					下載下來是一個vsix檔案，只需要點兩下安裝即可。
 				</p><div class="bs-callout bs-callout-info">
 					題外話，這個vsix是最近才出來的，以前還需要自己手動下載zip template檔案然後放到特定資料夾，對製作template有興趣可以看看我之前另外一個系列：<a href="/tags/%E3%80%8C%E6%89%93%E9%80%A0%E8%87%AA%E5%B7%B1%E7%9A%84template-%E5%BB%BA%E7%AB%8B%E4%B8%80%E8%87%B4%E6%80%A7%E7%A8%8B%E5%BC%8F%E7%A2%BC%E3%80%8D">「打造自己的template-建立一致性程式碼」</a></div></dd></dl><p></p><p>
-		兩個工具都准備好了之後，就可以把Visual Studio啓動起來，然後準備開一個EchoBot的專案：<code>Visual C# -&gt; Bot Framework -&gt; Bot Builder Echo Bot</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/49c6b770-c380-4c95-95c0-fcf95b50baf7.png" border="0" alt=""><br><figcaption>建立一個echo bot的template</figcaption></figure><p></p><p>
+		兩個工具都准備好了之後，就可以把Visual Studio啓動起來，然後準備開一個EchoBot的專案：<code>Visual C# -&gt; Bot Framework -&gt; Bot Builder SDK Echo Bot</code></p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/49c6b770-c380-4c95-95c0-fcf95b50baf7.png" border="0" alt=""><br><figcaption>建立一個echo bot的template</figcaption></figure><p></p><p>
 		建立出來了之後，直接透過<kbd>Ctrl + F5</kbd>把網站啓動起來：
 		</p><figure><img class="img-responsive" src="/posts/2018/07/2018-07-06-bot-framework-with-ai-cognitive-service-3-prep-dev-environment-and-bot-emultor-to-create-first-hello-world-bot/931ee81a-926a-4800-adff-7a068cb356c1.png" border="0" alt="ApplicationFrameHost_2018-07-07_17-03-01.png"><br><figcaption>啓動看到的畫面</figcaption></figure><p></p><p>
 		之前有提過底層是Asp .Net Web Api，那麽我們要用REST client例如Postman來和bot溝通嗎？可以使用Postman但是要自己組合那些json内容非常的累，微軟也知道所以做了一個工具叫做Bot Emulator讓我們和bot溝通變得容易。
 		</p></section><section><h2 id="WizKMOutline_1530956993401930">用bot emulator測試bot</h2><p>
-		Bot Emulator和BotBuilder一樣是open source的專案<a href="https://github.com/Microsoft/BotFramework-Emulator/releases">Microsoft/BotFramewokr-Emulator</a>，然後也一樣有兩個版本V3以及V4.
+		Bot Emulator和Bot Builder SDK一樣是open source的專案<a href="https://github.com/Microsoft/BotFramework-Emulator/releases">Microsoft/BotFramewokr-Emulator</a>，然後也一樣有兩個版本V3以及V4.
 		</p><p>
 		V3和V4可以同時存在，因此可以兩個都裝。V3和V4各有優缺點，我兩個都會介紹一下，一般來説主要用V4，但是測試一些功能的時候會需要V3。
 		</p><p>
@@ -97,5 +97,5 @@ PostDescription: "瞭解了Bot Framework之後，要怎麽開始開發呢？
 		</p><p>
 		透過這一篇大家對於開發的流程應該有個概念，用Visual Studio改code，然後用bot emulator做測試。
 		</p><p>
-		接下來的問題是，怎麽改code呢？botbuilder是怎麽運作的呢？我們下一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-4-bot-builder-architecture">[04]瞭解BotBuilder的組成</a> )在介紹。
+		接下來的問題是，怎麽改code呢？Bot Builder SDK是怎麽運作的呢？我們下一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-4-bot-builder-architecture">[04]瞭解Bot Builder SDK的組成</a> )在介紹。
 		</p></section>

@@ -1,6 +1,6 @@
 Title: "[chatbot + AI = 下一代操作模式][09]使用IDialog來實現SoC"
 Published: 2018-07-13 07:05
-Modified: 2018-07-13 07:05
+Modified: 2019-11-08 07:05
 Image: "/posts/2018/07/2018-07-13-bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc/d10f4aa9-bfc1-4ce0-a868-44b89ad1d1ca.jpg"
 Tags: ["「chatbot + AI = 下一代操作模式」", "bot framework", "chatbot", "refactor"]
 Series: ["「chatbot + AI = 下一代操作模式」"]
@@ -9,7 +9,7 @@ PostDescription: "chatbot會動之後就要來考慮程式碼品質的問題啦
 ---
 <section><figure><img class="img-responsive" src="/posts/2018/07/2018-07-13-bot-framework-with-ai-cognitive-service-9-refactor-using-idialog-for-better-soc/d10f4aa9-bfc1-4ce0-a868-44b89ad1d1ca.jpg" border="0" alt="[chatbot + AI = 下一代操作模式][09]使用IDialog來實現SoC.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/&nbsp;</figcaption></figure></section><section><p>
 		在上一篇(<a href="/posts/2018/07/bot-framework-with-ai-cognitive-service-8-tweak-formflow-to-provide-better-user-experience">[08]如何微調FormFlow讓使用上更流暢</a>)介紹完FormFlow之後，我們需要回來看一下目前最大的問題，也就是程式碼都寫在一隻<code style="font-size: 15px; line-height: 1.6;">RootDialog</code><span style="font-size: 15px; line-height: 1.6;">裡面。</span></p><p>
-		BotBuilder有考慮到這件事情，因此内建用<code>IDialog</code>來解決這個問題。
+		Bot Builder SDK有考慮到這件事情，因此内建用<code>IDialog</code>來解決這個問題。
 		</p><p>
 		這篇來看看<code>IDialog</code>怎麽做到SoC (Seperation of Concern)。
 		</p>

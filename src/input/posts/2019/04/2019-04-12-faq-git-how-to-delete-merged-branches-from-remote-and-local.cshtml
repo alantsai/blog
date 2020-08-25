@@ -17,6 +17,40 @@ PostDescription: "git的分支(branch)功能完全是殺手鐧就像多重影分
 <a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1555073509012268" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1555073509012469" ;="" style="font-size: 15px; line-height: 1.6;">解決方式 - TL;DR</a><br></li><li><a href="#WizKMOutline_1555073509013766" ;="" style="font-size: 15px; line-height: 1.6;">指令分解</a><br></li><ul><li><a href="#WizKMOutline_1555073509013882" ;="" style="font-size: 15px; line-height: 1.6;">把local已經合并的分支砍掉指令説明</a></li><li><a href="#WizKMOutline_1555073509013191" ;="" style="font-size: 15px; line-height: 1.6;">遠端指令之當遠端分支已經合并並且刪除</a></li><li><a href="#WizKMOutline_1555073509013259" ;="" style="font-size: 15px; line-height: 1.6;">遠端指令之當遠端分支已經合并但是沒有被刪除</a></li></ul><li><a href="#WizKMOutline_1555073509013528" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
 		</section>
 		<!--more-->
+		<section style="display: none;">
+			<img class="img-responsive ss-image" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/37471991-b59f-43b3-ba58-05e94c2d605e.png" border="0" alt="3 個類型未清理的分支呈現的樣子">
+			<div class="summarySnippet">
+				<h3>如何快速清理已經合併的遠端（remote)）以及本地（local）git 分支</h3>
+				<div class="ss-content">
+				<p>
+					有三種情況的分支是已經合併應該要被清理，但是還沒
+					<ol>
+						<li>當分支存在遠端已經合并並且被砍掉 - 這種情況是當在遠端裡面的分支被砍掉，由於不是從你的local發起，因此<em>local還會殘留</em>這些已經被合并的分支。</li>
+						<li>當分支在遠端已經合并，但是還沒砍掉  - 有可能有些已經push到遠端的分支<em>已經被合并了</em>，但是做合并的人忘記把<em>分支刪掉</em>。</li>
+						<li>當local的分支已經合并但是忘記刪掉 - 有些分支是自己local建立的，並且已經合并了。這個時候如果忘記砍掉可能就會殘留在log裡面。</li>
+					</ol>
+				</p>
+				<p>
+					針對每個處理方式可以執行如下：
+					<ol>
+						<li>
+	<pre><code class="language-powershell">git pull --prune
+	git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></pre></li>
+						<li>
+	<pre><code class="language-powershell">git push origin --delete $(git branch -r --merged | Select-String "origin/HEAD", "origin/master", "origin/develop" -NotMatch | %{$_.ToString().Trim().Replace("origin/", "")})
+	git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></pre>
+						</li>
+						<li>
+	<pre><code class="language-powershell">git branch -d $(git branch --merged | Select-String "master", "develop" -NotMatch | %{$_.ToString().Trim()})</code></pre>
+						</li>
+					</ol>
+				</p>
+				</div>
+				<h4 class="ss-version">適用於：Windows 使用 Powershell</h4>
+				<meta name = "ss-Language" content = "Chinese">
+				<meta name="ss-queries" content = "git 清理分支,git 刪除合併的本地以及遠端的分支,刪除已經合併的分支,整理 git 分支">
+			</div>
+		</section>
 		<section><h2 id="WizKMOutline_1555073509012268">問題描述</h2><p>
 		由於git屬於分散式的版控，因此如果有push到遠端(remote)的分支，在遠端以及local同時都會有這個分支。
 		</p><p>
@@ -37,7 +71,7 @@ PostDescription: "git的分支(branch)功能完全是殺手鐧就像多重影分
 				有些分支是自己local建立的，並且已經合并了。這個時候如果忘記砍掉可能就會殘留在log裡面。
 			</dd></dl><p>
 		下圖是上面提到的三個情況的發生情景圖，左邊是遠端的repo branch (azure DevOps)，右邊則是local的repo (TortioseGit)
-		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/37471991-b59f-43b3-ba58-05e94c2d605e.png" border="0" alt="TortoiseGitProc_2019-04-12_06-42-00.png"><br><figcaption>情景情況圖</figcaption></figure><p>
+		</p><figure><img class="img-responsive" src="/posts/2019/04/2019-04-12-faq-git-how-to-delete-merged-branches-from-remote-and-local/37471991-b59f-43b3-ba58-05e94c2d605e.png" border="0" alt="3 個類型未清理的分支呈現的樣子"><br><figcaption>情景情況圖</figcaption></figure><p>
 		針對這3種情況怎麽快速清理這些分支呢？
 		</p></section><section><h2 id="WizKMOutline_1555073509012469">解決方式 - TL;DR</h2><p>
 		這邊針對每一個情況的做法快速説明：

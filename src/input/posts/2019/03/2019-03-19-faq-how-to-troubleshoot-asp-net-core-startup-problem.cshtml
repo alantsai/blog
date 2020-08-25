@@ -20,11 +20,45 @@ PostDescription: "ASP .NET Core網站部署到正式機器網站起不來怎麽�
 		<section>
 <a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1553005376590728" ;="" style="font-size: 15px; line-height: 1.6;">問題描述</a><br></li><li><a href="#WizKMOutline_1553005376590573" ;="" style="font-size: 15px; line-height: 1.6;">解決方式 - TL;DR</a><br></li><li><a href="#WizKMOutline_1553005376591895" ;="" style="font-size: 15px; line-height: 1.6;">重現問題</a><br></li><li><a href="#WizKMOutline_1553005376591187" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
 		</section>
-		<!--more--><section><h2 id="WizKMOutline_1553005376590728">問題描述</h2><p>
+		<!--more-->
+		<section style="display: none;">
+			<div class="summarySnippet">
+				<img class="img-responsive ss-image" src="https://d33wubrfki0l68.cloudfront.net/4d10df89a8b329b4117206a01b15d1234358bb08/1d47e/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/90f61ac7-8cd8-4934-b7e2-89d4b64406c8.png" border="0" alt="ASP .NET Core 啟動出錯：An error occurred while starting the application">
+				<img class="img-responsive ss-image" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/900d05aa-532b-4b64-b0c1-9875573a90b7.png" border="0" alt="Azure 設定值">
+				<img class="img-responsive ss-image" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/51730dcc-6570-4afc-abbd-174b8f241b2d.png" border="0" alt="看到完整的 ASP .NET Core 啟動錯誤">
+				<h3>如何故障排除 ASP.NET Core 網站啟動失敗的訊息</h3>
+				<div class="ss-content">
+				<p>
+					ASP .NET Core 部署上去之後出現錯誤但是看不到訊息怎麼處理？只顯示：<code>An error occurred while starting the application</code>
+					
+				</p>
+				<p>
+					可以嘗試三個方法：
+					<ol><li>切換環境為開發環境：設定<code>ASPNETCORE_ENVIRONMENT</code>為<code>Development</code></li><li>開啓詳細錯誤訊息：設定<code>ASPNETCORE_DETAILEDERRORS</code>為<code>true</code></li><li>
+				如果網站是host在IIS的話，那麽可以在<code>web.config</code>加入
+<pre><code class="language-xml">
+&lt;system.webServer&gt;
+  &lt;handlers&gt;
+    &lt;add name="aspNetCore" path="*" verb="*" modules="AspNetCoreModule" resourceType="Unspecified" /&gt;
+  &lt;/handlers&gt;
+  &lt;aspNetCore processPath="dotnet" arguments=".\codes.dll"
+              stdoutLogEnabled="true" stdoutLogFile=".\logs\stdoutput" /&gt;
+&lt;/system.webServer&gt;
+</code></pre><div class="bs-callout bs-callout-warning">
+	特別注意，<code>stoutLogFile</code>的資料夾要<em>存在</em>，不存在的話不會有任何log記錄下來。再來是要記得找到問題之後這個要拿掉。
+</div></li></ol>
+				</p>
+				</div>
+				<h4 class="ss-version">適用於：ASP .NET Core</h4>
+				<meta name = "ss-Language" content = "Chinese">
+				<meta name="ss-queries" content = "ASP .NET COre 啟動失敗的實際錯誤訊息,如何看 ASP .NET Core 錯誤訊息,如何取得啟動失敗的詳細錯誤訊息">
+			</div>
+		</section>
+		<section><h2 id="WizKMOutline_1553005376590728">問題描述</h2><p>
 		在實際看到解法之前，先來看看看到的問題長什麽樣子。
 		</p><p>
 		當把網站實際執行的時候，看到<em>An error occurred while starting the application</em>就是這篇想要解決的問題。
-		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/90f61ac7-8cd8-4934-b7e2-89d4b64406c8.png" border="0" alt="chrome_2019-03-19_21-52-45.png"><br><figcaption>啟動錯誤的截圖</figcaption></figure></section><section><h2 id="WizKMOutline_1553005376590573">解決方式 - TL;DR</h2><p>
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/90f61ac7-8cd8-4934-b7e2-89d4b64406c8.png" border="0" alt="ASP .NET Core 啟動出錯：An error occurred while starting the application"><br><figcaption>啟動錯誤的截圖</figcaption></figure></section><section><h2 id="WizKMOutline_1553005376590573">解決方式 - TL;DR</h2><p>
 		這類問題最大的麻煩是：<strong>看不到實際的問題是什麽</strong>。
 		</p><p>
 		因此解決方式也很簡單，只需要讓實際的錯誤訊息顯示出來即可。
@@ -50,13 +84,13 @@ PostDescription: "ASP .NET Core網站部署到正式機器網站起不來怎麽�
 		第三種除非沒有任何解決方案，要不然太麻煩。
 		</p><p>
 		如果今天是架設在Azure，然後想要透過方法二，那麽可以透過在<code>Application Settings</code>裡面做設定：
-		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/900d05aa-532b-4b64-b0c1-9875573a90b7.png" border="0" alt="chrome_2019-03-19_22-00-58.png"><br><figcaption>透過Application Setting</figcaption></figure><div class="bs-callout bs-callout-info">
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/900d05aa-532b-4b64-b0c1-9875573a90b7.png" border="0" alt="Azure 設定值"><br><figcaption>透過Application Setting</figcaption></figure><div class="bs-callout bs-callout-info">
 			記得儲存完要重啓，有時候儲存完就有效果，但是最肯定就是自己手動重啓。
 		</div><p></p><p>
 		如果今天是架設在其他地方，那麽只需要可以設定這個key和value到環境變數即可。
 		</p><p>
 		都設定完成了之後，在重新瀏覽網站將會看到完整的錯誤訊息，看到訊息應該就會修理了
-		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/51730dcc-6570-4afc-abbd-174b8f241b2d.png" border="0" alt="chrome_2019-03-19_22-03-56.png"><br><figcaption>詳細錯誤訊息樣子</figcaption></figure><p></p><p>
+		</p><figure><img class="img-responsive" src="/posts/2019/03/2019-03-19-faq-how-to-troubleshoot-asp-net-core-startup-problem/51730dcc-6570-4afc-abbd-174b8f241b2d.png" border="0" alt="看到完整的 ASP .NET Core 啟動錯誤"><br><figcaption>詳細錯誤訊息樣子</figcaption></figure><p></p><p>
 		如果想要模擬重現這個問題，可以往下看
 		</p></section><section><h2 id="WizKMOutline_1553005376591895">重現問題</h2><p>
 		這邊可以非常簡單模擬出這個問題，只需要：

@@ -1,0 +1,46 @@
+﻿Title: "[從 Microsoft Learn 學 Azure][07] 搞懂基本管理結構 - Subscription、Resource Group 以及 Region"
+Published: 2020-09-22 19:00
+Modified: 2020-09-22 19:00
+Image: "/posts/2020/09/2020-09-22-microsoft-learn-azure-07-describe-core-azure-architectural-components/d49a0f88-d589-4e69-9a8e-6e742ab3974e.jpg"
+Tags: ["「從 Microsoft Learn 學 Azure」", azure, "「教學影片」"]
+Series: ["「從 Microsoft Learn 學 Azure」", "「教學影片」"]
+PostDescription: "上篇看完了雲端概念之後
+這篇要來看看 Azure 的基本概念
+了解什麼是：Subscription、Management Group、Resource、Resource Group、Region 以及 Region Pair
+Module: Describe core Azure architectural components"
+---
+<section><figure><img class="img-responsive" src="/posts/2020/09/2020-09-22-microsoft-learn-azure-07-describe-core-azure-architectural-components/d49a0f88-d589-4e69-9a8e-6e742ab3974e.jpg" border="0" alt="[從 Microsoft Learn 學 Azure][07] 搞懂基本管理結構 - Subscription、Resource Group 以及 Region.jpg" name=""><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		在上一篇 (<a href="/posts/2020/09/microsoft-learn-azure-06-module-discuss-azure-fundamental-concepts" style="font-size: 15px; line-height: 1.6;">[從 MS Learn 學 Azure][06] 應用第一個 Module 學習到的內容 - Discuss Azure fundamental concepts</a><span style="font-size: 15px; line-height: 1.6;">) 把第一個 Module 的內容在次應用了一下，以 Case Study 情境列出了雲端運算 (cloud computing) 裡面的特色以及優劣之後。</span></p><p>
+		在這篇將會看看更靠近 Azure 入門時候會遇到的問題。
+		</p><p>
+		什麼是 Subscription、Management Group、Resource、Resource Group、Region 以及 Region Pair。
+		</p><div class="bs-callout bs-callout-info">
+				Module：<a href="https://pptto.alantsai.net/mslearn-03">Describe core Azure architectural components</a></div></section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1600779755862463" ;="" style="font-size: 15px; line-height: 1.6;">Module 重點</a><br></li><li><a href="#WizKMOutline_1600779755862246" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	<!--more-->
+	<section><h2 id="WizKMOutline_1600779755862463">Module 重點</h2><p>
+		使用任何雲端服務之前，一定會想要知道，那我的服務是怎麼算錢的。
+		</p><p>
+		所以，一開始先介紹整個組成 - Resource -&gt; Resource Group -&gt; Subscription。
+		</p><p>
+		一個 Azure Account 可以掛多個 Subscription，可以使用 Subscription 用來區隔不同環境（例如正式和測試），或者可以用作於控制權限。
+		</p><p>
+		如果 Subscription 太多不好管理，可以透過 Management Group，依照組織結構下去管理。
+		</p><p>
+		Resource 是 Azure 任何服務，可以把相關的放在同一個邏輯層叫做 Resource Group - 每一個 Resource 只會在一個 Resource Group。
+		</p><p>
+		有了 Resource Group 可以用來管控權限，看花多少錢，以及可以快速砍掉資源。
+		</p><p>
+		最後就提到了 Azure Region。
+		</p>
+		<div class="hidden-xs">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/uRyLg2aNRVg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+<div class="visible-xs">
+<iframe width="460" height="315" src="https://www.youtube.com/embed/uRyLg2aNRVg" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+		</section><section><h2 id="WizKMOutline_1600779755862246">結語</h2><p>
+		了解了整個基本概念之後，在下篇就要來實際建立一個服務。
+		</p><p>
+		這次會透過 Sandbox 建立一個 Web App，裡面裝好了 WordPress。
+		</p></section>

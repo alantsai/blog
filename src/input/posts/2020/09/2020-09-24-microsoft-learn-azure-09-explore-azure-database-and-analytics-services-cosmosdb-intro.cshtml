@@ -1,0 +1,54 @@
+﻿Title: "[09] NoSQL 存儲 - Azure Cosmos DB 介紹 | [從 Microsoft Learn 學 Azure]"
+Published: 2020-09-24 19:00
+Modified: 2020-09-24 19:00
+Image: "/posts/2020/09/2020-09-24-microsoft-learn-azure-09-explore-azure-database-and-analytics-services-cosmosdb-intro/294eb769-b5d9-471b-96d0-e0e6bff108fb.jpg"
+Tags: ["「從 Microsoft Learn 學 Azure」", azure, "「教學影片」"]
+Series: ["「從 Microsoft Learn 學 Azure」", "「教學影片」"]
+PostDescription: "看完了雲端基本概念以及 Azure 基礎的概念之後
+接下來看看最核心幾個部分的服務 - compute (運算)、storage (存儲)、network（網路）
+先從 storage 開始，看看 Azure Cosmos DB 這個 No SQL 快速高可用的服務
+這次 2020 Ignite 還多出了支援 Serverless 以及 Synapse Link
+來看看它能夠做什麼"
+---
+<section><figure><img class="img-responsive" src="/posts/2020/09/2020-09-24-microsoft-learn-azure-09-explore-azure-database-and-analytics-services-cosmosdb-intro/294eb769-b5d9-471b-96d0-e0e6bff108fb.jpg" border="0" alt="[從 Microsoft Learn 學 Azure][09] NoSQL 存儲 - Azure CosmosDB 介紹.jpg"><br><figcaption>圖片來源：https://pixabay.com/en/books-spine-colors-pastel-1099067/、https://www.freepik.com/free-photo/magnifying-glass-stock-market-graph-paper_3095564.htm</figcaption></figure></section><section><p>
+		在上一篇 (<a href="/posts/2020/09/microsoft-learn-azure-08-use-azure-sandbox-to-create-first-azure-service-wordpress-web-app">[08] 透過 Azure Sandbox 建立第一個 Azure 服務 - WordPress 網站 | [從 Microsoft Learn 學 Azure]</a>) 透過 Azure Marketplace 建立出一個 App Service 運行 WorodPress。</p><p>
+		在那個過程了解了實物上什麼是 Subscription、Resource、Resource Group 等 Azure 最基本的核心的概念。
+		</p><p>
+		完成了上面的 Module 之後，剛好完成了 Learning Path：<a href="https://pptto.alantsai.net/mslearn-az-900-learning-path-01">Azure Fundamentals part 1: Describe core Azure concepts</a>。
+		</p><p>
+		在接下來，將會開始進入下一個 Learning Path：<a href="https://pptto.alantsai.net/mslearn-az-900-learning-path-02">Azure Fundamentals part 2: Describe core Azure services</a></p><p>
+		在這個 Learning Path，將會看最核心的幾個服務：compute (運算)、storage (存儲)、network (網路)。
+		</p><p>
+		先從 storage 開始 - 看 No Sql 服務 Azure Cosmos DB。
+		</p><div class="bs-callout bs-callout-info">
+			Module：<a href="https://pptto.alantsai.net/mslearn-path2-01">Explore Azure database and analytics services</a></div></section>
+	<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1600946440336206" ;="" style="font-size: 15px; line-height: 1.6;">Module 重點</a><br></li><li><a href="#WizKMOutline_1600946440336400" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+	</section>
+	<!--more--><section><h2 id="WizKMOutline_1600946440336206">Module 重點</h2><p>
+		隨著 Big Data 的興起，No Sql 儲存方式越來越常見，不止因為他的設計本身就比較支援 horizontal scale，在大量資料的情境下非常的適合。
+		</p><p>
+		Azure Cosmos DB 是一個讓開發者<em>build highly responsive and highly available applications worldwide</em>。
+		</p><p>
+		這個如果轉換成數字：
+		</p><ol><li>可以提供 99.999% SLA 0 換句話說一個月不會 down 超過 <em>26秒</em></li><li>速度非常快 - 可以達到 99 百分位保證低於<em>10毫秒</em></li><li>支援 5 種模式 - 常見的 Open Source No Sql 資料結構都有支援（MongoDB、Cassandra 以及 Gremlin）</li></ol><p></p><p>
+		這張圖其實總結的非常好：
+		</p><figure><img class="img-responsive" src="/posts/2020/09/2020-09-24-microsoft-learn-azure-09-explore-azure-database-and-analytics-services-cosmosdb-intro/f53bbc84-f0f9-4e83-a320-a6515d21c7ce.jpg" border="0" alt=""><br><figcaption>Azure Cosmos DB 介紹</figcaption></figure><p></p><p>
+		在這次 2020 Ignite 也有發佈提到兩個新的功能：
+		</p><ol><li>支援 Serverless 模式 - 可以更 cost-effective，並且能夠針對突然大量流量的處理更加方便</li><li>支援 Azure Synapse Link - 可以執行 Synapse SQL 在 MogoDB 的資料</li></ol> 
+		更多內容可以參考：<a href="https://pptto.alantsai.net/2020ignite-cosmosdb">Ignite 2020: New serverless and analytics capabilities announced</a>
+			<div class="hidden-xs">
+<iframe width="560" height="315" src="https://www.youtube.com/embed/2IJAly-AWLM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+<div class="visible-xs">
+<iframe width="460" height="315" src="https://www.youtube.com/embed/2IJAly-AWLM" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+</div>
+		</section><section><h2 id="WizKMOutline_1600946440336400">結語</h2><p>
+		如果今天有 No Sql 資料結構的需求，那麼可以考慮直接用 Azure Cosmos DB 的 Core (SQL) 模式。
+		</p><p>
+		如果是搬遷，例如 MongoDB 或者 Cassandra，那麼只要資料搬遷上去之後，改連線字串就好了。
+		</p><p>
+		所以，Azure Cosmos DB 是一個很好用的武器。
+		</p><p>
+		不過，在重要資料上面，還是會需要用到 RDMS (關聯式資料庫)，因此下篇來看一下。
+		</p></section>

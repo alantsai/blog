@@ -1,6 +1,6 @@
 #tool nuget:?package=Wyam&version=2.1.3
 #addin nuget:?package=Cake.Wyam&version=2.1.3
-#addin "Cake.Npm"
+#addin nuget:?package=Cake.Npm&version=0.17.0
 
 var target = Argument("target", "Default");
 
@@ -52,7 +52,7 @@ Task("Deploy")
         // Zip($"{sourceDirectory}/output", "output.zip", $"{sourceDirectory}/output/**/*");
 
         // Install the Netlify CLI locally and then run the deploy command
-        NpmInstall("netlify-cli");
+        NpmInstall("netlify-cli@2.68.6");
         StartProcess(
             MakeAbsolute(File("./node_modules/.bin/netlify.cmd")), 
             $"deploy --dir {sourceDirectory}/output --site {site_name} --auth {token} --prod" );

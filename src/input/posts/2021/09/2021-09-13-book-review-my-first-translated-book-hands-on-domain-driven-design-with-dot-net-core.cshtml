@@ -1,0 +1,58 @@
+﻿Title: "人生的第一本翻譯書：領域驅動設計與 .NET Core：應用 DDD 原則，探索軟體核心複雜度 (Hands-On Domain-Driven Design with .NET Core) | 書評"
+Published: 2021-09-13 19:00
+Modified: 2021-09-13 19:00
+Image: "/posts/2021/09/2021-09-13-book-review-my-first-translated-book-hands-on-domain-driven-design-with-dot-net-core/3a5e08f5-42de-4198-800d-9581ceb860f3.jpg"
+Tags: ["ddd", "書評"]
+Series: ["書評"]
+PostDescription: "好久沒有寫文章啦 - 其實不是沒有，而是我跑去翻譯書啦。
+翻譯是一件滿辛苦的事情，加上我中文也不能算很好，所以也是有點戰戰兢兢的在翻譯。
+這本也被我拖了好久，本來今年初就要好了，不過很怕沒翻譯好，反復看，一直到現在上去了。
+如果想學 DDD 又是 .NET 開發者可別錯過了。
+雖然我已經盡力翻譯了，不過很怕還是很多沒做好，也歡迎大家有好的想法可以多多交流。
+
+我也可以自稱是「譯者」了 XD
+來看看簡單的書評吧。"
+---
+<section><figure><img class="img-responsive" src="/posts/2021/09/2021-09-13-book-review-my-first-translated-book-hands-on-domain-driven-design-with-dot-net-core/3a5e08f5-42de-4198-800d-9581ceb860f3.jpg" border="0" alt="IMG_20210913_203700.jpg"><br><figcaption>原文和翻譯文</figcaption></figure><p>
+		認識我的人都知道，其實我中文沒有太好，看我的文章最想做的應該是幫我改錯別字 XD。
+		</p><p>
+		不過雖然如此，我還是很喜歡幫忙翻譯。從當初 Visual Studio Code 的首批翻譯人員（滿有趣的是，那時候負責翻譯的人來台灣，和社群朋友聊到，才有人知道我有在做這件事，對方還因此邀請我 MVP Global Summit 可以去吃飯，但是我那時候根本不是微軟 MVP；他預設了是微軟 MVP 才會做這件事），到幫一些 Open Source 軟體提供中文化。
+		</p><p>
+		這次有機會翻譯書也是有大大在社群詢問有沒有人有興趣。說實話，當初我根本沒想過我會上，只是想說試試看，也是看看翻譯書有什麼不同，沒想到就上了。
+		</p><p>
+		上了只好認真做。我非常怕翻譯不好，不過盡了最大努力，也感謝編輯大大的協助，終於問世啦。現在也可以稱呼我為「譯者」啦 XD。
+		</p><p>
+		這篇主要不是在講關於成為譯者（或許未來有機會分享），這篇主要還是和大家介紹一下這本書。
+		</p></section>
+		<section>
+<a id="KMContentPageTopID" name="KMContentPageTopID"></a><div id="divKMOutline" style="border-style: groove none; margin: 10px 0px;"><ul style="margin:0px 0px 0px 20px"><li><a href="#WizKMOutline_1631537048103555" ;="" style="font-size: 15px; line-height: 1.6;">書籍資訊介紹</a><br></li><li><a href="#WizKMOutline_1631537048103373" ;="" style="font-size: 15px; line-height: 1.6;">從理論到實作</a><br></li><li><a href="#WizKMOutline_1631537048103863" ;="" style="font-size: 15px; line-height: 1.6;">到底這本書適不適合我？</a><br></li><li><a href="#WizKMOutline_1631537048103606" ;="" style="font-size: 15px; line-height: 1.6;">相關參考書籍</a><br></li><li><a href="#WizKMOutline_1631537048103697" ;="" style="font-size: 15px; line-height: 1.6;">結語</a><br></li></ul></div>
+		</section>
+		<!--more--><section><h2 id="WizKMOutline_1631537048103555">書籍資訊介紹</h2><p>
+		這本書今天在天瓏上架，可以參考下面的簡單介紹：
+		</p><div class="bs-callout bs-callout-info"><h4 id="WizKMOutline_1631537048103532">領域驅動設計與 .NET Core：應用 DDD 原則，探索軟體核心複雜度 (Hands-On Domain-Driven Design with .NET Core)</h4><ul><li>適合群眾：任何開發人員對於 DDD 有興趣，尤其是 .NET 開發者</li><li>網址：<a href="https://www.tenlong.com.tw/products/9789864348602">https://www.tenlong.com.tw/products/9789864348602</a></li><li>線上章節：第 13 章是免費章節，可以在博碩文化官網下載：<a href="https://www.drmaster.com.tw/Bookinfo.asp?BookID=MP12034">https://www.drmaster.com.tw/Bookinfo.asp?BookID=MP12034</a></li><li>範例程式碼：<a href="https://github.com/PacktPublishing/Hands-On-Domain-Driven-Design-with-.NET-Core">https://github.com/PacktPublishing/Hands-On-Domain-Driven-Design-with-.NET-Core</a></li></ul></div><p>
+		下面來看一下簡單的介紹。
+		</p></section><section><h2 id="WizKMOutline_1631537048103373">從理論到實作</h2><p>
+		相信大家一開始在開發軟體的時候，都是從以三層式架構（如果不是希望不是更糟糕的，不然要好好反省 XD）然後可能是以資料庫為導向出發，也就是常見的 Repository Pattern 做搭配。
+		</p><p>
+		可是，軟體世界變得越來越複雜了，慢慢的，我們從資料庫為導向開始更往程式碼走，這個時候 DDD 反而變得更加的適合。
+		</p><p>
+		這本書從為什麼需要 DDD 開始切入。並且說明了 DDD 裡面非常重要的概念「語言和情景」，然後帶著大家從需求開始，以一個刊登廣告的系統作為範例，從 Event Storming 開始介紹起。什麼是 Event Storming，怎麼把一個 Event Storming 主持的好，用它來推到整個產品的設計。
+		</p><p>
+		然後開始進入到實作。在這個過程中帶領大家理解，DDD 的重要觀念，例如 Bounded Context、Value Object、Domain Service、Aggreate、Project 等。這其中也有介紹了怎麼和 Repository Pattern 搭配，以及更進入到 CQRS 以及 Event Sourcing。
+		</p><p>
+		這本對於 .NET 開發者來說非常適合，是因為它是用 .NET Core 來作為範例，所以會更加了解可以怎麼使用。
+		</p></section><section><h2 id="WizKMOutline_1631537048103863">到底這本書適不適合我？</h2><p>
+		我覺的，如果您是工程師，那麼了解 DDD 是避免不了的，尤其是現在開發的軟體越來越複雜的情況下，傳統的三層式架構，然後 Repository 以資料庫為出發的方式會越來越沒辦法應對這個複雜的世界。（這並不是說 Repository Pattern 或者三層式架構不好，只是有些複雜情景可能不適合）。
+		</p><p>
+		所以，都要懂 DDD 是什麼，它想要怎麼解決這個問題。
+		</p><p>
+		如果已經有一點 DDD 概念的，其實可以直接從範例程式碼來看，看看最後的程式如何，或者從線上免費章節去了解書籍的感覺。
+		</p><p>
+		我相信這本書不會讓大家失望，如果有肯定是小弟我學藝不精導致 Orz。
+		</p></section><section><h2 id="WizKMOutline_1631537048103606">相關參考書籍</h2><p>
+		講到 DDD 一定繞不過去 DDD 之父的：《領域驅動設計：軟體核心複雜度的解決方法 (Domain-Driven Design: Tackling Complexity in the Heart of Software)》。
+		</p><p>
+		這本也是學習 DDD 必備的書籍，所以想要了解更多，可以參考：<a href="https://www.tenlong.com.tw/products/9789864343874">https://www.tenlong.com.tw/products/9789864343874</a></p></section><section><h2 id="WizKMOutline_1631537048103697">結語</h2><p>
+		這篇只是非常快速的介紹了一下這本書，每一個章節如果拿出來都是可以拆出非常多的內容，或許未來有機會在和大家介紹。
+		</p>
+		</section>

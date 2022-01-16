@@ -52,7 +52,7 @@ Task("Deploy")
         // Zip($"{sourceDirectory}/output", "output.zip", $"{sourceDirectory}/output/**/*");
 
         // Install the Netlify CLI locally and then run the deploy command
-        NpmInstall("netlify-cli@2.68.6");
+        NpmInstall("netlify-cli@2.68.8");
         StartProcess(
             MakeAbsolute(File("./node_modules/.bin/netlify.cmd")), 
             $"deploy --dir {sourceDirectory}/output --site {site_name} --auth {token} --prod" );

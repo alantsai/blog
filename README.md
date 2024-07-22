@@ -4,6 +4,8 @@
 
 ## 安裝 (install)
 
+由於底層用到 Waym，因此需要有 [.NET Core 2.1 Runtime](https://dotnet.microsoft.com/en-us/download/dotnet/2.1/runtime?cid=getdotnetcore&os=windows&arch=x64)
+
 ## 快速使用 (getting started)
 
 整個專案使用Cake作爲Build Script，因此在build、Deploy或者preview部落格都可以使用cake啓動。
